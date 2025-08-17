@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Setlist.fm Tracker",
+    "slug": "setlist-fm-tracker",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "scheme": "setlist-fm-tracker",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.setlistfm.tracker"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.setlistfm.tracker"
+    },
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}
