@@ -8,6 +8,7 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
+import Constants from 'expo-constants';
 import { dbOperations } from '../src/database/operations';
 import { SetlistApiService } from '../src/services/setlistApi';
 import { DataProcessor } from '../src/services/dataProcessor';
@@ -50,7 +51,7 @@ export default function DebugScreen() {
       setLoading(true);
       console.log('Starting to fetch all available concert data...');
       
-      const username = process.env.SETLISTFM_TEST_USERNAME || 'leopic';
+      const username = Constants.expoConfig?.extra?.setlistfmTestUsername || 'leopic';
       
       // Fetch all available pages
       const allPages = await setlistApi.getAllUserAttendedConcerts(username);

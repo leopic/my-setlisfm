@@ -31,6 +31,10 @@
     },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "setlistfmApiKey": process.env.SETLISTFM_API_KEY,
+      "setlistfmTestUsername": process.env.SETLISTFM_TEST_USERNAME
+    }
   }
 }

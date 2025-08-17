@@ -1,8 +1,9 @@
 // Setlist.fm API service with rate limiting
 import type { SetlistsResponse } from '../types/api';
+import Constants from 'expo-constants';
 
 const API_BASE_URL = 'https://api.setlist.fm/rest/1.0';
-const API_KEY = process.env.SETLISTFM_API_KEY || '';
+const API_KEY = Constants.expoConfig?.extra?.setlistfmApiKey || '';
 
 if (!API_KEY) {
   throw new Error('SETLISTFM_API_KEY environment variable is required');
