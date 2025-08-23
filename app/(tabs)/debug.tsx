@@ -9,9 +9,10 @@ import {
   SafeAreaView,
 } from 'react-native';
 import Constants from 'expo-constants';
-import { dbOperations } from '../src/database/operations';
-import { SetlistApiService } from '../src/services/setlistApi';
-import { DataProcessor } from '../src/services/dataProcessor';
+import { useRouter } from 'expo-router';
+import { dbOperations } from '../../src/database/operations';
+import { SetlistApiService } from '../../src/services/setlistApi';
+import { DataProcessor } from '../../src/services/dataProcessor';
 
 interface Stats {
   totalSetlists: number;
@@ -21,6 +22,7 @@ interface Stats {
 }
 
 export default function DebugScreen() {
+  const router = useRouter();
   const [stats, setStats] = useState<Stats>({
     totalSetlists: 0,
     totalArtists: 0,
@@ -49,7 +51,6 @@ export default function DebugScreen() {
   const handleFetchData = async () => {
     try {
       setLoading(true);
-      console.log('Starting to fetch all available concert data...');
       
       const username = Constants.expoConfig?.extra?.setlistfmTestUsername || 'leopic';
       
@@ -61,7 +62,7 @@ export default function DebugScreen() {
         return;
       }
       
-      console.log(`Fetched ${allPages.length} pages of data`);
+
       
       // Process all pages
       await dataProcessor.processMultipleSetlistsResponses(allPages);
@@ -113,6 +114,75 @@ export default function DebugScreen() {
       console.error('Failed to get debug info:', error);
       Alert.alert('Error', 'Failed to get debug info');
     }
+  };
+
+  // Route testing functions
+  const testRoute = (route: string, params?: any) => {
+    try {
+      console.log('🔄 Navigation:', {
+        from: '/debug',
+        to: route,
+        params: params || {}
+      });
+      router.push({
+        pathname: route as any,
+        params: params || {}
+      });
+    } catch (error) {
+      console.error(`Failed to navigate to ${route}:`, error);
+      Alert.alert('Navigation Error', `Failed to navigate to ${route}: ${error}`);
+    }
+  };
+
+  const showAvailableRoutes = () => {
+    const routes = [
+      '/artists',
+      '/venues', 
+      '/artists/_concerts-list?artist=test',
+      '/venues/_concerts-list?venue=test',
+      '/artists/setlist?id=test',
+      '/venues/setlist?id=test',
+      '/setlist?id=test'
+    ];
+    
+
+    
+    Alert.alert(
+      'Available Routes',
+      `Current app routes:\n\n${routes.join('\n')}\n\nTap a route to test it:`,
+      routes.map(route => ({
+        text: route,
+        onPress: () => testRoute(route)
+      }))
+    );
+  };
+
+  const logCurrentRoute = () => {
+    Alert.alert('Current Route', `Router object logged to console. Check Metro bundler logs.`);
+  };
+
+  const showRouteStructure = () => {
+    const structure = `
+📁 App Structure:
+├── / (root)
+├── /(tabs)/
+│   ├── / (Concerts tab)
+│   ├── /setlist (Concerts setlist)
+│   ├── /artists/
+│   │   ├── / (Artists list)
+│   │   ├── /_concerts-list (Artist concerts)
+│   │   └── /setlist (Artist setlist)
+│   ├── /venues/
+│   │   ├── / (Venues list)
+│   │   ├── /_concerts-list (Venue concerts)
+│   │   └── /setlist (Venue setlist)
+│   └── /debug (Debug screen)
+└── /_layout.tsx (Root layout)
+    `;
+    
+
+    
+    Alert.alert('Route Structure', 'Route structure logged to console. Check Metro bundler logs.');
   };
 
   return (
@@ -176,6 +246,65 @@ export default function DebugScreen() {
           >
             <Text style={styles.buttonTextSecondary}>Refresh Stats</Text>
           </TouchableOpacity>
+        </View>
+
+        {/* Route Testing Section */}
+        <View style={styles.routeTestingContainer}>
+          <Text style={styles.sectionTitle}>Route Testing</Text>
+          <Text style={styles.sectionSubtitle}>Test navigation to different screens</Text>
+          
+          <TouchableOpacity
+            style={[styles.buttonSecondary, { backgroundColor: '#17a2b8' }]}
+            onPress={showAvailableRoutes}
+          >
+            <Text style={styles.buttonTextSecondary}>Show All Routes</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.buttonSecondary, { backgroundColor: '#6c757d' }]}
+            onPress={logCurrentRoute}
+          >
+            <Text style={styles.buttonTextSecondary}>Log Current Route</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.buttonSecondary, { backgroundColor: '#20c997' }]}
+            onPress={showRouteStructure}
+          >
+            <Text style={styles.buttonTextSecondary}>Show Route Structure</Text>
+          </TouchableOpacity>
+
+          <View style={styles.routeButtonsRow}>
+            <TouchableOpacity
+              style={[styles.routeButton, { backgroundColor: '#007AFF' }]}
+              onPress={() => testRoute('/artists')}
+            >
+              <Text style={styles.routeButtonText}>Artists Tab</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.routeButton, { backgroundColor: '#28a745' }]}
+              onPress={() => testRoute('/venues')}
+            >
+              <Text style={styles.routeButtonText}>Venues Tab</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.routeButtonsRow}>
+            <TouchableOpacity
+              style={[styles.routeButton, { backgroundColor: '#6f42c1' }]}
+              onPress={() => testRoute('/artists/_concerts-list', { artist: 'test' })}
+            >
+              <Text style={styles.routeButtonText}>Artist Concerts</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.routeButton, { backgroundColor: '#fd7e14' }]}
+              onPress={() => testRoute('/venues/_concerts-list', { venue: 'test' })}
+            >
+              <Text style={styles.routeButtonText}>Venue Concerts</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Info Section */}
@@ -297,5 +426,39 @@ const styles = StyleSheet.create({
     color: '#666',
     lineHeight: 20,
     marginBottom: 10,
+  },
+  routeTestingContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 15,
+  },
+  routeButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+  routeButton: {
+    flex: 1,
+    backgroundColor: '#007AFF',
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    marginHorizontal: 5,
+    alignItems: 'center',
+  },
+  routeButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

@@ -9,71 +9,80 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { Link } from 'expo-router';
-import { dbOperations } from '../src/database/operations';
-import type { SetlistWithDetails, SetWithSongs, SongWithDetails } from '../src/types/database';
+import { useRouter } from 'expo-router';
+import { dbOperations } from '../../../src/database/operations';
 
-type SortOption = 'alphabetical' | 'recent';
+type SortOption = 'alphabetical' | 'recent' | 'top';
 
-interface VenueWithStats {
-  id: string;
+interface ArtistWithStats {
+  mbid: string;
   name: string;
+  sortName?: string;
+  disambiguation?: string;
   url?: string;
-  cityId?: string;
-  cityName?: string;
-  state?: string;
-  stateCode?: string;
-  countryCode?: string;
-  countryName?: string;
-  coordsLat?: number;
-  coordsLong?: number;
   concertCount: number;
   lastConcertDate?: string;
-  artists: string[];
+  venues: string[];
 }
 
-export default function VenuesScreen() {
-  const [venues, setVenues] = useState<VenueWithStats[]>([]);
-  const [filteredVenues, setFilteredVenues] = useState<VenueWithStats[]>([]);
+export default function ArtistsScreen() {
+  const router = useRouter();
+  const [artists, setArtists] = useState<ArtistWithStats[]>([]);
+  const [filteredArtists, setFilteredArtists] = useState<ArtistWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('alphabetical');
 
   useEffect(() => {
-    loadVenues();
+    loadArtists();
   }, []);
 
   useEffect(() => {
-    filterVenues();
-  }, [venues, searchQuery]);
+    filterArtists();
+  }, [artists, searchQuery]);
 
-  const loadVenues = async () => {
+  const loadArtists = async () => {
     try {
       setLoading(true);
-      const venuesWithStats = await dbOperations.getVenuesWithStats();
-      const sortedVenues = sortVenues(venuesWithStats, sortOption);
-      setVenues(sortedVenues);
+      const artistsWithStats = await dbOperations.getArtistsWithStats();
+      const sortedArtists = sortArtists(artistsWithStats, sortOption);
+      setArtists(sortedArtists);
     } catch (error) {
-      console.error('Failed to load venues:', error);
-      Alert.alert('Error', 'Failed to load venues');
+      console.error('Failed to load artists:', error);
+      Alert.alert('Error', 'Failed to load artists');
     } finally {
       setLoading(false);
     }
   };
 
-  const sortVenues = (venuesToSort: VenueWithStats[], sortBy: SortOption): VenueWithStats[] => {
+  const handleViewConcerts = (artist: ArtistWithStats) => {
+    // Navigate to concerts list screen
+    console.log('🔄 Navigation:', {
+      from: '/artists',
+      to: '/artists/concerts',
+      params: { artist: artist.mbid }
+    });
+    router.push({
+      pathname: '/artists/concerts',
+      params: { artist: artist.mbid },
+    });
+  };
+
+  const sortArtists = (artistsToSort: ArtistWithStats[], sortBy: SortOption): ArtistWithStats[] => {
     switch (sortBy) {
       case 'alphabetical':
-        return [...venuesToSort].sort((a, b) => a.name.localeCompare(b.name));
+        return [...artistsToSort].sort((a, b) => a.name.localeCompare(b.name));
       case 'recent':
-        return [...venuesToSort].sort((a, b) => {
+        return [...artistsToSort].sort((a, b) => {
           if (!a.lastConcertDate || !b.lastConcertDate) return 0;
           const dateA = parseDateCorrectly(a.lastConcertDate);
           const dateB = parseDateCorrectly(b.lastConcertDate);
           return dateB.getTime() - dateA.getTime();
         });
+      case 'top':
+        return [...artistsToSort].sort((a, b) => b.concertCount - a.concertCount);
       default:
-        return venuesToSort;
+        return artistsToSort;
     }
   };
 
@@ -91,25 +100,24 @@ export default function VenuesScreen() {
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    const sortedVenues = sortVenues(venues, newSortOption);
-    setVenues(sortedVenues);
+    const sortedArtists = sortArtists(artists, newSortOption);
+    setArtists(sortedArtists);
   };
 
-  const filterVenues = () => {
+  const filterArtists = () => {
     if (!searchQuery.trim()) {
-      setFilteredVenues(venues);
+      setFilteredArtists(artists);
       return;
     }
     
     const query = searchQuery.toLowerCase();
-    const filtered = venues.filter(venue => 
-      venue.name.toLowerCase().includes(query) ||
-      venue.cityName?.toLowerCase().includes(query) ||
-      venue.state?.toLowerCase().includes(query) ||
-      venue.countryName?.toLowerCase().includes(query)
+    const filtered = artists.filter(artist => 
+      artist.name.toLowerCase().includes(query) ||
+      artist.sortName?.toLowerCase().includes(query) ||
+      artist.disambiguation?.toLowerCase().includes(query)
     );
     
-    setFilteredVenues(filtered);
+    setFilteredArtists(filtered);
   };
 
   const formatDate = (dateString: string): string => {
@@ -126,52 +134,46 @@ export default function VenuesScreen() {
     }
   };
 
-  const getVenueCard = (venue: VenueWithStats) => (
-    <View key={venue.id} style={styles.venueCard}>
-      <View style={styles.venueHeader}>
-        <View style={styles.venueInfo}>
-          <Text style={styles.venueName}>{venue.name}</Text>
-          <Text style={styles.venueLocation}>
-            📍 {venue.cityName || 'Unknown City'}
-            {venue.state && `, ${venue.state}`}
-            {venue.countryName && `, ${venue.countryName}`}
-          </Text>
+  const getArtistCard = (artist: ArtistWithStats) => (
+    <View key={artist.mbid} style={styles.artistCard}>
+      <View style={styles.artistHeader}>
+        <View style={styles.artistInfo}>
+          <Text style={styles.artistName}>{artist.name}</Text>
+          {artist.disambiguation && (
+            <Text style={styles.artistDisambiguation}>{artist.disambiguation}</Text>
+          )}
         </View>
         <View style={styles.concertCountBadge}>
-          <Text style={styles.concertCountText}>{venue.concertCount}</Text>
+          <Text style={styles.concertCountText}>{artist.concertCount}</Text>
           <Text style={styles.concertCountLabel}>concerts</Text>
         </View>
       </View>
       
-      <View style={styles.venueStats}>
-        {venue.lastConcertDate && (
+      <View style={styles.artistStats}>
+        {artist.lastConcertDate && (
           <Text style={styles.lastConcertText}>
-            🎵 Last show: {formatDate(venue.lastConcertDate)}
+            🎵 Last seen: {formatDate(artist.lastConcertDate)}
           </Text>
         )}
-        {venue.artists.length > 0 && (
-          <Text style={styles.artistsText}>
-            🎤 Artists: {venue.artists.slice(0, 3).join(', ')}
-            {venue.artists.length > 3 && ` +${venue.artists.length - 3} more`}
-          </Text>
-        )}
-        {venue.coordsLat && venue.coordsLong && (
-          <Text style={styles.coordsText}>
-            🗺️ {venue.coordsLat.toFixed(4)}, {venue.coordsLong.toFixed(4)}
+        {artist.venues.length > 0 && (
+          <Text style={styles.venuesText}>
+            📍 Venues: {artist.venues.slice(0, 3).join(', ')}
+            {artist.venues.length > 3 && ` +${artist.venues.length - 3} more`}
           </Text>
         )}
       </View>
 
-      <View style={styles.venueActions}>
-        <Link href={`/concerts?venue=${venue.id}`} asChild>
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionButtonText}>View Concerts</Text>
-          </TouchableOpacity>
-        </Link>
-        {venue.url && (
+      <View style={styles.artistActions}>
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={() => handleViewConcerts(artist)}
+        >
+          <Text style={styles.actionButtonText}>View Concerts</Text>
+        </TouchableOpacity>
+        {artist.url && (
           <TouchableOpacity 
             style={styles.actionButtonSecondary}
-            onPress={() => Alert.alert('External Link', `Would open: ${venue.url}`)}
+            onPress={() => Alert.alert('External Link', `Would open: ${artist.url}`)}
           >
             <Text style={styles.actionButtonTextSecondary}>Setlist.fm</Text>
           </TouchableOpacity>
@@ -184,7 +186,7 @@ export default function VenuesScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading venues...</Text>
+          <Text style={styles.loadingText}>Loading artists...</Text>
         </View>
       </SafeAreaView>
     );
@@ -194,8 +196,13 @@ export default function VenuesScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Venues</Text>
-        <Text style={styles.subtitle}>{venues.length} venues</Text>
+        <Text style={styles.title}>Artists</Text>
+        <Text style={styles.subtitle}>
+          {sortOption === 'top' 
+            ? `${artists.length} artists (sorted by concert count)`
+            : `${artists.length} artists`
+          }
+        </Text>
       </View>
 
       {/* Sorting Controls */}
@@ -218,31 +225,39 @@ export default function VenuesScreen() {
               Most Recent
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.sortButton, sortOption === 'top' && styles.sortButtonActive]} 
+            onPress={() => handleSortChange('top')}
+          >
+            <Text style={[styles.sortButtonText, sortOption === 'top' && styles.sortButtonTextActive]}>
+              Top
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search venues, cities, countries..."
+          placeholder="Search artists..."
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholderTextColor="#999"
         />
       </View>
 
-      <ScrollView style={styles.venuesList} showsVerticalScrollIndicator={false}>
-        {filteredVenues.length === 0 ? (
+      <ScrollView style={styles.artistsList} showsVerticalScrollIndicator={false}>
+        {filteredArtists.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>
-              {searchQuery.trim() ? 'No venues match your search' : 'No venues found'}
+              {searchQuery.trim() ? 'No artists match your search' : 'No artists found'}
             </Text>
-            <TouchableOpacity style={styles.refreshButton} onPress={loadVenues}>
+            <TouchableOpacity style={styles.refreshButton} onPress={loadArtists}>
               <Text style={styles.refreshButtonText}>Refresh</Text>
             </TouchableOpacity>
           </View>
         ) : (
-          filteredVenues.map(getVenueCard)
+          filteredArtists.map(getArtistCard)
         )}
       </ScrollView>
     </SafeAreaView>
@@ -296,11 +311,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e9ecef',
   },
-  venuesList: {
+  artistsList: {
     flex: 1,
     padding: 20,
   },
-  venueCard: {
+  artistCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 20,
@@ -311,28 +326,29 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  venueHeader: {
+  artistHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 15,
   },
-  venueInfo: {
+  artistInfo: {
     flex: 1,
     marginRight: 15,
   },
-  venueName: {
+  artistName: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 5,
+    marginBottom: 3,
   },
-  venueLocation: {
+  artistDisambiguation: {
     fontSize: 14,
     color: '#666',
+    fontStyle: 'italic',
   },
   concertCountBadge: {
-    backgroundColor: '#28a745',
+    backgroundColor: '#007AFF',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
@@ -349,31 +365,25 @@ const styles = StyleSheet.create({
     color: '#fff',
     opacity: 0.9,
   },
-  venueStats: {
+  artistStats: {
     marginBottom: 20,
   },
   lastConcertText: {
     fontSize: 14,
-    color: '#28a745',
+    color: '#007AFF',
     fontWeight: '500',
     marginBottom: 5,
   },
-  artistsText: {
+  venuesText: {
     fontSize: 13,
     color: '#666',
-    marginBottom: 5,
   },
-  coordsText: {
-    fontSize: 12,
-    color: '#999',
-    fontFamily: 'monospace',
-  },
-  venueActions: {
+  artistActions: {
     flexDirection: 'row',
     gap: 10,
   },
   actionButton: {
-    backgroundColor: '#28a745',
+    backgroundColor: '#007AFF',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 20,
@@ -411,7 +421,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   refreshButton: {
-    backgroundColor: '#28a745',
+    backgroundColor: '#007AFF',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 20,
@@ -443,17 +453,17 @@ const styles = StyleSheet.create({
   },
   sortButtons: {
     flexDirection: 'row',
-    backgroundColor: '#e9ecef',
+    backgroundColor: '#f8f9fa',
     borderRadius: 20,
-    padding: 5,
+    padding: 2,
   },
   sortButton: {
     paddingHorizontal: 15,
     paddingVertical: 8,
-    borderRadius: 15,
+    borderRadius: 18,
   },
   sortButtonActive: {
-    backgroundColor: '#28a745',
+    backgroundColor: '#007AFF',
   },
   sortButtonText: {
     fontSize: 14,

@@ -8,12 +8,16 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { dbOperations } from '../src/database/operations';
-import type { SetlistWithDetails, SetWithSongs, SongWithDetails } from '../src/types/database';
+import { dbOperations } from '../../../src/database/operations';
+import type { SetlistWithDetails, SetWithSongs, SongWithDetails } from '../../../src/types/database';
 
-export default function SetlistDetailScreen() {
+export default function VenueSetlistDetailScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, returnTo, returnParams } = useLocalSearchParams<{ 
+    id: string; 
+    returnTo?: string; 
+    returnParams?: string;
+  }>();
   const [setlist, setSetlist] = useState<SetlistWithDetails | null>(null);
   const [sets, setSets] = useState<SetWithSongs[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +34,6 @@ export default function SetlistDetailScreen() {
       const setlistData = await dbOperations.getSetlistById(id);
       if (setlistData) {
         setSetlist(setlistData);
-        // Sets are now included in the setlist data
         setSets(setlistData.sets || []);
       }
     } catch (error) {
@@ -91,9 +94,29 @@ export default function SetlistDetailScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => {
+            console.log('🔄 Navigation: Back button pressed from /venues/setlist');
+            
+            // If we have return information, navigate back to the specific page with params
+            if (returnTo && returnParams) {
+              try {
+                const parsedParams = JSON.parse(returnParams);
+                console.log('🔄 Navigation: Returning to', returnTo, 'with params:', parsedParams);
+                router.push({
+                  pathname: returnTo as any,
+                  params: parsedParams
+                });
+              } catch (error) {
+                console.error('Failed to parse return params, using router.back()');
+                router.back();
+              }
+            } else {
+              // Fallback to normal back navigation
+              router.back();
+            }
+          }}
         >
-          <Text style={styles.backButtonText}>← Back</Text>
+          <Text style={styles.backButtonText}>← Back to Venues</Text>
         </TouchableOpacity>
         <Text style={styles.title}>{setlist.artist?.name || 'Unknown Artist'}</Text>
       </View>

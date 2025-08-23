@@ -11,8 +11,8 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { dbOperations } from '../src/database/operations';
-import type { SetlistWithDetails } from '../src/types/database';
+import { dbOperations } from '../../src/database/operations';
+import type { SetlistWithDetails } from '../../src/types/database';
 
 type SortOption = 'recent' | 'alphabetical';
 interface ConcertWithDetails extends SetlistWithDetails {
@@ -100,12 +100,7 @@ export default function ConcertsScreen() {
       const grouped = groupConcertsByYear(sortedConcerts);
       setYearGroups(grouped);
       
-      console.log(`Raw setlists loaded: ${rawConcerts.length}`);
-      console.log('Sample event dates:', rawConcerts.slice(0, 5).map(c => ({
-        artist: c.artist?.name,
-        eventDate: c.eventDate,
-        raw: c.eventDate
-      })));
+
     } catch (error) {
       console.error('Failed to load concerts:', error);
       Alert.alert('Error', 'Failed to load concerts');
@@ -167,7 +162,7 @@ export default function ConcertsScreen() {
           if (!a.eventDate || !b.eventDate) return 0;
           const dateA = parseDateCorrectly(a.eventDate);
           const dateB = parseDateCorrectly(b.eventDate);
-          console.log(`Comparing: ${a.artist?.name} (${dateA.toISOString()}) vs ${b.artist?.name} (${dateB.toISOString()})`);
+
           return dateB.getTime() - dateA.getTime();
         });
       case 'alphabetical':
@@ -247,12 +242,8 @@ export default function ConcertsScreen() {
             <TouchableOpacity
               style={styles.backButton}
               onPress={() => {
-                // Navigate back to the source tab instead of using router.back()
-                if (artist) {
-                  router.replace('/artists');
-                } else if (venue) {
-                  router.replace('/venues');
-                }
+                console.log('🔄 Navigation: Back button pressed from filtered concerts');
+                router.back();
               }}
             >
               <Text style={styles.backButtonText}>← Back</Text>
@@ -289,28 +280,14 @@ export default function ConcertsScreen() {
             <TouchableOpacity
               style={styles.clearFilterButton}
               onPress={() => {
-                // Navigate back to the source tab instead of just clearing the filter
-                if (artist) {
-                  router.replace('/artists');
-                } else if (venue) {
-                  router.replace('/venues');
-                }
+                console.log('🔄 Navigation: Clear filter button pressed from filtered concerts');
+                router.back();
               }}
             >
               <Text style={styles.clearFilterText}>Clear Filter</Text>
             </TouchableOpacity>
           </View>
         )}
-      </View>
-
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search artists, venues, or cities..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
       </View>
 
       {/* Sorting Options */}
@@ -360,9 +337,28 @@ export default function ConcertsScreen() {
               key={concert.id}
               style={styles.concertItem}
               onPress={() => {
+                // Pass return information so the setlist knows where to return
+                const returnParams = artist ? { artist } : venue ? { venue } : {};
+                const returnTo = artist ? '/artists/concerts' : venue ? '/venues/concerts' : '/';
+                
+                console.log('🔄 Navigation:', {
+                  from: '/',
+                  to: '/setlist',
+                  params: { 
+                    id: concert.id,
+                    source: 'concerts',
+                    returnTo,
+                    returnParams: JSON.stringify(returnParams)
+                  }
+                });
                 router.push({
                   pathname: '/setlist',
-                  params: { id: concert.id },
+                  params: { 
+                    id: concert.id,
+                    source: 'concerts',
+                    returnTo,
+                    returnParams: JSON.stringify(returnParams)
+                  },
                 });
               }}
             >
@@ -421,9 +417,28 @@ export default function ConcertsScreen() {
               key={concert.id}
               style={styles.concertItem}
               onPress={() => {
+                // Pass return information so the setlist knows where to return
+                const returnParams = artist ? { artist } : venue ? { venue } : {};
+                const returnTo = artist ? '/artists/concerts' : venue ? '/venues/concerts' : '/';
+                
+                console.log('🔄 Navigation:', {
+                  from: '/',
+                  to: '/setlist',
+                  params: { 
+                    id: concert.id,
+                    source: 'concerts',
+                    returnTo,
+                    returnParams: JSON.stringify(returnParams)
+                  }
+                });
                 router.push({
                   pathname: '/setlist',
-                  params: { id: concert.id },
+                  params: { 
+                    id: concert.id,
+                    source: 'concerts',
+                    returnTo,
+                    returnParams: JSON.stringify(returnParams)
+                  },
                 });
               }}
             >
@@ -464,9 +479,7 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    paddingTop: 10,
   },
   headerTop: {
     flexDirection: 'row',
