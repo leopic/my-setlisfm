@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
+import SortAndSearch from '../../../src/components/SortAndSearch';
 
 type SortOption = 'alphabetical' | 'recent' | 'top';
 
@@ -31,7 +32,7 @@ export default function ArtistsScreen() {
   const [filteredArtists, setFilteredArtists] = useState<ArtistWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortOption, setSortOption] = useState<SortOption>('alphabetical');
+  const [sortOption, setSortOption] = useState<SortOption>('recent');
 
   useEffect(() => {
     loadArtists();
@@ -197,45 +198,13 @@ export default function ArtistsScreen() {
       </View>
 
       {/* Sorting Controls */}
-      <View style={styles.sortContainer}>
-        <Text style={styles.sortLabel}>Sort by:</Text>
-        <View style={styles.sortButtons}>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]} 
-            onPress={() => handleSortChange('alphabetical')}
-          >
-            <Text style={[styles.sortButtonText, sortOption === 'alphabetical' && styles.sortButtonTextActive]}>
-              Alphabetical
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]} 
-            onPress={() => handleSortChange('recent')}
-          >
-            <Text style={[styles.sortButtonText, sortOption === 'recent' && styles.sortButtonTextActive]}>
-              Most Recent
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'top' && styles.sortButtonActive]} 
-            onPress={() => handleSortChange('top')}
-          >
-            <Text style={[styles.sortButtonText, sortOption === 'top' && styles.sortButtonTextActive]}>
-              Top
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search artists..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholderTextColor="#999"
-        />
-      </View>
+      <SortAndSearch
+        sortOption={sortOption}
+        searchQuery={searchQuery}
+        onSortChange={handleSortChange}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Search artists..."
+      />
 
       <ScrollView style={styles.artistsList} showsVerticalScrollIndicator={false}>
         {filteredArtists.length === 0 ? (
@@ -289,19 +258,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
-  searchContainer: {
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  searchInput: {
-    height: 50,
-    backgroundColor: '#f8f9fa',
-    borderRadius: 25,
-    paddingHorizontal: 20,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-  },
+
   artistsList: {
     flex: 1,
     padding: 20,
@@ -394,40 +351,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#666',
   },
-  sortContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 15,
-    paddingHorizontal: 20,
-    backgroundColor: '#fff',
-    paddingVertical: 20,
-  },
-  sortLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginRight: 10,
-  },
-  sortButtons: {
-    flexDirection: 'row',
-    backgroundColor: '#f0f0f0',
-    borderRadius: 20,
-    padding: 5,
-  },
-  sortButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 15,
-  },
-  sortButtonActive: {
-    backgroundColor: '#007AFF',
-  },
-  sortButtonText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '600',
-  },
-  sortButtonTextActive: {
-    color: '#fff',
-  },
+
 });

@@ -32,7 +32,13 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
 
   const getSetTitle = (set: SetWithSongs, index: number): string => {
     if (set.encore) {
-      return `Encore ${set.encore}`;
+      // Count total encore sets
+      const encoreSets = sets.filter(s => s.encore && s.songs && s.songs.length > 0);
+      if (encoreSets.length === 1) {
+        return 'Encore';
+      } else {
+        return `Encore ${set.encore}`;
+      }
     }
     if (set.name && set.name !== 'Set 1:' && set.name !== 'Set 1') {
       return set.name;

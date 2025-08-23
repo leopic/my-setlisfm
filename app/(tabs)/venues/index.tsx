@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
+import SortAndSearch from '../../../src/components/SortAndSearch';
 
 type SortOption = 'alphabetical' | 'recent' | 'top';
 
@@ -47,7 +48,7 @@ export default function VenuesScreen() {
   const [geoStats, setGeoStats] = useState<GeoStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortOption, setSortOption] = useState<SortOption>('alphabetical');
+  const [sortOption, setSortOption] = useState<SortOption>('recent');
 
   useEffect(() => {
     loadVenues();
@@ -217,6 +218,8 @@ export default function VenuesScreen() {
         <Text style={styles.subtitle}>
           {sortOption === 'top' 
             ? `${venues.length} venues (sorted by visit count)`
+            : sortOption === 'recent'
+            ? `${venues.length} venues (sorted by most recent)`
             : `${venues.length} venues`
           }
         </Text>
@@ -256,45 +259,13 @@ export default function VenuesScreen() {
       </View>
 
       {/* Sorting Controls */}
-      <View style={styles.sortContainer}>
-        <Text style={styles.sortLabel}>Sort by:</Text>
-        <View style={styles.sortButtons}>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]} 
-            onPress={() => handleSortChange('alphabetical')}
-          >
-            <Text style={[styles.sortButtonText, sortOption === 'alphabetical' && styles.sortButtonTextActive]}>
-              Alphabetical
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]} 
-            onPress={() => handleSortChange('recent')}
-          >
-            <Text style={[styles.sortButtonText, sortOption === 'recent' && styles.sortButtonTextActive]}>
-              Most Recent
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'top' && styles.sortButtonActive]} 
-            onPress={() => handleSortChange('top')}
-          >
-            <Text style={[styles.sortButtonText, sortOption === 'top' && styles.sortButtonTextActive]}>
-              Top
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search venues, cities, countries..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholderTextColor="#999"
-        />
-      </View>
+      <SortAndSearch
+        sortOption={sortOption}
+        searchQuery={searchQuery}
+        onSortChange={handleSortChange}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Search venues, cities, countries..."
+      />
 
       <ScrollView style={styles.venuesList} showsVerticalScrollIndicator={false}>
         {filteredVenues.length === 0 ? (
@@ -379,19 +350,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
   },
-  searchContainer: {
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  searchInput: {
-    height: 50,
-    backgroundColor: '#f8f9fa',
-    borderRadius: 25,
-    paddingHorizontal: 20,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-  },
+
   venuesList: {
     flex: 1,
     padding: 20,
@@ -490,40 +449,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#666',
   },
-  sortContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 15,
-    paddingHorizontal: 20,
-    backgroundColor: '#fff',
-    paddingVertical: 20,
-  },
-  sortLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginRight: 10,
-  },
-  sortButtons: {
-    flexDirection: 'row',
-    backgroundColor: '#f0f0f0',
-    borderRadius: 20,
-    padding: 5,
-  },
-  sortButton: {
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 15,
-  },
-  sortButtonActive: {
-    backgroundColor: '#007AFF',
-  },
-  sortButtonText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '600',
-  },
-  sortButtonTextActive: {
-    color: '#fff',
-  },
+
 });

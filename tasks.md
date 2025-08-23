@@ -87,17 +87,18 @@ Building an Expo application that connects to the Setlist.fm API to fetch and st
 - [x] **Code Refactoring**: Eliminated duplication by creating reusable `ConcertListModal` component
 - [x] **Navigation Improvements**: Converted modal to proper navigation screen (`/concerts-list`) for better UX
 - [x] **Context-Aware Navigation**: Shared concert detail component respects navigation source (artists/venues/concerts)
+- [ ] Create Venues -> Map view
 
 ### 6. Data Management Features
-- [ ] Initial data sync for user "leopic"
+- [x] Initial data sync for user "leopic"
 - [ ] Manual refresh functionality
-- [ ] Cache management and cleanup
 
 ### 7. Performance & Optimization
 - [ ] Implement efficient pagination for large datasets
 - [ ] Add offline-first functionality
 
 ### 8. Testing & Quality
+- [ ] Verify why some songs say cover of "....." or with "...." (a hash), was it because we are not importing artists without a setlist?
 - [ ] Unit tests for API services
 - [ ] Database operation tests
 - [ ] Integration tests for data sync
