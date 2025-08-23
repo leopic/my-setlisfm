@@ -82,6 +82,42 @@ export default function TabLayout() {
             href: null,
         }}
       />
+      <Tabs.Screen
+        name="venues/continents"
+        options={{
+            href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="venues/countries"
+        options={{
+            href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="venues/cities"
+        options={{
+            href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="venues/continent-detail"
+        options={{
+            href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="venues/country-detail"
+        options={{
+            href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="venues/city-detail"
+        options={{
+            href: null,
+        }}
+      />
     </Tabs>
   );
 }

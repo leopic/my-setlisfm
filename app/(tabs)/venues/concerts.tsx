@@ -28,8 +28,10 @@ export default function VenueConcertsListScreen() {
   const [loading, setLoading] = useState(true);
   const [venueName, setVenueName] = useState<string>('');
 
-  // Get venue parameter from navigation
+  // Get venue parameter and navigation context from navigation
   const venueId = params.venue as string;
+  const returnTo = params.returnTo as string;
+  const returnParams = params.returnParams as string;
 
   useEffect(() => {
     if (venueId) {
@@ -86,15 +88,19 @@ export default function VenueConcertsListScreen() {
 
   const handleConcertPress = (concert: ConcertWithDetails) => {
     // Navigate to setlist detail within venues tab
-    // Pass the current venue parameter so the setlist page knows where to return
+    // Pass the current navigation context so the setlist page knows where to return
     const currentParams = { venue: venueId };
+    const setlistReturnParams = returnTo && returnParams 
+      ? { venue: venueId, returnTo, returnParams }
+      : currentParams;
+      
     console.log('🔄 Navigation:', {
       from: '/venues/concerts',
       to: '/venues/setlist',
       params: { 
         id: concert.id,
         returnTo: '/venues/concerts',
-        returnParams: currentParams
+        returnParams: JSON.stringify(setlistReturnParams)
       }
     });
     router.push({
@@ -102,14 +108,25 @@ export default function VenueConcertsListScreen() {
       params: { 
         id: concert.id,
         returnTo: '/venues/concerts',
-        returnParams: JSON.stringify(currentParams)
+        returnParams: JSON.stringify(setlistReturnParams)
       },
     });
   };
 
   const handleBackPress = () => {
-    console.log('🔄 Navigation: Back button pressed from /venues/concerts');
-    router.push('/venues');
+    if (returnTo && returnParams) {
+      try {
+        const parsedParams = JSON.parse(returnParams);
+        console.log('🔄 Navigation: Back button pressed from /venues/concerts');
+        router.push({ pathname: returnTo, params: parsedParams });
+      } catch (error) {
+        console.error('Error parsing return params:', error);
+        router.push('/venues');
+      }
+    } else {
+      console.log('🔄 Navigation: Back button pressed from /venues/concerts');
+      router.push('/venues');
+    }
   };
 
   if (loading) {

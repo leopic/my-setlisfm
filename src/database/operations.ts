@@ -1016,6 +1016,11 @@ export class DatabaseOperations {
     return continentMap[country] || 'Other';
   }
 
+  // Public method to get continent for a country
+  getContinentForCountry(country: string): string {
+    return this.getContinent(country);
+  }
+
   // Clear all data for testing (use with caution!)
   async clearAllData(): Promise<void> {
     await this.db.runAsync('DELETE FROM songs');

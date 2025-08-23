@@ -82,6 +82,27 @@ export default function ContinentsScreen() {
     setContinents(sortedContinents);
   };
 
+  const handleContinentPress = (continent: ContinentWithStats) => {
+    console.log('🔄 Navigation:', {
+      from: '/venues/continents',
+      to: '/venues/continent-detail',
+      params: { 
+        continentName: continent.name,
+        returnTo: '/venues/continents',
+        returnParams: JSON.stringify({})
+      }
+    });
+    
+    router.push({
+      pathname: '/venues/continent-detail',
+      params: { 
+        continentName: continent.name,
+        returnTo: '/venues/continents',
+        returnParams: JSON.stringify({})
+      }
+    });
+  };
+
   const formatDate = (dateString: string): string => {
     try {
       const [day, month, year] = dateString.split('-').map(Number);
@@ -97,7 +118,12 @@ export default function ContinentsScreen() {
   };
 
   const getContinentCard = (continent: ContinentWithStats) => (
-    <View key={continent.name} style={styles.continentCard}>
+    <TouchableOpacity 
+      key={continent.name} 
+      style={styles.continentCard}
+      onPress={() => handleContinentPress(continent)}
+      activeOpacity={0.7}
+    >
       <View style={styles.continentHeader}>
         <View style={styles.continentInfo}>
           <Text style={styles.continentName}>{continent.name}</Text>
@@ -125,7 +151,7 @@ export default function ContinentsScreen() {
           </Text>
         )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   if (loading) {
@@ -144,7 +170,7 @@ export default function ContinentsScreen() {
       <View style={styles.header}>
         <TouchableOpacity 
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => router.push('/venues')}
         >
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>

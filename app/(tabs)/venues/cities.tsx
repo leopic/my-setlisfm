@@ -4,12 +4,12 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
-  ScrollView,
   TouchableOpacity,
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
+import CityList from '../../../src/components/CityList';
 
 type SortOption = 'alphabetical' | 'recent' | 'top';
 
@@ -81,50 +81,7 @@ export default function CitiesScreen() {
     setCities(sortedCities);
   };
 
-  const formatDate = (dateString: string): string => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    } catch (error) {
-      return dateString;
-    }
-  };
 
-  const getCityCard = (city: CityWithStats) => (
-    <View key={`${city.name}-${city.countryName}`} style={styles.cityCard}>
-      <View style={styles.cityHeader}>
-        <View style={styles.cityInfo}>
-          <Text style={styles.cityName}>{city.name}</Text>
-          <Text style={styles.cityLocation}>
-            🏳️ {city.countryName}
-          </Text>
-        </View>
-        <View style={styles.venueCountBadge}>
-          <Text style={styles.venueCountText}>{city.venueCount}</Text>
-          <Text style={styles.venueCountLabel}>venues</Text>
-        </View>
-      </View>
-      
-      <View style={styles.cityStats}>
-        {city.lastConcertDate && (
-          <Text style={styles.lastConcertText}>
-            🎵 Last show: {formatDate(city.lastConcertDate)}
-          </Text>
-        )}
-        {city.venues.length > 0 && (
-          <Text style={styles.venuesText}>
-            🏟️ Venues: {city.venues.slice(0, 3).join(', ')}
-            {city.venues.length > 3 && ` +${city.venues.length - 3} more`}
-          </Text>
-        )}
-      </View>
-    </View>
-  );
 
   if (loading) {
     return (
@@ -142,7 +99,7 @@ export default function CitiesScreen() {
       <View style={styles.header}>
         <TouchableOpacity 
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => router.push('/venues')}
         >
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
@@ -186,18 +143,32 @@ export default function CitiesScreen() {
         </View>
       </View>
 
-      <ScrollView style={styles.citiesList} showsVerticalScrollIndicator={false}>
-        {cities.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>No cities found</Text>
-            <TouchableOpacity style={styles.refreshButton} onPress={loadCities}>
-              <Text style={styles.refreshButtonText}>Refresh</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          cities.map(getCityCard)
-        )}
-      </ScrollView>
+      <CityList
+        cities={cities}
+        onCityPress={(city) => {
+          console.log('🔄 Navigation:', {
+            from: '/venues/cities',
+            to: '/venues/city-detail',
+            params: { 
+              city: city.name,
+              country: city.countryName,
+              returnTo: '/venues/cities',
+              returnParams: JSON.stringify({})
+            }
+          });
+          
+          router.push({
+            pathname: '/venues/city-detail',
+            params: { 
+              city: city.name,
+              country: city.countryName,
+              returnTo: '/venues/cities',
+              returnParams: JSON.stringify({})
+            }
+          });
+        }}
+        emptyMessage="No cities found"
+      />
     </SafeAreaView>
   );
 }
@@ -231,89 +202,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
-  citiesList: {
-    flex: 1,
-    padding: 20,
-  },
-  cityCard: {
-    backgroundColor: '#f0f0f0',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-  },
-  cityHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  cityInfo: {
-    flex: 1,
-    marginRight: 15,
-  },
-  cityName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-  },
-  cityLocation: {
-    fontSize: 14,
-    color: '#666',
-  },
-  venueCountBadge: {
-    backgroundColor: '#28a745',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    alignItems: 'center',
-    minWidth: 60,
-  },
-  venueCountText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  venueCountLabel: {
-    fontSize: 10,
-    color: '#fff',
-    opacity: 0.9,
-  },
-  cityStats: {
-    marginTop: 5,
-  },
-  lastConcertText: {
-    fontSize: 14,
-    color: '#28a745',
-    fontWeight: '500',
-    marginBottom: 5,
-  },
-  venuesText: {
-    fontSize: 13,
-    color: '#666',
-    marginBottom: 5,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  refreshButton: {
-    backgroundColor: '#28a745',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
-  },
-  refreshButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
