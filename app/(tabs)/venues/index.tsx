@@ -224,37 +224,51 @@ export default function VenuesScreen() {
           }
         </Text>
         {geoStats && (
-          <View style={styles.geoStatsContainer}>
-            <TouchableOpacity 
-              style={styles.geoStatButton}
-              onPress={() => router.push('/venues/continents')}
-            >
-              <Text style={styles.geoStatEmoji}>🌍</Text>
-              <Text style={styles.geoStatText}>
-                {geoStats.totalContinents} continent{geoStats.totalContinents !== 1 ? 's' : ''}
-              </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.geoStatButton}
-              onPress={() => router.push('/venues/countries')}
-            >
-              <Text style={styles.geoStatEmoji}>🏳️</Text>
-              <Text style={styles.geoStatText}>
-                {geoStats.totalCountries} countr{geoStats.totalCountries !== 1 ? 'ies' : 'y'}
-              </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.geoStatButton}
-              onPress={() => router.push('/venues/cities')}
-            >
-              <Text style={styles.geoStatEmoji}>🏙️</Text>
-              <Text style={styles.geoStatText}>
-                {geoStats.totalCities} cit{geoStats.totalCities !== 1 ? 'ies' : 'y'}
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <>
+            <View style={styles.geoStatsContainer}>
+              <View style={styles.geoStatsRow}>
+                <TouchableOpacity 
+                  style={styles.geoStatButton}
+                  onPress={() => router.push('/venues/map')}
+                >
+                  <Text style={styles.geoStatEmoji}>🗺️</Text>
+                  <Text style={styles.geoStatText}>Map</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.geoStatButton}
+                  onPress={() => router.push('/venues/continents')}
+                >
+                  <Text style={styles.geoStatEmoji}>🌍</Text>
+                  <Text style={styles.geoStatText}>
+                    {geoStats.totalContinents} continent{geoStats.totalContinents !== 1 ? 's' : ''}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              
+              <View style={styles.geoStatsRow}>
+                <TouchableOpacity 
+                  style={styles.geoStatButton}
+                  onPress={() => router.push('/venues/countries')}
+                >
+                  <Text style={styles.geoStatEmoji}>🏳️</Text>
+                  <Text style={styles.geoStatText}>
+                    {geoStats.totalCountries} countr{geoStats.totalCountries !== 1 ? 'ies' : 'y'}
+                  </Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.geoStatButton}
+                  onPress={() => router.push('/venues/cities')}
+                >
+                  <Text style={styles.geoStatEmoji}>🏙️</Text>
+                  <Text style={styles.geoStatText}>
+                    {geoStats.totalCities} cit{geoStats.totalCities !== 1 ? 'ies' : 'y'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </>
         )}
       </View>
 
@@ -326,9 +340,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   geoStatsContainer: {
+    marginTop: 15,
+    gap: 10,
+  },
+  geoStatsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 15,
     gap: 10,
   },
   geoStatButton: {
@@ -349,6 +366,24 @@ const styles = StyleSheet.create({
     color: '#333',
     fontWeight: '600',
     textAlign: 'center',
+  },
+  mapButton: {
+    backgroundColor: '#007AFF',
+    borderRadius: 12,
+    padding: 15,
+    marginTop: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mapButtonEmoji: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+  mapButtonText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '600',
   },
 
   venuesList: {

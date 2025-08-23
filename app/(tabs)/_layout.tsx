@@ -118,6 +118,12 @@ export default function TabLayout() {
             href: null,
         }}
       />
+      <Tabs.Screen
+        name="venues/map"
+        options={{
+            href: null,
+        }}
+      />
     </Tabs>
   );
 }
