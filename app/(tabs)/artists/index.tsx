@@ -135,7 +135,12 @@ export default function ArtistsScreen() {
   };
 
   const getArtistCard = (artist: ArtistWithStats) => (
-    <View key={artist.mbid} style={styles.artistCard}>
+    <TouchableOpacity 
+      key={artist.mbid} 
+      style={styles.artistCard}
+      activeOpacity={0.7}
+      onPress={() => handleViewConcerts(artist)}
+    >
       <View style={styles.artistHeader}>
         <View style={styles.artistInfo}>
           <Text style={styles.artistName}>{artist.name}</Text>
@@ -162,24 +167,7 @@ export default function ArtistsScreen() {
           </Text>
         )}
       </View>
-
-      <View style={styles.artistActions}>
-        <TouchableOpacity 
-          style={styles.actionButton}
-          onPress={() => handleViewConcerts(artist)}
-        >
-          <Text style={styles.actionButtonText}>View Concerts</Text>
-        </TouchableOpacity>
-        {artist.url && (
-          <TouchableOpacity 
-            style={styles.actionButtonSecondary}
-            onPress={() => Alert.alert('External Link', `Would open: ${artist.url}`)}
-          >
-            <Text style={styles.actionButtonTextSecondary}>Setlist.fm</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    </View>
+    </TouchableOpacity>
   );
 
   if (loading) {
@@ -377,38 +365,6 @@ const styles = StyleSheet.create({
   venuesText: {
     fontSize: 13,
     color: '#666',
-  },
-  artistActions: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  actionButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
-    flex: 1,
-  },
-  actionButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  actionButtonSecondary: {
-    backgroundColor: '#f8f9fa',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-    flex: 1,
-  },
-  actionButtonTextSecondary: {
-    color: '#666',
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
   },
   emptyState: {
     alignItems: 'center',

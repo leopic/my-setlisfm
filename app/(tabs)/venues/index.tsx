@@ -140,7 +140,12 @@ export default function VenuesScreen() {
   };
 
   const getVenueCard = (venue: VenueWithStats) => (
-    <View key={venue.id} style={styles.venueCard}>
+    <TouchableOpacity 
+      key={venue.id} 
+      style={styles.venueCard}
+      activeOpacity={0.7}
+      onPress={() => handleViewConcerts(venue)}
+    >
       <View style={styles.venueHeader}>
         <View style={styles.venueInfo}>
           <Text style={styles.venueName}>{venue.name}</Text>
@@ -174,24 +179,7 @@ export default function VenuesScreen() {
           </Text>
         )}
       </View>
-
-      <View style={styles.venueActions}>
-        <TouchableOpacity 
-          style={styles.actionButton}
-          onPress={() => handleViewConcerts(venue)}
-        >
-          <Text style={styles.actionButtonText}>View Concerts</Text>
-        </TouchableOpacity>
-        {venue.url && (
-          <TouchableOpacity 
-            style={styles.actionButtonSecondary}
-            onPress={() => Alert.alert('External Link', `Would open: ${venue.url}`)}
-          >
-            <Text style={styles.actionButtonTextSecondary}>Setlist.fm</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    </View>
+    </TouchableOpacity>
   );
 
   if (loading) {
@@ -382,38 +370,7 @@ const styles = StyleSheet.create({
     color: '#999',
     fontFamily: 'monospace',
   },
-  venueActions: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  actionButton: {
-    backgroundColor: '#28a745',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
-    flex: 1,
-  },
-  actionButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  actionButtonSecondary: {
-    backgroundColor: '#f8f9fa',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-    flex: 1,
-  },
-  actionButtonTextSecondary: {
-    color: '#666',
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
+
   emptyState: {
     alignItems: 'center',
     paddingVertical: 60,
