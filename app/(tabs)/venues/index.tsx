@@ -12,7 +12,7 @@ import {
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 
-type SortOption = 'alphabetical' | 'recent';
+type SortOption = 'alphabetical' | 'recent' | 'top';
 
 interface VenueWithStats {
   id: string;
@@ -31,10 +31,20 @@ interface VenueWithStats {
   artists: string[];
 }
 
+interface GeoStats {
+  totalContinents: number;
+  totalCountries: number;
+  totalCities: number;
+  continents: string[];
+  countries: string[];
+  cities: string[];
+}
+
 export default function VenuesScreen() {
   const router = useRouter();
   const [venues, setVenues] = useState<VenueWithStats[]>([]);
   const [filteredVenues, setFilteredVenues] = useState<VenueWithStats[]>([]);
+  const [geoStats, setGeoStats] = useState<GeoStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('alphabetical');
@@ -50,9 +60,14 @@ export default function VenuesScreen() {
   const loadVenues = async () => {
     try {
       setLoading(true);
-      const venuesWithStats = await dbOperations.getVenuesWithStats();
+      const [venuesWithStats, geoData] = await Promise.all([
+        dbOperations.getVenuesWithStats(),
+        dbOperations.getVenueGeoStats()
+      ]);
+      
       const sortedVenues = sortVenues(venuesWithStats, sortOption);
       setVenues(sortedVenues);
+      setGeoStats(geoData);
     } catch (error) {
       console.error('Failed to load venues:', error);
       Alert.alert('Error', 'Failed to load venues');
@@ -85,6 +100,8 @@ export default function VenuesScreen() {
           const dateB = parseDateCorrectly(b.lastConcertDate);
           return dateB.getTime() - dateA.getTime();
         });
+      case 'top':
+        return [...venuesToSort].sort((a, b) => b.concertCount - a.concertCount);
       default:
         return venuesToSort;
     }
@@ -157,7 +174,7 @@ export default function VenuesScreen() {
         </View>
         <View style={styles.concertCountBadge}>
           <Text style={styles.concertCountText}>{venue.concertCount}</Text>
-          <Text style={styles.concertCountLabel}>concerts</Text>
+          <Text style={styles.concertCountLabel}>visits</Text>
         </View>
       </View>
       
@@ -197,7 +214,45 @@ export default function VenuesScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Venues</Text>
-        <Text style={styles.subtitle}>{venues.length} venues</Text>
+        <Text style={styles.subtitle}>
+          {sortOption === 'top' 
+            ? `${venues.length} venues (sorted by visit count)`
+            : `${venues.length} venues`
+          }
+        </Text>
+        {geoStats && (
+          <View style={styles.geoStatsContainer}>
+            <TouchableOpacity 
+              style={styles.geoStatButton}
+              onPress={() => router.push('/venues/continents')}
+            >
+              <Text style={styles.geoStatEmoji}>🌍</Text>
+              <Text style={styles.geoStatText}>
+                {geoStats.totalContinents} continent{geoStats.totalContinents !== 1 ? 's' : ''}
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.geoStatButton}
+              onPress={() => router.push('/venues/countries')}
+            >
+              <Text style={styles.geoStatEmoji}>🏳️</Text>
+              <Text style={styles.geoStatText}>
+                {geoStats.totalCountries} countr{geoStats.totalCountries !== 1 ? 'ies' : 'y'}
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.geoStatButton}
+              onPress={() => router.push('/venues/cities')}
+            >
+              <Text style={styles.geoStatEmoji}>🏙️</Text>
+              <Text style={styles.geoStatText}>
+                {geoStats.totalCities} cit{geoStats.totalCities !== 1 ? 'ies' : 'y'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       {/* Sorting Controls */}
@@ -218,6 +273,14 @@ export default function VenuesScreen() {
           >
             <Text style={[styles.sortButtonText, sortOption === 'recent' && styles.sortButtonTextActive]}>
               Most Recent
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.sortButton, sortOption === 'top' && styles.sortButtonActive]} 
+            onPress={() => handleSortChange('top')}
+          >
+            <Text style={[styles.sortButtonText, sortOption === 'top' && styles.sortButtonTextActive]}>
+              Top
             </Text>
           </TouchableOpacity>
         </View>
@@ -285,6 +348,37 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
+  geoStats: {
+    fontSize: 14,
+    color: '#007AFF',
+    marginTop: 8,
+    fontWeight: '500',
+  },
+  geoStatsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 15,
+    gap: 10,
+  },
+  geoStatButton: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+  },
+  geoStatEmoji: {
+    fontSize: 20,
+    marginBottom: 4,
+  },
+  geoStatText: {
+    fontSize: 12,
+    color: '#333',
+    fontWeight: '600',
+    textAlign: 'center',
+  },
   searchContainer: {
     padding: 20,
     backgroundColor: '#fff',
@@ -303,28 +397,23 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   venueCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 10,
   },
   venueHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 15,
+    alignItems: 'center',
+    marginBottom: 5,
   },
   venueInfo: {
     flex: 1,
     marginRight: 15,
   },
   venueName: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 5,
@@ -352,7 +441,7 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   venueStats: {
-    marginBottom: 20,
+    marginTop: 5,
   },
   lastConcertText: {
     fontSize: 14,
@@ -404,8 +493,11 @@ const styles = StyleSheet.create({
   sortContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 20,
     marginBottom: 15,
+    paddingHorizontal: 20,
+    backgroundColor: '#fff',
+    paddingVertical: 20,
   },
   sortLabel: {
     fontSize: 14,
@@ -414,7 +506,7 @@ const styles = StyleSheet.create({
   },
   sortButtons: {
     flexDirection: 'row',
-    backgroundColor: '#e9ecef',
+    backgroundColor: '#f0f0f0',
     borderRadius: 20,
     padding: 5,
   },
@@ -424,7 +516,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   sortButtonActive: {
-    backgroundColor: '#28a745',
+    backgroundColor: '#007AFF',
   },
   sortButtonText: {
     fontSize: 14,

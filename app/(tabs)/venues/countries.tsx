@@ -6,7 +6,6 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -14,78 +13,53 @@ import { dbOperations } from '../../../src/database/operations';
 
 type SortOption = 'alphabetical' | 'recent' | 'top';
 
-interface ArtistWithStats {
-  mbid: string;
+interface CountryWithStats {
   name: string;
-  sortName?: string;
-  disambiguation?: string;
-  url?: string;
-  concertCount: number;
+  cityCount: number;
+  venueCount: number;
   lastConcertDate?: string;
-  venues: string[];
+  cities: string[];
 }
 
-export default function ArtistsScreen() {
+export default function CountriesScreen() {
   const router = useRouter();
-  const [artists, setArtists] = useState<ArtistWithStats[]>([]);
-  const [filteredArtists, setFilteredArtists] = useState<ArtistWithStats[]>([]);
+  const [countries, setCountries] = useState<CountryWithStats[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('alphabetical');
 
   useEffect(() => {
-    loadArtists();
+    loadCountries();
   }, []);
 
-  useEffect(() => {
-    filterArtists();
-  }, [artists, searchQuery]);
-
-  const loadArtists = async () => {
+  const loadCountries = async () => {
     try {
       setLoading(true);
-      const artistsWithStats = await dbOperations.getArtistsWithStats();
-      
-
-      
-      const sortedArtists = sortArtists(artistsWithStats, sortOption);
-      setArtists(sortedArtists);
+      const countriesWithStats = await dbOperations.getCountriesWithStats();
+      const sortedCountries = sortCountries(countriesWithStats, sortOption);
+      setCountries(sortedCountries);
     } catch (error) {
-      console.error('Failed to load artists:', error);
-      Alert.alert('Error', 'Failed to load artists');
+      console.error('Failed to load countries:', error);
+      Alert.alert('Error', 'Failed to load countries');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleViewConcerts = (artist: ArtistWithStats) => {
-    // Navigate to concerts list screen
-    console.log('🔄 Navigation:', {
-      from: '/artists',
-      to: '/artists/concerts',
-      params: { artist: artist.mbid }
-    });
-    router.push({
-      pathname: '/artists/concerts',
-      params: { artist: artist.mbid },
-    });
-  };
-
-  const sortArtists = (artistsToSort: ArtistWithStats[], sortBy: SortOption): ArtistWithStats[] => {
+  const sortCountries = (countriesToSort: CountryWithStats[], sortBy: SortOption): CountryWithStats[] => {
     switch (sortBy) {
       case 'alphabetical':
-        return [...artistsToSort].sort((a, b) => a.name.localeCompare(b.name));
+        return [...countriesToSort].sort((a, b) => a.name.localeCompare(b.name));
       case 'recent':
-        return [...artistsToSort].sort((a, b) => {
+        return [...countriesToSort].sort((a, b) => {
           if (!a.lastConcertDate || !b.lastConcertDate) return 0;
           const dateA = parseDateCorrectly(a.lastConcertDate);
           const dateB = parseDateCorrectly(b.lastConcertDate);
           return dateB.getTime() - dateA.getTime();
         });
       case 'top':
-        return [...artistsToSort].sort((a, b) => b.concertCount - a.concertCount);
+        return [...countriesToSort].sort((a, b) => b.venueCount - a.venueCount);
       default:
-        return artistsToSort;
+        return countriesToSort;
     }
   };
 
@@ -103,24 +77,8 @@ export default function ArtistsScreen() {
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    const sortedArtists = sortArtists(artists, newSortOption);
-    setArtists(sortedArtists);
-  };
-
-  const filterArtists = () => {
-    if (!searchQuery.trim()) {
-      setFilteredArtists(artists);
-      return;
-    }
-    
-    const query = searchQuery.toLowerCase();
-    const filtered = artists.filter(artist => 
-      artist.name.toLowerCase().includes(query) ||
-      artist.sortName?.toLowerCase().includes(query) ||
-      artist.disambiguation?.toLowerCase().includes(query)
-    );
-    
-    setFilteredArtists(filtered);
+    const sortedCountries = sortCountries(countries, newSortOption);
+    setCountries(sortedCountries);
   };
 
   const formatDate = (dateString: string): string => {
@@ -137,47 +95,42 @@ export default function ArtistsScreen() {
     }
   };
 
-  const getArtistCard = (artist: ArtistWithStats) => (
-    <TouchableOpacity 
-      key={artist.mbid} 
-      style={styles.artistCard}
-      activeOpacity={0.7}
-      onPress={() => handleViewConcerts(artist)}
-    >
-      <View style={styles.artistHeader}>
-        <View style={styles.artistInfo}>
-          <Text style={styles.artistName}>{artist.name}</Text>
-          {artist.disambiguation && (
-            <Text style={styles.artistDisambiguation}>{artist.disambiguation}</Text>
-          )}
+  const getCountryCard = (country: CountryWithStats) => (
+    <View key={country.name} style={styles.countryCard}>
+      <View style={styles.countryHeader}>
+        <View style={styles.countryInfo}>
+          <Text style={styles.countryName}>{country.name}</Text>
+          <Text style={styles.countryLocation}>
+            🏙️ {country.cityCount} cit{country.cityCount !== 1 ? 'ies' : 'y'}
+          </Text>
         </View>
-        <View style={styles.concertCountBadge}>
-          <Text style={styles.concertCountText}>{artist.concertCount}</Text>
-          <Text style={styles.concertCountLabel}>visits</Text>
+        <View style={styles.venueCountBadge}>
+          <Text style={styles.venueCountText}>{country.venueCount}</Text>
+          <Text style={styles.venueCountLabel}>venues</Text>
         </View>
       </View>
       
-      <View style={styles.artistStats}>
-        {artist.lastConcertDate && (
+      <View style={styles.countryStats}>
+        {country.lastConcertDate && (
           <Text style={styles.lastConcertText}>
-            🎵 Last seen: {formatDate(artist.lastConcertDate)}
+            🎵 Last show: {formatDate(country.lastConcertDate)}
           </Text>
         )}
-        {artist.venues.length > 0 && (
-          <Text style={styles.venuesText}>
-            📍 Venues: {artist.venues.slice(0, 3).join(', ')}
-            {artist.venues.length > 3 && ` +${artist.venues.length - 3} more`}
+        {country.cities.length > 0 && (
+          <Text style={styles.citiesText}>
+            🏙️ Cities: {country.cities.slice(0, 3).join(', ')}
+            {country.cities.length > 3 && ` +${country.cities.length - 3} more`}
           </Text>
         )}
       </View>
-    </TouchableOpacity>
+    </View>
   );
 
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading artists...</Text>
+          <Text style={styles.loadingText}>Loading countries...</Text>
         </View>
       </SafeAreaView>
     );
@@ -187,11 +140,17 @@ export default function ArtistsScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Artists</Text>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>Countries</Text>
         <Text style={styles.subtitle}>
           {sortOption === 'top' 
-            ? `${artists.length} artists (sorted by concert count)`
-            : `${artists.length} artists`
+            ? `${countries.length} countries (sorted by venue count)`
+            : `${countries.length} countries`
           }
         </Text>
       </View>
@@ -227,28 +186,16 @@ export default function ArtistsScreen() {
         </View>
       </View>
 
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search artists..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholderTextColor="#999"
-        />
-      </View>
-
-      <ScrollView style={styles.artistsList} showsVerticalScrollIndicator={false}>
-        {filteredArtists.length === 0 ? (
+      <ScrollView style={styles.countriesList} showsVerticalScrollIndicator={false}>
+        {countries.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>
-              {searchQuery.trim() ? 'No artists match your search' : 'No artists found'}
-            </Text>
-            <TouchableOpacity style={styles.refreshButton} onPress={loadArtists}>
+            <Text style={styles.emptyStateText}>No countries found</Text>
+            <TouchableOpacity style={styles.refreshButton} onPress={loadCountries}>
               <Text style={styles.refreshButtonText}>Refresh</Text>
             </TouchableOpacity>
           </View>
         ) : (
-          filteredArtists.map(getArtistCard)
+          countries.map(getCountryCard)
         )}
       </ScrollView>
     </SafeAreaView>
@@ -266,14 +213,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e9ecef',
   },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
   backButton: {
     padding: 10,
+    marginBottom: 10,
   },
   backButtonText: {
     fontSize: 16,
@@ -289,80 +231,67 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
-  searchContainer: {
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  searchInput: {
-    height: 50,
-    backgroundColor: '#f8f9fa',
-    borderRadius: 25,
-    paddingHorizontal: 20,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-  },
-  artistsList: {
+  countriesList: {
     flex: 1,
     padding: 20,
   },
-  artistCard: {
+  countryCard: {
     backgroundColor: '#f0f0f0',
     borderRadius: 10,
     padding: 15,
     marginBottom: 10,
   },
-  artistHeader: {
+  countryHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 5,
   },
-  artistInfo: {
+  countryInfo: {
     flex: 1,
     marginRight: 15,
   },
-  artistName: {
+  countryName: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 3,
+    marginBottom: 5,
   },
-  artistDisambiguation: {
+  countryLocation: {
     fontSize: 14,
     color: '#666',
-    fontStyle: 'italic',
   },
-  concertCountBadge: {
-    backgroundColor: '#007AFF',
+  venueCountBadge: {
+    backgroundColor: '#28a745',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
     alignItems: 'center',
     minWidth: 60,
   },
-  concertCountText: {
+  venueCountText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
   },
-  concertCountLabel: {
+  venueCountLabel: {
     fontSize: 10,
     color: '#fff',
     opacity: 0.9,
   },
-  artistStats: {
+  countryStats: {
     marginTop: 5,
   },
   lastConcertText: {
     fontSize: 14,
-    color: '#007AFF',
+    color: '#28a745',
     fontWeight: '500',
     marginBottom: 5,
   },
-  venuesText: {
+  citiesText: {
     fontSize: 13,
     color: '#666',
+    marginBottom: 5,
   },
   emptyState: {
     alignItems: 'center',
@@ -375,7 +304,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   refreshButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#28a745',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 20,
@@ -415,8 +344,8 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   sortButton: {
-    paddingVertical: 8,
     paddingHorizontal: 15,
+    paddingVertical: 8,
     borderRadius: 15,
   },
   sortButtonActive: {

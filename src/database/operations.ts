@@ -400,6 +400,7 @@ export class DatabaseOperations {
     lastConcertDate?: string;
     venues: string[];
   }[]> {
+    // First get basic artist stats
     const result = await this.db.getAllAsync(`
       SELECT 
         a.mbid,
@@ -407,18 +408,35 @@ export class DatabaseOperations {
         a.sortName,
         a.disambiguation,
         a.url,
-        COUNT(sl.id) as concertCount,
-        MAX(sl.eventDate) as lastConcertDate,
+        COUNT(DISTINCT sl.eventDate || '|' || sl.venueId) as concertCount,
         GROUP_CONCAT(DISTINCT v.name) as venueNames
       FROM artists a
       INNER JOIN setlists sl ON a.mbid = sl.artistMbid
       LEFT JOIN venues v ON sl.venueId = v.id
       GROUP BY a.mbid, a.name, a.sortName, a.disambiguation, a.url
-      HAVING COUNT(sl.id) > 0
+      HAVING COUNT(DISTINCT sl.eventDate || '|' || sl.venueId) > 0
       ORDER BY a.name COLLATE NOCASE
     `) as any[];
-    
-    return result.map(row => ({
+
+    // Then get the last concert date for each artist separately
+    const artistsWithLastDates = await Promise.all(
+      result.map(async (artist) => {
+        const lastConcertResult = await this.db.getFirstAsync(
+          'SELECT eventDate FROM setlists WHERE artistMbid = ? ORDER BY substr(eventDate, 7, 4) || "-" || substr(eventDate, 4, 2) || "-" || substr(eventDate, 1, 2) DESC LIMIT 1',
+          [artist.mbid]
+        ) as any;
+        
+        return {
+          ...artist,
+          lastConcertDate: lastConcertResult?.eventDate || null
+        };
+      })
+    );
+
+
+
+
+    return artistsWithLastDates.map(row => ({
       mbid: row.mbid,
       name: row.name || 'Unknown Artist',
       sortName: row.sortName,
@@ -488,8 +506,8 @@ export class DatabaseOperations {
         co.name as countryName,
         c.coordsLat,
         c.coordsLong,
-        COUNT(sl.id) as concertCount,
-        MAX(sl.eventDate) as lastConcertDate,
+        COUNT(DISTINCT sl.eventDate) as concertCount,
+        (SELECT sl2.eventDate FROM setlists sl2 WHERE sl2.venueId = v.id ORDER BY substr(sl2.eventDate, 7, 4) || "-" || substr(sl2.eventDate, 4, 2) || "-" || substr(sl2.eventDate, 1, 2) DESC LIMIT 1) as lastConcertDate,
         GROUP_CONCAT(DISTINCT a.name) as artistNames
       FROM venues v
       INNER JOIN setlists sl ON v.id = sl.venueId
@@ -497,7 +515,7 @@ export class DatabaseOperations {
       LEFT JOIN countries co ON c.countryCode = co.code
       LEFT JOIN artists a ON sl.artistMbid = a.mbid
       GROUP BY v.id, v.name, v.url, c.id, c.name, c.state, c.stateCode, c.countryCode, co.name, c.coordsLat, c.coordsLong
-      HAVING COUNT(sl.id) > 0
+      HAVING COUNT(DISTINCT sl.eventDate) > 0
       ORDER BY v.name COLLATE NOCASE
     `) as any[];
     
@@ -751,6 +769,251 @@ export class DatabaseOperations {
       [id]
     );
     return result as DBVenue | null;
+  }
+
+  // Get geographical statistics for venues
+  async getVenueGeoStats(): Promise<{
+    totalContinents: number;
+    totalCountries: number;
+    totalCities: number;
+    continents: string[];
+    countries: string[];
+    cities: string[];
+  }> {
+    const result = await this.db.getAllAsync(`
+      SELECT DISTINCT
+        co.name as countryName,
+        c.name as cityName
+      FROM setlists sl
+      INNER JOIN venues v ON sl.venueId = v.id
+      INNER JOIN cities c ON v.cityId = c.id
+      INNER JOIN countries co ON c.countryCode = co.code
+      WHERE co.name IS NOT NULL AND c.name IS NOT NULL
+      ORDER BY co.name, c.name
+    `) as any[];
+
+    const countries = [...new Set(result.map((row: any) => row.countryName))];
+    const cities = [...new Set(result.map((row: any) => row.cityName))];
+
+    // Map countries to continents
+    const continents = [...new Set(countries.map(country => this.getContinent(country)))];
+
+    return {
+      totalContinents: continents.length,
+      totalCountries: countries.length,
+      totalCities: cities.length,
+      continents,
+      countries,
+      cities,
+    };
+  }
+
+  // Get continents with detailed statistics
+  async getContinentsWithStats(): Promise<{
+    name: string;
+    countryCount: number;
+    cityCount: number;
+    venueCount: number;
+    lastConcertDate?: string;
+    countries: string[];
+  }[]> {
+    // First get all countries and map them to continents
+    const countryResult = await this.db.getAllAsync(`
+      SELECT DISTINCT co.name as countryName
+      FROM setlists sl
+      INNER JOIN venues v ON sl.venueId = v.id
+      INNER JOIN cities c ON v.cityId = c.id
+      INNER JOIN countries co ON c.countryCode = co.code
+      WHERE co.name IS NOT NULL
+    `) as any[];
+
+    const countries = countryResult.map(row => row.countryName);
+    const continentMap = new Map<string, string[]>();
+    
+    // Group countries by continent
+    countries.forEach(country => {
+      const continent = this.getContinent(country);
+      if (!continentMap.has(continent)) {
+        continentMap.set(continent, []);
+      }
+      continentMap.get(continent)!.push(country);
+    });
+
+    // Get detailed stats for each continent
+    const continentsWithStats = await Promise.all(
+      Array.from(continentMap.entries()).map(async ([continentName, continentCountries]) => {
+        const countryList = continentCountries.join("','");
+        
+        const statsResult = await this.db.getAllAsync(`
+          SELECT 
+            COUNT(DISTINCT c.name) as cityCount,
+            COUNT(DISTINCT v.id) as venueCount,
+            MAX(sl.eventDate) as lastConcertDate
+          FROM setlists sl
+          INNER JOIN venues v ON sl.venueId = v.id
+          INNER JOIN cities c ON v.cityId = c.id
+          INNER JOIN countries co ON c.countryCode = co.code
+          WHERE co.name IN ('${countryList}')
+        `) as any[];
+
+        const stats = statsResult[0] || {};
+        
+        return {
+          name: continentName,
+          countryCount: continentCountries.length,
+          cityCount: stats.cityCount || 0,
+          venueCount: stats.venueCount || 0,
+          lastConcertDate: stats.lastConcertDate,
+          countries: continentCountries,
+        };
+      })
+    );
+
+    return continentsWithStats.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  // Get countries with detailed statistics
+  async getCountriesWithStats(): Promise<{
+    name: string;
+    cityCount: number;
+    venueCount: number;
+    lastConcertDate?: string;
+    cities: string[];
+  }[]> {
+    const result = await this.db.getAllAsync(`
+      SELECT 
+        co.name,
+        COUNT(DISTINCT c.name) as cityCount,
+        COUNT(DISTINCT v.id) as venueCount,
+        MAX(sl.eventDate) as lastConcertDate,
+        GROUP_CONCAT(DISTINCT c.name) as cityNames
+      FROM setlists sl
+      INNER JOIN venues v ON sl.venueId = v.id
+      INNER JOIN cities c ON v.cityId = c.id
+      INNER JOIN countries co ON c.countryCode = co.code
+      WHERE co.name IS NOT NULL AND c.name IS NOT NULL
+      GROUP BY co.name
+      ORDER BY co.name
+    `) as any[];
+
+    return result.map(row => ({
+      name: row.name,
+      cityCount: row.cityCount || 0,
+      venueCount: row.venueCount || 0,
+      lastConcertDate: row.lastConcertDate,
+      cities: row.cityNames ? row.cityNames.split(',') : [],
+    }));
+  }
+
+  // Get cities with detailed statistics
+  async getCitiesWithStats(): Promise<{
+    name: string;
+    countryName: string;
+    venueCount: number;
+    lastConcertDate?: string;
+    venues: string[];
+  }[]> {
+    const result = await this.db.getAllAsync(`
+      SELECT 
+        c.name,
+        co.name as countryName,
+        COUNT(DISTINCT v.id) as venueCount,
+        MAX(sl.eventDate) as lastConcertDate,
+        GROUP_CONCAT(DISTINCT v.name) as venueNames
+      FROM setlists sl
+      INNER JOIN venues v ON sl.venueId = v.id
+      INNER JOIN cities c ON v.cityId = c.id
+      INNER JOIN countries co ON c.countryCode = co.code
+      WHERE c.name IS NOT NULL AND co.name IS NOT NULL
+      GROUP BY c.name, co.name
+      ORDER BY c.name
+    `) as any[];
+
+    return result.map(row => ({
+      name: row.name,
+      countryName: row.countryName,
+      venueCount: row.venueCount || 0,
+      lastConcertDate: row.lastConcertDate,
+      venues: row.venueNames ? row.venueNames.split(',') : [],
+    }));
+  }
+
+  // Helper function to map countries to continents
+  private getContinent(country: string): string {
+    const continentMap: { [key: string]: string } = {
+      // North America
+      'United States': 'North America',
+      'Canada': 'North America',
+      'Mexico': 'North America',
+      
+      // Europe
+      'Germany': 'Europe',
+      'United Kingdom': 'Europe',
+      'France': 'Europe',
+      'Italy': 'Europe',
+      'Spain': 'Europe',
+      'Netherlands': 'Europe',
+      'Belgium': 'Europe',
+      'Switzerland': 'Europe',
+      'Austria': 'Europe',
+      'Sweden': 'Europe',
+      'Norway': 'Europe',
+      'Denmark': 'Europe',
+      'Finland': 'Europe',
+      'Poland': 'Europe',
+      'Czech Republic': 'Europe',
+      'Czechia': 'Europe',
+      'Hungary': 'Europe',
+      'Portugal': 'Europe',
+      'Ireland': 'Europe',
+      'Greece': 'Europe',
+      'Croatia': 'Europe',
+      'Slovenia': 'Europe',
+      'Slovakia': 'Europe',
+      'Romania': 'Europe',
+      'Bulgaria': 'Europe',
+      
+      // South America
+      'Brazil': 'South America',
+      'Argentina': 'South America',
+      'Chile': 'South America',
+      'Colombia': 'South America',
+      'Peru': 'South America',
+      'Uruguay': 'South America',
+      'Venezuela': 'South America',
+      'Ecuador': 'South America',
+
+      // Central America
+      'Costa Rica': 'Central America',
+      'Panama': 'Central America',
+      'Nicaragua': 'Central America',
+      'Honduras': 'Central America',
+      'El Salvador': 'Central America',
+      'Guatemala': 'Central America',
+      
+      // Asia
+      'Japan': 'Asia',
+      'South Korea': 'Asia',
+      'China': 'Asia',
+      'India': 'Asia',
+      'Thailand': 'Asia',
+      'Singapore': 'Asia',
+      'Malaysia': 'Asia',
+      'Indonesia': 'Asia',
+      'Philippines': 'Asia',
+      
+      // Oceania
+      'Australia': 'Oceania',
+      'New Zealand': 'Oceania',
+      
+      // Africa
+      'South Africa': 'Africa',
+      'Egypt': 'Africa',
+      'Morocco': 'Africa',
+      'Nigeria': 'Africa',
+    };
+
+    return continentMap[country] || 'Other';
   }
 
   // Clear all data for testing (use with caution!)

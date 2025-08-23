@@ -328,61 +328,65 @@ export default function ConcertsScreen() {
             </Text>
           </View>
         ) : sortOption === 'alphabetical' ? (
-          // Flat list for alphabetical sorting
-          filteredYearGroups
-            .flatMap(yearGroup => yearGroup.concerts)
-            .sort((a, b) => a.artistName.localeCompare(b.artistName))
-            .map((concert) => (
-            <TouchableOpacity
-              key={concert.id}
-              style={styles.concertItem}
-              onPress={() => {
-                // Pass return information so the setlist knows where to return
-                const returnParams = artist ? { artist } : venue ? { venue } : {};
-                const returnTo = artist ? '/artists/concerts' : venue ? '/venues/concerts' : '/';
+          // Flat list for alphabetical sorting with proper container spacing
+          <View style={styles.alphabeticalContainer}>
+            {filteredYearGroups
+              .flatMap(yearGroup => yearGroup.concerts)
+              .sort((a, b) => a.artistName.localeCompare(b.artistName))
+              .map((concert) => (
+              <TouchableOpacity
+                key={concert.id}
+                style={styles.concertItem}
+                onPress={() => {
+                  // Pass return information so the setlist knows where to return
+                  const returnParams = artist ? { artist } : venue ? { venue } : {};
+                  const returnTo = artist ? '/artists/concerts' : venue ? '/venues/concerts' : '/';
+                  
+                  console.log('🔄 Navigation:', {
+                    from: '/',
+                    to: '/setlist',
+                    params: { 
+                      id: concert.id,
+                      source: 'concerts',
+                      returnTo,
+                      returnParams: JSON.stringify(returnParams)
+                    }
+                  });
+                  router.push({
+                    pathname: '/setlist',
+                    params: { 
+                      id: concert.id,
+                      source: 'concerts',
+                      returnTo,
+                      returnParams: JSON.stringify(returnParams)
+                    },
+                  });
+                }}
+              >
+                <View style={styles.concertHeader}>
+                  <View style={styles.concertMainInfo}>
+                    <Text style={styles.artistName}>{concert.artistName}</Text>
+                  </View>
+                  <Text style={styles.concertDate}>{formatDate(concert.eventDate!)}</Text>
+                </View>
                 
-                console.log('🔄 Navigation:', {
-                  from: '/',
-                  to: '/setlist',
-                  params: { 
-                    id: concert.id,
-                    source: 'concerts',
-                    returnTo,
-                    returnParams: JSON.stringify(returnParams)
-                  }
-                });
-                router.push({
-                  pathname: '/setlist',
-                  params: { 
-                    id: concert.id,
-                    source: 'concerts',
-                    returnTo,
-                    returnParams: JSON.stringify(returnParams)
-                  },
-                });
-              }}
-            >
-              <View style={styles.concertHeader}>
-                <Text style={styles.artistName}>{concert.artistName}</Text>
-                <Text style={styles.concertDate}>{formatDate(concert.eventDate!)}</Text>
-              </View>
-              
-              <View style={styles.concertDetails}>
-                <Text style={styles.venueName}>{concert.venueName}</Text>
-                {concert.cityName && (
-                  <Text style={styles.locationText}>
-                    {concert.cityName}
-                    {concert.stateName && `, ${concert.stateName}`}
-                    {concert.countryName && `, ${concert.countryName}`}
-                  </Text>
-                )}
-              </View>
+                <View style={styles.concertDetails}>
+                  <Text style={styles.venueName}>{concert.venueName}</Text>
+                  {concert.cityName && (
+                    <Text style={styles.locationText}>
+                      {concert.cityName}
+                      {concert.stateName && `, ${concert.stateName}`}
+                      {concert.countryName && `, ${concert.countryName}`}
+                    </Text>
+                  )}
+                </View>
 
-              {concert.tour?.name && (
-                <Text style={styles.tourName}>{concert.tour.name}</Text>
-              )}
-            </TouchableOpacity>
-          ))
+                {concert.tour?.name && (
+                  <Text style={styles.tourName}>{concert.tour.name}</Text>
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
         ) : (
           // Year grouping for recent sorting
           filteredYearGroups.map((yearGroup) => (
@@ -443,7 +447,9 @@ export default function ConcertsScreen() {
               }}
             >
               <View style={styles.concertHeader}>
-                <Text style={styles.artistName}>{concert.artistName}</Text>
+                <View style={styles.concertMainInfo}>
+                  <Text style={styles.artistName}>{concert.artistName}</Text>
+                </View>
                 <Text style={styles.concertDate}>{formatDate(concert.eventDate!)}</Text>
               </View>
 
@@ -527,9 +533,11 @@ const styles = StyleSheet.create({
   sortContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 20,
     marginBottom: 15,
     paddingHorizontal: 20,
+    backgroundColor: '#fff',
+    paddingVertical: 20,
   },
   sortLabel: {
     fontSize: 14,
@@ -557,6 +565,17 @@ const styles = StyleSheet.create({
   },
   sortButtonTextActive: {
     color: '#fff',
+  },
+  alphabeticalContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   yearGroup: {
     backgroundColor: '#fff',
@@ -614,13 +633,18 @@ const styles = StyleSheet.create({
   concertHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 5,
+  },
+  concertMainInfo: {
+    flex: 1,
+    marginRight: 10,
   },
   artistName: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
+    flexWrap: 'wrap',
   },
   concertDate: {
     fontSize: 14,

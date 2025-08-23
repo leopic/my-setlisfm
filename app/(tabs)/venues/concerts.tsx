@@ -139,7 +139,15 @@ export default function VenueConcertsListScreen() {
       <View style={styles.entityInfo}>
         <Text style={styles.entityName}>{venueName}</Text>
         <Text style={styles.concertCount}>
-          {concerts.length} concert{concerts.length !== 1 ? 's' : ''}
+          {(() => {
+            const uniqueVisits = new Set(concerts.map(c => c.eventDate)).size;
+            const totalPerformances = concerts.length;
+            if (uniqueVisits === totalPerformances) {
+              return `${uniqueVisits} visit${uniqueVisits !== 1 ? 's' : ''}`;
+            } else {
+              return `${uniqueVisits} visit${uniqueVisits !== 1 ? 's' : ''}, ${totalPerformances} performance${totalPerformances !== 1 ? 's' : ''}`;
+            }
+          })()}
         </Text>
       </View>
 
@@ -157,9 +165,11 @@ export default function VenueConcertsListScreen() {
               onPress={() => handleConcertPress(concert)}
             >
               <View style={styles.concertHeader}>
-                <Text style={styles.concertMainName}>
-                  {concert.artistName}
-                </Text>
+                <View style={styles.concertMainInfo}>
+                  <Text style={styles.concertMainName}>
+                    {concert.artistName}
+                  </Text>
+                </View>
                 <Text style={styles.concertDate}>{formatDate(concert.eventDate!)}</Text>
               </View>
               
@@ -248,13 +258,18 @@ const styles = StyleSheet.create({
   concertHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 10,
+  },
+  concertMainInfo: {
+    flex: 1,
+    marginRight: 10,
   },
   concertMainName: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
+    flexWrap: 'wrap',
   },
   concertDate: {
     fontSize: 14,
