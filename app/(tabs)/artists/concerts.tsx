@@ -130,24 +130,16 @@ export default function ArtistConcertsListScreen() {
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>
-          Artist Concerts
+          {artistName}
         </Text>
-        <View style={styles.placeholder} />
-      </View>
-
-      {/* Artist Info */}
-      <View style={styles.entityInfo}>
-        <Text style={styles.entityName}>{artistName}</Text>
         <Text style={styles.concertCount}>
-          {(() => {
-            const uniqueVisits = new Set(concerts.map(c => c.eventDate + '|' + c.venueId)).size;
-            const totalPerformances = concerts.length;
-            if (uniqueVisits === totalPerformances) {
-              return `${uniqueVisits} visit${uniqueVisits !== 1 ? 's' : ''}`;
-            } else {
-              return `${uniqueVisits} visit${uniqueVisits !== 1 ? 's' : ''}, ${totalPerformances} performance${totalPerformances !== 1 ? 's' : ''}`;
-            }
-          })()}
+          {concerts.length} Concert{concerts.length !== 1 ? 's' : ''}
+        </Text>
+        <Text style={styles.cityCount}>
+          {new Set(concerts.map(c => c.cityName)).size} Cit{new Set(concerts.map(c => c.cityName)).size !== 1 ? 'ies' : 'y'}
+        </Text>
+        <Text style={styles.countryCount}>
+          {new Set(concerts.map(c => c.countryName)).size} Countr{new Set(concerts.map(c => c.countryName)).size !== 1 ? 'ies' : 'y'}
         </Text>
       </View>
 
@@ -198,16 +190,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
     padding: 20,
-    paddingTop: 10,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5EA',
   },
   backButton: {
     padding: 10,
+    marginBottom: 10,
   },
   backButtonText: {
     color: '#007AFF',
@@ -215,14 +205,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   title: {
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
-    flex: 1,
-    textAlign: 'center',
+    marginBottom: 5,
   },
-  placeholder: {
-    width: 50,
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
   },
   entityInfo: {
     backgroundColor: '#fff',
@@ -239,21 +229,26 @@ const styles = StyleSheet.create({
   concertCount: {
     fontSize: 16,
     color: '#666',
+    marginBottom: 5,
+  },
+  cityCount: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 5,
+  },
+  countryCount: {
+    fontSize: 16,
+    color: '#666',
   },
   concertsList: {
     flex: 1,
     padding: 20,
   },
   concertItem: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 10,
   },
   concertHeader: {
     flexDirection: 'row',

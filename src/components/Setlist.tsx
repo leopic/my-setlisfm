@@ -1,0 +1,208 @@
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import type { SetlistWithDetails, SetWithSongs, SongWithDetails } from '../types/database';
+
+interface SetlistProps {
+  setlist: SetlistWithDetails;
+  sets: SetWithSongs[];
+  onBackPress: () => void;
+}
+
+export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
+  const formatDate = (dateString: string): string => {
+    try {
+      const [day, month, year] = dateString.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    } catch (error) {
+      return dateString;
+    }
+  };
+
+  const getSetTitle = (set: SetWithSongs, index: number): string => {
+    if (set.encore) {
+      return `Encore ${set.encore}`;
+    }
+    if (set.name && set.name !== 'Set 1:' && set.name !== 'Set 1') {
+      return set.name;
+    }
+    // If there's only one set or it's the first set, call it "Main Set"
+    if (setlist?.sets && setlist.sets.filter(s => s.songs && s.songs.length > 0).length === 1) {
+      return 'Main Set';
+    }
+    return index === 0 ? 'Main Set' : `Set ${index + 1}`;
+  };
+
+  return (
+    <>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={onBackPress}
+        >
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>{setlist.artist?.name || 'Unknown Artist'}</Text>
+        <Text style={styles.venueText}>
+          {setlist.venue?.name || 'Unknown Venue'}
+        </Text>
+        <Text style={styles.locationText}>
+          {setlist.city?.name}
+          {setlist.city?.state && `, ${setlist.city.state}`}
+          {setlist.country?.name && `, ${setlist.country.name}`}
+        </Text>
+        <Text style={styles.dateText}>
+          {formatDate(setlist.eventDate!)}
+        </Text>
+        {setlist.tour?.name && (
+          <Text style={styles.tourText}>
+            {setlist.tour.name}
+          </Text>
+        )}
+      </View>
+
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Sets */}
+        {sets.filter(set => set.songs && set.songs.length > 0).map((set, index) => (
+          <View key={set.id} style={styles.setContainer}>
+            <Text style={styles.setTitle}>{getSetTitle(set, index)}</Text>
+            {set.songs?.map((song, songIndex) => (
+              <View key={songIndex} style={styles.songItem}>
+                <Text style={styles.songName}>
+                  {song.tape && '📼 '}
+                  {song.name}
+                  {song.info && ` (${song.info})`}
+                </Text>
+                {song.withArtistMbid && (
+                  <Text style={styles.withArtistText}>
+                    with {song.withArtistMbid}
+                  </Text>
+                )}
+                {song.coverArtistMbid && (
+                  <Text style={styles.coverArtistText}>
+                    cover of {song.coverArtistMbid}
+                  </Text>
+                )}
+              </View>
+            ))}
+          </View>
+        ))}
+
+        {/* Empty state if no sets */}
+        {sets.filter(set => set.songs && set.songs.length > 0).length === 0 && (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>No setlist information available</Text>
+          </View>
+        )}
+      </ScrollView>
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  header: {
+    padding: 20,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5EA',
+  },
+  backButton: {
+    padding: 10,
+    marginBottom: 10,
+  },
+  backButtonText: {
+    color: '#007AFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  venueText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  locationText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 6,
+  },
+  dateText: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 6,
+  },
+  tourText: {
+    fontSize: 16,
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  content: {
+    flex: 1,
+    padding: 20,
+  },
+  setContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  setTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  songItem: {
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  songName: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 4,
+  },
+  withArtistText: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+  },
+  coverArtistText: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+});
