@@ -111,6 +111,14 @@ Building an Expo application that connects to the Setlist.fm API to fetch and st
 - [ ] Error handling verification
 - [ ] Rate limiting compliance testing
 
+### 9. Dark Mode Support
+- [ ] Implement system theme detection (light/dark)
+- [ ] Create dark color palette for all UI components
+- [ ] Update all screens to support theme switching
+- [ ] Ensure proper contrast ratios for accessibility
+- [ ] Test dark mode on both iOS and Android
+- [ ] Add theme toggle in settings/debug screen
+
 ## Technical Considerations
 
 ### Rate Limiting Strategy
@@ -159,7 +167,7 @@ Building an Expo application that connects to the Setlist.fm API to fetch and st
 1. **Home/Dashboard Screen**: Overview of stored data with statistics
 2. **Manual Refresh**: Add pull-to-refresh functionality
 3. **Testing Suite**: Unit tests, integration tests, error handling verification
-4. **Venues Map View**: Optional map visualization
+4. **Dark Mode Support**: Complete theme system with light/dark variants
 
 ### 📱 **CURRENT APP STATE:**
 The app is now **~98% complete** with:

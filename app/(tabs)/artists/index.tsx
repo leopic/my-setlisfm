@@ -61,11 +61,6 @@ export default function ArtistsScreen() {
 
   const handleViewConcerts = (artist: ArtistWithStats) => {
     // Navigate to concerts list screen
-    console.log('🔄 Navigation:', {
-      from: '/artists',
-      to: '/artists/concerts',
-      params: { artist: artist.mbid }
-    });
     router.push({
       pathname: '/artists/concerts',
       params: { artist: artist.mbid },

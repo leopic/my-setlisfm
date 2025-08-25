@@ -119,11 +119,6 @@ export default function DebugScreen() {
   // Route testing functions
   const testRoute = (route: string, params?: any) => {
     try {
-      console.log('🔄 Navigation:', {
-        from: '/debug',
-        to: route,
-        params: params || {}
-      });
       router.push({
         pathname: route as any,
         params: params || {}

@@ -81,6 +81,17 @@ export default function CitiesScreen() {
     setCities(sortedCities);
   };
 
+  const handleCityPress = (city: CityWithStats) => {
+    router.push({
+      pathname: '/venues/city-detail',
+      params: { 
+        city: city.name,
+        country: city.countryName,
+        returnTo: '/venues/cities',
+        returnParams: JSON.stringify({})
+      }
+    });
+  };
 
 
   if (loading) {
@@ -145,28 +156,7 @@ export default function CitiesScreen() {
 
       <CityList
         cities={cities}
-        onCityPress={(city) => {
-          console.log('🔄 Navigation:', {
-            from: '/venues/cities',
-            to: '/venues/city-detail',
-            params: { 
-              city: city.name,
-              country: city.countryName,
-              returnTo: '/venues/cities',
-              returnParams: JSON.stringify({})
-            }
-          });
-          
-          router.push({
-            pathname: '/venues/city-detail',
-            params: { 
-              city: city.name,
-              country: city.countryName,
-              returnTo: '/venues/cities',
-              returnParams: JSON.stringify({})
-            }
-          });
-        }}
+        onCityPress={handleCityPress}
         emptyMessage="No cities found"
       />
     </SafeAreaView>

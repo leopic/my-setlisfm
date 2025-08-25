@@ -62,16 +62,6 @@ export default function CityDetailScreen() {
   };
 
   const handleVenuePress = (venue: VenueWithStats) => {
-    console.log('🔄 Navigation:', {
-      from: `/venues/city-detail?city=${city}&country=${country}`,
-      to: '/venues/concerts',
-      params: { 
-        venue: venue.id,
-        returnTo: '/venues/city-detail',
-        returnParams: JSON.stringify({ city, country, returnTo, returnParams })
-      }
-    });
-    
     router.push({
       pathname: '/venues/concerts',
       params: { 
@@ -86,7 +76,6 @@ export default function CityDetailScreen() {
     if (returnTo && returnParams) {
       try {
         const parsedParams = JSON.parse(returnParams as string);
-        console.log('🔄 Navigation: Back button pressed from /venues/city-detail');
         router.push({ pathname: returnTo as string, params: parsedParams });
       } catch (error) {
         console.error('Error parsing return params:', error);

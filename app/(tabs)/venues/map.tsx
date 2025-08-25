@@ -7,8 +7,7 @@ export default function VenuesMapScreen() {
   const router = useRouter();
 
   const handleBackPress = () => {
-    console.log('🔄 Navigation: Back button pressed from /venues/map');
-    router.push('/venues');
+    router.back();
   };
 
   return (

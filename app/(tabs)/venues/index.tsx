@@ -79,11 +79,6 @@ export default function VenuesScreen() {
 
   const handleViewConcerts = (venue: VenueWithStats) => {
     // Navigate to concerts list screen
-    console.log('🔄 Navigation:', {
-      from: '/venues',
-      to: '/venues/concerts',
-      params: { venue: venue.id }
-    });
     router.push({
       pathname: '/venues/concerts',
       params: { venue: venue.id },

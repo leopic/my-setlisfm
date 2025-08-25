@@ -9,40 +9,29 @@ import { dbOperations } from '../database/operations';
 export class DataProcessor {
   
   async processSetlistsResponse(response: SetlistsResponse): Promise<void> {
-    console.log(`Processing ${response.setlist.length} setlists from page ${response.page}`);
-    
     for (const setlist of response.setlist) {
       await this.processSetlist(setlist);
     }
     
-    console.log('Finished processing all setlists');
   }
 
   async processMultipleSetlistsResponses(responses: SetlistsResponse[]): Promise<void> {
-    console.log(`Processing ${responses.length} pages of setlist data`);
     
     let totalSetlists = 0;
     for (const response of responses) {
-      console.log(`\n--- Processing Page ${response.page} ---`);
       await this.processSetlistsResponse(response);
       totalSetlists += response.setlist.length;
     }
     
-    console.log(`\n🎉 Finished processing all pages! Total setlists processed: ${totalSetlists}`);
   }
 
   private async processSetlist(setlist: Setlist): Promise<void> {
     try {
-      console.log(`\n=== Processing Setlist ${setlist.id} ===`);
-      console.log(`Artist: ${setlist.artist?.name || 'Unknown'}`);
-      console.log(`Venue: ${setlist.venue?.name || 'Unknown'}`);
-      console.log(`Sets count: ${setlist.sets?.set?.length || 0}`);
       
       // Check if setlist already exists
       if (!setlist.id) return;
       const existingSetlist = await dbOperations.getSetlistById(setlist.id);
       if (existingSetlist) {
-        console.log(`Setlist ${setlist.id} already exists, skipping...`);
         return;
       }
       
@@ -68,7 +57,6 @@ export class DataProcessor {
 
       // Check if setlist has actual concert data before storing anything else
       if (!setlist.sets?.set || setlist.sets.set.length === 0) {
-        console.log(`⚠️  Setlist ${setlist.id} has NO sets - skipping to avoid orphaned data`);
         return;
       }
 
@@ -81,7 +69,6 @@ export class DataProcessor {
       await this.processSetlistEntity(setlist);
 
       // Extract and store sets and songs
-      console.log(`Processing ${setlist.sets.set.length} sets for setlist ${setlist.id}`);
       await this.processSets(setlist.sets.set, setlist.id!);
 
     } catch (error) {
@@ -174,7 +161,6 @@ export class DataProcessor {
   }
 
   private async processSets(sets: Set[], setlistId: string): Promise<void> {
-    console.log(`Processing ${sets.length} sets for setlist ${setlistId}`);
     
     for (let setIndex = 0; setIndex < sets.length; setIndex++) {
       const set = sets[setIndex];
@@ -189,7 +175,6 @@ export class DataProcessor {
       };
       
       await dbOperations.insertSet(dbSet);
-      console.log(`Inserted set ${setIndex} for setlist ${setlistId}`);
       
       // Get the inserted set ID for songs
       // We need to query for the set we just inserted to get its ID
@@ -197,16 +182,12 @@ export class DataProcessor {
       const insertedSet = insertedSets.find(s => s.songOrder === setIndex);
       
       if (insertedSet && set.song) {
-        console.log(`Processing ${set.song.length} songs for set ${insertedSet.id}`);
         await this.processSongs(set.song, insertedSet.id);
-      } else {
-        console.log(`No songs found for set ${setIndex} or set not found`);
       }
     }
   }
 
   private async processSongs(songs: Song[], setId: number): Promise<void> {
-    console.log(`Processing ${songs.length} songs for set ${setId}`);
     
     for (let songIndex = 0; songIndex < songs.length; songIndex++) {
       const song = songs[songIndex];
@@ -233,7 +214,6 @@ export class DataProcessor {
       };
       
       await dbOperations.insertSong(dbSong);
-      console.log(`Inserted song: ${song.name} for set ${setId}`);
     }
   }
 }

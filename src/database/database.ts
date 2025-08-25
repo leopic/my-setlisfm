@@ -8,7 +8,6 @@ export class DatabaseManager {
 
   async initialize(): Promise<void> {
     if (this.initialized) {
-      console.log('Database already initialized, skipping...');
       return;
     }
 

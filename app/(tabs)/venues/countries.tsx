@@ -81,6 +81,12 @@ export default function CountriesScreen() {
     setCountries(sortedCountries);
   };
 
+  const handleCountryPress = (country: Country) => {
+    router.push({
+      pathname: '/venues/country-detail',
+      params: { countryCode: country.code }
+    });
+  };
 
 
   if (loading) {
@@ -146,23 +152,9 @@ export default function CountriesScreen() {
       <CountryList
         countries={countries}
         onCountryPress={(country) => {
-          console.log('🔄 Navigation:', {
-            from: '/venues/countries',
-            to: '/venues/country-detail',
-            params: { 
-              country: country.name,
-              returnTo: '/venues/countries',
-              returnParams: JSON.stringify({})
-            }
-          });
-          
           router.push({
             pathname: '/venues/country-detail',
-            params: { 
-              country: country.name,
-              returnTo: '/venues/countries',
-              returnParams: JSON.stringify({})
-            }
+            params: { countryCode: country.code }
           });
         }}
         emptyMessage="No countries found"

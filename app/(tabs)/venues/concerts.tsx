@@ -87,29 +87,17 @@ export default function VenueConcertsListScreen() {
   };
 
   const handleConcertPress = (concert: ConcertWithDetails) => {
-    // Navigate to setlist detail within venues tab
-    // Pass the current navigation context so the setlist page knows where to return
-    const currentParams = { venue: venueId };
-    const setlistReturnParams = returnTo && returnParams 
-      ? { venue: venueId, returnTo, returnParams }
-      : currentParams;
-      
-    console.log('🔄 Navigation:', {
-      from: '/venues/concerts',
-      to: '/venues/setlist',
-      params: { 
-        id: concert.id,
-        returnTo: '/venues/concerts',
-        returnParams: JSON.stringify(setlistReturnParams)
-      }
-    });
+    const returnInfo = {
+      pathname: '/venues/concerts' as any,
+      params: { venueId: venueId }
+    };
+
     router.push({
       pathname: '/venues/setlist',
-      params: { 
-        id: concert.id,
-        returnTo: '/venues/concerts',
-        returnParams: JSON.stringify(setlistReturnParams)
-      },
+      params: {
+        setlistId: concert.id,
+        returnTo: JSON.stringify(returnInfo)
+      }
     });
   };
 
@@ -117,15 +105,13 @@ export default function VenueConcertsListScreen() {
     if (returnTo && returnParams) {
       try {
         const parsedParams = JSON.parse(returnParams);
-        console.log('🔄 Navigation: Back button pressed from /venues/concerts');
-        router.push({ pathname: returnTo, params: parsedParams });
+        router.push({ pathname: returnTo as any, params: parsedParams });
       } catch (error) {
         console.error('Error parsing return params:', error);
-        router.push('/venues');
+        router.back();
       }
     } else {
-      console.log('🔄 Navigation: Back button pressed from /venues/concerts');
-      router.push('/venues');
+      router.back();
     }
   };
 

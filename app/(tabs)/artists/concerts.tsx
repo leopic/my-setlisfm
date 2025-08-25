@@ -88,15 +88,6 @@ export default function ArtistConcertsListScreen() {
     // Navigate to setlist detail within artists tab
     // Pass the current artist parameter so the setlist page knows where to return
     const currentParams = { artist: artistMbid };
-    console.log('🔄 Navigation:', {
-      from: '/artists/concerts',
-      to: '/artists/setlist',
-      params: { 
-        id: concert.id,
-        returnTo: '/artists/concerts',
-        returnParams: currentParams
-      }
-    });
     router.push({
       pathname: '/artists/setlist',
       params: { 
@@ -108,7 +99,6 @@ export default function ArtistConcertsListScreen() {
   };
 
   const handleBackPress = () => {
-    console.log('🔄 Navigation: Back button pressed from /artists/concerts');
     router.push('/artists');
   };
 

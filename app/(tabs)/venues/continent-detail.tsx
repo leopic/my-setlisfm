@@ -54,32 +54,17 @@ export default function ContinentDetailScreen() {
   };
 
   const handleCountryPress = (country: CountryWithStats) => {
-    console.log('🔄 Navigation:', {
-      from: `/venues/continent-detail?continentName=${continentName}`,
-      to: '/venues/country-detail',
-      params: { 
-        country: country.name,
-        returnTo: '/venues/continent-detail',
-        returnParams: JSON.stringify({ continentName, returnTo, returnParams })
-      }
-    });
-    
     router.push({
       pathname: '/venues/country-detail',
-      params: { 
-        country: country.name,
-        returnTo: '/venues/continent-detail',
-        returnParams: JSON.stringify({ continentName, returnTo, returnParams })
-      }
+      params: { countryCode: country.name }
     });
   };
 
   const handleBackPress = () => {
     if (returnTo && returnParams) {
       try {
-        const parsedParams = JSON.parse(returnParams as string);
-        console.log('🔄 Navigation: Back button pressed from /venues/continent-detail');
-        router.push({ pathname: returnTo as string, params: parsedParams });
+        const parsedParams = JSON.parse(returnParams);
+        router.push({ pathname: returnTo as any, params: parsedParams });
       } catch (error) {
         console.error('Error parsing return params:', error);
         router.back();

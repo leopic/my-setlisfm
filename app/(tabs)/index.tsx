@@ -242,7 +242,6 @@ export default function ConcertsScreen() {
             <TouchableOpacity
               style={styles.backButton}
               onPress={() => {
-                console.log('🔄 Navigation: Back button pressed from filtered concerts');
                 router.back();
               }}
             >
@@ -280,7 +279,6 @@ export default function ConcertsScreen() {
             <TouchableOpacity
               style={styles.clearFilterButton}
               onPress={() => {
-                console.log('🔄 Navigation: Clear filter button pressed from filtered concerts');
                 router.back();
               }}
             >
@@ -342,16 +340,6 @@ export default function ConcertsScreen() {
                   const returnParams = artist ? { artist } : venue ? { venue } : {};
                   const returnTo = artist ? '/artists/concerts' : venue ? '/venues/concerts' : '/';
                   
-                  console.log('🔄 Navigation:', {
-                    from: '/',
-                    to: '/setlist',
-                    params: { 
-                      id: concert.id,
-                      source: 'concerts',
-                      returnTo,
-                      returnParams: JSON.stringify(returnParams)
-                    }
-                  });
                   router.push({
                     pathname: '/setlist',
                     params: { 
@@ -425,16 +413,6 @@ export default function ConcertsScreen() {
                 const returnParams = artist ? { artist } : venue ? { venue } : {};
                 const returnTo = artist ? '/artists/concerts' : venue ? '/venues/concerts' : '/';
                 
-                console.log('🔄 Navigation:', {
-                  from: '/',
-                  to: '/setlist',
-                  params: { 
-                    id: concert.id,
-                    source: 'concerts',
-                    returnTo,
-                    returnParams: JSON.stringify(returnParams)
-                  }
-                });
                 router.push({
                   pathname: '/setlist',
                   params: { 

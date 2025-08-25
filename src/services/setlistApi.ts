@@ -68,26 +68,20 @@ export class SetlistApiService {
     let currentPage = 1;
     let hasMorePages = true;
     
-    console.log(`Starting to fetch all pages for user: ${username}`);
-    
     while (hasMorePages) {
       try {
-        console.log(`Fetching page ${currentPage}...`);
         const pageData = await this.getUserAttendedConcerts(username, currentPage);
         
         if (pageData.setlist && pageData.setlist.length > 0) {
           allPages.push(pageData);
-          console.log(`Page ${currentPage}: ${pageData.setlist.length} concerts`);
           
           // Check if there are more pages
           if (pageData.setlist.length < 20) { // Setlist.fm typically returns 20 items per page
             hasMorePages = false;
-            console.log(`Page ${currentPage} has fewer than 20 items, assuming it's the last page`);
           } else {
             currentPage++;
           }
         } else {
-          console.log(`Page ${currentPage} is empty, stopping`);
           hasMorePages = false;
         }
         
@@ -102,7 +96,6 @@ export class SetlistApiService {
       }
     }
     
-    console.log(`Finished fetching all pages. Total pages: ${allPages.length}`);
     return allPages;
   }
 

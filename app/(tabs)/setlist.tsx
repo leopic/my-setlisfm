@@ -38,23 +38,18 @@ export default function SetlistDetailScreen() {
   };
 
   const handleBackPress = () => {
-    console.log('🔄 Navigation: Back button pressed from /setlist');
-    
-    // If we have return information, navigate back to the specific page with params
-    if (returnTo && returnParams) {
+    if (returnTo) {
       try {
-        const parsedParams = JSON.parse(returnParams);
-        console.log('🔄 Navigation: Returning to', returnTo, 'with params:', parsedParams);
+        const parsedParams = JSON.parse(returnTo);
         router.push({
-          pathname: returnTo as any,
-          params: parsedParams
+          pathname: parsedParams.pathname as any,
+          params: parsedParams.params
         });
       } catch (error) {
-        console.error('Failed to parse return params, using router.back()');
+        console.error('Error parsing return params:', error);
         router.back();
       }
     } else {
-      // Fallback to normal back navigation
       router.back();
     }
   };

@@ -1023,15 +1023,18 @@ export class DatabaseOperations {
 
   // Clear all data for testing (use with caution!)
   async clearAllData(): Promise<void> {
-    await this.db.runAsync('DELETE FROM songs');
-    await this.db.runAsync('DELETE FROM sets');
-    await this.db.runAsync('DELETE FROM setlists');
-    await this.db.runAsync('DELETE FROM artists');
-    await this.db.runAsync('DELETE FROM venues');
-    await this.db.runAsync('DELETE FROM cities');
-    await this.db.runAsync('DELETE FROM countries');
-    await this.db.runAsync('DELETE FROM tours');
-    console.log('All data cleared from database');
+    try {
+      await this.db.execAsync(`
+        DELETE FROM songs;
+        DELETE FROM sets;
+        DELETE FROM setlists;
+        DELETE FROM venues;
+        DELETE FROM artists;
+      `);
+    } catch (error) {
+      console.error('Error clearing data:', error);
+      throw error;
+    }
   }
 }
 

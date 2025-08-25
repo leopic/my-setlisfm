@@ -53,34 +53,17 @@ export default function CountryDetailScreen() {
   };
 
   const handleCityPress = (city: CityWithStats) => {
-    console.log('🔄 Navigation:', {
-      from: `/venues/country-detail?country=${country}`,
-      to: '/venues/city-detail',
-      params: { 
-        city: city.name,
-        country: city.countryName,
-        returnTo: '/venues/country-detail',
-        returnParams: JSON.stringify({ country, returnTo, returnParams })
-      }
-    });
-    
     router.push({
       pathname: '/venues/city-detail',
-      params: { 
-        city: city.name,
-        country: city.countryName,
-        returnTo: '/venues/country-detail',
-        returnParams: JSON.stringify({ country, returnTo, returnParams })
-      }
+      params: { cityId: city.id }
     });
   };
 
   const handleBackPress = () => {
     if (returnTo && returnParams) {
       try {
-        const parsedParams = JSON.parse(returnParams as string);
-        console.log('🔄 Navigation: Back button pressed from /venues/country-detail');
-        router.push({ pathname: returnTo as string, params: parsedParams });
+        const parsedParams = JSON.parse(returnParams);
+        router.push({ pathname: returnTo as any, params: parsedParams });
       } catch (error) {
         console.error('Error parsing return params:', error);
         router.back();
