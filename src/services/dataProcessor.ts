@@ -178,7 +178,7 @@ export class DataProcessor {
       
       // Get the inserted set ID for songs
       // We need to query for the set we just inserted to get its ID
-      const insertedSets = await dbOperations.getSetsForSetlist(setlistId);
+      const insertedSets = await dbOperations.getSetsForSetlist(setlistId, false);
       const insertedSet = insertedSets.find(s => s.songOrder === setIndex);
       
       if (insertedSet && set.song) {

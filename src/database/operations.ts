@@ -279,32 +279,64 @@ export class DatabaseOperations {
     } as SetlistWithDetails;
   }
 
-  async getSetsForSetlist(setlistId: string): Promise<SetWithSongs[]> {
-    const sets = await this.db.getAllAsync(
-      'SELECT * FROM sets WHERE setlistId = ? ORDER BY id',
-      [setlistId]
-    ) as DBSet[];
-    
-    // For each set, get its songs
-    const setsWithSongs: SetWithSongs[] = [];
-    for (const set of sets) {
-      const songs = await this.getSongsForSet(set.id);
-      setsWithSongs.push({
-        ...set,
-        songs: songs,
-      });
+  async getSetsForSetlist(setlistId: string, includeSongs = true): Promise<SetWithSongs[]> {
+    if (!includeSongs) {
+      return await this.db.getAllAsync(
+        'SELECT * FROM sets WHERE setlistId = ? ORDER BY id',
+        [setlistId]
+      ) as SetWithSongs[];
     }
-    
-    return setsWithSongs;
-  }
 
-  async getSongsForSet(setId: number): Promise<DBSong[]> {
-    const result = await this.db.getAllAsync(
-      'SELECT * FROM songs WHERE setId = ? ORDER BY songOrder',
-      [setId]
-    );
-    
-    return result as DBSong[];
+    const rows = await this.db.getAllAsync(`
+      SELECT
+        st.id       AS setId,
+        st.setlistId,
+        st.name     AS setName,
+        st.encore,
+        st.songOrder AS setSongOrder,
+        s.id        AS songId,
+        s.name      AS songName,
+        s.tape,
+        s.info      AS songInfo,
+        s.withArtistMbid,
+        s.coverArtistMbid,
+        s.songOrder AS songSongOrder,
+        s.setId     AS songSetId
+      FROM sets st
+      LEFT JOIN songs s ON s.setId = st.id
+      WHERE st.setlistId = ?
+      ORDER BY st.id, s.songOrder
+    `, [setlistId]) as any[];
+
+    const setsMap = new Map<number, SetWithSongs>();
+
+    for (const row of rows) {
+      if (!setsMap.has(row.setId)) {
+        setsMap.set(row.setId, {
+          id: row.setId,
+          setlistId: row.setlistId,
+          name: row.setName,
+          encore: row.encore,
+          songOrder: row.setSongOrder,
+          songs: [],
+        });
+      }
+
+      if (row.songId != null) {
+        setsMap.get(row.setId)!.songs!.push({
+          id: row.songId,
+          setId: row.songSetId,
+          name: row.songName,
+          tape: row.tape,
+          info: row.songInfo,
+          withArtistMbid: row.withArtistMbid,
+          coverArtistMbid: row.coverArtistMbid,
+          songOrder: row.songSongOrder,
+        });
+      }
+    }
+
+    return Array.from(setsMap.values());
   }
 
   async getAllSongs(): Promise<DBSong[]> {
@@ -344,26 +376,10 @@ export class DatabaseOperations {
     if (!setlist) return null;
 
     const sets = await this.getSetsForSetlist(setlistId);
-    const setsWithSongs = await Promise.all(
-      sets.map(async (set) => {
-        // Remove any duplicate songs first
-        // await this.removeDuplicateSongs(set.id); // This line is removed
-        
-        const songs = await this.getSongsForSet(set.id);
-        return {
-          ...set,
-          songs: songs.map(song => ({
-            ...song,
-            // Note: We'd need to fetch artist details for withArtist and coverArtist
-            // This is a simplified version for now
-          })),
-        };
-      })
-    );
 
     return {
       ...setlist,
-      sets: setsWithSongs,
+      sets,
     };
   }
 
