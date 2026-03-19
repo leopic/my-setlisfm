@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
-import MapView, { Marker, Region } from 'react-native-maps';
+import { View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import type { Region } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { dbOperations } from '../database/operations';
 import { formatDate } from '../utils/date';
 
@@ -26,7 +21,7 @@ export default function VenuesMapView() {
   const [loading, setLoading] = useState(true);
   const [region, setRegion] = useState<Region>({
     latitude: 40.7128, // Default to NYC
-    longitude: -74.0060,
+    longitude: -74.006,
     latitudeDelta: 50, // Wide view to show multiple countries
     longitudeDelta: 50,
   });
@@ -39,25 +34,29 @@ export default function VenuesMapView() {
     try {
       setLoading(true);
       const allVenues = await dbOperations.getVenuesWithStats();
-      
+
       // Filter venues that have coordinates
       const venuesWithCoords = allVenues.filter(
-        venue => venue.coordsLat != null && venue.coordsLong != null
+        (venue) => venue.coordsLat != null && venue.coordsLong != null,
       );
-      
+
       setVenues(venuesWithCoords);
-      
+
       // Calculate center point of all venues for better initial view
       if (venuesWithCoords.length > 0) {
-        const avgLat = venuesWithCoords.reduce((sum, venue) => sum + (venue.coordsLat || 0), 0) / venuesWithCoords.length;
-        const avgLng = venuesWithCoords.reduce((sum, venue) => sum + (venue.coordsLong || 0), 0) / venuesWithCoords.length;
-        
+        const avgLat =
+          venuesWithCoords.reduce((sum, venue) => sum + (venue.coordsLat || 0), 0) /
+          venuesWithCoords.length;
+        const avgLng =
+          venuesWithCoords.reduce((sum, venue) => sum + (venue.coordsLong || 0), 0) /
+          venuesWithCoords.length;
+
         // Calculate bounds for appropriate zoom level
-        const latitudes = venuesWithCoords.map(v => v.coordsLat || 0);
-        const longitudes = venuesWithCoords.map(v => v.coordsLong || 0);
+        const latitudes = venuesWithCoords.map((v) => v.coordsLat || 0);
+        const longitudes = venuesWithCoords.map((v) => v.coordsLong || 0);
         const latDelta = Math.max(...latitudes) - Math.min(...latitudes);
         const lngDelta = Math.max(...longitudes) - Math.min(...longitudes);
-        
+
         setRegion({
           latitude: avgLat,
           longitude: avgLng,
@@ -116,8 +115,8 @@ export default function VenuesMapView() {
           <Marker
             key={venue.id}
             coordinate={{
-              latitude: venue.coordsLat!,
-              longitude: venue.coordsLong!,
+              latitude: venue.coordsLat ?? 0,
+              longitude: venue.coordsLong ?? 0,
             }}
             pinColor={getMarkerColor(venue.concertCount)}
             title={venue.name}
@@ -125,13 +124,13 @@ export default function VenuesMapView() {
           />
         ))}
       </MapView>
-      
+
       <View style={styles.venueCount}>
         <Text style={styles.venueCountText}>
           {venues.length} venue{venues.length !== 1 ? 's' : ''} with location data
         </Text>
       </View>
-      
+
       <View style={styles.legend}>
         <Text style={styles.legendTitle}>Visit Count Legend:</Text>
         <View style={styles.legendItems}>

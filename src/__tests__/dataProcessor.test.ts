@@ -68,7 +68,9 @@ describe('DataProcessor', () => {
     processor = new DataProcessor();
     jest.clearAllMocks();
     mockDbOps.getSetlistById.mockResolvedValue(null as any);
-    mockDbOps.getSetsForSetlist.mockResolvedValue([{ id: 100, setlistId: 'set-1', songOrder: 0 }] as any);
+    mockDbOps.getSetsForSetlist.mockResolvedValue([
+      { id: 100, setlistId: 'set-1', songOrder: 0 },
+    ] as any);
   });
 
   describe('processSetlistsResponse', () => {
@@ -79,17 +81,17 @@ describe('DataProcessor', () => {
 
       expect(mockDbOps.insertCountry).toHaveBeenCalledWith({ code: 'US', name: 'United States' });
       expect(mockDbOps.insertCity).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 'city-1', name: 'Test City', countryCode: 'US' })
+        expect.objectContaining({ id: 'city-1', name: 'Test City', countryCode: 'US' }),
       );
       expect(mockDbOps.insertVenue).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 'venue-1', name: 'Test Venue' })
+        expect.objectContaining({ id: 'venue-1', name: 'Test Venue' }),
       );
       expect(mockDbOps.insertArtist).toHaveBeenCalledWith(
-        expect.objectContaining({ mbid: 'artist-1', name: 'Test Artist' })
+        expect.objectContaining({ mbid: 'artist-1', name: 'Test Artist' }),
       );
       expect(mockDbOps.insertTour).toHaveBeenCalledWith({ name: 'Test Tour' });
       expect(mockDbOps.insertSetlist).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 'set-1' })
+        expect.objectContaining({ id: 'set-1' }),
       );
       expect(mockDbOps.insertSet).toHaveBeenCalled();
       expect(mockDbOps.insertSong).toHaveBeenCalledTimes(2);
@@ -131,7 +133,7 @@ describe('DataProcessor', () => {
 
       // Main artist + cover artist
       expect(mockDbOps.insertArtist).toHaveBeenCalledWith(
-        expect.objectContaining({ mbid: 'cover-artist-1', name: 'Cover Artist' })
+        expect.objectContaining({ mbid: 'cover-artist-1', name: 'Cover Artist' }),
       );
     });
 

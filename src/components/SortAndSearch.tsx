@@ -1,12 +1,6 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-} from 'react-native';
-import { SortOption } from '../utils/sort';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import type { SortOption } from '../utils/sort';
 
 interface SortAndSearchProps {
   sortOption: SortOption;
@@ -30,41 +24,53 @@ export default function SortAndSearch({
   sortOptions = {
     recent: 'Most Recent',
     top: 'Top',
-    alphabetical: 'Name'
-  }
+    alphabetical: 'Name',
+  },
 }: SortAndSearchProps) {
   return (
     <View style={styles.sortContainer}>
       <View style={styles.sortRow}>
         <Text style={styles.sortLabel}>Sort by:</Text>
         <View style={styles.sortButtons}>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]} 
+          <TouchableOpacity
+            style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]}
             onPress={() => onSortChange('recent')}
           >
-            <Text style={[styles.sortButtonText, sortOption === 'recent' && styles.sortButtonTextActive]}>
+            <Text
+              style={[
+                styles.sortButtonText,
+                sortOption === 'recent' && styles.sortButtonTextActive,
+              ]}
+            >
               {sortOptions.recent}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'top' && styles.sortButtonActive]} 
+          <TouchableOpacity
+            style={[styles.sortButton, sortOption === 'top' && styles.sortButtonActive]}
             onPress={() => onSortChange('top')}
           >
-            <Text style={[styles.sortButtonText, sortOption === 'top' && styles.sortButtonTextActive]}>
+            <Text
+              style={[styles.sortButtonText, sortOption === 'top' && styles.sortButtonTextActive]}
+            >
               {sortOptions.top}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]} 
+          <TouchableOpacity
+            style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]}
             onPress={() => onSortChange('alphabetical')}
           >
-            <Text style={[styles.sortButtonText, sortOption === 'alphabetical' && styles.sortButtonTextActive]}>
+            <Text
+              style={[
+                styles.sortButtonText,
+                sortOption === 'alphabetical' && styles.sortButtonTextActive,
+              ]}
+            >
               {sortOptions.alphabetical}
             </Text>
           </TouchableOpacity>
         </View>
       </View>
-      
+
       {sortOption === 'alphabetical' && (
         <TextInput
           style={styles.searchInput}

@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { formatDate } from '../utils/date';
 
 interface CityWithStats {
@@ -22,14 +16,14 @@ interface CityListProps {
   emptyMessage?: string;
 }
 
-export default function CityList({ 
-  cities, 
-  onCityPress, 
-  emptyMessage = "No cities found" 
+export default function CityList({
+  cities,
+  onCityPress,
+  emptyMessage = 'No cities found',
 }: CityListProps) {
   const getCityCard = (city: CityWithStats) => (
-    <TouchableOpacity 
-      key={`${city.name}-${city.countryName}`} 
+    <TouchableOpacity
+      key={`${city.name}-${city.countryName}`}
       style={styles.cityCard}
       onPress={() => onCityPress(city)}
       activeOpacity={0.7}
@@ -37,16 +31,14 @@ export default function CityList({
       <View style={styles.cityHeader}>
         <View style={styles.cityInfo}>
           <Text style={styles.cityName}>{city.name}</Text>
-          <Text style={styles.cityLocation}>
-            🏳️ {city.countryName}
-          </Text>
+          <Text style={styles.cityLocation}>🏳️ {city.countryName}</Text>
         </View>
         <View style={styles.venueCountBadge}>
           <Text style={styles.venueCountText}>{city.venueCount}</Text>
           <Text style={styles.venueCountLabel}>venues</Text>
         </View>
       </View>
-      
+
       <View style={styles.cityStats}>
         {city.lastConcertDate && (
           <Text style={styles.lastConcertText}>

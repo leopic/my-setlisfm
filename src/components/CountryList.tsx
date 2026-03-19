@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { formatDate } from '../utils/date';
 
 interface CountryWithStats {
@@ -22,14 +16,14 @@ interface CountryListProps {
   emptyMessage?: string;
 }
 
-export default function CountryList({ 
-  countries, 
-  onCountryPress, 
-  emptyMessage = "No countries found" 
+export default function CountryList({
+  countries,
+  onCountryPress,
+  emptyMessage = 'No countries found',
 }: CountryListProps) {
   const getCountryCard = (country: CountryWithStats) => (
-    <TouchableOpacity 
-      key={country.name} 
+    <TouchableOpacity
+      key={country.name}
       style={styles.countryCard}
       onPress={() => onCountryPress(country)}
       activeOpacity={0.7}
@@ -46,7 +40,7 @@ export default function CountryList({
           <Text style={styles.venueCountLabel}>venues</Text>
         </View>
       </View>
-      
+
       <View style={styles.countryStats}>
         {country.lastConcertDate && (
           <Text style={styles.lastConcertText}>

@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import CityList from '../../../src/components/CityList';
-import { sortByOption, SortOption } from '../../../src/utils/sort';
+import type { SortOption } from '../../../src/utils/sort';
+import { sortByOption } from '../../../src/utils/sort';
 
 interface CityWithStats {
   name: string;
@@ -34,7 +28,12 @@ export default function CitiesScreen() {
     try {
       setLoading(true);
       const citiesWithStats = await dbOperations.getCitiesWithStats();
-      const sortedCities = sortByOption(citiesWithStats, sortOption, undefined, (c) => c.venueCount);
+      const sortedCities = sortByOption(
+        citiesWithStats,
+        sortOption,
+        undefined,
+        (c) => c.venueCount,
+      );
       setCities(sortedCities);
     } catch (error) {
       console.error('Failed to load cities:', error);
@@ -53,15 +52,14 @@ export default function CitiesScreen() {
   const handleCityPress = (city: CityWithStats) => {
     router.push({
       pathname: '/venues/city-detail',
-      params: { 
+      params: {
         city: city.name,
         country: city.countryName,
         returnTo: '/venues/cities',
-        returnParams: JSON.stringify({})
-      }
+        returnParams: JSON.stringify({}),
+      },
     });
   };
-
 
   if (loading) {
     return (
@@ -77,18 +75,14 @@ export default function CitiesScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => router.push('/venues')}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => router.push('/venues')}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Cities</Text>
         <Text style={styles.subtitle}>
-          {sortOption === 'top' 
+          {sortOption === 'top'
             ? `${cities.length} cities (sorted by venue count)`
-            : `${cities.length} cities`
-          }
+            : `${cities.length} cities`}
         </Text>
       </View>
 
@@ -96,38 +90,46 @@ export default function CitiesScreen() {
       <View style={styles.sortContainer}>
         <Text style={styles.sortLabel}>Sort by:</Text>
         <View style={styles.sortButtons}>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]} 
+          <TouchableOpacity
+            style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]}
             onPress={() => handleSortChange('alphabetical')}
           >
-            <Text style={[styles.sortButtonText, sortOption === 'alphabetical' && styles.sortButtonTextActive]}>
+            <Text
+              style={[
+                styles.sortButtonText,
+                sortOption === 'alphabetical' && styles.sortButtonTextActive,
+              ]}
+            >
               Alphabetical
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]} 
+          <TouchableOpacity
+            style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]}
             onPress={() => handleSortChange('recent')}
           >
-            <Text style={[styles.sortButtonText, sortOption === 'recent' && styles.sortButtonTextActive]}>
+            <Text
+              style={[
+                styles.sortButtonText,
+                sortOption === 'recent' && styles.sortButtonTextActive,
+              ]}
+            >
               Most Recent
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'top' && styles.sortButtonActive]} 
+          <TouchableOpacity
+            style={[styles.sortButton, sortOption === 'top' && styles.sortButtonActive]}
             onPress={() => handleSortChange('top')}
           >
-            <Text style={[styles.sortButtonText, sortOption === 'top' && styles.sortButtonTextActive]}>
+            <Text
+              style={[styles.sortButtonText, sortOption === 'top' && styles.sortButtonTextActive]}
+            >
               Top
             </Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      <CityList
-        cities={cities}
-        onCityPress={handleCityPress}
-        emptyMessage="No cities found"
-      />
+      <CityList cities={cities} onCityPress={handleCityPress} emptyMessage="No cities found" />
     </SafeAreaView>
   );
 }

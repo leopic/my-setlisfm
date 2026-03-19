@@ -6,14 +6,14 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import SortAndSearch from '../../../src/components/SortAndSearch';
 import { formatDate } from '../../../src/utils/date';
-import { sortByOption, SortOption } from '../../../src/utils/sort';
+import type { SortOption } from '../../../src/utils/sort';
+import { sortByOption } from '../../../src/utils/sort';
 
 interface VenueWithStats {
   id: string;
@@ -63,10 +63,15 @@ export default function VenuesScreen() {
       setLoading(true);
       const [venuesWithStats, geoData] = await Promise.all([
         dbOperations.getVenuesWithStats(),
-        dbOperations.getVenueGeoStats()
+        dbOperations.getVenueGeoStats(),
       ]);
-      
-      const sortedVenues = sortByOption(venuesWithStats, sortOption, undefined, (v) => v.concertCount);
+
+      const sortedVenues = sortByOption(
+        venuesWithStats,
+        sortOption,
+        undefined,
+        (v) => v.concertCount,
+      );
       setVenues(sortedVenues);
       setGeoStats(geoData);
     } catch (error) {
@@ -96,21 +101,22 @@ export default function VenuesScreen() {
       setFilteredVenues(venues);
       return;
     }
-    
+
     const query = searchQuery.toLowerCase();
-    const filtered = venues.filter(venue => 
-      venue.name.toLowerCase().includes(query) ||
-      venue.cityName?.toLowerCase().includes(query) ||
-      venue.state?.toLowerCase().includes(query) ||
-      venue.countryName?.toLowerCase().includes(query)
+    const filtered = venues.filter(
+      (venue) =>
+        venue.name.toLowerCase().includes(query) ||
+        venue.cityName?.toLowerCase().includes(query) ||
+        venue.state?.toLowerCase().includes(query) ||
+        venue.countryName?.toLowerCase().includes(query),
     );
-    
+
     setFilteredVenues(filtered);
   };
 
   const getVenueCard = (venue: VenueWithStats) => (
-    <TouchableOpacity 
-      key={venue.id} 
+    <TouchableOpacity
+      key={venue.id}
       style={styles.venueCard}
       activeOpacity={0.7}
       onPress={() => handleViewConcerts(venue)}
@@ -129,7 +135,7 @@ export default function VenuesScreen() {
           <Text style={styles.concertCountLabel}>visits</Text>
         </View>
       </View>
-      
+
       <View style={styles.venueStats}>
         {venue.lastConcertDate && (
           <Text style={styles.lastConcertText}>
@@ -167,18 +173,17 @@ export default function VenuesScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Venues</Text>
         <Text style={styles.subtitle}>
-          {sortOption === 'top' 
+          {sortOption === 'top'
             ? `${venues.length} venues (sorted by visit count)`
             : sortOption === 'recent'
-            ? `${venues.length} venues (sorted by most recent)`
-            : `${venues.length} venues`
-          }
+              ? `${venues.length} venues (sorted by most recent)`
+              : `${venues.length} venues`}
         </Text>
         {geoStats && (
           <>
             <View style={styles.geoStatsContainer}>
               <View style={styles.geoStatsRow}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.geoStatButton}
                   onPress={() => router.push('/venues/map')}
                 >
@@ -186,7 +191,7 @@ export default function VenuesScreen() {
                   <Text style={styles.geoStatText}>Map</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.geoStatButton}
                   onPress={() => router.push('/venues/continents')}
                 >
@@ -196,9 +201,9 @@ export default function VenuesScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
-              
+
               <View style={styles.geoStatsRow}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.geoStatButton}
                   onPress={() => router.push('/venues/countries')}
                 >
@@ -207,8 +212,8 @@ export default function VenuesScreen() {
                     {geoStats.totalCountries} countr{geoStats.totalCountries !== 1 ? 'ies' : 'y'}
                   </Text>
                 </TouchableOpacity>
-                
-                <TouchableOpacity 
+
+                <TouchableOpacity
                   style={styles.geoStatButton}
                   onPress={() => router.push('/venues/cities')}
                 >
@@ -435,5 +440,4 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#666',
   },
-
 });

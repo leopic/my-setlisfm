@@ -33,7 +33,7 @@ export default function CityDetailScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { city, country, returnTo, returnParams } = params;
-  
+
   const [venues, setVenues] = useState<VenueWithStats[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,12 +47,12 @@ export default function CityDetailScreen() {
     try {
       setLoading(true);
       const allVenues = await dbOperations.getVenuesWithStats();
-      
+
       // Filter venues that belong to this city and country
-      const cityVenues = allVenues.filter(venue => 
-        venue.cityName === cityName && venue.countryName === countryName
+      const cityVenues = allVenues.filter(
+        (venue) => venue.cityName === cityName && venue.countryName === countryName,
       );
-      
+
       setVenues(cityVenues);
     } catch (error) {
       console.error('Failed to load venues for city:', error);
@@ -65,11 +65,11 @@ export default function CityDetailScreen() {
   const handleVenuePress = (venue: VenueWithStats) => {
     router.push({
       pathname: '/venues/concerts',
-      params: { 
+      params: {
         venue: venue.id,
         returnTo: '/venues/city-detail',
-        returnParams: JSON.stringify({ city, country, returnTo, returnParams })
-      }
+        returnParams: JSON.stringify({ city, country, returnTo, returnParams }),
+      },
     });
   };
 
@@ -88,8 +88,8 @@ export default function CityDetailScreen() {
   };
 
   const getVenueCard = (venue: VenueWithStats) => (
-    <TouchableOpacity 
-      key={venue.id} 
+    <TouchableOpacity
+      key={venue.id}
       style={styles.venueCard}
       onPress={() => handleVenuePress(venue)}
       activeOpacity={0.7}
@@ -108,7 +108,7 @@ export default function CityDetailScreen() {
           <Text style={styles.concertCountLabel}>visits</Text>
         </View>
       </View>
-      
+
       <View style={styles.venueStats}>
         {venue.lastConcertDate && (
           <Text style={styles.lastConcertText}>
@@ -144,10 +144,7 @@ export default function CityDetailScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={handleBackPress}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>{city}</Text>

@@ -75,9 +75,9 @@ export default function ConcertListModal({
                     <Text style={styles.concertMainName}>
                       {title.includes('Artist') ? concert.venueName : concert.artistName}
                     </Text>
-                    <Text style={styles.concertDate}>{formatDate(concert.eventDate!)}</Text>
+                    <Text style={styles.concertDate}>{formatDate(concert.eventDate ?? '')}</Text>
                   </View>
-                  
+
                   <View style={styles.concertDetails}>
                     <Text style={styles.concertLocation}>
                       {concert.cityName}
@@ -86,9 +86,7 @@ export default function ConcertListModal({
                     </Text>
                   </View>
 
-                  {concert.tour?.name && (
-                    <Text style={styles.tourName}>{concert.tour.name}</Text>
-                  )}
+                  {concert.tour?.name && <Text style={styles.tourName}>{concert.tour.name}</Text>}
                 </TouchableOpacity>
               ))
             )}

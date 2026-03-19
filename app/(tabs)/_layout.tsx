@@ -1,4 +1,4 @@
-import { Tabs } from "expo-router";
+import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
@@ -28,100 +28,94 @@ export default function TabLayout() {
         name="artists/index"
         options={{
           title: 'Artists',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="venues/index"
         options={{
           title: 'Venues',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="location" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Ionicons name="location" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="debug"
         options={{
           title: 'Debug',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Ionicons name="settings" size={size} color={color} />,
         }}
       />
       {/* don't create tabs for these screens */}
       <Tabs.Screen
         name="setlist"
         options={{
-            href: null,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="venues/concerts"
         options={{
-            href: null,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="venues/setlist"
         options={{
-            href: null,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="artists/concerts"
         options={{
-            href: null,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="artists/setlist"
         options={{
-            href: null,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="venues/continents"
         options={{
-            href: null,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="venues/countries"
         options={{
-            href: null,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="venues/cities"
         options={{
-            href: null,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="venues/continent-detail"
         options={{
-            href: null,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="venues/country-detail"
         options={{
-            href: null,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="venues/city-detail"
         options={{
-            href: null,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="venues/map"
         options={{
-            href: null,
+          href: null,
         }}
       />
     </Tabs>

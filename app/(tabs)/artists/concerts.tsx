@@ -24,7 +24,7 @@ interface ConcertWithDetails extends SetlistWithDetails {
 export default function ArtistConcertsListScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  
+
   const [concerts, setConcerts] = useState<ConcertWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [artistName, setArtistName] = useState<string>('');
@@ -41,13 +41,13 @@ export default function ArtistConcertsListScreen() {
   const loadArtistConcerts = async (mbid: string) => {
     try {
       setLoading(true);
-      
+
       // Fetch artist name
       const artistData = await dbOperations.getArtistByMbid(mbid);
       if (artistData?.name) {
         setArtistName(artistData.name);
       }
-      
+
       // Fetch concerts
       const rawConcerts = await dbOperations.getSetlistsByArtist(mbid);
       const concertsWithDetails = transformConcerts(rawConcerts);
@@ -61,7 +61,7 @@ export default function ArtistConcertsListScreen() {
   };
 
   const transformConcerts = (rawConcerts: SetlistWithDetails[]): ConcertWithDetails[] => {
-    return rawConcerts.map(concert => ({
+    return rawConcerts.map((concert) => ({
       ...concert,
       artistName: concert.artist?.name || 'Unknown Artist',
       venueName: concert.venue?.name || 'Unknown Venue',
@@ -77,10 +77,10 @@ export default function ArtistConcertsListScreen() {
     const currentParams = { artist: artistMbid };
     router.push({
       pathname: '/artists/setlist',
-      params: { 
+      params: {
         id: concert.id,
         returnTo: '/artists/concerts',
-        returnParams: JSON.stringify(currentParams)
+        returnParams: JSON.stringify(currentParams),
       },
     });
   };
@@ -106,17 +106,17 @@ export default function ArtistConcertsListScreen() {
         <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>
-          {artistName}
-        </Text>
+        <Text style={styles.title}>{artistName}</Text>
         <Text style={styles.concertCount}>
           {concerts.length} Concert{concerts.length !== 1 ? 's' : ''}
         </Text>
         <Text style={styles.cityCount}>
-          {new Set(concerts.map(c => c.cityName)).size} Cit{new Set(concerts.map(c => c.cityName)).size !== 1 ? 'ies' : 'y'}
+          {new Set(concerts.map((c) => c.cityName)).size} Cit
+          {new Set(concerts.map((c) => c.cityName)).size !== 1 ? 'ies' : 'y'}
         </Text>
         <Text style={styles.countryCount}>
-          {new Set(concerts.map(c => c.countryName)).size} Countr{new Set(concerts.map(c => c.countryName)).size !== 1 ? 'ies' : 'y'}
+          {new Set(concerts.map((c) => c.countryName)).size} Countr
+          {new Set(concerts.map((c) => c.countryName)).size !== 1 ? 'ies' : 'y'}
         </Text>
       </View>
 
@@ -135,13 +135,11 @@ export default function ArtistConcertsListScreen() {
             >
               <View style={styles.concertHeader}>
                 <View style={styles.concertMainInfo}>
-                  <Text style={styles.concertMainName}>
-                    {concert.venueName}
-                  </Text>
+                  <Text style={styles.concertMainName}>{concert.venueName}</Text>
                 </View>
-                <Text style={styles.concertDate}>{formatDate(concert.eventDate!)}</Text>
+                <Text style={styles.concertDate}>{formatDate(concert.eventDate ?? '')}</Text>
               </View>
-              
+
               <View style={styles.concertDetails}>
                 <Text style={styles.concertLocation}>
                   {concert.cityName}
@@ -150,9 +148,7 @@ export default function ArtistConcertsListScreen() {
                 </Text>
               </View>
 
-              {concert.tour?.name && (
-                <Text style={styles.tourName}>{concert.tour.name}</Text>
-              )}
+              {concert.tour?.name && <Text style={styles.tourName}>{concert.tour.name}</Text>}
             </TouchableOpacity>
           ))
         )}

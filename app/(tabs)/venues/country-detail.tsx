@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import CityList from '../../../src/components/CityList';
@@ -23,7 +16,7 @@ export default function CountryDetailScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { country, returnTo, returnParams } = params;
-  
+
   const [cities, setCities] = useState<CityWithStats[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,12 +30,10 @@ export default function CountryDetailScreen() {
     try {
       setLoading(true);
       const allCities = await dbOperations.getCitiesWithStats();
-      
+
       // Filter cities that belong to this country
-      const countryCities = allCities.filter(city => 
-        city.countryName === countryName
-      );
-      
+      const countryCities = allCities.filter((city) => city.countryName === countryName);
+
       setCities(countryCities);
     } catch (error) {
       console.error('Failed to load cities for country:', error);
@@ -55,7 +46,7 @@ export default function CountryDetailScreen() {
   const handleCityPress = (city: CityWithStats) => {
     router.push({
       pathname: '/venues/city-detail',
-      params: { cityId: city.id }
+      params: { cityId: city.id },
     });
   };
 
@@ -73,8 +64,6 @@ export default function CountryDetailScreen() {
     }
   };
 
-
-
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -89,10 +78,7 @@ export default function CountryDetailScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={handleBackPress}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>{country}</Text>

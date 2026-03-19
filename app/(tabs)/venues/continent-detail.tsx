@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import CountryList from '../../../src/components/CountryList';
@@ -23,7 +16,7 @@ export default function ContinentDetailScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { continentName, returnTo, returnParams } = params;
-  
+
   const [countries, setCountries] = useState<CountryWithStats[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,13 +30,13 @@ export default function ContinentDetailScreen() {
     try {
       setLoading(true);
       const allCountries = await dbOperations.getCountriesWithStats();
-      
+
       // Filter countries that belong to this continent
-      const continentCountries = allCountries.filter(country => {
+      const continentCountries = allCountries.filter((country) => {
         const countryContinent = dbOperations.getContinentForCountry(country.name);
         return countryContinent === continent;
       });
-      
+
       setCountries(continentCountries);
     } catch (error) {
       console.error('Failed to load countries for continent:', error);
@@ -56,7 +49,7 @@ export default function ContinentDetailScreen() {
   const handleCountryPress = (country: CountryWithStats) => {
     router.push({
       pathname: '/venues/country-detail',
-      params: { countryCode: country.name }
+      params: { countryCode: country.name },
     });
   };
 
@@ -74,8 +67,6 @@ export default function ContinentDetailScreen() {
     }
   };
 
-
-
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -90,10 +81,7 @@ export default function ContinentDetailScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={handleBackPress}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>{continentName}</Text>

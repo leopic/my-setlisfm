@@ -15,7 +15,7 @@ export class DatabaseManager {
       this.db = await SQLite.openDatabaseAsync('setlistfm.db');
       await this.createTables();
       this.initialized = true;
-      console.log('Database initialized successfully');
+      console.warn('Database initialized successfully');
     } catch (error) {
       console.error('Error initializing database:', error);
       throw error;
@@ -29,7 +29,7 @@ export class DatabaseManager {
 
     try {
       await this.db.execAsync(CREATE_TABLES_SQL);
-      console.log('Database tables created successfully');
+      console.warn('Database tables created successfully');
     } catch (error) {
       console.error('Error creating tables:', error);
       throw error;
@@ -47,7 +47,7 @@ export class DatabaseManager {
     if (this.db) {
       await this.db.closeAsync();
       this.db = null;
-      console.log('Database closed');
+      console.warn('Database closed');
     }
   }
 }

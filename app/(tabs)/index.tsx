@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  TextInput,
   Alert,
   RefreshControl,
   SafeAreaView,
@@ -14,9 +13,14 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../src/database/operations';
 import type { SetlistWithDetails } from '../../src/types/database';
 import { parseDateCorrectly, formatDate } from '../../src/utils/date';
-import { sortByOption, SortOption } from '../../src/utils/sort';
+import type { SortOption } from '../../src/utils/sort';
+import { sortByOption } from '../../src/utils/sort';
 interface ConcertWithDetails extends SetlistWithDetails {
-  artistName: string; venueName: string; cityName?: string; stateName?: string; countryName?: string;
+  artistName: string;
+  venueName: string;
+  cityName?: string;
+  stateName?: string;
+  countryName?: string;
 }
 
 interface YearGroup {
@@ -32,7 +36,7 @@ export default function ConcertsScreen() {
   const [concerts, setConcerts] = useState<ConcertWithDetails[]>([]);
   const [yearGroups, setYearGroups] = useState<YearGroup[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [refreshing, setRefreshing] = useState(false);
   const [filterEntityName, setFilterEntityName] = useState<string>('');
@@ -84,7 +88,7 @@ export default function ConcertsScreen() {
       }
 
       // Transform and add display names
-      const concertsWithDetails: ConcertWithDetails[] = rawConcerts.map(concert => ({
+      const concertsWithDetails: ConcertWithDetails[] = rawConcerts.map((concert) => ({
         ...concert,
         artistName: concert.artist?.name || 'Unknown Artist',
         venueName: concert.venue?.name || 'Unknown Venue',
@@ -95,12 +99,10 @@ export default function ConcertsScreen() {
 
       const sortedConcerts = sortConcerts(concertsWithDetails, sortOption);
       setConcerts(sortedConcerts);
-      
+
       // Group by year
       const grouped = groupConcertsByYear(sortedConcerts);
       setYearGroups(grouped);
-      
-
     } catch (error) {
       console.error('Failed to load concerts:', error);
       Alert.alert('Error', 'Failed to load concerts');
@@ -111,13 +113,13 @@ export default function ConcertsScreen() {
 
   const groupConcertsByYear = (concertsToGroup: ConcertWithDetails[]): YearGroup[] => {
     const groups: { [year: string]: ConcertWithDetails[] } = {};
-    
-    concertsToGroup.forEach(concert => {
+
+    concertsToGroup.forEach((concert) => {
       if (!concert.eventDate) return;
-      
+
       const date = parseDateCorrectly(concert.eventDate);
       const year = date.getFullYear().toString();
-      
+
       if (!groups[year]) {
         groups[year] = [];
       }
@@ -137,7 +139,7 @@ export default function ConcertsScreen() {
 
         // Calculate monthly statistics
         const monthStats: { [month: string]: number } = {};
-        sortedConcerts.forEach(concert => {
+        sortedConcerts.forEach((concert) => {
           if (concert.eventDate) {
             const date = parseDateCorrectly(concert.eventDate);
             const month = date.toLocaleDateString('en-US', { month: 'long' });
@@ -155,7 +157,10 @@ export default function ConcertsScreen() {
       .sort((a, b) => parseInt(b.year) - parseInt(a.year)); // Sort years descending
   };
 
-  const sortConcerts = (concertsToSort: ConcertWithDetails[], sortBy: SortOption): ConcertWithDetails[] => {
+  const sortConcerts = (
+    concertsToSort: ConcertWithDetails[],
+    sortBy: SortOption,
+  ): ConcertWithDetails[] => {
     if (sortBy === 'alphabetical') {
       return [...concertsToSort].sort((a, b) => a.artistName.localeCompare(b.artistName));
     }
@@ -166,7 +171,7 @@ export default function ConcertsScreen() {
     setSortOption(newSortOption);
     const sortedConcerts = sortConcerts(concerts, newSortOption);
     setConcerts(sortedConcerts);
-    
+
     // Re-group the sorted concerts
     const grouped = groupConcertsByYear(sortedConcerts);
     setYearGroups(grouped);
@@ -178,13 +183,14 @@ export default function ConcertsScreen() {
     setRefreshing(false);
   };
 
-  const filteredYearGroups = yearGroups.filter(yearGroup => {
+  const filteredYearGroups = yearGroups.filter((yearGroup) => {
     if (!searchQuery) return true;
-    
-    return yearGroup.concerts.some(concert =>
-      concert.artistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      concert.venueName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (concert.cityName && concert.cityName.toLowerCase().includes(searchQuery.toLowerCase()))
+
+    return yearGroup.concerts.some(
+      (concert) =>
+        concert.artistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        concert.venueName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (concert.cityName && concert.cityName.toLowerCase().includes(searchQuery.toLowerCase())),
     );
   });
 
@@ -217,19 +223,16 @@ export default function ConcertsScreen() {
         <Text style={styles.title}>
           {artist ? 'Artist Concerts' : venue ? 'Venue Concerts' : 'My Concerts'}
         </Text>
-        {(artist || venue) ? (
-          <Text style={styles.subtitle}>
-            {totalConcerts} concerts found
-          </Text>
+        {artist || venue ? (
+          <Text style={styles.subtitle}>{totalConcerts} concerts found</Text>
         ) : (
           <Text style={styles.subtitle}>
             {sortOption === 'alphabetical'
               ? `${totalConcerts} concerts (alphabetical by artist)`
-              : `${totalConcerts} concerts grouped by year`
-            }
+              : `${totalConcerts} concerts grouped by year`}
           </Text>
         )}
-        
+
         {/* Filter Display */}
         {(artist || venue) && (
           <View style={styles.filterContainer}>
@@ -261,7 +264,12 @@ export default function ConcertsScreen() {
             style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]}
             onPress={() => handleSortChange('recent')}
           >
-            <Text style={[styles.sortButtonText, sortOption === 'recent' && styles.sortButtonTextActive]}>
+            <Text
+              style={[
+                styles.sortButtonText,
+                sortOption === 'recent' && styles.sortButtonTextActive,
+              ]}
+            >
               Most Recent
             </Text>
           </TouchableOpacity>
@@ -269,7 +277,12 @@ export default function ConcertsScreen() {
             style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]}
             onPress={() => handleSortChange('alphabetical')}
           >
-            <Text style={[styles.sortButtonText, sortOption === 'alphabetical' && styles.sortButtonTextActive]}>
+            <Text
+              style={[
+                styles.sortButtonText,
+                sortOption === 'alphabetical' && styles.sortButtonTextActive,
+              ]}
+            >
               Alphabetical
             </Text>
           </TouchableOpacity>
@@ -279,9 +292,7 @@ export default function ConcertsScreen() {
       {/* Concerts List */}
       <ScrollView
         style={styles.scrollView}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
       >
         {filteredYearGroups.length === 0 ? (
@@ -294,51 +305,53 @@ export default function ConcertsScreen() {
           // Flat list for alphabetical sorting with proper container spacing
           <View style={styles.alphabeticalContainer}>
             {filteredYearGroups
-              .flatMap(yearGroup => yearGroup.concerts)
+              .flatMap((yearGroup) => yearGroup.concerts)
               .sort((a, b) => a.artistName.localeCompare(b.artistName))
               .map((concert) => (
-              <TouchableOpacity
-                key={concert.id}
-                style={styles.concertItem}
-                onPress={() => {
-                  // Pass return information so the setlist knows where to return
-                  const returnParams = artist ? { artist } : venue ? { venue } : {};
-                  const returnTo = artist ? '/artists/concerts' : venue ? '/venues/concerts' : '/';
-                  
-                  router.push({
-                    pathname: '/setlist',
-                    params: { 
-                      id: concert.id,
-                      source: 'concerts',
-                      returnTo,
-                      returnParams: JSON.stringify(returnParams)
-                    },
-                  });
-                }}
-              >
-                <View style={styles.concertHeader}>
-                  <View style={styles.concertMainInfo}>
-                    <Text style={styles.artistName}>{concert.artistName}</Text>
-                  </View>
-                  <Text style={styles.concertDate}>{formatDate(concert.eventDate!)}</Text>
-                </View>
-                
-                <View style={styles.concertDetails}>
-                  <Text style={styles.venueName}>{concert.venueName}</Text>
-                  {concert.cityName && (
-                    <Text style={styles.locationText}>
-                      {concert.cityName}
-                      {concert.stateName && `, ${concert.stateName}`}
-                      {concert.countryName && `, ${concert.countryName}`}
-                    </Text>
-                  )}
-                </View>
+                <TouchableOpacity
+                  key={concert.id}
+                  style={styles.concertItem}
+                  onPress={() => {
+                    // Pass return information so the setlist knows where to return
+                    const returnParams = artist ? { artist } : venue ? { venue } : {};
+                    const returnTo = artist
+                      ? '/artists/concerts'
+                      : venue
+                        ? '/venues/concerts'
+                        : '/';
 
-                {concert.tour?.name && (
-                  <Text style={styles.tourName}>{concert.tour.name}</Text>
-                )}
-              </TouchableOpacity>
-            ))}
+                    router.push({
+                      pathname: '/setlist',
+                      params: {
+                        id: concert.id,
+                        source: 'concerts',
+                        returnTo,
+                        returnParams: JSON.stringify(returnParams),
+                      },
+                    });
+                  }}
+                >
+                  <View style={styles.concertHeader}>
+                    <View style={styles.concertMainInfo}>
+                      <Text style={styles.artistName}>{concert.artistName}</Text>
+                    </View>
+                    <Text style={styles.concertDate}>{formatDate(concert.eventDate ?? '')}</Text>
+                  </View>
+
+                  <View style={styles.concertDetails}>
+                    <Text style={styles.venueName}>{concert.venueName}</Text>
+                    {concert.cityName && (
+                      <Text style={styles.locationText}>
+                        {concert.cityName}
+                        {concert.stateName && `, ${concert.stateName}`}
+                        {concert.countryName && `, ${concert.countryName}`}
+                      </Text>
+                    )}
+                  </View>
+
+                  {concert.tour?.name && <Text style={styles.tourName}>{concert.tour.name}</Text>}
+                </TouchableOpacity>
+              ))}
           </View>
         ) : (
           // Year grouping for recent sorting
@@ -356,8 +369,20 @@ export default function ConcertsScreen() {
               <View style={styles.monthlyStats}>
                 {Object.entries(yearGroup.monthStats)
                   .sort((a, b) => {
-                    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                                   'July', 'August', 'September', 'October', 'November', 'December'];
+                    const months = [
+                      'January',
+                      'February',
+                      'March',
+                      'April',
+                      'May',
+                      'June',
+                      'July',
+                      'August',
+                      'September',
+                      'October',
+                      'November',
+                      'December',
+                    ];
                     return months.indexOf(a[0]) - months.indexOf(b[0]);
                   })
                   .map(([month, count]) => (
@@ -370,56 +395,57 @@ export default function ConcertsScreen() {
 
               {/* Concerts in this year */}
               {yearGroup.concerts.map((concert) => (
-                            <TouchableOpacity
-              key={concert.id}
-              style={styles.concertItem}
-              onPress={() => {
-                // Pass return information so the setlist knows where to return
-                const returnParams = artist ? { artist } : venue ? { venue } : {};
-                const returnTo = artist ? '/artists/concerts' : venue ? '/venues/concerts' : '/';
-                
-                router.push({
-                  pathname: '/setlist',
-                  params: { 
-                    id: concert.id,
-                    source: 'concerts',
-                    returnTo,
-                    returnParams: JSON.stringify(returnParams)
-                  },
-                });
-              }}
-            >
-              <View style={styles.concertHeader}>
-                <View style={styles.concertMainInfo}>
-                  <Text style={styles.artistName}>{concert.artistName}</Text>
-                </View>
-                <Text style={styles.concertDate}>{formatDate(concert.eventDate!)}</Text>
-              </View>
+                <TouchableOpacity
+                  key={concert.id}
+                  style={styles.concertItem}
+                  onPress={() => {
+                    // Pass return information so the setlist knows where to return
+                    const returnParams = artist ? { artist } : venue ? { venue } : {};
+                    const returnTo = artist
+                      ? '/artists/concerts'
+                      : venue
+                        ? '/venues/concerts'
+                        : '/';
 
-              <View style={styles.concertDetails}>
-                <Text style={styles.venueName}>{concert.venueName}</Text>
-                {concert.cityName && (
-                  <Text style={styles.locationText}>
-                    {concert.cityName}
-                    {concert.stateName && `, ${concert.stateName}`}
-                    {concert.countryName && `, ${concert.countryName}`}
-                  </Text>
-                )}
-              </View>
+                    router.push({
+                      pathname: '/setlist',
+                      params: {
+                        id: concert.id,
+                        source: 'concerts',
+                        returnTo,
+                        returnParams: JSON.stringify(returnParams),
+                      },
+                    });
+                  }}
+                >
+                  <View style={styles.concertHeader}>
+                    <View style={styles.concertMainInfo}>
+                      <Text style={styles.artistName}>{concert.artistName}</Text>
+                    </View>
+                    <Text style={styles.concertDate}>{formatDate(concert.eventDate ?? '')}</Text>
+                  </View>
 
-              {concert.tour?.name && (
-                <Text style={styles.tourName}>{concert.tour.name}</Text>
-              )}
-            </TouchableOpacity>
+                  <View style={styles.concertDetails}>
+                    <Text style={styles.venueName}>{concert.venueName}</Text>
+                    {concert.cityName && (
+                      <Text style={styles.locationText}>
+                        {concert.cityName}
+                        {concert.stateName && `, ${concert.stateName}`}
+                        {concert.countryName && `, ${concert.countryName}`}
+                      </Text>
+                    )}
+                  </View>
+
+                  {concert.tour?.name && <Text style={styles.tourName}>{concert.tour.name}</Text>}
+                </TouchableOpacity>
               ))}
             </View>
           ))
         )}
-              </ScrollView>
-
-      </SafeAreaView>
-    );
-  }
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {

@@ -10,7 +10,7 @@ import type {
   DBSet,
   DBSong,
   SetlistWithDetails,
-  SetWithSongs
+  SetWithSongs,
 } from '../types/database';
 
 export class DatabaseOperations {
@@ -20,10 +20,10 @@ export class DatabaseOperations {
 
   // Country operations
   async insertCountry(country: DBCountry): Promise<void> {
-    await this.db.runAsync(
-      'INSERT OR REPLACE INTO countries (code, name) VALUES (?, ?)',
-      [country.code, country.name || null]
-    );
+    await this.db.runAsync('INSERT OR REPLACE INTO countries (code, name) VALUES (?, ?)', [
+      country.code,
+      country.name || null,
+    ]);
   }
 
   // City operations
@@ -39,8 +39,8 @@ export class DatabaseOperations {
         city.stateCode || null,
         city.countryCode || null,
         city.coordsLat || null,
-        city.coordsLong || null
-      ]
+        city.coordsLong || null,
+      ],
     );
   }
 
@@ -56,8 +56,8 @@ export class DatabaseOperations {
         artist.name || null,
         artist.sortName || null,
         artist.disambiguation || null,
-        artist.url || null
-      ]
+        artist.url || null,
+      ],
     );
   }
 
@@ -65,16 +65,13 @@ export class DatabaseOperations {
   async insertVenue(venue: DBVenue): Promise<void> {
     await this.db.runAsync(
       'INSERT OR REPLACE INTO venues (id, name, cityId, url) VALUES (?, ?, ?, ?)',
-      [venue.id, venue.name || null, venue.cityId || null, venue.url || null]
+      [venue.id, venue.name || null, venue.cityId || null, venue.url || null],
     );
   }
 
   // Tour operations
   async insertTour(tour: DBTour): Promise<void> {
-    await this.db.runAsync(
-      'INSERT OR REPLACE INTO tours (name) VALUES (?)',
-      [tour.name]
-    );
+    await this.db.runAsync('INSERT OR REPLACE INTO tours (name) VALUES (?)', [tour.name]);
   }
 
   // Setlist operations
@@ -93,8 +90,8 @@ export class DatabaseOperations {
         setlist.lastUpdated || null,
         setlist.lastFmEventId || null,
         setlist.info || null,
-        setlist.url || null
-      ]
+        setlist.url || null,
+      ],
     );
   }
 
@@ -102,7 +99,7 @@ export class DatabaseOperations {
   async insertSet(set: DBSet): Promise<void> {
     await this.db.runAsync(
       'INSERT OR REPLACE INTO sets (setlistId, name, encore, songOrder) VALUES (?, ?, ?, ?)',
-      [set.setlistId, set.name || null, set.encore || null, set.songOrder]
+      [set.setlistId, set.name || null, set.encore || null, set.songOrder],
     );
   }
 
@@ -119,8 +116,8 @@ export class DatabaseOperations {
         song.info || null,
         song.withArtistMbid || null,
         song.coverArtistMbid || null,
-        song.songOrder
-      ]
+        song.songOrder,
+      ],
     );
   }
 
@@ -154,7 +151,7 @@ export class DatabaseOperations {
       LEFT JOIN countries co ON c.countryCode = co.code
       ORDER BY s.eventDate DESC
     `);
-    
+
     // Transform flat result into nested objects
     return result.map((row: any) => ({
       id: row.id,
@@ -167,41 +164,52 @@ export class DatabaseOperations {
       lastFmEventId: row.lastFmEventId,
       info: row.info,
       url: row.url,
-      artist: row.artistMbid ? {
-        mbid: row.artistMbid,
-        tmid: row.artistTmid,
-        name: row.artistName,
-        sortName: row.artistSortName,
-        disambiguation: row.artistDisambiguation,
-        url: row.artistUrl,
-      } : undefined,
-      venue: row.venueId ? {
-        id: row.venueId,
-        name: row.venueName,
-        cityId: row.cityId,
-        url: row.venueUrl,
-      } : undefined,
-      city: row.cityId ? {
-        id: row.cityId,
-        name: row.cityName,
-        state: row.cityState,
-        stateCode: row.cityStateCode,
-        countryCode: row.cityCountryCode,
-        coordsLat: row.cityCoordsLat,
-        coordsLong: row.cityCoordsLong,
-      } : undefined,
-      country: row.countryCode ? {
-        code: row.countryCode,
-        name: row.countryName,
-      } : undefined,
-      tour: row.tourName ? {
-        name: row.tourName,
-      } : undefined,
+      artist: row.artistMbid
+        ? {
+            mbid: row.artistMbid,
+            tmid: row.artistTmid,
+            name: row.artistName,
+            sortName: row.artistSortName,
+            disambiguation: row.artistDisambiguation,
+            url: row.artistUrl,
+          }
+        : undefined,
+      venue: row.venueId
+        ? {
+            id: row.venueId,
+            name: row.venueName,
+            cityId: row.cityId,
+            url: row.venueUrl,
+          }
+        : undefined,
+      city: row.cityId
+        ? {
+            id: row.cityId,
+            name: row.cityName,
+            state: row.cityState,
+            stateCode: row.cityStateCode,
+            countryCode: row.cityCountryCode,
+            coordsLat: row.cityCoordsLat,
+            coordsLong: row.cityCoordsLong,
+          }
+        : undefined,
+      country: row.countryCode
+        ? {
+            code: row.countryCode,
+            name: row.countryName,
+          }
+        : undefined,
+      tour: row.tourName
+        ? {
+            name: row.tourName,
+          }
+        : undefined,
     })) as SetlistWithDetails[];
   }
 
   async getSetlistById(id: string): Promise<SetlistWithDetails | null> {
-    const result = await this.db.getFirstAsync(`
+    const result = (await this.db.getFirstAsync(
+      `
       SELECT 
         sl.*,
         a.mbid as artistMbid,
@@ -227,8 +235,10 @@ export class DatabaseOperations {
       LEFT JOIN countries co ON c.countryCode = co.code
       LEFT JOIN tours t ON sl.tourName = t.name
       WHERE sl.id = ?
-    `, [id]) as any;
-    
+    `,
+      [id],
+    )) as any;
+
     if (!result) return null;
 
     // Get sets and songs for this setlist
@@ -246,48 +256,58 @@ export class DatabaseOperations {
       lastFmEventId: result.lastFmEventId,
       info: result.info,
       url: result.url,
-      artist: result.artistMbid ? {
-        mbid: result.artistMbid,
-        name: result.artistName,
-        sortName: result.artistSortName,
-        disambiguation: result.artistDisambiguation,
-        url: result.artistUrl,
-      } : undefined,
-      venue: result.venueId ? {
-        id: result.venueId,
-        name: result.venueName,
-        cityId: result.cityId,
-        url: result.venueUrl,
-      } : undefined,
-      city: result.cityId ? {
-        id: result.cityId,
-        name: result.cityName,
-        state: result.cityState,
-        stateCode: result.cityStateCode,
-        countryCode: result.cityCountryCode,
-        coordsLat: result.coordsLat,
-        coordsLong: result.coordsLong,
-      } : undefined,
-      country: result.countryCode ? {
-        code: result.countryCode,
-        name: result.countryName,
-      } : undefined,
-      tour: result.tourName ? {
-        name: result.tourName,
-      } : undefined,
+      artist: result.artistMbid
+        ? {
+            mbid: result.artistMbid,
+            name: result.artistName,
+            sortName: result.artistSortName,
+            disambiguation: result.artistDisambiguation,
+            url: result.artistUrl,
+          }
+        : undefined,
+      venue: result.venueId
+        ? {
+            id: result.venueId,
+            name: result.venueName,
+            cityId: result.cityId,
+            url: result.venueUrl,
+          }
+        : undefined,
+      city: result.cityId
+        ? {
+            id: result.cityId,
+            name: result.cityName,
+            state: result.cityState,
+            stateCode: result.cityStateCode,
+            countryCode: result.cityCountryCode,
+            coordsLat: result.coordsLat,
+            coordsLong: result.coordsLong,
+          }
+        : undefined,
+      country: result.countryCode
+        ? {
+            code: result.countryCode,
+            name: result.countryName,
+          }
+        : undefined,
+      tour: result.tourName
+        ? {
+            name: result.tourName,
+          }
+        : undefined,
       sets: sets,
     } as SetlistWithDetails;
   }
 
   async getSetsForSetlist(setlistId: string, includeSongs = true): Promise<SetWithSongs[]> {
     if (!includeSongs) {
-      return await this.db.getAllAsync(
-        'SELECT * FROM sets WHERE setlistId = ? ORDER BY id',
-        [setlistId]
-      ) as SetWithSongs[];
+      return (await this.db.getAllAsync('SELECT * FROM sets WHERE setlistId = ? ORDER BY id', [
+        setlistId,
+      ])) as SetWithSongs[];
     }
 
-    const rows = await this.db.getAllAsync(`
+    const rows = (await this.db.getAllAsync(
+      `
       SELECT
         st.id       AS setId,
         st.setlistId,
@@ -306,7 +326,9 @@ export class DatabaseOperations {
       LEFT JOIN songs s ON s.setId = st.id
       WHERE st.setlistId = ?
       ORDER BY st.id, s.songOrder
-    `, [setlistId]) as any[];
+    `,
+      [setlistId],
+    )) as any[];
 
     const setsMap = new Map<number, SetWithSongs>();
 
@@ -323,7 +345,8 @@ export class DatabaseOperations {
       }
 
       if (row.songId != null) {
-        setsMap.get(row.setId)!.songs!.push({
+        const currentSet = setsMap.get(row.setId);
+        currentSet?.songs?.push({
           id: row.songId,
           setId: row.songSetId,
           name: row.songName,
@@ -340,10 +363,8 @@ export class DatabaseOperations {
   }
 
   async getAllSongs(): Promise<DBSong[]> {
-    const result = await this.db.getAllAsync(
-      'SELECT * FROM songs ORDER BY setId, songOrder'
-    );
-    
+    const result = await this.db.getAllAsync('SELECT * FROM songs ORDER BY setId, songOrder');
+
     return result as DBSong[];
   }
 
@@ -367,7 +388,7 @@ export class DatabaseOperations {
       LEFT JOIN artists a ON sl.artistMbid = a.mbid
       ORDER BY sl.eventDate DESC, st.songOrder, s.songOrder
     `);
-    
+
     return result;
   }
 
@@ -406,18 +427,20 @@ export class DatabaseOperations {
   }
 
   // Get all artists with their concert counts and stats
-  async getArtistsWithStats(): Promise<{
-    mbid: string;
-    name: string;
-    sortName?: string;
-    disambiguation?: string;
-    url?: string;
-    concertCount: number;
-    lastConcertDate?: string;
-    venues: string[];
-  }[]> {
+  async getArtistsWithStats(): Promise<
+    {
+      mbid: string;
+      name: string;
+      sortName?: string;
+      disambiguation?: string;
+      url?: string;
+      concertCount: number;
+      lastConcertDate?: string;
+      venues: string[];
+    }[]
+  > {
     // First get basic artist stats
-    const result = await this.db.getAllAsync(`
+    const result = (await this.db.getAllAsync(`
       SELECT 
         a.mbid,
         a.name,
@@ -432,27 +455,24 @@ export class DatabaseOperations {
       GROUP BY a.mbid, a.name, a.sortName, a.disambiguation, a.url
       HAVING COUNT(DISTINCT sl.eventDate || '|' || sl.venueId) > 0
       ORDER BY a.name COLLATE NOCASE
-    `) as any[];
+    `)) as any[];
 
     // Then get the last concert date for each artist separately
     const artistsWithLastDates = await Promise.all(
       result.map(async (artist) => {
-        const lastConcertResult = await this.db.getFirstAsync(
+        const lastConcertResult = (await this.db.getFirstAsync(
           'SELECT eventDate FROM setlists WHERE artistMbid = ? ORDER BY substr(eventDate, 7, 4) || "-" || substr(eventDate, 4, 2) || "-" || substr(eventDate, 1, 2) DESC LIMIT 1',
-          [artist.mbid]
-        ) as any;
-        
+          [artist.mbid],
+        )) as any;
+
         return {
           ...artist,
-          lastConcertDate: lastConcertResult?.eventDate || null
+          lastConcertDate: lastConcertResult?.eventDate || null,
         };
-      })
+      }),
     );
 
-
-
-
-    return artistsWithLastDates.map(row => ({
+    return artistsWithLastDates.map((row) => ({
       mbid: row.mbid,
       name: row.name || 'Unknown Artist',
       sortName: row.sortName,
@@ -471,45 +491,49 @@ export class DatabaseOperations {
     artistsWithoutConcerts: number;
     orphanedArtists: string[];
   }> {
-    const totalArtists = await this.db.getFirstAsync('SELECT COUNT(*) as count FROM artists') as any;
-    const artistsWithConcerts = await this.db.getFirstAsync(`
+    const totalArtists = (await this.db.getFirstAsync(
+      'SELECT COUNT(*) as count FROM artists',
+    )) as any;
+    const artistsWithConcerts = (await this.db.getFirstAsync(`
       SELECT COUNT(DISTINCT a.mbid) as count 
       FROM artists a 
       INNER JOIN setlists sl ON a.mbid = sl.artistMbid
-    `) as any;
-    const orphanedArtists = await this.db.getAllAsync(`
+    `)) as any;
+    const orphanedArtists = (await this.db.getAllAsync(`
       SELECT a.mbid, a.name 
       FROM artists a 
       LEFT JOIN setlists sl ON a.mbid = sl.artistMbid 
       WHERE sl.id IS NULL
-    `) as any[];
-    
+    `)) as any[];
+
     return {
       totalArtists: totalArtists?.count || 0,
       artistsWithConcerts: artistsWithConcerts?.count || 0,
       artistsWithoutConcerts: orphanedArtists.length,
-      orphanedArtists: orphanedArtists.map(a => `${a.name} (${a.mbid})`),
+      orphanedArtists: orphanedArtists.map((a) => `${a.name} (${a.mbid})`),
     };
   }
 
   // Get all venues with their concert counts and stats
-  async getVenuesWithStats(): Promise<{
-    id: string;
-    name: string;
-    url?: string;
-    cityId?: string;
-    cityName?: string;
-    state?: string;
-    stateCode?: string;
-    countryCode?: string;
-    countryName?: string;
-    coordsLat?: number;
-    coordsLong?: number;
-    concertCount: number;
-    lastConcertDate?: string;
-    artists: string[];
-  }[]> {
-    const result = await this.db.getAllAsync(`
+  async getVenuesWithStats(): Promise<
+    {
+      id: string;
+      name: string;
+      url?: string;
+      cityId?: string;
+      cityName?: string;
+      state?: string;
+      stateCode?: string;
+      countryCode?: string;
+      countryName?: string;
+      coordsLat?: number;
+      coordsLong?: number;
+      concertCount: number;
+      lastConcertDate?: string;
+      artists: string[];
+    }[]
+  > {
+    const result = (await this.db.getAllAsync(`
       SELECT 
         v.id,
         v.name,
@@ -533,9 +557,9 @@ export class DatabaseOperations {
       GROUP BY v.id, v.name, v.url, c.id, c.name, c.state, c.stateCode, c.countryCode, co.name, c.coordsLat, c.coordsLong
       HAVING COUNT(DISTINCT sl.eventDate) > 0
       ORDER BY v.name COLLATE NOCASE
-    `) as any[];
-    
-    return result.map(row => ({
+    `)) as any[];
+
+    return result.map((row) => ({
       id: row.id,
       name: row.name || 'Unknown Venue',
       url: row.url,
@@ -555,7 +579,7 @@ export class DatabaseOperations {
 
   // Get all setlists with full details for concerts screen
   async getAllSetlistsWithDetails(): Promise<SetlistWithDetails[]> {
-    const result = await this.db.getAllAsync(`
+    const result = (await this.db.getAllAsync(`
       SELECT 
         sl.*,
         a.mbid as artistMbid,
@@ -580,54 +604,68 @@ export class DatabaseOperations {
       LEFT JOIN cities c ON v.cityId = c.id
       LEFT JOIN countries co ON c.countryCode = co.code
       LEFT JOIN tours t ON sl.tourName = t.name
-    `) as any[];
-    
-    return result.map(row => ({
-      id: row.id,
-      versionId: row.versionId,
-      artistMbid: row.artistMbid,
-      venueId: row.venueId,
-      tourName: row.tourName,
-      eventDate: row.eventDate,
-      lastUpdated: row.lastUpdated,
-      lastFmEventId: row.lastFmEventId,
-      info: row.info,
-      url: row.url,
-      artist: row.artistMbid ? {
-        mbid: row.artistMbid,
-        name: row.artistName,
-        sortName: row.artistSortName,
-        disambiguation: row.artistDisambiguation,
-        url: row.artistUrl,
-      } : undefined,
-      venue: row.venueId ? {
-        id: row.venueId,
-        name: row.venueName,
-        cityId: row.cityId,
-        url: row.venueUrl,
-      } : undefined,
-      city: row.cityId ? {
-        id: row.cityId,
-        name: row.cityName,
-        state: row.cityState,
-        stateCode: row.cityStateCode,
-        countryCode: row.cityCountryCode,
-        coordsLat: row.coordsLat,
-        coordsLong: row.coordsLong,
-      } : undefined,
-      country: row.countryCode ? {
-        code: row.countryCode,
-        name: row.countryName,
-      } : undefined,
-      tour: row.tourName ? {
-        name: row.tourName,
-      } : undefined,
-    } as SetlistWithDetails));
+    `)) as any[];
+
+    return result.map(
+      (row) =>
+        ({
+          id: row.id,
+          versionId: row.versionId,
+          artistMbid: row.artistMbid,
+          venueId: row.venueId,
+          tourName: row.tourName,
+          eventDate: row.eventDate,
+          lastUpdated: row.lastUpdated,
+          lastFmEventId: row.lastFmEventId,
+          info: row.info,
+          url: row.url,
+          artist: row.artistMbid
+            ? {
+                mbid: row.artistMbid,
+                name: row.artistName,
+                sortName: row.artistSortName,
+                disambiguation: row.artistDisambiguation,
+                url: row.artistUrl,
+              }
+            : undefined,
+          venue: row.venueId
+            ? {
+                id: row.venueId,
+                name: row.venueName,
+                cityId: row.cityId,
+                url: row.venueUrl,
+              }
+            : undefined,
+          city: row.cityId
+            ? {
+                id: row.cityId,
+                name: row.cityName,
+                state: row.cityState,
+                stateCode: row.cityStateCode,
+                countryCode: row.cityCountryCode,
+                coordsLat: row.coordsLat,
+                coordsLong: row.coordsLong,
+              }
+            : undefined,
+          country: row.countryCode
+            ? {
+                code: row.countryCode,
+                name: row.countryName,
+              }
+            : undefined,
+          tour: row.tourName
+            ? {
+                name: row.tourName,
+              }
+            : undefined,
+        }) as SetlistWithDetails,
+    );
   }
 
   // Get setlists by specific artist
   async getSetlistsByArtist(artistMbid: string): Promise<SetlistWithDetails[]> {
-    const result = await this.db.getAllAsync(`
+    const result = (await this.db.getAllAsync(
+      `
       SELECT 
         sl.*,
         a.mbid as artistMbid,
@@ -653,54 +691,70 @@ export class DatabaseOperations {
       LEFT JOIN countries co ON c.countryCode = co.code
       LEFT JOIN tours t ON sl.tourName = t.name
       WHERE sl.artistMbid = ?
-    `, [artistMbid]) as any[];
-    
-    return result.map(row => ({
-      id: row.id,
-      versionId: row.versionId,
-      artistMbid: row.artistMbid,
-      venueId: row.venueId,
-      tourName: row.tourName,
-      eventDate: row.eventDate,
-      lastUpdated: row.lastUpdated,
-      lastFmEventId: row.lastFmEventId,
-      info: row.info,
-      url: row.url,
-      artist: row.artistMbid ? {
-        mbid: row.artistMbid,
-        name: row.artistName,
-        sortName: row.artistSortName,
-        disambiguation: row.artistDisambiguation,
-        url: row.artistUrl,
-      } : undefined,
-      venue: row.venueId ? {
-        id: row.venueId,
-        name: row.venueName,
-        cityId: row.cityId,
-        url: row.venueUrl,
-      } : undefined,
-      city: row.cityId ? {
-        id: row.cityId,
-        name: row.cityName,
-        state: row.cityState,
-        stateCode: row.cityStateCode,
-        countryCode: row.cityCountryCode,
-        coordsLat: row.coordsLat,
-        coordsLong: row.coordsLong,
-      } : undefined,
-      country: row.countryCode ? {
-        code: row.countryCode,
-        name: row.countryName,
-      } : undefined,
-      tour: row.tourName ? {
-        name: row.tourName,
-      } : undefined,
-    } as SetlistWithDetails));
+    `,
+      [artistMbid],
+    )) as any[];
+
+    return result.map(
+      (row) =>
+        ({
+          id: row.id,
+          versionId: row.versionId,
+          artistMbid: row.artistMbid,
+          venueId: row.venueId,
+          tourName: row.tourName,
+          eventDate: row.eventDate,
+          lastUpdated: row.lastUpdated,
+          lastFmEventId: row.lastFmEventId,
+          info: row.info,
+          url: row.url,
+          artist: row.artistMbid
+            ? {
+                mbid: row.artistMbid,
+                name: row.artistName,
+                sortName: row.artistSortName,
+                disambiguation: row.artistDisambiguation,
+                url: row.artistUrl,
+              }
+            : undefined,
+          venue: row.venueId
+            ? {
+                id: row.venueId,
+                name: row.venueName,
+                cityId: row.cityId,
+                url: row.venueUrl,
+              }
+            : undefined,
+          city: row.cityId
+            ? {
+                id: row.cityId,
+                name: row.cityName,
+                state: row.cityState,
+                stateCode: row.cityStateCode,
+                countryCode: row.cityCountryCode,
+                coordsLat: row.coordsLat,
+                coordsLong: row.coordsLong,
+              }
+            : undefined,
+          country: row.countryCode
+            ? {
+                code: row.countryCode,
+                name: row.countryName,
+              }
+            : undefined,
+          tour: row.tourName
+            ? {
+                name: row.tourName,
+              }
+            : undefined,
+        }) as SetlistWithDetails,
+    );
   }
 
   // Get setlists by specific venue
   async getSetlistsByVenue(venueId: string): Promise<SetlistWithDetails[]> {
-    const result = await this.db.getAllAsync(`
+    const result = (await this.db.getAllAsync(
+      `
       SELECT 
         sl.*,
         a.mbid as artistMbid,
@@ -726,64 +780,73 @@ export class DatabaseOperations {
       LEFT JOIN countries co ON c.countryCode = co.code
       LEFT JOIN tours t ON sl.tourName = t.name
       WHERE sl.venueId = ?
-    `, [venueId]) as any[];
-    
-    return result.map(row => ({
-      id: row.id,
-      versionId: row.versionId,
-      artistMbid: row.artistMbid,
-      venueId: row.venueId,
-      tourName: row.tourName,
-      eventDate: row.eventDate,
-      lastUpdated: row.lastUpdated,
-      lastFmEventId: row.lastFmEventId,
-      info: row.info,
-      url: row.url,
-      artist: row.artistMbid ? {
-        mbid: row.artistMbid,
-        name: row.artistName,
-        sortName: row.artistSortName,
-        disambiguation: row.artistDisambiguation,
-        url: row.artistUrl,
-      } : undefined,
-      venue: row.venueId ? {
-        id: row.venueId,
-        name: row.venueName,
-        cityId: row.cityId,
-        url: row.venueUrl,
-      } : undefined,
-      city: row.cityId ? {
-        id: row.cityId,
-        name: row.cityName,
-        state: row.cityState,
-        stateCode: row.cityStateCode,
-        countryCode: row.cityCountryCode,
-        coordsLat: row.coordsLat,
-        coordsLong: row.coordsLong,
-      } : undefined,
-      country: row.countryCode ? {
-        code: row.countryCode,
-        name: row.countryName,
-      } : undefined,
-      tour: row.tourName ? {
-        name: row.tourName,
-      } : undefined,
-    } as SetlistWithDetails));
+    `,
+      [venueId],
+    )) as any[];
+
+    return result.map(
+      (row) =>
+        ({
+          id: row.id,
+          versionId: row.versionId,
+          artistMbid: row.artistMbid,
+          venueId: row.venueId,
+          tourName: row.tourName,
+          eventDate: row.eventDate,
+          lastUpdated: row.lastUpdated,
+          lastFmEventId: row.lastFmEventId,
+          info: row.info,
+          url: row.url,
+          artist: row.artistMbid
+            ? {
+                mbid: row.artistMbid,
+                name: row.artistName,
+                sortName: row.artistSortName,
+                disambiguation: row.artistDisambiguation,
+                url: row.artistUrl,
+              }
+            : undefined,
+          venue: row.venueId
+            ? {
+                id: row.venueId,
+                name: row.venueName,
+                cityId: row.cityId,
+                url: row.venueUrl,
+              }
+            : undefined,
+          city: row.cityId
+            ? {
+                id: row.cityId,
+                name: row.cityName,
+                state: row.cityState,
+                stateCode: row.cityStateCode,
+                countryCode: row.cityCountryCode,
+                coordsLat: row.coordsLat,
+                coordsLong: row.coordsLong,
+              }
+            : undefined,
+          country: row.countryCode
+            ? {
+                code: row.countryCode,
+                name: row.countryName,
+              }
+            : undefined,
+          tour: row.tourName
+            ? {
+                name: row.tourName,
+              }
+            : undefined,
+        }) as SetlistWithDetails,
+    );
   }
 
   async getArtistByMbid(mbid: string): Promise<DBArtist | null> {
-    const result = await this.db.getFirstAsync(
-      'SELECT * FROM artists WHERE mbid = ?',
-      [mbid]
-    );
+    const result = await this.db.getFirstAsync('SELECT * FROM artists WHERE mbid = ?', [mbid]);
     return result as DBArtist | null;
   }
 
   async getVenueById(id: string): Promise<DBVenue | null> {
-    const result = await this.db.getFirstAsync(
-      'SELECT * FROM venues WHERE id = ?',
-      [id]
-    );
+    const result = await this.db.getFirstAsync('SELECT * FROM venues WHERE id = ?', [id]);
     return result as DBVenue | null;
   }
 
@@ -796,7 +859,7 @@ export class DatabaseOperations {
     countries: string[];
     cities: string[];
   }> {
-    const result = await this.db.getAllAsync(`
+    const result = (await this.db.getAllAsync(`
       SELECT DISTINCT
         co.name as countryName,
         c.name as cityName
@@ -806,13 +869,13 @@ export class DatabaseOperations {
       INNER JOIN countries co ON c.countryCode = co.code
       WHERE co.name IS NOT NULL AND c.name IS NOT NULL
       ORDER BY co.name, c.name
-    `) as any[];
+    `)) as any[];
 
     const countries = [...new Set(result.map((row: any) => row.countryName))];
     const cities = [...new Set(result.map((row: any) => row.cityName))];
 
     // Map countries to continents
-    const continents = [...new Set(countries.map(country => this.getContinent(country)))];
+    const continents = [...new Set(countries.map((country) => this.getContinent(country)))];
 
     return {
       totalContinents: continents.length,
@@ -825,34 +888,39 @@ export class DatabaseOperations {
   }
 
   // Get continents with detailed statistics
-  async getContinentsWithStats(): Promise<{
-    name: string;
-    countryCount: number;
-    cityCount: number;
-    venueCount: number;
-    lastConcertDate?: string;
-    countries: string[];
-  }[]> {
+  async getContinentsWithStats(): Promise<
+    {
+      name: string;
+      countryCount: number;
+      cityCount: number;
+      venueCount: number;
+      lastConcertDate?: string;
+      countries: string[];
+    }[]
+  > {
     // First get all countries and map them to continents
-    const countryResult = await this.db.getAllAsync(`
+    const countryResult = (await this.db.getAllAsync(`
       SELECT DISTINCT co.name as countryName
       FROM setlists sl
       INNER JOIN venues v ON sl.venueId = v.id
       INNER JOIN cities c ON v.cityId = c.id
       INNER JOIN countries co ON c.countryCode = co.code
       WHERE co.name IS NOT NULL
-    `) as any[];
+    `)) as any[];
 
-    const countries = countryResult.map(row => row.countryName);
+    const countries = countryResult.map((row) => row.countryName);
     const continentMap = new Map<string, string[]>();
-    
+
     // Group countries by continent
-    countries.forEach(country => {
+    countries.forEach((country) => {
       const continent = this.getContinent(country);
       if (!continentMap.has(continent)) {
         continentMap.set(continent, []);
       }
-      continentMap.get(continent)!.push(country);
+      const countries = continentMap.get(continent);
+      if (countries) {
+        countries.push(country);
+      }
     });
 
     // Get detailed stats for each continent
@@ -860,7 +928,8 @@ export class DatabaseOperations {
       Array.from(continentMap.entries()).map(async ([continentName, continentCountries]) => {
         const placeholders = continentCountries.map(() => '?').join(', ');
 
-        const statsResult = await this.db.getAllAsync(`
+        const statsResult = (await this.db.getAllAsync(
+          `
           SELECT
             COUNT(DISTINCT c.name) as cityCount,
             COUNT(DISTINCT v.id) as venueCount,
@@ -870,10 +939,12 @@ export class DatabaseOperations {
           INNER JOIN cities c ON v.cityId = c.id
           INNER JOIN countries co ON c.countryCode = co.code
           WHERE co.name IN (${placeholders})
-        `, continentCountries) as any[];
+        `,
+          continentCountries,
+        )) as any[];
 
         const stats = statsResult[0] || {};
-        
+
         return {
           name: continentName,
           countryCount: continentCountries.length,
@@ -882,21 +953,23 @@ export class DatabaseOperations {
           lastConcertDate: stats.lastConcertDate,
           countries: continentCountries,
         };
-      })
+      }),
     );
 
     return continentsWithStats.sort((a, b) => a.name.localeCompare(b.name));
   }
 
   // Get countries with detailed statistics
-  async getCountriesWithStats(): Promise<{
-    name: string;
-    cityCount: number;
-    venueCount: number;
-    lastConcertDate?: string;
-    cities: string[];
-  }[]> {
-    const result = await this.db.getAllAsync(`
+  async getCountriesWithStats(): Promise<
+    {
+      name: string;
+      cityCount: number;
+      venueCount: number;
+      lastConcertDate?: string;
+      cities: string[];
+    }[]
+  > {
+    const result = (await this.db.getAllAsync(`
       SELECT 
         co.name,
         COUNT(DISTINCT c.name) as cityCount,
@@ -910,9 +983,9 @@ export class DatabaseOperations {
       WHERE co.name IS NOT NULL AND c.name IS NOT NULL
       GROUP BY co.name
       ORDER BY co.name
-    `) as any[];
+    `)) as any[];
 
-    return result.map(row => ({
+    return result.map((row) => ({
       name: row.name,
       cityCount: row.cityCount || 0,
       venueCount: row.venueCount || 0,
@@ -922,14 +995,16 @@ export class DatabaseOperations {
   }
 
   // Get cities with detailed statistics
-  async getCitiesWithStats(): Promise<{
-    name: string;
-    countryName: string;
-    venueCount: number;
-    lastConcertDate?: string;
-    venues: string[];
-  }[]> {
-    const result = await this.db.getAllAsync(`
+  async getCitiesWithStats(): Promise<
+    {
+      name: string;
+      countryName: string;
+      venueCount: number;
+      lastConcertDate?: string;
+      venues: string[];
+    }[]
+  > {
+    const result = (await this.db.getAllAsync(`
       SELECT 
         c.name,
         co.name as countryName,
@@ -943,9 +1018,9 @@ export class DatabaseOperations {
       WHERE c.name IS NOT NULL AND co.name IS NOT NULL
       GROUP BY c.name, co.name
       ORDER BY c.name
-    `) as any[];
+    `)) as any[];
 
-    return result.map(row => ({
+    return result.map((row) => ({
       name: row.name,
       countryName: row.countryName,
       venueCount: row.venueCount || 0,
@@ -959,74 +1034,74 @@ export class DatabaseOperations {
     const continentMap: { [key: string]: string } = {
       // North America
       'United States': 'North America',
-      'Canada': 'North America',
-      'Mexico': 'North America',
-      
+      Canada: 'North America',
+      Mexico: 'North America',
+
       // Europe
-      'Germany': 'Europe',
+      Germany: 'Europe',
       'United Kingdom': 'Europe',
-      'France': 'Europe',
-      'Italy': 'Europe',
-      'Spain': 'Europe',
-      'Netherlands': 'Europe',
-      'Belgium': 'Europe',
-      'Switzerland': 'Europe',
-      'Austria': 'Europe',
-      'Sweden': 'Europe',
-      'Norway': 'Europe',
-      'Denmark': 'Europe',
-      'Finland': 'Europe',
-      'Poland': 'Europe',
+      France: 'Europe',
+      Italy: 'Europe',
+      Spain: 'Europe',
+      Netherlands: 'Europe',
+      Belgium: 'Europe',
+      Switzerland: 'Europe',
+      Austria: 'Europe',
+      Sweden: 'Europe',
+      Norway: 'Europe',
+      Denmark: 'Europe',
+      Finland: 'Europe',
+      Poland: 'Europe',
       'Czech Republic': 'Europe',
-      'Czechia': 'Europe',
-      'Hungary': 'Europe',
-      'Portugal': 'Europe',
-      'Ireland': 'Europe',
-      'Greece': 'Europe',
-      'Croatia': 'Europe',
-      'Slovenia': 'Europe',
-      'Slovakia': 'Europe',
-      'Romania': 'Europe',
-      'Bulgaria': 'Europe',
-      
+      Czechia: 'Europe',
+      Hungary: 'Europe',
+      Portugal: 'Europe',
+      Ireland: 'Europe',
+      Greece: 'Europe',
+      Croatia: 'Europe',
+      Slovenia: 'Europe',
+      Slovakia: 'Europe',
+      Romania: 'Europe',
+      Bulgaria: 'Europe',
+
       // South America
-      'Brazil': 'South America',
-      'Argentina': 'South America',
-      'Chile': 'South America',
-      'Colombia': 'South America',
-      'Peru': 'South America',
-      'Uruguay': 'South America',
-      'Venezuela': 'South America',
-      'Ecuador': 'South America',
+      Brazil: 'South America',
+      Argentina: 'South America',
+      Chile: 'South America',
+      Colombia: 'South America',
+      Peru: 'South America',
+      Uruguay: 'South America',
+      Venezuela: 'South America',
+      Ecuador: 'South America',
 
       // Central America
       'Costa Rica': 'Central America',
-      'Panama': 'Central America',
-      'Nicaragua': 'Central America',
-      'Honduras': 'Central America',
+      Panama: 'Central America',
+      Nicaragua: 'Central America',
+      Honduras: 'Central America',
       'El Salvador': 'Central America',
-      'Guatemala': 'Central America',
-      
+      Guatemala: 'Central America',
+
       // Asia
-      'Japan': 'Asia',
+      Japan: 'Asia',
       'South Korea': 'Asia',
-      'China': 'Asia',
-      'India': 'Asia',
-      'Thailand': 'Asia',
-      'Singapore': 'Asia',
-      'Malaysia': 'Asia',
-      'Indonesia': 'Asia',
-      'Philippines': 'Asia',
-      
+      China: 'Asia',
+      India: 'Asia',
+      Thailand: 'Asia',
+      Singapore: 'Asia',
+      Malaysia: 'Asia',
+      Indonesia: 'Asia',
+      Philippines: 'Asia',
+
       // Oceania
-      'Australia': 'Oceania',
+      Australia: 'Oceania',
       'New Zealand': 'Oceania',
-      
+
       // Africa
       'South Africa': 'Africa',
-      'Egypt': 'Africa',
-      'Morocco': 'Africa',
-      'Nigeria': 'Africa',
+      Egypt: 'Africa',
+      Morocco: 'Africa',
+      Nigeria: 'Africa',
     };
 
     return continentMap[country] || 'Other';

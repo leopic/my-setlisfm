@@ -51,64 +51,65 @@ export default function DebugScreen() {
   const handleFetchData = async () => {
     try {
       setLoading(true);
-      
+
       const username = Constants.expoConfig?.extra?.setlistfmTestUsername || 'leopic';
-      
+
       // Fetch all available pages
       const allPages = await setlistApi.getAllUserAttendedConcerts(username);
-      
+
       if (allPages.length === 0) {
         Alert.alert('No Data', 'No concert data found for this user');
         return;
       }
-      
 
-      
       // Process all pages
       await dataProcessor.processMultipleSetlistsResponses(allPages);
-      
+
       await loadStats();
-      Alert.alert('Success', `Data fetched successfully! Processed ${allPages.length} pages of concert data.`);
+      Alert.alert(
+        'Success',
+        `Data fetched successfully! Processed ${allPages.length} pages of concert data.`,
+      );
     } catch (error) {
       console.error('Failed to fetch data:', error);
-      Alert.alert('Error', `Failed to fetch data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      Alert.alert(
+        'Error',
+        `Failed to fetch data: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const handleClearDatabase = async () => {
-    Alert.alert(
-      'Clear Database',
-      'This will delete ALL data. Are you sure?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Clear All',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await dbOperations.clearAllData();
-              await loadStats();
-              Alert.alert('Success', 'Database cleared successfully');
-            } catch (error) {
-              console.error('Failed to clear database:', error);
-              Alert.alert('Error', 'Failed to clear database');
-            }
-          },
+    Alert.alert('Clear Database', 'This will delete ALL data. Are you sure?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Clear All',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await dbOperations.clearAllData();
+            await loadStats();
+            Alert.alert('Success', 'Database cleared successfully');
+          } catch (error) {
+            console.error('Failed to clear database:', error);
+            Alert.alert('Error', 'Failed to clear database');
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleDebugArtists = async () => {
     try {
       const debugInfo = await dbOperations.debugArtistData();
-      Alert.alert('Artist Data Debug',
+      Alert.alert(
+        'Artist Data Debug',
         `Total Artists: ${debugInfo.totalArtists}\n` +
-        `Artists with Concerts: ${debugInfo.artistsWithConcerts}\n` +
-        `Artists without Concerts: ${debugInfo.orphanedArtists}\n\n` +
-        `Orphaned Artists:\n${debugInfo.orphanedArtists.slice(0, 10).join('\n')}${debugInfo.orphanedArtists.length > 10 ? '\n...and more' : ''}`
+          `Artists with Concerts: ${debugInfo.artistsWithConcerts}\n` +
+          `Artists without Concerts: ${debugInfo.orphanedArtists}\n\n` +
+          `Orphaned Artists:\n${debugInfo.orphanedArtists.slice(0, 10).join('\n')}${debugInfo.orphanedArtists.length > 10 ? '\n...and more' : ''}`,
       );
     } catch (error) {
       console.error('Failed to get debug info:', error);
@@ -121,7 +122,7 @@ export default function DebugScreen() {
     try {
       router.push({
         pathname: route as any,
-        params: params || {}
+        params: params || {},
       });
     } catch (error) {
       console.error(`Failed to navigate to ${route}:`, error);
@@ -132,23 +133,21 @@ export default function DebugScreen() {
   const showAvailableRoutes = () => {
     const routes = [
       '/artists',
-      '/venues', 
+      '/venues',
       '/artists/_concerts-list?artist=test',
       '/venues/_concerts-list?venue=test',
       '/artists/setlist?id=test',
       '/venues/setlist?id=test',
-      '/setlist?id=test'
+      '/setlist?id=test',
     ];
-    
 
-    
     Alert.alert(
       'Available Routes',
       `Current app routes:\n\n${routes.join('\n')}\n\nTap a route to test it:`,
-      routes.map(route => ({
+      routes.map((route) => ({
         text: route,
-        onPress: () => testRoute(route)
-      }))
+        onPress: () => testRoute(route),
+      })),
     );
   };
 
@@ -157,26 +156,6 @@ export default function DebugScreen() {
   };
 
   const showRouteStructure = () => {
-    const structure = `
-📁 App Structure:
-├── / (root)
-├── /(tabs)/
-│   ├── / (Concerts tab)
-│   ├── /setlist (Concerts setlist)
-│   ├── /artists/
-│   │   ├── / (Artists list)
-│   │   ├── /_concerts-list (Artist concerts)
-│   │   └── /setlist (Artist setlist)
-│   ├── /venues/
-│   │   ├── / (Venues list)
-│   │   ├── /_concerts-list (Venue concerts)
-│   │   └── /setlist (Venue setlist)
-│   └── /debug (Debug screen)
-└── /_layout.tsx (Root layout)
-    `;
-    
-
-    
     Alert.alert('Route Structure', 'Route structure logged to console. Check Metro bundler logs.');
   };
 
@@ -247,7 +226,7 @@ export default function DebugScreen() {
         <View style={styles.routeTestingContainer}>
           <Text style={styles.sectionTitle}>Route Testing</Text>
           <Text style={styles.sectionSubtitle}>Test navigation to different screens</Text>
-          
+
           <TouchableOpacity
             style={[styles.buttonSecondary, { backgroundColor: '#17a2b8' }]}
             onPress={showAvailableRoutes}
@@ -276,7 +255,7 @@ export default function DebugScreen() {
             >
               <Text style={styles.routeButtonText}>Artists Tab</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               style={[styles.routeButton, { backgroundColor: '#28a745' }]}
               onPress={() => testRoute('/venues')}
@@ -292,7 +271,7 @@ export default function DebugScreen() {
             >
               <Text style={styles.routeButtonText}>Artist Concerts</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               style={[styles.routeButton, { backgroundColor: '#fd7e14' }]}
               onPress={() => testRoute('/venues/_concerts-list', { venue: 'test' })}
@@ -306,14 +285,13 @@ export default function DebugScreen() {
         <View style={styles.infoContainer}>
           <Text style={styles.infoTitle}>About This App</Text>
           <Text style={styles.infoText}>
-            This is a Setlist.fm client app that fetches and stores concert data locally.
-            Use the buttons above to manage your data and test functionality.
+            This is a Setlist.fm client app that fetches and stores concert data locally. Use the
+            buttons above to manage your data and test functionality.
           </Text>
           <Text style={styles.infoText}>
-            • Fetch Data: Downloads concerts from Setlist.fm API{'\n'}
-            • Debug Artists: Shows data integrity information{'\n'}
-            • Clear Database: Removes all stored data{'\n'}
-            • Refresh Stats: Updates the statistics display
+            • Fetch Data: Downloads concerts from Setlist.fm API{'\n'}• Debug Artists: Shows data
+            integrity information{'\n'}• Clear Database: Removes all stored data{'\n'}• Refresh
+            Stats: Updates the statistics display
           </Text>
         </View>
       </ScrollView>

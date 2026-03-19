@@ -11,12 +11,11 @@ export default function Layout() {
       try {
         await databaseManager.initialize();
         setDbReady(true);
-      
       } catch (error) {
         console.error('Failed to initialize database in layout:', error);
       }
     };
-    
+
     initDb();
   }, []);
 

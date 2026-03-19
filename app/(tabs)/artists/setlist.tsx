@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { Text, StyleSheet, SafeAreaView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails, SetWithSongs } from '../../../src/types/database';
@@ -7,9 +7,9 @@ import Setlist from '../../../src/components/Setlist';
 
 export default function ArtistSetlistDetailScreen() {
   const router = useRouter();
-  const { id, returnTo, returnParams } = useLocalSearchParams<{ 
-    id: string; 
-    returnTo?: string; 
+  const { id, returnTo } = useLocalSearchParams<{
+    id: string;
+    returnTo?: string;
     returnParams?: string;
   }>();
   const [setlist, setSetlist] = useState<SetlistWithDetails | null>(null);
@@ -43,7 +43,7 @@ export default function ArtistSetlistDetailScreen() {
         const parsedParams = JSON.parse(returnTo);
         router.push({
           pathname: parsedParams.pathname as any,
-          params: parsedParams.params
+          params: parsedParams.params,
         });
       } catch (error) {
         console.error('Error parsing return params:', error);
@@ -72,11 +72,7 @@ export default function ArtistSetlistDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Setlist 
-        setlist={setlist}
-        sets={sets}
-        onBackPress={handleBackPress}
-      />
+      <Setlist setlist={setlist} sets={sets} onBackPress={handleBackPress} />
     </SafeAreaView>
   );
 }

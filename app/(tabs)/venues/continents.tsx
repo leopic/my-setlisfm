@@ -11,7 +11,8 @@ import {
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
-import { sortByOption, SortOption } from '../../../src/utils/sort';
+import type { SortOption } from '../../../src/utils/sort';
+import { sortByOption } from '../../../src/utils/sort';
 
 interface ContinentWithStats {
   name: string;
@@ -36,7 +37,12 @@ export default function ContinentsScreen() {
     try {
       setLoading(true);
       const continentsWithStats = await dbOperations.getContinentsWithStats();
-      const sortedContinents = sortByOption(continentsWithStats, sortOption, undefined, (c) => c.venueCount);
+      const sortedContinents = sortByOption(
+        continentsWithStats,
+        sortOption,
+        undefined,
+        (c) => c.venueCount,
+      );
       setContinents(sortedContinents);
     } catch (error) {
       console.error('Failed to load continents:', error);
@@ -48,34 +54,29 @@ export default function ContinentsScreen() {
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    const sortedContinents = sortByOption(continents, newSortOption, undefined, (c) => c.venueCount);
+    const sortedContinents = sortByOption(
+      continents,
+      newSortOption,
+      undefined,
+      (c) => c.venueCount,
+    );
     setContinents(sortedContinents);
   };
 
   const handleContinentPress = (continent: ContinentWithStats) => {
-    console.log('🔄 Navigation:', {
-      from: '/venues/continents',
-      to: '/venues/continent-detail',
-      params: { 
-        continentName: continent.name,
-        returnTo: '/venues/continents',
-        returnParams: JSON.stringify({})
-      }
-    });
-    
     router.push({
       pathname: '/venues/continent-detail',
-      params: { 
+      params: {
         continentName: continent.name,
         returnTo: '/venues/continents',
-        returnParams: JSON.stringify({})
-      }
+        returnParams: JSON.stringify({}),
+      },
     });
   };
 
   const getContinentCard = (continent: ContinentWithStats) => (
-    <TouchableOpacity 
-      key={continent.name} 
+    <TouchableOpacity
+      key={continent.name}
       style={styles.continentCard}
       onPress={() => handleContinentPress(continent)}
       activeOpacity={0.7}
@@ -84,8 +85,8 @@ export default function ContinentsScreen() {
         <View style={styles.continentInfo}>
           <Text style={styles.continentName}>{continent.name}</Text>
           <Text style={styles.continentLocation}>
-            🌍 {continent.countryCount} countr{continent.countryCount !== 1 ? 'ies' : 'y'} • 
-            🏙️ {continent.cityCount} cit{continent.cityCount !== 1 ? 'ies' : 'y'}
+            🌍 {continent.countryCount} countr{continent.countryCount !== 1 ? 'ies' : 'y'} • 🏙️{' '}
+            {continent.cityCount} cit{continent.cityCount !== 1 ? 'ies' : 'y'}
           </Text>
         </View>
         <View style={styles.venueCountBadge}>
@@ -93,7 +94,7 @@ export default function ContinentsScreen() {
           <Text style={styles.venueCountLabel}>venues</Text>
         </View>
       </View>
-      
+
       <View style={styles.continentStats}>
         {continent.lastConcertDate && (
           <Text style={styles.lastConcertText}>
@@ -124,18 +125,14 @@ export default function ContinentsScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => router.push('/venues')}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => router.push('/venues')}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Continents</Text>
         <Text style={styles.subtitle}>
-          {sortOption === 'top' 
+          {sortOption === 'top'
             ? `${continents.length} continents (sorted by venue count)`
-            : `${continents.length} continents`
-          }
+            : `${continents.length} continents`}
         </Text>
       </View>
 
@@ -143,27 +140,39 @@ export default function ContinentsScreen() {
       <View style={styles.sortContainer}>
         <Text style={styles.sortLabel}>Sort by:</Text>
         <View style={styles.sortButtons}>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]} 
+          <TouchableOpacity
+            style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]}
             onPress={() => handleSortChange('alphabetical')}
           >
-            <Text style={[styles.sortButtonText, sortOption === 'alphabetical' && styles.sortButtonTextActive]}>
+            <Text
+              style={[
+                styles.sortButtonText,
+                sortOption === 'alphabetical' && styles.sortButtonTextActive,
+              ]}
+            >
               Alphabetical
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]} 
+          <TouchableOpacity
+            style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]}
             onPress={() => handleSortChange('recent')}
           >
-            <Text style={[styles.sortButtonText, sortOption === 'recent' && styles.sortButtonTextActive]}>
+            <Text
+              style={[
+                styles.sortButtonText,
+                sortOption === 'recent' && styles.sortButtonTextActive,
+              ]}
+            >
               Most Recent
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'top' && styles.sortButtonActive]} 
+          <TouchableOpacity
+            style={[styles.sortButton, sortOption === 'top' && styles.sortButtonActive]}
             onPress={() => handleSortChange('top')}
           >
-            <Text style={[styles.sortButtonText, sortOption === 'top' && styles.sortButtonTextActive]}>
+            <Text
+              style={[styles.sortButtonText, sortOption === 'top' && styles.sortButtonTextActive]}
+            >
               Top
             </Text>
           </TouchableOpacity>

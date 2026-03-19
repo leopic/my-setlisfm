@@ -24,7 +24,7 @@ interface ConcertWithDetails extends SetlistWithDetails {
 export default function VenueConcertsListScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  
+
   const [concerts, setConcerts] = useState<ConcertWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [venueName, setVenueName] = useState<string>('');
@@ -43,13 +43,13 @@ export default function VenueConcertsListScreen() {
   const loadVenueConcerts = async (id: string) => {
     try {
       setLoading(true);
-      
+
       // Fetch venue name
       const venueData = await dbOperations.getVenueById(id);
       if (venueData?.name) {
         setVenueName(venueData.name);
       }
-      
+
       // Fetch concerts
       const rawConcerts = await dbOperations.getSetlistsByVenue(id);
       const concertsWithDetails = transformConcerts(rawConcerts);
@@ -63,7 +63,7 @@ export default function VenueConcertsListScreen() {
   };
 
   const transformConcerts = (rawConcerts: SetlistWithDetails[]): ConcertWithDetails[] => {
-    return rawConcerts.map(concert => ({
+    return rawConcerts.map((concert) => ({
       ...concert,
       artistName: concert.artist?.name || 'Unknown Artist',
       venueName: concert.venue?.name || 'Unknown Venue',
@@ -76,15 +76,15 @@ export default function VenueConcertsListScreen() {
   const handleConcertPress = (concert: ConcertWithDetails) => {
     const returnInfo = {
       pathname: '/venues/concerts' as any,
-      params: { venueId: venueId }
+      params: { venueId: venueId },
     };
 
     router.push({
       pathname: '/venues/setlist',
       params: {
         setlistId: concert.id,
-        returnTo: JSON.stringify(returnInfo)
-      }
+        returnTo: JSON.stringify(returnInfo),
+      },
     });
   };
 
@@ -119,15 +119,15 @@ export default function VenueConcertsListScreen() {
         <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>
-          {venueName}
-        </Text>
+        <Text style={styles.title}>{venueName}</Text>
         <Text style={styles.visitCount}>
-          {new Set(concerts.map(c => c.eventDate)).size} Visit{new Set(concerts.map(c => c.eventDate)).size !== 1 ? 's' : ''}
+          {new Set(concerts.map((c) => c.eventDate)).size} Visit
+          {new Set(concerts.map((c) => c.eventDate)).size !== 1 ? 's' : ''}
         </Text>
-        {new Set(concerts.map(c => c.artistName)).size > 1 && (
+        {new Set(concerts.map((c) => c.artistName)).size > 1 && (
           <Text style={styles.artistCount}>
-            {new Set(concerts.map(c => c.artistName)).size} Artist{new Set(concerts.map(c => c.artistName)).size !== 1 ? 's' : ''}
+            {new Set(concerts.map((c) => c.artistName)).size} Artist
+            {new Set(concerts.map((c) => c.artistName)).size !== 1 ? 's' : ''}
           </Text>
         )}
       </View>
@@ -147,13 +147,11 @@ export default function VenueConcertsListScreen() {
             >
               <View style={styles.concertHeader}>
                 <View style={styles.concertMainInfo}>
-                  <Text style={styles.concertMainName}>
-                    {concert.artistName}
-                  </Text>
+                  <Text style={styles.concertMainName}>{concert.artistName}</Text>
                 </View>
-                <Text style={styles.concertDate}>{formatDate(concert.eventDate!)}</Text>
+                <Text style={styles.concertDate}>{formatDate(concert.eventDate ?? '')}</Text>
               </View>
-              
+
               <View style={styles.concertDetails}>
                 <Text style={styles.concertLocation}>
                   {concert.cityName}
@@ -162,9 +160,7 @@ export default function VenueConcertsListScreen() {
                 </Text>
               </View>
 
-              {concert.tour?.name && (
-                <Text style={styles.tourName}>{concert.tour.name}</Text>
-              )}
+              {concert.tour?.name && <Text style={styles.tourName}>{concert.tour.name}</Text>}
             </TouchableOpacity>
           ))
         )}

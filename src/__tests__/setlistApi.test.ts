@@ -33,9 +33,9 @@ describe('SetlistApiService', () => {
         json: async () => ({ setlist: [] }),
       });
 
-      await expect(
-        api.getUserAttendedConcerts('testuser')
-      ).rejects.toThrow('Daily API limit exceeded');
+      await expect(api.getUserAttendedConcerts('testuser')).rejects.toThrow(
+        'Daily API limit exceeded',
+      );
     });
 
     it('should delay requests to respect 2 req/sec limit', async () => {
@@ -77,7 +77,7 @@ describe('SetlistApiService', () => {
             Accept: 'application/json',
             'x-api-key': 'test-api-key',
           },
-        })
+        }),
       );
     });
 
@@ -88,9 +88,9 @@ describe('SetlistApiService', () => {
         statusText: 'Not Found',
       });
 
-      await expect(
-        api.getUserAttendedConcerts('testuser')
-      ).rejects.toThrow('API request failed: 404 Not Found');
+      await expect(api.getUserAttendedConcerts('testuser')).rejects.toThrow(
+        'API request failed: 404 Not Found',
+      );
     });
   });
 

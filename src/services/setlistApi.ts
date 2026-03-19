@@ -23,15 +23,16 @@ export class SetlistApiService {
       this.requestCount = 0;
       this.dailyResetTime = now.setHours(0, 0, 0, 0);
     }
-    
+
     if (this.requestCount >= 1440) {
       throw new Error('Daily API limit exceeded (1440 requests)');
     }
 
     // Rate limiting: max 2 requests per second
     const timeSinceLastRequest = Date.now() - this.lastRequestTime;
-    if (timeSinceLastRequest < 500) { // 500ms = 2 requests/second
-      await new Promise(resolve => setTimeout(resolve, 500 - timeSinceLastRequest));
+    if (timeSinceLastRequest < 500) {
+      // 500ms = 2 requests/second
+      await new Promise((resolve) => setTimeout(resolve, 500 - timeSinceLastRequest));
     }
 
     this.lastRequestTime = Date.now();
@@ -39,7 +40,7 @@ export class SetlistApiService {
 
     return fetch(url, {
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'x-api-key': API_KEY,
       },
     });
@@ -47,14 +48,14 @@ export class SetlistApiService {
 
   async getUserAttendedConcerts(username: string, page: number = 1): Promise<SetlistsResponse> {
     const url = `${API_BASE_URL}/user/${username}/attended?p=${page}`;
-    
+
     try {
       const response = await this.makeRequest(url);
-      
+
       if (!response.ok) {
         throw new Error(`API request failed: ${response.status} ${response.statusText}`);
       }
-      
+
       const data = await response.json();
       return data;
     } catch (error) {
@@ -67,16 +68,17 @@ export class SetlistApiService {
     const allPages: SetlistsResponse[] = [];
     let currentPage = 1;
     let hasMorePages = true;
-    
+
     while (hasMorePages) {
       try {
         const pageData = await this.getUserAttendedConcerts(username, currentPage);
-        
+
         if (pageData.setlist && pageData.setlist.length > 0) {
           allPages.push(pageData);
-          
+
           // Check if there are more pages
-          if (pageData.setlist.length < 20) { // Setlist.fm typically returns 20 items per page
+          if (pageData.setlist.length < 20) {
+            // Setlist.fm typically returns 20 items per page
             hasMorePages = false;
           } else {
             currentPage++;
@@ -84,31 +86,30 @@ export class SetlistApiService {
         } else {
           hasMorePages = false;
         }
-        
+
         // Add a small delay between pages to be respectful to the API
         if (hasMorePages) {
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
         }
-        
       } catch (error) {
         console.error(`Error fetching page ${currentPage}:`, error);
         hasMorePages = false;
       }
     }
-    
+
     return allPages;
   }
 
   async getSetlistById(setlistId: string): Promise<any> {
     const url = `${API_BASE_URL}/setlist/${setlistId}`;
-    
+
     try {
       const response = await this.makeRequest(url);
-      
+
       if (!response.ok) {
         throw new Error(`API request failed: ${response.status} ${response.statusText}`);
       }
-      
+
       const data = await response.json();
       return data;
     } catch (error) {
@@ -119,14 +120,14 @@ export class SetlistApiService {
 
   async getArtistByMbid(mbid: string): Promise<any> {
     const url = `${API_BASE_URL}/artist/${mbid}`;
-    
+
     try {
       const response = await this.makeRequest(url);
-      
+
       if (!response.ok) {
         throw new Error(`API request failed: ${response.status} ${response.statusText}`);
       }
-      
+
       const data = await response.json();
       return data;
     } catch (error) {
@@ -137,14 +138,14 @@ export class SetlistApiService {
 
   async getVenueById(venueId: string): Promise<any> {
     const url = `${API_BASE_URL}/venue/${venueId}`;
-    
+
     try {
       const response = await this.makeRequest(url);
-      
+
       if (!response.ok) {
         throw new Error(`API request failed: ${response.status} ${response.statusText}`);
       }
-      
+
       const data = await response.json();
       return data;
     } catch (error) {

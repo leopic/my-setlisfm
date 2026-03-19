@@ -1,12 +1,6 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
-import type { SetlistWithDetails, SetWithSongs, SongWithDetails } from '../types/database';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import type { SetlistWithDetails, SetWithSongs } from '../types/database';
 import { formatDate } from '../utils/date';
 
 interface SetlistProps {
@@ -19,7 +13,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   const getSetTitle = (set: SetWithSongs, index: number): string => {
     if (set.encore) {
       // Count total encore sets
-      const encoreSets = sets.filter(s => s.encore && s.songs && s.songs.length > 0);
+      const encoreSets = sets.filter((s) => s.encore && s.songs && s.songs.length > 0);
       if (encoreSets.length === 1) {
         return 'Encore';
       } else {
@@ -30,7 +24,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       return set.name;
     }
     // If there's only one set or it's the first set, call it "Main Set"
-    if (setlist?.sets && setlist.sets.filter(s => s.songs && s.songs.length > 0).length === 1) {
+    if (setlist?.sets && setlist.sets.filter((s) => s.songs && s.songs.length > 0).length === 1) {
       return 'Main Set';
     }
     return index === 0 ? 'Main Set' : `Set ${index + 1}`;
@@ -40,60 +34,47 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
     <>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={onBackPress}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>{setlist.artist?.name || 'Unknown Artist'}</Text>
-        <Text style={styles.venueText}>
-          {setlist.venue?.name || 'Unknown Venue'}
-        </Text>
+        <Text style={styles.venueText}>{setlist.venue?.name || 'Unknown Venue'}</Text>
         <Text style={styles.locationText}>
           {setlist.city?.name}
           {setlist.city?.state && `, ${setlist.city.state}`}
           {setlist.country?.name && `, ${setlist.country.name}`}
         </Text>
-        <Text style={styles.dateText}>
-          {formatDate(setlist.eventDate!, 'long')}
-        </Text>
-        {setlist.tour?.name && (
-          <Text style={styles.tourText}>
-            {setlist.tour.name}
-          </Text>
-        )}
+        <Text style={styles.dateText}>{formatDate(setlist.eventDate ?? '', 'long')}</Text>
+        {setlist.tour?.name && <Text style={styles.tourText}>{setlist.tour.name}</Text>}
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Sets */}
-        {sets.filter(set => set.songs && set.songs.length > 0).map((set, index) => (
-          <View key={set.id} style={styles.setContainer}>
-            <Text style={styles.setTitle}>{getSetTitle(set, index)}</Text>
-            {set.songs?.map((song, songIndex) => (
-              <View key={songIndex} style={styles.songItem}>
-                <Text style={styles.songName}>
-                  {song.tape && '📼 '}
-                  {song.name}
-                  {song.info && ` (${song.info})`}
-                </Text>
-                {song.withArtistMbid && (
-                  <Text style={styles.withArtistText}>
-                    with {song.withArtistMbid}
+        {sets
+          .filter((set) => set.songs && set.songs.length > 0)
+          .map((set, index) => (
+            <View key={set.id} style={styles.setContainer}>
+              <Text style={styles.setTitle}>{getSetTitle(set, index)}</Text>
+              {set.songs?.map((song, songIndex) => (
+                <View key={songIndex} style={styles.songItem}>
+                  <Text style={styles.songName}>
+                    {song.tape && '📼 '}
+                    {song.name}
+                    {song.info && ` (${song.info})`}
                   </Text>
-                )}
-                {song.coverArtistMbid && (
-                  <Text style={styles.coverArtistText}>
-                    cover of {song.coverArtistMbid}
-                  </Text>
-                )}
-              </View>
-            ))}
-          </View>
-        ))}
+                  {song.withArtistMbid && (
+                    <Text style={styles.withArtistText}>with {song.withArtistMbid}</Text>
+                  )}
+                  {song.coverArtistMbid && (
+                    <Text style={styles.coverArtistText}>cover of {song.coverArtistMbid}</Text>
+                  )}
+                </View>
+              ))}
+            </View>
+          ))}
 
         {/* Empty state if no sets */}
-        {sets.filter(set => set.songs && set.songs.length > 0).length === 0 && (
+        {sets.filter((set) => set.songs && set.songs.length > 0).length === 0 && (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No setlist information available</Text>
           </View>

@@ -6,14 +6,14 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import SortAndSearch from '../../../src/components/SortAndSearch';
 import { formatDate } from '../../../src/utils/date';
-import { sortByOption, SortOption } from '../../../src/utils/sort';
+import type { SortOption } from '../../../src/utils/sort';
+import { sortByOption } from '../../../src/utils/sort';
 
 interface ArtistWithStats {
   mbid: string;
@@ -46,10 +46,13 @@ export default function ArtistsScreen() {
     try {
       setLoading(true);
       const artistsWithStats = await dbOperations.getArtistsWithStats();
-      
 
-      
-      const sortedArtists = sortByOption(artistsWithStats, sortOption, undefined, (a) => a.concertCount);
+      const sortedArtists = sortByOption(
+        artistsWithStats,
+        sortOption,
+        undefined,
+        (a) => a.concertCount,
+      );
       setArtists(sortedArtists);
     } catch (error) {
       console.error('Failed to load artists:', error);
@@ -78,20 +81,21 @@ export default function ArtistsScreen() {
       setFilteredArtists(artists);
       return;
     }
-    
+
     const query = searchQuery.toLowerCase();
-    const filtered = artists.filter(artist => 
-      artist.name.toLowerCase().includes(query) ||
-      artist.sortName?.toLowerCase().includes(query) ||
-      artist.disambiguation?.toLowerCase().includes(query)
+    const filtered = artists.filter(
+      (artist) =>
+        artist.name.toLowerCase().includes(query) ||
+        artist.sortName?.toLowerCase().includes(query) ||
+        artist.disambiguation?.toLowerCase().includes(query),
     );
-    
+
     setFilteredArtists(filtered);
   };
 
   const getArtistCard = (artist: ArtistWithStats) => (
-    <TouchableOpacity 
-      key={artist.mbid} 
+    <TouchableOpacity
+      key={artist.mbid}
       style={styles.artistCard}
       activeOpacity={0.7}
       onPress={() => handleViewConcerts(artist)}
@@ -108,7 +112,7 @@ export default function ArtistsScreen() {
           <Text style={styles.concertCountLabel}>visits</Text>
         </View>
       </View>
-      
+
       <View style={styles.artistStats}>
         {artist.lastConcertDate && (
           <Text style={styles.lastConcertText}>
@@ -141,10 +145,9 @@ export default function ArtistsScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Artists</Text>
         <Text style={styles.subtitle}>
-          {sortOption === 'top' 
+          {sortOption === 'top'
             ? `${artists.length} artists (sorted by concert count)`
-            : `${artists.length} artists`
-          }
+            : `${artists.length} artists`}
         </Text>
       </View>
 
@@ -302,5 +305,4 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#666',
   },
-
 });

@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import CountryList from '../../../src/components/CountryList';
-import { sortByOption, SortOption } from '../../../src/utils/sort';
+import type { SortOption } from '../../../src/utils/sort';
+import { sortByOption } from '../../../src/utils/sort';
 
 interface CountryWithStats {
   name: string;
@@ -34,7 +28,12 @@ export default function CountriesScreen() {
     try {
       setLoading(true);
       const countriesWithStats = await dbOperations.getCountriesWithStats();
-      const sortedCountries = sortByOption(countriesWithStats, sortOption, undefined, (c) => c.venueCount);
+      const sortedCountries = sortByOption(
+        countriesWithStats,
+        sortOption,
+        undefined,
+        (c) => c.venueCount,
+      );
       setCountries(sortedCountries);
     } catch (error) {
       console.error('Failed to load countries:', error);
@@ -50,14 +49,6 @@ export default function CountriesScreen() {
     setCountries(sortedCountries);
   };
 
-  const handleCountryPress = (country: Country) => {
-    router.push({
-      pathname: '/venues/country-detail',
-      params: { countryCode: country.code }
-    });
-  };
-
-
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -72,18 +63,14 @@ export default function CountriesScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => router.push('/venues')}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => router.push('/venues')}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Countries</Text>
         <Text style={styles.subtitle}>
-          {sortOption === 'top' 
+          {sortOption === 'top'
             ? `${countries.length} countries (sorted by venue count)`
-            : `${countries.length} countries`
-          }
+            : `${countries.length} countries`}
         </Text>
       </View>
 
@@ -91,27 +78,39 @@ export default function CountriesScreen() {
       <View style={styles.sortContainer}>
         <Text style={styles.sortLabel}>Sort by:</Text>
         <View style={styles.sortButtons}>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]} 
+          <TouchableOpacity
+            style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]}
             onPress={() => handleSortChange('alphabetical')}
           >
-            <Text style={[styles.sortButtonText, sortOption === 'alphabetical' && styles.sortButtonTextActive]}>
+            <Text
+              style={[
+                styles.sortButtonText,
+                sortOption === 'alphabetical' && styles.sortButtonTextActive,
+              ]}
+            >
               Alphabetical
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]} 
+          <TouchableOpacity
+            style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]}
             onPress={() => handleSortChange('recent')}
           >
-            <Text style={[styles.sortButtonText, sortOption === 'recent' && styles.sortButtonTextActive]}>
+            <Text
+              style={[
+                styles.sortButtonText,
+                sortOption === 'recent' && styles.sortButtonTextActive,
+              ]}
+            >
               Most Recent
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortOption === 'top' && styles.sortButtonActive]} 
+          <TouchableOpacity
+            style={[styles.sortButton, sortOption === 'top' && styles.sortButtonActive]}
             onPress={() => handleSortChange('top')}
           >
-            <Text style={[styles.sortButtonText, sortOption === 'top' && styles.sortButtonTextActive]}>
+            <Text
+              style={[styles.sortButtonText, sortOption === 'top' && styles.sortButtonTextActive]}
+            >
               Top
             </Text>
           </TouchableOpacity>
@@ -123,7 +122,7 @@ export default function CountriesScreen() {
         onCountryPress={(country) => {
           router.push({
             pathname: '/venues/country-detail',
-            params: { countryCode: country.code }
+            params: { countryCode: country.code },
           });
         }}
         emptyMessage="No countries found"
