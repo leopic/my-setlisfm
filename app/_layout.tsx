@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { databaseManager } from '../src/database/database';
 import { Stack } from 'expo-router';
 
+export { ErrorBoundary } from '../src/components/ErrorBoundary';
+
 export default function Layout() {
   const [dbReady, setDbReady] = useState(false);
 
