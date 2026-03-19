@@ -842,10 +842,10 @@ export class DatabaseOperations {
     // Get detailed stats for each continent
     const continentsWithStats = await Promise.all(
       Array.from(continentMap.entries()).map(async ([continentName, continentCountries]) => {
-        const countryList = continentCountries.join("','");
-        
+        const placeholders = continentCountries.map(() => '?').join(', ');
+
         const statsResult = await this.db.getAllAsync(`
-          SELECT 
+          SELECT
             COUNT(DISTINCT c.name) as cityCount,
             COUNT(DISTINCT v.id) as venueCount,
             MAX(sl.eventDate) as lastConcertDate
@@ -853,8 +853,8 @@ export class DatabaseOperations {
           INNER JOIN venues v ON sl.venueId = v.id
           INNER JOIN cities c ON v.cityId = c.id
           INNER JOIN countries co ON c.countryCode = co.code
-          WHERE co.name IN ('${countryList}')
-        `) as any[];
+          WHERE co.name IN (${placeholders})
+        `, continentCountries) as any[];
 
         const stats = statsResult[0] || {};
         
