@@ -10,8 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import CityList from '../../../src/components/CityList';
-
-type SortOption = 'alphabetical' | 'recent' | 'top';
+import { sortByOption, SortOption } from '../../../src/utils/sort';
 
 interface CityWithStats {
   name: string;
@@ -35,7 +34,7 @@ export default function CitiesScreen() {
     try {
       setLoading(true);
       const citiesWithStats = await dbOperations.getCitiesWithStats();
-      const sortedCities = sortCities(citiesWithStats, sortOption);
+      const sortedCities = sortByOption(citiesWithStats, sortOption, undefined, (c) => c.venueCount);
       setCities(sortedCities);
     } catch (error) {
       console.error('Failed to load cities:', error);
@@ -45,39 +44,9 @@ export default function CitiesScreen() {
     }
   };
 
-  const sortCities = (citiesToSort: CityWithStats[], sortBy: SortOption): CityWithStats[] => {
-    switch (sortBy) {
-      case 'alphabetical':
-        return [...citiesToSort].sort((a, b) => a.name.localeCompare(b.name));
-      case 'recent':
-        return [...citiesToSort].sort((a, b) => {
-          if (!a.lastConcertDate || !b.lastConcertDate) return 0;
-          const dateA = parseDateCorrectly(a.lastConcertDate);
-          const dateB = parseDateCorrectly(b.lastConcertDate);
-          return dateB.getTime() - dateA.getTime();
-        });
-      case 'top':
-        return [...citiesToSort].sort((a, b) => b.venueCount - a.venueCount);
-      default:
-        return citiesToSort;
-    }
-  };
-
-  // Parse DD-MM-YYYY format correctly
-  const parseDateCorrectly = (dateString: string): Date => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      // month - 1 because JavaScript months are 0-indexed
-      return new Date(year, month - 1, day);
-    } catch (error) {
-      console.error('Error parsing date:', dateString, error);
-      return new Date(0); // Return epoch date for invalid dates
-    }
-  };
-
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    const sortedCities = sortCities(cities, newSortOption);
+    const sortedCities = sortByOption(cities, newSortOption, undefined, (c) => c.venueCount);
     setCities(sortedCities);
   };
 

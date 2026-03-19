@@ -10,8 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import CountryList from '../../../src/components/CountryList';
-
-type SortOption = 'alphabetical' | 'recent' | 'top';
+import { sortByOption, SortOption } from '../../../src/utils/sort';
 
 interface CountryWithStats {
   name: string;
@@ -35,7 +34,7 @@ export default function CountriesScreen() {
     try {
       setLoading(true);
       const countriesWithStats = await dbOperations.getCountriesWithStats();
-      const sortedCountries = sortCountries(countriesWithStats, sortOption);
+      const sortedCountries = sortByOption(countriesWithStats, sortOption, undefined, (c) => c.venueCount);
       setCountries(sortedCountries);
     } catch (error) {
       console.error('Failed to load countries:', error);
@@ -45,39 +44,9 @@ export default function CountriesScreen() {
     }
   };
 
-  const sortCountries = (countriesToSort: CountryWithStats[], sortBy: SortOption): CountryWithStats[] => {
-    switch (sortBy) {
-      case 'alphabetical':
-        return [...countriesToSort].sort((a, b) => a.name.localeCompare(b.name));
-      case 'recent':
-        return [...countriesToSort].sort((a, b) => {
-          if (!a.lastConcertDate || !b.lastConcertDate) return 0;
-          const dateA = parseDateCorrectly(a.lastConcertDate);
-          const dateB = parseDateCorrectly(b.lastConcertDate);
-          return dateB.getTime() - dateA.getTime();
-        });
-      case 'top':
-        return [...countriesToSort].sort((a, b) => b.venueCount - a.venueCount);
-      default:
-        return countriesToSort;
-    }
-  };
-
-  // Parse DD-MM-YYYY format correctly
-  const parseDateCorrectly = (dateString: string): Date => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      // month - 1 because JavaScript months are 0-indexed
-      return new Date(year, month - 1, day);
-    } catch (error) {
-      console.error('Error parsing date:', dateString, error);
-      return new Date(0); // Return epoch date for invalid dates
-    }
-  };
-
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    const sortedCountries = sortCountries(countries, newSortOption);
+    const sortedCountries = sortByOption(countries, newSortOption, undefined, (c) => c.venueCount);
     setCountries(sortedCountries);
   };
 

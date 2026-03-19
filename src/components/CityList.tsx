@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { formatDate } from '../utils/date';
 
 interface CityWithStats {
   name: string;
@@ -26,20 +27,6 @@ export default function CityList({
   onCityPress, 
   emptyMessage = "No cities found" 
 }: CityListProps) {
-  const formatDate = (dateString: string): string => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    } catch (error) {
-      return dateString;
-    }
-  };
-
   const getCityCard = (city: CityWithStats) => (
     <TouchableOpacity 
       key={`${city.name}-${city.countryName}`} 

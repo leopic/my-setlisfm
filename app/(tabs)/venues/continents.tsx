@@ -10,8 +10,8 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
-
-type SortOption = 'alphabetical' | 'recent' | 'top';
+import { formatDate } from '../../../src/utils/date';
+import { sortByOption, SortOption } from '../../../src/utils/sort';
 
 interface ContinentWithStats {
   name: string;
@@ -36,7 +36,7 @@ export default function ContinentsScreen() {
     try {
       setLoading(true);
       const continentsWithStats = await dbOperations.getContinentsWithStats();
-      const sortedContinents = sortContinents(continentsWithStats, sortOption);
+      const sortedContinents = sortByOption(continentsWithStats, sortOption, undefined, (c) => c.venueCount);
       setContinents(sortedContinents);
     } catch (error) {
       console.error('Failed to load continents:', error);
@@ -46,39 +46,9 @@ export default function ContinentsScreen() {
     }
   };
 
-  const sortContinents = (continentsToSort: ContinentWithStats[], sortBy: SortOption): ContinentWithStats[] => {
-    switch (sortBy) {
-      case 'alphabetical':
-        return [...continentsToSort].sort((a, b) => a.name.localeCompare(b.name));
-      case 'recent':
-        return [...continentsToSort].sort((a, b) => {
-          if (!a.lastConcertDate || !b.lastConcertDate) return 0;
-          const dateA = parseDateCorrectly(a.lastConcertDate);
-          const dateB = parseDateCorrectly(b.lastConcertDate);
-          return dateB.getTime() - dateA.getTime();
-        });
-      case 'top':
-        return [...continentsToSort].sort((a, b) => b.venueCount - a.venueCount);
-      default:
-        return continentsToSort;
-    }
-  };
-
-  // Parse DD-MM-YYYY format correctly
-  const parseDateCorrectly = (dateString: string): Date => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      // month - 1 because JavaScript months are 0-indexed
-      return new Date(year, month - 1, day);
-    } catch (error) {
-      console.error('Error parsing date:', dateString, error);
-      return new Date(0); // Return epoch date for invalid dates
-    }
-  };
-
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    const sortedContinents = sortContinents(continents, newSortOption);
+    const sortedContinents = sortByOption(continents, newSortOption, undefined, (c) => c.venueCount);
     setContinents(sortedContinents);
   };
 
@@ -101,20 +71,6 @@ export default function ContinentsScreen() {
         returnParams: JSON.stringify({})
       }
     });
-  };
-
-  const formatDate = (dateString: string): string => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    } catch (error) {
-      return dateString;
-    }
   };
 
   const getContinentCard = (continent: ContinentWithStats) => (

@@ -6,8 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-
-type SortOption = 'alphabetical' | 'recent' | 'top';
+import { SortOption } from '../utils/sort';
 
 interface SortAndSearchProps {
   sortOption: SortOption;

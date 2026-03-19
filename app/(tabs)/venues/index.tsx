@@ -12,8 +12,8 @@ import {
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import SortAndSearch from '../../../src/components/SortAndSearch';
-
-type SortOption = 'alphabetical' | 'recent' | 'top';
+import { formatDate } from '../../../src/utils/date';
+import { sortByOption, SortOption } from '../../../src/utils/sort';
 
 interface VenueWithStats {
   id: string;
@@ -66,7 +66,7 @@ export default function VenuesScreen() {
         dbOperations.getVenueGeoStats()
       ]);
       
-      const sortedVenues = sortVenues(venuesWithStats, sortOption);
+      const sortedVenues = sortByOption(venuesWithStats, sortOption, undefined, (v) => v.concertCount);
       setVenues(sortedVenues);
       setGeoStats(geoData);
     } catch (error) {
@@ -85,39 +85,9 @@ export default function VenuesScreen() {
     });
   };
 
-  const sortVenues = (venuesToSort: VenueWithStats[], sortBy: SortOption): VenueWithStats[] => {
-    switch (sortBy) {
-      case 'alphabetical':
-        return [...venuesToSort].sort((a, b) => a.name.localeCompare(b.name));
-      case 'recent':
-        return [...venuesToSort].sort((a, b) => {
-          if (!a.lastConcertDate || !b.lastConcertDate) return 0;
-          const dateA = parseDateCorrectly(a.lastConcertDate);
-          const dateB = parseDateCorrectly(b.lastConcertDate);
-          return dateB.getTime() - dateA.getTime();
-        });
-      case 'top':
-        return [...venuesToSort].sort((a, b) => b.concertCount - a.concertCount);
-      default:
-        return venuesToSort;
-    }
-  };
-
-  // Parse DD-MM-YYYY format correctly
-  const parseDateCorrectly = (dateString: string): Date => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      // month - 1 because JavaScript months are 0-indexed
-      return new Date(year, month - 1, day);
-    } catch (error) {
-      console.error('Error parsing date:', dateString, error);
-      return new Date(0); // Return epoch date for invalid dates
-    }
-  };
-
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    const sortedVenues = sortVenues(venues, newSortOption);
+    const sortedVenues = sortByOption(venues, newSortOption, undefined, (v) => v.concertCount);
     setVenues(sortedVenues);
   };
 
@@ -136,20 +106,6 @@ export default function VenuesScreen() {
     );
     
     setFilteredVenues(filtered);
-  };
-
-  const formatDate = (dateString: string): string => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    } catch (error) {
-      return dateString;
-    }
   };
 
   const getVenueCard = (venue: VenueWithStats) => (

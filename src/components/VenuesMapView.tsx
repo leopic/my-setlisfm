@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import { dbOperations } from '../database/operations';
+import { formatDate } from '../utils/date';
 
 interface VenueWithCoords {
   id: string;
@@ -69,20 +70,6 @@ export default function VenuesMapView() {
       Alert.alert('Error', 'Failed to load venue locations');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const formatDate = (dateString: string): string => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    } catch (error) {
-      return dateString;
     }
   };
 

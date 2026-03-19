@@ -12,8 +12,8 @@ import {
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import SortAndSearch from '../../../src/components/SortAndSearch';
-
-type SortOption = 'alphabetical' | 'recent' | 'top';
+import { formatDate } from '../../../src/utils/date';
+import { sortByOption, SortOption } from '../../../src/utils/sort';
 
 interface ArtistWithStats {
   mbid: string;
@@ -49,7 +49,7 @@ export default function ArtistsScreen() {
       
 
       
-      const sortedArtists = sortArtists(artistsWithStats, sortOption);
+      const sortedArtists = sortByOption(artistsWithStats, sortOption, undefined, (a) => a.concertCount);
       setArtists(sortedArtists);
     } catch (error) {
       console.error('Failed to load artists:', error);
@@ -67,39 +67,9 @@ export default function ArtistsScreen() {
     });
   };
 
-  const sortArtists = (artistsToSort: ArtistWithStats[], sortBy: SortOption): ArtistWithStats[] => {
-    switch (sortBy) {
-      case 'alphabetical':
-        return [...artistsToSort].sort((a, b) => a.name.localeCompare(b.name));
-      case 'recent':
-        return [...artistsToSort].sort((a, b) => {
-          if (!a.lastConcertDate || !b.lastConcertDate) return 0;
-          const dateA = parseDateCorrectly(a.lastConcertDate);
-          const dateB = parseDateCorrectly(b.lastConcertDate);
-          return dateB.getTime() - dateA.getTime();
-        });
-      case 'top':
-        return [...artistsToSort].sort((a, b) => b.concertCount - a.concertCount);
-      default:
-        return artistsToSort;
-    }
-  };
-
-  // Parse DD-MM-YYYY format correctly
-  const parseDateCorrectly = (dateString: string): Date => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      // month - 1 because JavaScript months are 0-indexed
-      return new Date(year, month - 1, day);
-    } catch (error) {
-      console.error('Error parsing date:', dateString, error);
-      return new Date(0); // Return epoch date for invalid dates
-    }
-  };
-
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    const sortedArtists = sortArtists(artists, newSortOption);
+    const sortedArtists = sortByOption(artists, newSortOption, undefined, (a) => a.concertCount);
     setArtists(sortedArtists);
   };
 
@@ -117,20 +87,6 @@ export default function ArtistsScreen() {
     );
     
     setFilteredArtists(filtered);
-  };
-
-  const formatDate = (dateString: string): string => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    } catch (error) {
-      return dateString;
-    }
   };
 
   const getArtistCard = (artist: ArtistWithStats) => (

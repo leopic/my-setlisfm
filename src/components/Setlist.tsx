@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import type { SetlistWithDetails, SetWithSongs, SongWithDetails } from '../types/database';
+import { formatDate } from '../utils/date';
 
 interface SetlistProps {
   setlist: SetlistWithDetails;
@@ -15,21 +16,6 @@ interface SetlistProps {
 }
 
 export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
-  const formatDate = (dateString: string): string => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-    } catch (error) {
-      return dateString;
-    }
-  };
-
   const getSetTitle = (set: SetWithSongs, index: number): string => {
     if (set.encore) {
       // Count total encore sets
@@ -70,7 +56,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
           {setlist.country?.name && `, ${setlist.country.name}`}
         </Text>
         <Text style={styles.dateText}>
-          {formatDate(setlist.eventDate!)}
+          {formatDate(setlist.eventDate!, 'long')}
         </Text>
         {setlist.tour?.name && (
           <Text style={styles.tourText}>

@@ -9,6 +9,7 @@ import {
   Modal,
 } from 'react-native';
 import type { SetlistWithDetails } from '../types/database';
+import { formatDate } from '../utils/date';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -35,20 +36,6 @@ export default function ConcertListModal({
   loading,
   onConcertPress,
 }: ConcertListModalProps) {
-  const formatDate = (dateString: string): string => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    } catch (error) {
-      return dateString;
-    }
-  };
-
   return (
     <Modal
       visible={visible}

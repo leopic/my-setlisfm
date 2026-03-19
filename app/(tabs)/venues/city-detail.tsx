@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
+import { formatDate } from '../../../src/utils/date';
 
 interface VenueWithStats {
   id: string;
@@ -83,20 +84,6 @@ export default function CityDetailScreen() {
       }
     } else {
       router.back();
-    }
-  };
-
-  const formatDate = (dateString: string): string => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    } catch (error) {
-      return dateString;
     }
   };
 

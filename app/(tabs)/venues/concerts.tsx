@@ -11,6 +11,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails } from '../../../src/types/database';
+import { formatDate } from '../../../src/utils/date';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -70,20 +71,6 @@ export default function VenueConcertsListScreen() {
       stateName: concert.city?.state,
       countryName: concert.country?.name,
     }));
-  };
-
-  const formatDate = (dateString: string): string => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    } catch (error) {
-      return dateString;
-    }
   };
 
   const handleConcertPress = (concert: ConcertWithDetails) => {

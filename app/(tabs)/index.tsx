@@ -13,8 +13,8 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../src/database/operations';
 import type { SetlistWithDetails } from '../../src/types/database';
-
-type SortOption = 'recent' | 'alphabetical';
+import { parseDateCorrectly, formatDate } from '../../src/utils/date';
+import { sortByOption, SortOption } from '../../src/utils/sort';
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string; venueName: string; cityName?: string; stateName?: string; countryName?: string;
 }
@@ -156,45 +156,10 @@ export default function ConcertsScreen() {
   };
 
   const sortConcerts = (concertsToSort: ConcertWithDetails[], sortBy: SortOption): ConcertWithDetails[] => {
-    switch (sortBy) {
-      case 'recent':
-        return [...concertsToSort].sort((a, b) => {
-          if (!a.eventDate || !b.eventDate) return 0;
-          const dateA = parseDateCorrectly(a.eventDate);
-          const dateB = parseDateCorrectly(b.eventDate);
-
-          return dateB.getTime() - dateA.getTime();
-        });
-      case 'alphabetical':
-        return [...concertsToSort].sort((a, b) => a.artistName.localeCompare(b.artistName));
-      default:
-        return concertsToSort;
+    if (sortBy === 'alphabetical') {
+      return [...concertsToSort].sort((a, b) => a.artistName.localeCompare(b.artistName));
     }
-  };
-
-  // Parse DD-MM-YYYY format correctly
-  const parseDateCorrectly = (dateString: string): Date => {
-    try {
-      const [day, month, year] = dateString.split('-').map(Number);
-      // month - 1 because JavaScript months are 0-indexed
-      return new Date(year, month - 1, day);
-    } catch (error) {
-      console.error('Error parsing date:', dateString, error);
-      return new Date(0); // Return epoch date for invalid dates
-    }
-  };
-
-  const formatDate = (dateString: string): string => {
-    try {
-      const date = parseDateCorrectly(dateString);
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    } catch (error) {
-      return dateString;
-    }
+    return sortByOption(concertsToSort, sortBy, (c) => c.eventDate);
   };
 
   const handleSortChange = (newSortOption: SortOption) => {
