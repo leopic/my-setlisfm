@@ -102,9 +102,8 @@ export class SetlistApiService {
         if (pageData.setlist && pageData.setlist.length > 0) {
           allPages.push(pageData);
 
-          // Check if there are more pages
-          if (pageData.setlist.length < 20) {
-            // Setlist.fm typically returns 20 items per page
+          const totalPages = Math.ceil(pageData.total / pageData.itemsPerPage);
+          if (currentPage >= totalPages) {
             hasMorePages = false;
           } else {
             currentPage++;
