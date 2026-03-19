@@ -94,6 +94,67 @@ describe('SetlistApiService', () => {
     });
   });
 
+  describe('retry logic', () => {
+    beforeEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('should retry on 5xx errors with exponential backoff', async () => {
+      mockFetch
+        .mockResolvedValueOnce({ status: 503, statusText: 'Service Unavailable' })
+        .mockResolvedValueOnce({ status: 503, statusText: 'Service Unavailable' })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => ({ setlist: [] }),
+        });
+
+      const result = await api.getUserAttendedConcerts('testuser');
+      expect(result).toEqual({ setlist: [] });
+      expect(mockFetch).toHaveBeenCalledTimes(3);
+    });
+
+    it('should not retry on 4xx errors', async () => {
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 400,
+        statusText: 'Bad Request',
+      });
+
+      await expect(api.getUserAttendedConcerts('testuser')).rejects.toThrow(
+        'API request failed: 400 Bad Request',
+      );
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it(
+      'should throw after exhausting all retries',
+      async () => {
+        mockFetch.mockResolvedValue({ status: 500, statusText: 'Internal Server Error' });
+
+        await expect(api.getUserAttendedConcerts('testuser')).rejects.toThrow(
+          'API request failed: 500 Internal Server Error',
+        );
+        expect(mockFetch).toHaveBeenCalledTimes(3);
+      },
+      15000,
+    );
+
+    it('should retry on network errors', async () => {
+      mockFetch
+        .mockRejectedValueOnce(new Error('Network error'))
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => ({ setlist: [] }),
+        });
+
+      const result = await api.getUserAttendedConcerts('testuser');
+      expect(result).toEqual({ setlist: [] });
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe('getAllUserAttendedConcerts', () => {
     beforeEach(() => {
       // These tests need real timers since they involve multiple async ticks
@@ -137,22 +198,27 @@ describe('SetlistApiService', () => {
       expect(result).toHaveLength(0);
     });
 
-    it('should stop on error and return pages fetched so far', async () => {
-      const page1 = {
-        setlist: Array(20).fill({ id: 'test' }),
-        type: '',
-        itemsPerPage: 20,
-        page: 1,
-        total: 40,
-      };
+    it(
+      'should stop on error and return pages fetched so far',
+      async () => {
+        const page1 = {
+          setlist: Array(20).fill({ id: 'test' }),
+          type: '',
+          itemsPerPage: 20,
+          page: 1,
+          total: 40,
+        };
 
-      mockFetch
-        .mockResolvedValueOnce({ ok: true, json: async () => page1 })
-        .mockRejectedValueOnce(new Error('Network error'));
+        // Page 1 succeeds, then page 2 fails with a 4xx (no retry)
+        mockFetch
+          .mockResolvedValueOnce({ ok: true, status: 200, json: async () => page1 })
+          .mockResolvedValueOnce({ ok: false, status: 404, statusText: 'Not Found' });
 
-      const result = await api.getAllUserAttendedConcerts('testuser');
+        const result = await api.getAllUserAttendedConcerts('testuser');
 
-      expect(result).toHaveLength(1);
-    });
+        expect(result).toHaveLength(1);
+      },
+      15000,
+    );
   });
 });

@@ -16,6 +16,9 @@ export class SetlistApiService {
   private requestCount = 0;
   private dailyResetTime = new Date().setHours(0, 0, 0, 0);
 
+  private static MAX_RETRIES = 3;
+  private static INITIAL_BACKOFF_MS = 1000;
+
   private async makeRequest(url: string): Promise<Response> {
     // Check daily limit
     const now = new Date();
@@ -28,40 +31,63 @@ export class SetlistApiService {
       throw new Error('Daily API limit exceeded (1440 requests)');
     }
 
-    // Rate limiting: max 2 requests per second
-    const timeSinceLastRequest = Date.now() - this.lastRequestTime;
-    if (timeSinceLastRequest < 500) {
-      // 500ms = 2 requests/second
-      await new Promise((resolve) => setTimeout(resolve, 500 - timeSinceLastRequest));
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt < SetlistApiService.MAX_RETRIES; attempt++) {
+      // Rate limiting: max 2 requests per second
+      const timeSinceLastRequest = Date.now() - this.lastRequestTime;
+      if (timeSinceLastRequest < 500) {
+        await new Promise((resolve) => setTimeout(resolve, 500 - timeSinceLastRequest));
+      }
+
+      this.lastRequestTime = Date.now();
+      this.requestCount++;
+
+      try {
+        const response = await fetch(url, {
+          headers: {
+            Accept: 'application/json',
+            'x-api-key': API_KEY,
+          },
+        });
+
+        // 4xx errors are client errors — don't retry
+        if (response.status >= 400 && response.status < 500) {
+          throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+        }
+
+        // 5xx errors are server errors — retry
+        if (response.status >= 500) {
+          lastError = new Error(`API request failed: ${response.status} ${response.statusText}`);
+          const backoff = SetlistApiService.INITIAL_BACKOFF_MS * Math.pow(2, attempt);
+          await new Promise((resolve) => setTimeout(resolve, backoff));
+          continue;
+        }
+
+        return response;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+
+        // Don't retry client errors that were thrown above
+        if (lastError.message.startsWith('API request failed:')) {
+          throw lastError;
+        }
+
+        // Network errors — retry with backoff
+        if (attempt < SetlistApiService.MAX_RETRIES - 1) {
+          const backoff = SetlistApiService.INITIAL_BACKOFF_MS * Math.pow(2, attempt);
+          await new Promise((resolve) => setTimeout(resolve, backoff));
+        }
+      }
     }
 
-    this.lastRequestTime = Date.now();
-    this.requestCount++;
-
-    return fetch(url, {
-      headers: {
-        Accept: 'application/json',
-        'x-api-key': API_KEY,
-      },
-    });
+    throw lastError ?? new Error('Request failed after retries');
   }
 
   async getUserAttendedConcerts(username: string, page: number = 1): Promise<SetlistsResponse> {
     const url = `${API_BASE_URL}/user/${username}/attended?p=${page}`;
-
-    try {
-      const response = await this.makeRequest(url);
-
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error fetching user attended concerts:', error);
-      throw error;
-    }
+    const response = await this.makeRequest(url);
+    return response.json();
   }
 
   async getAllUserAttendedConcerts(username: string): Promise<SetlistsResponse[]> {
@@ -102,56 +128,20 @@ export class SetlistApiService {
 
   async getSetlistById(setlistId: string): Promise<any> {
     const url = `${API_BASE_URL}/setlist/${setlistId}`;
-
-    try {
-      const response = await this.makeRequest(url);
-
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error fetching setlist:', error);
-      throw error;
-    }
+    const response = await this.makeRequest(url);
+    return response.json();
   }
 
   async getArtistByMbid(mbid: string): Promise<any> {
     const url = `${API_BASE_URL}/artist/${mbid}`;
-
-    try {
-      const response = await this.makeRequest(url);
-
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error fetching artist:', error);
-      throw error;
-    }
+    const response = await this.makeRequest(url);
+    return response.json();
   }
 
   async getVenueById(venueId: string): Promise<any> {
     const url = `${API_BASE_URL}/venue/${venueId}`;
-
-    try {
-      const response = await this.makeRequest(url);
-
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error fetching venue:', error);
-      throw error;
-    }
+    const response = await this.makeRequest(url);
+    return response.json();
   }
 
   // Get current rate limiting status
