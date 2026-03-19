@@ -450,6 +450,86 @@ export class DatabaseOperations {
     };
   }
 
+  async getDashboardStats(): Promise<{
+    totalConcerts: number;
+    totalArtists: number;
+    totalVenues: number;
+    totalCountries: number;
+    topArtist: { name: string; count: number } | null;
+    topVenue: { name: string; cityName: string; count: number } | null;
+    firstConcert: { artistName: string; eventDate: string } | null;
+    lastConcert: { artistName: string; eventDate: string } | null;
+    concertsByYear: { year: string; count: number }[];
+  }> {
+    const [counts, topArtist, topVenue, firstConcert, lastConcert, byYear] = await Promise.all([
+      this.db.getFirstAsync(`
+        SELECT
+          (SELECT COUNT(*) FROM setlists) as concerts,
+          (SELECT COUNT(DISTINCT artistMbid) FROM setlists) as artists,
+          (SELECT COUNT(DISTINCT venueId) FROM setlists) as venues,
+          (SELECT COUNT(DISTINCT co.code) FROM setlists sl
+           INNER JOIN venues v ON sl.venueId = v.id
+           INNER JOIN cities c ON v.cityId = c.id
+           INNER JOIN countries co ON c.countryCode = co.code) as countries
+      `) as any,
+      this.db.getFirstAsync(`
+        SELECT a.name, COUNT(*) as count
+        FROM setlists sl
+        INNER JOIN artists a ON sl.artistMbid = a.mbid
+        GROUP BY sl.artistMbid
+        ORDER BY count DESC
+        LIMIT 1
+      `) as any,
+      this.db.getFirstAsync(`
+        SELECT v.name, c.name as cityName, COUNT(*) as count
+        FROM setlists sl
+        INNER JOIN venues v ON sl.venueId = v.id
+        LEFT JOIN cities c ON v.cityId = c.id
+        GROUP BY sl.venueId
+        ORDER BY count DESC
+        LIMIT 1
+      `) as any,
+      this.db.getFirstAsync(`
+        SELECT a.name as artistName, sl.eventDate
+        FROM setlists sl
+        LEFT JOIN artists a ON sl.artistMbid = a.mbid
+        ORDER BY substr(sl.eventDate, 7, 4) || substr(sl.eventDate, 4, 2) || substr(sl.eventDate, 1, 2) ASC
+        LIMIT 1
+      `) as any,
+      this.db.getFirstAsync(`
+        SELECT a.name as artistName, sl.eventDate
+        FROM setlists sl
+        LEFT JOIN artists a ON sl.artistMbid = a.mbid
+        ORDER BY substr(sl.eventDate, 7, 4) || substr(sl.eventDate, 4, 2) || substr(sl.eventDate, 1, 2) DESC
+        LIMIT 1
+      `) as any,
+      this.db.getAllAsync(`
+        SELECT substr(eventDate, 7, 4) as year, COUNT(*) as count
+        FROM setlists
+        GROUP BY year
+        ORDER BY year ASC
+      `) as any[],
+    ]);
+
+    return {
+      totalConcerts: counts?.concerts || 0,
+      totalArtists: counts?.artists || 0,
+      totalVenues: counts?.venues || 0,
+      totalCountries: counts?.countries || 0,
+      topArtist: topArtist?.name ? { name: topArtist.name, count: topArtist.count } : null,
+      topVenue: topVenue?.name
+        ? { name: topVenue.name, cityName: topVenue.cityName, count: topVenue.count }
+        : null,
+      firstConcert: firstConcert?.eventDate
+        ? { artistName: firstConcert.artistName, eventDate: firstConcert.eventDate }
+        : null,
+      lastConcert: lastConcert?.eventDate
+        ? { artistName: lastConcert.artistName, eventDate: lastConcert.eventDate }
+        : null,
+      concertsByYear: byYear.map((row: any) => ({ year: row.year, count: row.count })),
+    };
+  }
+
   // Get all artists with their concert counts and stats
   async getArtistsWithStats(): Promise<
     {
