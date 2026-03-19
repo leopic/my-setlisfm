@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import type { SetlistWithDetails, SetWithSongs } from '../types/database';
 import { formatDate } from '../utils/date';
-import { colors } from '../utils/colors';
+import { useColors } from '../utils/colors';
 
 interface SetlistProps {
   setlist: SetlistWithDetails;
@@ -11,6 +11,103 @@ interface SetlistProps {
 }
 
 export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
+  const colors = useColors();
+  const styles = useMemo(() => StyleSheet.create({
+    header: {
+      padding: 20,
+      backgroundColor: colors.backgroundCard,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.borderLight,
+    },
+    backButton: {
+      padding: 10,
+      marginBottom: 10,
+    },
+    backButtonText: {
+      color: colors.primary,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 8,
+    },
+    venueText: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: colors.textPrimary,
+      marginBottom: 4,
+    },
+    locationText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginBottom: 6,
+    },
+    dateText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      marginBottom: 6,
+    },
+    tourText: {
+      fontSize: 16,
+      color: colors.primary,
+      fontWeight: '600',
+    },
+    content: {
+      flex: 1,
+      padding: 20,
+    },
+    setContainer: {
+      backgroundColor: colors.backgroundCard,
+      borderRadius: 12,
+      padding: 20,
+      marginBottom: 20,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    setTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 15,
+      textAlign: 'center',
+    },
+    songItem: {
+      paddingVertical: 8,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.backgroundPill,
+    },
+    songName: {
+      fontSize: 16,
+      color: colors.textPrimary,
+      marginBottom: 4,
+    },
+    withArtistText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      fontStyle: 'italic',
+    },
+    coverArtistText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      fontStyle: 'italic',
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 60,
+    },
+    emptyStateText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+  }), [colors]);
+
   const getSetTitle = (set: SetWithSongs, index: number): string => {
     if (set.encore) {
       // Count total encore sets
@@ -59,7 +156,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
               {set.songs?.map((song, songIndex) => (
                 <View key={songIndex} style={styles.songItem}>
                   <Text style={styles.songName}>
-                    {song.tape && '📼 '}
+                    {song.tape && 'tape '}
                     {song.name}
                     {song.info && ` (${song.info})`}
                   </Text>
@@ -84,99 +181,3 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    padding: 20,
-    backgroundColor: colors.backgroundCard,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
-  },
-  backButton: {
-    padding: 10,
-    marginBottom: 10,
-  },
-  backButtonText: {
-    color: colors.primary,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 8,
-  },
-  venueText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    marginBottom: 4,
-  },
-  locationText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 6,
-  },
-  dateText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginBottom: 6,
-  },
-  tourText: {
-    fontSize: 16,
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  setContainer: {
-    backgroundColor: colors.backgroundCard,
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  setTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  songItem: {
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.backgroundPill,
-  },
-  songName: {
-    fontSize: 16,
-    color: colors.textPrimary,
-    marginBottom: 4,
-  },
-  withArtistText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontStyle: 'italic',
-  },
-  coverArtistText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontStyle: 'italic',
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-});

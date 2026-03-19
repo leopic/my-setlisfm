@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
-import { colors } from '../../../src/utils/colors';
+import { useColors } from '../../../src/utils/colors';
 
 interface ContinentWithStats {
   name: string;
@@ -25,6 +25,167 @@ interface ContinentWithStats {
 }
 
 export default function ContinentsScreen() {
+  const colors = useColors();
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      padding: 20,
+      backgroundColor: colors.backgroundCard,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    backButton: {
+      padding: 10,
+      marginBottom: 10,
+    },
+    backButtonText: {
+      fontSize: 16,
+      color: colors.primary,
+      fontWeight: '600',
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 5,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: colors.textSecondary,
+    },
+    continentsList: {
+      flex: 1,
+      padding: 20,
+    },
+    continentCard: {
+      backgroundColor: colors.backgroundPill,
+      borderRadius: 10,
+      padding: 15,
+      marginBottom: 10,
+    },
+    continentHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 5,
+    },
+    continentInfo: {
+      flex: 1,
+      marginRight: 15,
+    },
+    continentName: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 5,
+    },
+    continentLocation: {
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    venueCountBadge: {
+      backgroundColor: colors.success,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 20,
+      alignItems: 'center',
+      minWidth: 60,
+    },
+    venueCountText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.textInverse,
+    },
+    venueCountLabel: {
+      fontSize: 10,
+      color: colors.textInverse,
+      opacity: 0.9,
+    },
+    continentStats: {
+      marginTop: 5,
+    },
+    lastConcertText: {
+      fontSize: 14,
+      color: colors.success,
+      fontWeight: '500',
+      marginBottom: 5,
+    },
+    countriesText: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginBottom: 5,
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 60,
+    },
+    emptyStateText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    refreshButton: {
+      backgroundColor: colors.success,
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderRadius: 20,
+    },
+    refreshButtonText: {
+      color: colors.textInverse,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    loadingText: {
+      fontSize: 18,
+      color: colors.textSecondary,
+    },
+    sortContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 20,
+      marginBottom: 15,
+      paddingHorizontal: 20,
+      backgroundColor: colors.backgroundCard,
+      paddingVertical: 20,
+    },
+    sortLabel: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginRight: 10,
+    },
+    sortButtons: {
+      flexDirection: 'row',
+      backgroundColor: colors.backgroundPill,
+      borderRadius: 20,
+      padding: 5,
+    },
+    sortButton: {
+      paddingHorizontal: 15,
+      paddingVertical: 8,
+      borderRadius: 15,
+    },
+    sortButtonActive: {
+      backgroundColor: colors.primary,
+    },
+    sortButtonText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      fontWeight: '600',
+    },
+    sortButtonTextActive: {
+      color: colors.textInverse,
+    },
+  }), [colors]);
+
   const router = useRouter();
   const [continents, setContinents] = useState<ContinentWithStats[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,7 +247,7 @@ export default function ContinentsScreen() {
         <View style={styles.continentInfo}>
           <Text style={styles.continentName}>{continent.name}</Text>
           <Text style={styles.continentLocation}>
-            🌍 {continent.countryCount} countr{continent.countryCount !== 1 ? 'ies' : 'y'} • 🏙️{' '}
+            {continent.countryCount} countr{continent.countryCount !== 1 ? 'ies' : 'y'} •{' '}
             {continent.cityCount} cit{continent.cityCount !== 1 ? 'ies' : 'y'}
           </Text>
         </View>
@@ -99,12 +260,12 @@ export default function ContinentsScreen() {
       <View style={styles.continentStats}>
         {continent.lastConcertDate && (
           <Text style={styles.lastConcertText}>
-            🎵 Last show: {formatDate(continent.lastConcertDate)}
+            Last show: {formatDate(continent.lastConcertDate)}
           </Text>
         )}
         {continent.countries.length > 0 && (
           <Text style={styles.countriesText}>
-            🏳️ Countries: {continent.countries.slice(0, 3).join(', ')}
+            Countries: {continent.countries.slice(0, 3).join(', ')}
             {continent.countries.length > 3 && ` +${continent.countries.length - 3} more`}
           </Text>
         )}
@@ -195,163 +356,3 @@ export default function ContinentsScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    padding: 20,
-    backgroundColor: colors.backgroundCard,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  backButton: {
-    padding: 10,
-    marginBottom: 10,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  continentsList: {
-    flex: 1,
-    padding: 20,
-  },
-  continentCard: {
-    backgroundColor: colors.backgroundPill,
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-  },
-  continentHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  continentInfo: {
-    flex: 1,
-    marginRight: 15,
-  },
-  continentName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 5,
-  },
-  continentLocation: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  venueCountBadge: {
-    backgroundColor: colors.success,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    alignItems: 'center',
-    minWidth: 60,
-  },
-  venueCountText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textInverse,
-  },
-  venueCountLabel: {
-    fontSize: 10,
-    color: colors.textInverse,
-    opacity: 0.9,
-  },
-  continentStats: {
-    marginTop: 5,
-  },
-  lastConcertText: {
-    fontSize: 14,
-    color: colors.success,
-    fontWeight: '500',
-    marginBottom: 5,
-  },
-  countriesText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: 5,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  refreshButton: {
-    backgroundColor: colors.success,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
-  },
-  refreshButtonText: {
-    color: colors.textInverse,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 18,
-    color: colors.textSecondary,
-  },
-  sortContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 15,
-    paddingHorizontal: 20,
-    backgroundColor: colors.backgroundCard,
-    paddingVertical: 20,
-  },
-  sortLabel: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginRight: 10,
-  },
-  sortButtons: {
-    flexDirection: 'row',
-    backgroundColor: colors.backgroundPill,
-    borderRadius: 20,
-    padding: 5,
-  },
-  sortButton: {
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 15,
-  },
-  sortButtonActive: {
-    backgroundColor: colors.primary,
-  },
-  sortButtonText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontWeight: '600',
-  },
-  sortButtonTextActive: {
-    color: colors.textInverse,
-  },
-});

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import type { SetlistWithDetails } from '../../src/types/database';
 import { parseDateCorrectly, formatDate } from '../../src/utils/date';
 import type { SortOption } from '../../src/utils/sort';
 import { sortByOption } from '../../src/utils/sort';
-import { colors } from '../../src/utils/colors';
+import { useColors } from '../../src/utils/colors';
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
   venueName: string;
@@ -32,6 +32,254 @@ interface YearGroup {
 }
 
 export default function ConcertsScreen() {
+  const colors = useColors();
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      padding: 20,
+      paddingTop: 10,
+    },
+    headerTop: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 10,
+    },
+    backButton: {
+      paddingVertical: 8,
+      paddingHorizontal: 15,
+      borderRadius: 15,
+      backgroundColor: colors.backgroundPill,
+    },
+    backButtonText: {
+      fontSize: 14,
+      color: colors.textPrimary,
+      fontWeight: '600',
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 5,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: colors.textSecondary,
+    },
+    searchContainer: {
+      padding: 20,
+      backgroundColor: colors.backgroundCard,
+    },
+    searchInput: {
+      height: 50,
+      backgroundColor: colors.background,
+      borderRadius: 25,
+      paddingHorizontal: 20,
+      fontSize: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    sortContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 20,
+      marginBottom: 15,
+      paddingHorizontal: 20,
+      backgroundColor: colors.backgroundCard,
+      paddingVertical: 20,
+    },
+    sortLabel: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginRight: 10,
+    },
+    sortButtons: {
+      flexDirection: 'row',
+      backgroundColor: colors.backgroundPill,
+      borderRadius: 20,
+      padding: 5,
+    },
+    sortButton: {
+      paddingVertical: 8,
+      paddingHorizontal: 15,
+      borderRadius: 15,
+    },
+    sortButtonActive: {
+      backgroundColor: colors.primary,
+    },
+    sortButtonText: {
+      fontSize: 14,
+      color: colors.textPrimary,
+      fontWeight: '600',
+    },
+    sortButtonTextActive: {
+      color: colors.textInverse,
+    },
+    alphabeticalContainer: {
+      backgroundColor: colors.backgroundCard,
+      borderRadius: 12,
+      padding: 20,
+      marginBottom: 15,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    yearGroup: {
+      backgroundColor: colors.backgroundCard,
+      borderRadius: 12,
+      padding: 20,
+      marginBottom: 15,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    yearHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 15,
+    },
+    yearTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+    },
+    yearStats: {
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    monthlyStats: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-around',
+      marginBottom: 15,
+    },
+    monthStat: {
+      alignItems: 'center',
+      marginHorizontal: 10,
+      marginBottom: 10,
+    },
+    monthName: {
+      fontSize: 14,
+      color: colors.textTertiary,
+      marginBottom: 5,
+    },
+    monthCount: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.primary,
+    },
+    concertItem: {
+      backgroundColor: colors.backgroundPill,
+      borderRadius: 10,
+      padding: 15,
+      marginBottom: 10,
+    },
+    concertHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: 5,
+    },
+    concertMainInfo: {
+      flex: 1,
+      marginRight: 10,
+    },
+    artistName: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      flexWrap: 'wrap',
+    },
+    concertDate: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    concertDetails: {
+      marginTop: 5,
+    },
+    venueName: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: colors.textTertiary,
+    },
+    locationText: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    tourName: {
+      fontSize: 14,
+      color: colors.primary,
+      fontWeight: '500',
+      marginTop: 5,
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 60,
+    },
+    emptyStateText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    loadingText: {
+      fontSize: 18,
+      color: colors.textSecondary,
+    },
+    filterContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.backgroundDisabled,
+      borderRadius: 20,
+      paddingVertical: 5,
+      paddingHorizontal: 10,
+      marginTop: 10,
+      marginBottom: 15,
+    },
+    filterBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+      borderRadius: 15,
+      paddingVertical: 5,
+      paddingHorizontal: 10,
+      marginRight: 10,
+    },
+    filterLabel: {
+      fontSize: 12,
+      color: colors.textInverse,
+      fontWeight: 'bold',
+    },
+    filterValue: {
+      fontSize: 12,
+      color: colors.textInverse,
+      fontWeight: 'bold',
+    },
+    clearFilterButton: {
+      paddingVertical: 5,
+      paddingHorizontal: 10,
+      borderRadius: 15,
+      backgroundColor: colors.backgroundPill,
+    },
+    clearFilterText: {
+      fontSize: 12,
+      color: colors.textPrimary,
+      fontWeight: '600',
+    },
+  }), [colors]);
+
   const router = useRouter();
   const params = useLocalSearchParams();
   const [concerts, setConcerts] = useState<ConcertWithDetails[]>([]);
@@ -447,250 +695,3 @@ export default function ConcertsScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    padding: 20,
-    paddingTop: 10,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  backButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 15,
-    backgroundColor: colors.backgroundPill,
-  },
-  backButtonText: {
-    fontSize: 14,
-    color: colors.textPrimary,
-    fontWeight: '600',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  searchContainer: {
-    padding: 20,
-    backgroundColor: colors.backgroundCard,
-  },
-  searchInput: {
-    height: 50,
-    backgroundColor: colors.background,
-    borderRadius: 25,
-    paddingHorizontal: 20,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  sortContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 15,
-    paddingHorizontal: 20,
-    backgroundColor: colors.backgroundCard,
-    paddingVertical: 20,
-  },
-  sortLabel: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginRight: 10,
-  },
-  sortButtons: {
-    flexDirection: 'row',
-    backgroundColor: colors.backgroundPill,
-    borderRadius: 20,
-    padding: 5,
-  },
-  sortButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 15,
-  },
-  sortButtonActive: {
-    backgroundColor: colors.primary,
-  },
-  sortButtonText: {
-    fontSize: 14,
-    color: colors.textPrimary,
-    fontWeight: '600',
-  },
-  sortButtonTextActive: {
-    color: colors.textInverse,
-  },
-  alphabeticalContainer: {
-    backgroundColor: colors.backgroundCard,
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 15,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  yearGroup: {
-    backgroundColor: colors.backgroundCard,
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 15,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  yearHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  yearTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-  },
-  yearStats: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  monthlyStats: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    marginBottom: 15,
-  },
-  monthStat: {
-    alignItems: 'center',
-    marginHorizontal: 10,
-    marginBottom: 10,
-  },
-  monthName: {
-    fontSize: 14,
-    color: colors.textTertiary,
-    marginBottom: 5,
-  },
-  monthCount: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
-  concertItem: {
-    backgroundColor: colors.backgroundPill,
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-  },
-  concertHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 5,
-  },
-  concertMainInfo: {
-    flex: 1,
-    marginRight: 10,
-  },
-  artistName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    flexWrap: 'wrap',
-  },
-  concertDate: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  concertDetails: {
-    marginTop: 5,
-  },
-  venueName: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: colors.textTertiary,
-  },
-  locationText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  tourName: {
-    fontSize: 14,
-    color: colors.primary,
-    fontWeight: '500',
-    marginTop: 5,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  loadingText: {
-    fontSize: 18,
-    color: colors.textSecondary,
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.backgroundDisabled,
-    borderRadius: 20,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    marginTop: 10,
-    marginBottom: 15,
-  },
-  filterBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    borderRadius: 15,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    marginRight: 10,
-  },
-  filterLabel: {
-    fontSize: 12,
-    color: colors.textInverse,
-    fontWeight: 'bold',
-  },
-  filterValue: {
-    fontSize: 12,
-    color: colors.textInverse,
-    fontWeight: 'bold',
-  },
-  clearFilterButton: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 15,
-    backgroundColor: colors.backgroundPill,
-  },
-  clearFilterText: {
-    fontSize: 12,
-    color: colors.textPrimary,
-    fontWeight: '600',
-  },
-});

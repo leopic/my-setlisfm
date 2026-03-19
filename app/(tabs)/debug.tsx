@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import { useRouter } from 'expo-router';
 import { dbOperations } from '../../src/database/operations';
 import { SetlistApiService } from '../../src/services/setlistApi';
 import { DataProcessor } from '../../src/services/dataProcessor';
-import { colors } from '../../src/utils/colors';
+import { useColors } from '../../src/utils/colors';
 
 interface Stats {
   totalSetlists: number;
@@ -23,6 +23,150 @@ interface Stats {
 }
 
 export default function DebugScreen() {
+  const colors = useColors();
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    lastFetched: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 12,
+    },
+    header: {
+      padding: 20,
+      paddingTop: 10,
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 5,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: colors.textSecondary,
+    },
+    statsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      paddingHorizontal: 20,
+      marginBottom: 20,
+    },
+    statCard: {
+      backgroundColor: colors.backgroundCard,
+      borderRadius: 12,
+      padding: 20,
+      marginBottom: 15,
+      marginRight: 15,
+      minWidth: 80,
+      alignItems: 'center',
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    statNumber: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.primary,
+      marginBottom: 5,
+    },
+    statLabel: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+    actionsContainer: {
+      paddingHorizontal: 20,
+      marginBottom: 20,
+    },
+    button: {
+      backgroundColor: colors.primary,
+      paddingVertical: 15,
+      paddingHorizontal: 20,
+      borderRadius: 10,
+      marginBottom: 15,
+      alignItems: 'center',
+    },
+    buttonText: {
+      color: colors.textInverse,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    buttonSecondary: {
+      backgroundColor: colors.background,
+      paddingVertical: 15,
+      paddingHorizontal: 20,
+      borderRadius: 10,
+      marginBottom: 15,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.borderMedium,
+    },
+    buttonTextSecondary: {
+      color: colors.textPrimary,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    infoContainer: {
+      paddingHorizontal: 20,
+      paddingBottom: 20,
+    },
+    infoTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 10,
+    },
+    infoText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      lineHeight: 20,
+      marginBottom: 10,
+    },
+    routeTestingContainer: {
+      paddingHorizontal: 20,
+      marginBottom: 20,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 5,
+    },
+    sectionSubtitle: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginBottom: 15,
+    },
+    routeButtonsRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 15,
+    },
+    routeButton: {
+      flex: 1,
+      backgroundColor: colors.primary,
+      paddingVertical: 12,
+      paddingHorizontal: 15,
+      borderRadius: 8,
+      marginHorizontal: 5,
+      alignItems: 'center',
+    },
+    routeButtonText: {
+      color: colors.textInverse,
+      fontSize: 14,
+      fontWeight: '600',
+    },
+  }), [colors]);
+
   const router = useRouter();
   const [stats, setStats] = useState<Stats>({
     totalSetlists: 0,
@@ -307,146 +451,3 @@ export default function DebugScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  lastFetched: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  header: {
-    padding: 20,
-    paddingTop: 10,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: 20,
-    marginBottom: 20,
-  },
-  statCard: {
-    backgroundColor: colors.backgroundCard,
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 15,
-    marginRight: 15,
-    minWidth: 80,
-    alignItems: 'center',
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.primary,
-    marginBottom: 5,
-  },
-  statLabel: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-  actionsContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 20,
-  },
-  button: {
-    backgroundColor: colors.primary,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    marginBottom: 15,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: colors.textInverse,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  buttonSecondary: {
-    backgroundColor: colors.background,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    marginBottom: 15,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.borderMedium,
-  },
-  buttonTextSecondary: {
-    color: colors.textPrimary,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  infoContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
-  infoTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 10,
-  },
-  infoText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    lineHeight: 20,
-    marginBottom: 10,
-  },
-  routeTestingContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 5,
-  },
-  sectionSubtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 15,
-  },
-  routeButtonsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 15,
-  },
-  routeButton: {
-    flex: 1,
-    backgroundColor: colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    marginHorizontal: 5,
-    alignItems: 'center',
-  },
-  routeButtonText: {
-    color: colors.textInverse,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-});

@@ -1,22 +1,26 @@
+import { useMemo } from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../../src/utils/colors';
+import { useColors } from '../../src/utils/colors';
 
 export { ErrorBoundary } from '../../src/components/ErrorBoundary';
 
 export default function TabLayout() {
+  const colors = useColors();
+  const screenOptions = useMemo(() => ({
+    tabBarActiveTintColor: colors.primary,
+    tabBarInactiveTintColor: colors.tabInactive,
+    tabBarStyle: {
+      backgroundColor: colors.backgroundCard,
+      borderTopWidth: 1,
+      borderTopColor: colors.borderLight,
+    },
+    headerShown: false,
+  }), [colors]);
+
   return (
     <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.tabInactive,
-        tabBarStyle: {
-          backgroundColor: colors.backgroundCard,
-          borderTopWidth: 1,
-          borderTopColor: colors.borderLight,
-        },
-        headerShown: false,
-      }}
+      screenOptions={screenOptions}
     >
       <Tabs.Screen
         name="index"

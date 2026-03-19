@@ -1,12 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Text, StyleSheet, SafeAreaView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails, SetWithSongs } from '../../../src/types/database';
 import Setlist from '../../../src/components/Setlist';
-import { colors } from '../../../src/utils/colors';
+import { useColors } from '../../../src/utils/colors';
 
 export default function VenueSetlistDetailScreen() {
+  const colors = useColors();
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+
+    loadingText: {
+      fontSize: 18,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginTop: 100,
+    },
+    errorText: {
+      fontSize: 18,
+      color: colors.danger,
+      textAlign: 'center',
+      marginTop: 100,
+    },
+  }), [colors]);
+
   const router = useRouter();
   const { id, returnTo } = useLocalSearchParams<{
     id: string;
@@ -77,23 +98,3 @@ export default function VenueSetlistDetailScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-
-  loadingText: {
-    fontSize: 18,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 100,
-  },
-  errorText: {
-    fontSize: 18,
-    color: colors.danger,
-    textAlign: 'center',
-    marginTop: 100,
-  },
-});

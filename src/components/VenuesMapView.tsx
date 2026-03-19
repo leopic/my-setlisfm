@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import type { Region } from 'react-native-maps';
 import MapView, { Marker } from 'react-native-maps';
 import { dbOperations } from '../database/operations';
 import { formatDate } from '../utils/date';
-import { colors } from '../utils/colors';
+import { useColors } from '../utils/colors';
 
 interface VenueWithCoords {
   id: string;
@@ -18,6 +18,90 @@ interface VenueWithCoords {
 }
 
 export default function VenuesMapView() {
+  const colors = useColors();
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+    },
+    loadingText: {
+      marginTop: 10,
+      fontSize: 16,
+      color: colors.textSecondary,
+    },
+    emptyContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 40,
+      backgroundColor: colors.background,
+    },
+    emptyText: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: colors.textPrimary,
+      textAlign: 'center',
+      marginBottom: 10,
+    },
+    emptySubtext: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 20,
+    },
+    map: {
+      flex: 1,
+    },
+    venueCount: {
+      backgroundColor: colors.backgroundCard,
+      padding: 15,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      alignItems: 'center',
+    },
+    venueCountText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    legend: {
+      backgroundColor: colors.backgroundCard,
+      padding: 15,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    legendTitle: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.textPrimary,
+      marginBottom: 10,
+    },
+    legendItems: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+    },
+    legendItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    legendDot: {
+      width: 12,
+      height: 12,
+      borderRadius: 6,
+      marginRight: 5,
+    },
+    legendText: {
+      fontSize: 12,
+      color: colors.textSecondary,
+    },
+  }), [colors]);
+
   const [venues, setVenues] = useState<VenueWithCoords[]>([]);
   const [loading, setLoading] = useState(true);
   const [region, setRegion] = useState<Region>({
@@ -156,86 +240,3 @@ export default function VenuesMapView() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-    backgroundColor: colors.background,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  map: {
-    flex: 1,
-  },
-  venueCount: {
-    backgroundColor: colors.backgroundCard,
-    padding: 15,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    alignItems: 'center',
-  },
-  venueCountText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  legend: {
-    backgroundColor: colors.backgroundCard,
-    padding: 15,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  legendTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    marginBottom: 10,
-  },
-  legendItems: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  legendDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 5,
-  },
-  legendText: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-});

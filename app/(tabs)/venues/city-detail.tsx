@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
-import { colors } from '../../../src/utils/colors';
+import { useColors } from '../../../src/utils/colors';
 
 interface VenueWithStats {
   id: string;
@@ -31,6 +31,124 @@ interface VenueWithStats {
 }
 
 export default function CityDetailScreen() {
+  const colors = useColors();
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      padding: 20,
+      backgroundColor: colors.backgroundCard,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    backButton: {
+      padding: 10,
+      marginBottom: 10,
+    },
+    backButtonText: {
+      fontSize: 16,
+      color: colors.primary,
+      fontWeight: '600',
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 5,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: colors.textSecondary,
+    },
+    venuesList: {
+      flex: 1,
+      padding: 20,
+    },
+    venueCard: {
+      backgroundColor: colors.backgroundPill,
+      borderRadius: 10,
+      padding: 15,
+      marginBottom: 10,
+    },
+    venueHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 5,
+    },
+    venueInfo: {
+      flex: 1,
+      marginRight: 15,
+    },
+    venueName: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 5,
+    },
+    venueLocation: {
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    concertCountBadge: {
+      backgroundColor: colors.success,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 20,
+      alignItems: 'center',
+      minWidth: 60,
+    },
+    concertCountText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.textInverse,
+    },
+    concertCountLabel: {
+      fontSize: 10,
+      color: colors.textInverse,
+      opacity: 0.9,
+    },
+    venueStats: {
+      marginTop: 5,
+    },
+    lastConcertText: {
+      fontSize: 14,
+      color: colors.success,
+      fontWeight: '500',
+      marginBottom: 5,
+    },
+    artistsText: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginBottom: 5,
+    },
+    coordsText: {
+      fontSize: 12,
+      color: colors.textMuted,
+      fontFamily: 'monospace',
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 60,
+    },
+    emptyStateText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    loadingText: {
+      fontSize: 18,
+      color: colors.textSecondary,
+    },
+  }), [colors]);
+
   const router = useRouter();
   const params = useLocalSearchParams();
   const { city, country, returnTo, returnParams } = params;
@@ -99,7 +217,7 @@ export default function CityDetailScreen() {
         <View style={styles.venueInfo}>
           <Text style={styles.venueName}>{venue.name}</Text>
           <Text style={styles.venueLocation}>
-            📍 {venue.cityName || 'Unknown City'}
+            {venue.cityName || 'Unknown City'}
             {venue.state && `, ${venue.state}`}
             {venue.countryName && `, ${venue.countryName}`}
           </Text>
@@ -113,18 +231,18 @@ export default function CityDetailScreen() {
       <View style={styles.venueStats}>
         {venue.lastConcertDate && (
           <Text style={styles.lastConcertText}>
-            🎵 Last show: {formatDate(venue.lastConcertDate)}
+            Last show: {formatDate(venue.lastConcertDate)}
           </Text>
         )}
         {venue.artists.length > 0 && (
           <Text style={styles.artistsText}>
-            🎤 Artists: {venue.artists.slice(0, 3).join(', ')}
+            Artists: {venue.artists.slice(0, 3).join(', ')}
             {venue.artists.length > 3 && ` +${venue.artists.length - 3} more`}
           </Text>
         )}
         {venue.coordsLat && venue.coordsLong && (
           <Text style={styles.coordsText}>
-            🗺️ {venue.coordsLat.toFixed(4)}, {venue.coordsLong.toFixed(4)}
+            {venue.coordsLat.toFixed(4)}, {venue.coordsLong.toFixed(4)}
           </Text>
         )}
       </View>
@@ -166,120 +284,3 @@ export default function CityDetailScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    padding: 20,
-    backgroundColor: colors.backgroundCard,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  backButton: {
-    padding: 10,
-    marginBottom: 10,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  venuesList: {
-    flex: 1,
-    padding: 20,
-  },
-  venueCard: {
-    backgroundColor: colors.backgroundPill,
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-  },
-  venueHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  venueInfo: {
-    flex: 1,
-    marginRight: 15,
-  },
-  venueName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 5,
-  },
-  venueLocation: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  concertCountBadge: {
-    backgroundColor: colors.success,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    alignItems: 'center',
-    minWidth: 60,
-  },
-  concertCountText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textInverse,
-  },
-  concertCountLabel: {
-    fontSize: 10,
-    color: colors.textInverse,
-    opacity: 0.9,
-  },
-  venueStats: {
-    marginTop: 5,
-  },
-  lastConcertText: {
-    fontSize: 14,
-    color: colors.success,
-    fontWeight: '500',
-    marginBottom: 5,
-  },
-  artistsText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: 5,
-  },
-  coordsText: {
-    fontSize: 12,
-    color: colors.textMuted,
-    fontFamily: 'monospace',
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 18,
-    color: colors.textSecondary,
-  },
-});

@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { formatDate } from '../utils/date';
-import { colors } from '../utils/colors';
+import { useColors } from '../utils/colors';
 
 interface CountryWithStats {
   name: string;
@@ -22,6 +22,81 @@ export default function CountryList({
   onCountryPress,
   emptyMessage = 'No countries found',
 }: CountryListProps) {
+  const colors = useColors();
+  const styles = useMemo(() => StyleSheet.create({
+    countriesList: {
+      flex: 1,
+      padding: 20,
+    },
+    countryCard: {
+      backgroundColor: colors.backgroundPill,
+      borderRadius: 10,
+      padding: 15,
+      marginBottom: 10,
+    },
+    countryHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 5,
+    },
+    countryInfo: {
+      flex: 1,
+      marginRight: 15,
+    },
+    countryName: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 5,
+    },
+    countryLocation: {
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    venueCountBadge: {
+      backgroundColor: colors.success,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 20,
+      alignItems: 'center',
+      minWidth: 60,
+    },
+    venueCountText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.textInverse,
+    },
+    venueCountLabel: {
+      fontSize: 10,
+      color: colors.textInverse,
+      opacity: 0.9,
+    },
+    countryStats: {
+      marginTop: 5,
+    },
+    lastConcertText: {
+      fontSize: 14,
+      color: colors.success,
+      fontWeight: '500',
+      marginBottom: 5,
+    },
+    citiesText: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginBottom: 5,
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 60,
+    },
+    emptyStateText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+  }), [colors]);
+
   const getCountryCard = (country: CountryWithStats) => (
     <TouchableOpacity
       key={country.name}
@@ -33,7 +108,7 @@ export default function CountryList({
         <View style={styles.countryInfo}>
           <Text style={styles.countryName}>{country.name}</Text>
           <Text style={styles.countryLocation}>
-            🏙️ {country.cityCount} cit{country.cityCount !== 1 ? 'ies' : 'y'}
+            {country.cityCount} cit{country.cityCount !== 1 ? 'ies' : 'y'}
           </Text>
         </View>
         <View style={styles.venueCountBadge}>
@@ -45,12 +120,12 @@ export default function CountryList({
       <View style={styles.countryStats}>
         {country.lastConcertDate && (
           <Text style={styles.lastConcertText}>
-            🎵 Last show: {formatDate(country.lastConcertDate)}
+            Last show: {formatDate(country.lastConcertDate)}
           </Text>
         )}
         {country.cities.length > 0 && (
           <Text style={styles.citiesText}>
-            🏙️ Cities: {country.cities.slice(0, 3).join(', ')}
+            Cities: {country.cities.slice(0, 3).join(', ')}
             {country.cities.length > 3 && ` +${country.cities.length - 3} more`}
           </Text>
         )}
@@ -70,77 +145,3 @@ export default function CountryList({
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  countriesList: {
-    flex: 1,
-    padding: 20,
-  },
-  countryCard: {
-    backgroundColor: colors.backgroundPill,
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-  },
-  countryHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  countryInfo: {
-    flex: 1,
-    marginRight: 15,
-  },
-  countryName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 5,
-  },
-  countryLocation: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  venueCountBadge: {
-    backgroundColor: colors.success,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    alignItems: 'center',
-    minWidth: 60,
-  },
-  venueCountText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textInverse,
-  },
-  venueCountLabel: {
-    fontSize: 10,
-    color: colors.textInverse,
-    opacity: 0.9,
-  },
-  countryStats: {
-    marginTop: 5,
-  },
-  lastConcertText: {
-    fontSize: 14,
-    color: colors.success,
-    fontWeight: '500',
-    marginBottom: 5,
-  },
-  citiesText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: 5,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-});

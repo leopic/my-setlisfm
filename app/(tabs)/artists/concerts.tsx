@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails } from '../../../src/types/database';
 import { formatDate } from '../../../src/utils/date';
-import { colors } from '../../../src/utils/colors';
+import { useColors } from '../../../src/utils/colors';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -23,6 +23,126 @@ interface ConcertWithDetails extends SetlistWithDetails {
 }
 
 export default function ArtistConcertsListScreen() {
+  const colors = useColors();
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      padding: 20,
+      backgroundColor: colors.backgroundCard,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.borderLight,
+    },
+    backButton: {
+      padding: 10,
+      marginBottom: 10,
+    },
+    backButtonText: {
+      color: colors.primary,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 5,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: colors.textSecondary,
+    },
+    entityInfo: {
+      backgroundColor: colors.backgroundCard,
+      padding: 20,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.borderLight,
+    },
+    entityName: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 5,
+    },
+    concertCount: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      marginBottom: 5,
+    },
+    cityCount: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      marginBottom: 5,
+    },
+    countryCount: {
+      fontSize: 16,
+      color: colors.textSecondary,
+    },
+    concertsList: {
+      flex: 1,
+      padding: 20,
+    },
+    concertItem: {
+      backgroundColor: colors.backgroundPill,
+      borderRadius: 10,
+      padding: 15,
+      marginBottom: 10,
+    },
+    concertHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: 10,
+    },
+    concertMainInfo: {
+      flex: 1,
+      marginRight: 10,
+    },
+    concertMainName: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      flexWrap: 'wrap',
+    },
+    concertDate: {
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    concertDetails: {
+      marginTop: 5,
+    },
+    concertLocation: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    tourName: {
+      fontSize: 14,
+      color: colors.primary,
+      fontStyle: 'italic',
+      marginTop: 5,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    loadingText: {
+      fontSize: 18,
+      color: colors.textSecondary,
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 60,
+    },
+    emptyStateText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+  }), [colors]);
+
   const router = useRouter();
   const params = useLocalSearchParams();
 
@@ -157,122 +277,3 @@ export default function ArtistConcertsListScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    padding: 20,
-    backgroundColor: colors.backgroundCard,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
-  },
-  backButton: {
-    padding: 10,
-    marginBottom: 10,
-  },
-  backButtonText: {
-    color: colors.primary,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  entityInfo: {
-    backgroundColor: colors.backgroundCard,
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
-  },
-  entityName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 5,
-  },
-  concertCount: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginBottom: 5,
-  },
-  cityCount: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginBottom: 5,
-  },
-  countryCount: {
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  concertsList: {
-    flex: 1,
-    padding: 20,
-  },
-  concertItem: {
-    backgroundColor: colors.backgroundPill,
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-  },
-  concertHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 10,
-  },
-  concertMainInfo: {
-    flex: 1,
-    marginRight: 10,
-  },
-  concertMainName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    flexWrap: 'wrap',
-  },
-  concertDate: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  concertDetails: {
-    marginTop: 5,
-  },
-  concertLocation: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  tourName: {
-    fontSize: 14,
-    color: colors.primary,
-    fontStyle: 'italic',
-    marginTop: 5,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 18,
-    color: colors.textSecondary,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-});

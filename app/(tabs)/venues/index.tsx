@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import SortAndSearch from '../../../src/components/SortAndSearch';
 import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
-import { colors } from '../../../src/utils/colors';
+import { useColors } from '../../../src/utils/colors';
 
 interface VenueWithStats {
   id: string;
@@ -43,6 +43,194 @@ interface GeoStats {
 }
 
 export default function VenuesScreen() {
+  const colors = useColors();
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      padding: 20,
+      backgroundColor: colors.backgroundCard,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    headerTop: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 10,
+    },
+    backButton: {
+      padding: 10,
+    },
+    backButtonText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 5,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: colors.textSecondary,
+    },
+    geoStats: {
+      fontSize: 14,
+      color: colors.primary,
+      marginTop: 8,
+      fontWeight: '500',
+    },
+    geoStatsContainer: {
+      marginTop: 15,
+      gap: 10,
+    },
+    geoStatsRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: 10,
+    },
+    geoStatButton: {
+      flex: 1,
+      backgroundColor: colors.background,
+      borderRadius: 12,
+      padding: 12,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    geoStatEmoji: {
+      fontSize: 20,
+      marginBottom: 4,
+    },
+    geoStatText: {
+      fontSize: 12,
+      color: colors.textPrimary,
+      fontWeight: '600',
+      textAlign: 'center',
+    },
+    mapButton: {
+      backgroundColor: colors.primary,
+      borderRadius: 12,
+      padding: 15,
+      marginTop: 10,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    mapButtonEmoji: {
+      fontSize: 20,
+      marginRight: 8,
+    },
+    mapButtonText: {
+      fontSize: 16,
+      color: colors.textInverse,
+      fontWeight: '600',
+    },
+
+    venuesList: {
+      flex: 1,
+      padding: 20,
+    },
+    venueCard: {
+      backgroundColor: colors.backgroundPill,
+      borderRadius: 10,
+      padding: 15,
+      marginBottom: 10,
+    },
+    venueHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 5,
+    },
+    venueInfo: {
+      flex: 1,
+      marginRight: 15,
+    },
+    venueName: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      marginBottom: 5,
+    },
+    venueLocation: {
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    concertCountBadge: {
+      backgroundColor: colors.success,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 20,
+      alignItems: 'center',
+      minWidth: 60,
+    },
+    concertCountText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.textInverse,
+    },
+    concertCountLabel: {
+      fontSize: 10,
+      color: colors.textInverse,
+      opacity: 0.9,
+    },
+    venueStats: {
+      marginTop: 5,
+    },
+    lastConcertText: {
+      fontSize: 14,
+      color: colors.success,
+      fontWeight: '500',
+      marginBottom: 5,
+    },
+    artistsText: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginBottom: 5,
+    },
+    coordsText: {
+      fontSize: 12,
+      color: colors.textMuted,
+      fontFamily: 'monospace',
+    },
+
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 60,
+    },
+    emptyStateText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    refreshButton: {
+      backgroundColor: colors.success,
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderRadius: 20,
+    },
+    refreshButtonText: {
+      color: colors.textInverse,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    loadingText: {
+      fontSize: 18,
+      color: colors.textSecondary,
+    },
+  }), [colors]);
+
   const router = useRouter();
   const [venues, setVenues] = useState<VenueWithStats[]>([]);
   const [filteredVenues, setFilteredVenues] = useState<VenueWithStats[]>([]);
@@ -126,7 +314,7 @@ export default function VenuesScreen() {
         <View style={styles.venueInfo}>
           <Text style={styles.venueName}>{venue.name}</Text>
           <Text style={styles.venueLocation}>
-            📍 {venue.cityName || 'Unknown City'}
+            {venue.cityName || 'Unknown City'}
             {venue.state && `, ${venue.state}`}
             {venue.countryName && `, ${venue.countryName}`}
           </Text>
@@ -140,18 +328,18 @@ export default function VenuesScreen() {
       <View style={styles.venueStats}>
         {venue.lastConcertDate && (
           <Text style={styles.lastConcertText}>
-            🎵 Last show: {formatDate(venue.lastConcertDate)}
+            Last show: {formatDate(venue.lastConcertDate)}
           </Text>
         )}
         {venue.artists.length > 0 && (
           <Text style={styles.artistsText}>
-            🎤 Artists: {venue.artists.slice(0, 3).join(', ')}
+            Artists: {venue.artists.slice(0, 3).join(', ')}
             {venue.artists.length > 3 && ` +${venue.artists.length - 3} more`}
           </Text>
         )}
         {venue.coordsLat && venue.coordsLong && (
           <Text style={styles.coordsText}>
-            🗺️ {venue.coordsLat.toFixed(4)}, {venue.coordsLong.toFixed(4)}
+            {venue.coordsLat.toFixed(4)}, {venue.coordsLong.toFixed(4)}
           </Text>
         )}
       </View>
@@ -188,7 +376,7 @@ export default function VenuesScreen() {
                   style={styles.geoStatButton}
                   onPress={() => router.push('/venues/map')}
                 >
-                  <Text style={styles.geoStatEmoji}>🗺️</Text>
+                  <Text style={styles.geoStatEmoji}>Map</Text>
                   <Text style={styles.geoStatText}>Map</Text>
                 </TouchableOpacity>
 
@@ -196,7 +384,7 @@ export default function VenuesScreen() {
                   style={styles.geoStatButton}
                   onPress={() => router.push('/venues/continents')}
                 >
-                  <Text style={styles.geoStatEmoji}>🌍</Text>
+                  <Text style={styles.geoStatEmoji}>Continents</Text>
                   <Text style={styles.geoStatText}>
                     {geoStats.totalContinents} continent{geoStats.totalContinents !== 1 ? 's' : ''}
                   </Text>
@@ -208,7 +396,7 @@ export default function VenuesScreen() {
                   style={styles.geoStatButton}
                   onPress={() => router.push('/venues/countries')}
                 >
-                  <Text style={styles.geoStatEmoji}>🏳️</Text>
+                  <Text style={styles.geoStatEmoji}>Countries</Text>
                   <Text style={styles.geoStatText}>
                     {geoStats.totalCountries} countr{geoStats.totalCountries !== 1 ? 'ies' : 'y'}
                   </Text>
@@ -218,7 +406,7 @@ export default function VenuesScreen() {
                   style={styles.geoStatButton}
                   onPress={() => router.push('/venues/cities')}
                 >
-                  <Text style={styles.geoStatEmoji}>🏙️</Text>
+                  <Text style={styles.geoStatEmoji}>Cities</Text>
                   <Text style={styles.geoStatText}>
                     {geoStats.totalCities} cit{geoStats.totalCities !== 1 ? 'ies' : 'y'}
                   </Text>
@@ -255,190 +443,3 @@ export default function VenuesScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    padding: 20,
-    backgroundColor: colors.backgroundCard,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  backButton: {
-    padding: 10,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  geoStats: {
-    fontSize: 14,
-    color: colors.primary,
-    marginTop: 8,
-    fontWeight: '500',
-  },
-  geoStatsContainer: {
-    marginTop: 15,
-    gap: 10,
-  },
-  geoStatsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  geoStatButton: {
-    flex: 1,
-    backgroundColor: colors.background,
-    borderRadius: 12,
-    padding: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  geoStatEmoji: {
-    fontSize: 20,
-    marginBottom: 4,
-  },
-  geoStatText: {
-    fontSize: 12,
-    color: colors.textPrimary,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  mapButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    padding: 15,
-    marginTop: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mapButtonEmoji: {
-    fontSize: 20,
-    marginRight: 8,
-  },
-  mapButtonText: {
-    fontSize: 16,
-    color: colors.textInverse,
-    fontWeight: '600',
-  },
-
-  venuesList: {
-    flex: 1,
-    padding: 20,
-  },
-  venueCard: {
-    backgroundColor: colors.backgroundPill,
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-  },
-  venueHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  venueInfo: {
-    flex: 1,
-    marginRight: 15,
-  },
-  venueName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    marginBottom: 5,
-  },
-  venueLocation: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  concertCountBadge: {
-    backgroundColor: colors.success,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    alignItems: 'center',
-    minWidth: 60,
-  },
-  concertCountText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textInverse,
-  },
-  concertCountLabel: {
-    fontSize: 10,
-    color: colors.textInverse,
-    opacity: 0.9,
-  },
-  venueStats: {
-    marginTop: 5,
-  },
-  lastConcertText: {
-    fontSize: 14,
-    color: colors.success,
-    fontWeight: '500',
-    marginBottom: 5,
-  },
-  artistsText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: 5,
-  },
-  coordsText: {
-    fontSize: 12,
-    color: colors.textMuted,
-    fontFamily: 'monospace',
-  },
-
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  refreshButton: {
-    backgroundColor: colors.success,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
-  },
-  refreshButtonText: {
-    color: colors.textInverse,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 18,
-    color: colors.textSecondary,
-  },
-});

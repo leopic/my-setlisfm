@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import type { SetlistWithDetails } from '../types/database';
 import { formatDate } from '../utils/date';
-import { colors } from '../utils/colors';
+import { useColors } from '../utils/colors';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -37,6 +37,101 @@ export default function ConcertListModal({
   loading,
   onConcertPress,
 }: ConcertListModalProps) {
+  const colors = useColors();
+  const styles = useMemo(() => StyleSheet.create({
+    modalContainer: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 20,
+      backgroundColor: colors.backgroundCard,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    closeButton: {
+      padding: 10,
+    },
+    closeButtonText: {
+      fontSize: 24,
+      color: colors.textSecondary,
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+      flex: 1,
+      textAlign: 'center',
+    },
+    placeholder: {
+      width: 50,
+    },
+    concertsList: {
+      flex: 1,
+      padding: 20,
+    },
+    concertItem: {
+      backgroundColor: colors.backgroundCard,
+      borderRadius: 12,
+      padding: 20,
+      marginBottom: 15,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    concertHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 10,
+    },
+    concertMainName: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+    },
+    concertDate: {
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    concertDetails: {
+      marginTop: 5,
+    },
+    concertLocation: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    tourName: {
+      fontSize: 14,
+      color: colors.primary,
+      fontStyle: 'italic',
+      marginTop: 5,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    loadingText: {
+      fontSize: 18,
+      color: colors.textSecondary,
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 60,
+    },
+    emptyStateText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+  }), [colors]);
+
   return (
     <Modal
       visible={visible}
@@ -48,7 +143,7 @@ export default function ConcertListModal({
         {/* Modal Header */}
         <View style={styles.modalHeader}>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>✕</Text>
+            <Text style={styles.closeButtonText}>X</Text>
           </TouchableOpacity>
           <Text style={styles.modalTitle}>{title}</Text>
           <View style={styles.placeholder} />
@@ -97,97 +192,3 @@ export default function ConcertListModal({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: colors.backgroundCard,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  closeButton: {
-    padding: 10,
-  },
-  closeButtonText: {
-    fontSize: 24,
-    color: colors.textSecondary,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-    flex: 1,
-    textAlign: 'center',
-  },
-  placeholder: {
-    width: 50,
-  },
-  concertsList: {
-    flex: 1,
-    padding: 20,
-  },
-  concertItem: {
-    backgroundColor: colors.backgroundCard,
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 15,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  concertHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  concertMainName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
-  },
-  concertDate: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  concertDetails: {
-    marginTop: 5,
-  },
-  concertLocation: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  tourName: {
-    fontSize: 14,
-    color: colors.primary,
-    fontStyle: 'italic',
-    marginTop: 5,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 18,
-    color: colors.textSecondary,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-});

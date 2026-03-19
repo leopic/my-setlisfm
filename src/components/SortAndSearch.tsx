@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import type { SortOption } from '../utils/sort';
-import { colors } from '../utils/colors';
+import { useColors } from '../utils/colors';
 
 interface SortAndSearchProps {
   sortOption: SortOption;
@@ -28,6 +28,59 @@ export default function SortAndSearch({
     alphabetical: 'Name',
   },
 }: SortAndSearchProps) {
+  const colors = useColors();
+  const styles = useMemo(() => StyleSheet.create({
+    sortContainer: {
+      flexDirection: 'column',
+      marginTop: 20,
+      marginBottom: 15,
+      paddingHorizontal: 20,
+      backgroundColor: colors.backgroundCard,
+      paddingVertical: 20,
+    },
+    sortRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    sortLabel: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginRight: 10,
+    },
+    sortButtons: {
+      flexDirection: 'row',
+      backgroundColor: colors.backgroundPill,
+      borderRadius: 20,
+      padding: 5,
+    },
+    sortButton: {
+      paddingHorizontal: 15,
+      paddingVertical: 8,
+      borderRadius: 15,
+    },
+    sortButtonActive: {
+      backgroundColor: colors.primary,
+    },
+    sortButtonText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      fontWeight: '600',
+    },
+    sortButtonTextActive: {
+      color: colors.textInverse,
+    },
+    searchInput: {
+      height: 40,
+      backgroundColor: colors.background,
+      borderRadius: 20,
+      paddingHorizontal: 15,
+      fontSize: 14,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginTop: 15,
+    },
+  }), [colors]);
+
   return (
     <View style={styles.sortContainer}>
       <View style={styles.sortRow}>
@@ -84,55 +137,3 @@ export default function SortAndSearch({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  sortContainer: {
-    flexDirection: 'column',
-    marginTop: 20,
-    marginBottom: 15,
-    paddingHorizontal: 20,
-    backgroundColor: colors.backgroundCard,
-    paddingVertical: 20,
-  },
-  sortRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  sortLabel: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginRight: 10,
-  },
-  sortButtons: {
-    flexDirection: 'row',
-    backgroundColor: colors.backgroundPill,
-    borderRadius: 20,
-    padding: 5,
-  },
-  sortButton: {
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 15,
-  },
-  sortButtonActive: {
-    backgroundColor: colors.primary,
-  },
-  sortButtonText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontWeight: '600',
-  },
-  sortButtonTextActive: {
-    color: colors.textInverse,
-  },
-  searchInput: {
-    height: 40,
-    backgroundColor: colors.background,
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    fontSize: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginTop: 15,
-  },
-});
