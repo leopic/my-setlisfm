@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails, SetWithSongs } from '../../../src/types/database';
 import Setlist from '../../../src/components/Setlist';
+import { colors } from '../../../src/utils/colors';
 
 export default function ArtistSetlistDetailScreen() {
   const router = useRouter();
@@ -80,17 +81,17 @@ export default function ArtistSetlistDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
   },
   loadingText: {
     fontSize: 18,
-    color: '#666',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 100,
   },
   errorText: {
     fontSize: 18,
-    color: '#dc3545',
+    color: colors.danger,
     textAlign: 'center',
     marginTop: 100,
   },

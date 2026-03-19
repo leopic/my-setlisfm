@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { formatDate } from '../utils/date';
+import { colors } from '../utils/colors';
 
 interface CityWithStats {
   name: string;
@@ -74,7 +75,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   cityCard: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.backgroundPill,
     borderRadius: 10,
     padding: 15,
     marginBottom: 10,
@@ -92,15 +93,15 @@ const styles = StyleSheet.create({
   cityName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
     marginBottom: 5,
   },
   cityLocation: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
   },
   venueCountBadge: {
-    backgroundColor: '#28a745',
+    backgroundColor: colors.success,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
@@ -110,11 +111,11 @@ const styles = StyleSheet.create({
   venueCountText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
+    color: colors.textInverse,
   },
   venueCountLabel: {
     fontSize: 10,
-    color: '#fff',
+    color: colors.textInverse,
     opacity: 0.9,
   },
   cityStats: {
@@ -122,13 +123,13 @@ const styles = StyleSheet.create({
   },
   lastConcertText: {
     fontSize: 14,
-    color: '#28a745',
+    color: colors.success,
     fontWeight: '500',
     marginBottom: 5,
   },
   venuesText: {
     fontSize: 13,
-    color: '#666',
+    color: colors.textSecondary,
     marginBottom: 5,
   },
   emptyState: {
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
 });

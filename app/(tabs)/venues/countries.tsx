@@ -5,6 +5,7 @@ import { dbOperations } from '../../../src/database/operations';
 import CountryList from '../../../src/components/CountryList';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
+import { colors } from '../../../src/utils/colors';
 
 interface CountryWithStats {
   name: string;
@@ -134,13 +135,13 @@ export default function CountriesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
   },
   header: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundCard,
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    borderBottomColor: colors.border,
   },
   backButton: {
     padding: 10,
@@ -148,18 +149,18 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: '#007AFF',
+    color: colors.primary,
     fontWeight: '600',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
     marginBottom: 5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
   },
 
   loadingContainer: {
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 18,
-    color: '#666',
+    color: colors.textSecondary,
   },
   sortContainer: {
     flexDirection: 'row',
@@ -177,17 +178,17 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 15,
     paddingHorizontal: 20,
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundCard,
     paddingVertical: 20,
   },
   sortLabel: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     marginRight: 10,
   },
   sortButtons: {
     flexDirection: 'row',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.backgroundPill,
     borderRadius: 20,
     padding: 5,
   },
@@ -197,14 +198,14 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   sortButtonActive: {
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primary,
   },
   sortButtonText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     fontWeight: '600',
   },
   sortButtonTextActive: {
-    color: '#fff',
+    color: colors.textInverse,
   },
 });

@@ -15,6 +15,7 @@ import type { SetlistWithDetails } from '../../src/types/database';
 import { parseDateCorrectly, formatDate } from '../../src/utils/date';
 import type { SortOption } from '../../src/utils/sort';
 import { sortByOption } from '../../src/utils/sort';
+import { colors } from '../../src/utils/colors';
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
   venueName: string;
@@ -450,7 +451,7 @@ export default function ConcertsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
   },
   header: {
     padding: 20,
@@ -466,35 +467,35 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 15,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.backgroundPill,
   },
   backButtonText: {
     fontSize: 14,
-    color: '#333',
+    color: colors.textPrimary,
     fontWeight: '600',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
     marginBottom: 5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
   },
   searchContainer: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundCard,
   },
   searchInput: {
     height: 50,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
     borderRadius: 25,
     paddingHorizontal: 20,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#e9ecef',
+    borderColor: colors.border,
   },
   scrollView: {
     flex: 1,
@@ -505,17 +506,17 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 15,
     paddingHorizontal: 20,
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundCard,
     paddingVertical: 20,
   },
   sortLabel: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     marginRight: 10,
   },
   sortButtons: {
     flexDirection: 'row',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.backgroundPill,
     borderRadius: 20,
     padding: 5,
   },
@@ -525,33 +526,33 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   sortButtonActive: {
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primary,
   },
   sortButtonText: {
     fontSize: 14,
-    color: '#333',
+    color: colors.textPrimary,
     fontWeight: '600',
   },
   sortButtonTextActive: {
-    color: '#fff',
+    color: colors.textInverse,
   },
   alphabeticalContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundCard,
     borderRadius: 12,
     padding: 20,
     marginBottom: 15,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
   yearGroup: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundCard,
     borderRadius: 12,
     padding: 20,
     marginBottom: 15,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -566,11 +567,11 @@ const styles = StyleSheet.create({
   yearTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
   },
   yearStats: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
   },
   monthlyStats: {
     flexDirection: 'row',
@@ -585,16 +586,16 @@ const styles = StyleSheet.create({
   },
   monthName: {
     fontSize: 14,
-    color: '#555',
+    color: colors.textTertiary,
     marginBottom: 5,
   },
   monthCount: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#007AFF',
+    color: colors.primary,
   },
   concertItem: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.backgroundPill,
     borderRadius: 10,
     padding: 15,
     marginBottom: 10,
@@ -612,12 +613,12 @@ const styles = StyleSheet.create({
   artistName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
     flexWrap: 'wrap',
   },
   concertDate: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   concertDetails: {
@@ -626,15 +627,15 @@ const styles = StyleSheet.create({
   venueName: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#555',
+    color: colors.textTertiary,
   },
   locationText: {
     fontSize: 13,
-    color: '#666',
+    color: colors.textSecondary,
   },
   tourName: {
     fontSize: 14,
-    color: '#007AFF',
+    color: colors.primary,
     fontWeight: '500',
     marginTop: 5,
   },
@@ -644,18 +645,18 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 20,
   },
   loadingText: {
     fontSize: 18,
-    color: '#666',
+    color: colors.textSecondary,
   },
   filterContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#e0e0e0',
+    backgroundColor: colors.backgroundDisabled,
     borderRadius: 20,
     paddingVertical: 5,
     paddingHorizontal: 10,
@@ -665,7 +666,7 @@ const styles = StyleSheet.create({
   filterBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primary,
     borderRadius: 15,
     paddingVertical: 5,
     paddingHorizontal: 10,
@@ -673,23 +674,23 @@ const styles = StyleSheet.create({
   },
   filterLabel: {
     fontSize: 12,
-    color: '#fff',
+    color: colors.textInverse,
     fontWeight: 'bold',
   },
   filterValue: {
     fontSize: 12,
-    color: '#fff',
+    color: colors.textInverse,
     fontWeight: 'bold',
   },
   clearFilterButton: {
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 15,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.backgroundPill,
   },
   clearFilterText: {
     fontSize: 12,
-    color: '#333',
+    color: colors.textPrimary,
     fontWeight: '600',
   },
 });

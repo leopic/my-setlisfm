@@ -4,6 +4,7 @@ import type { Region } from 'react-native-maps';
 import MapView, { Marker } from 'react-native-maps';
 import { dbOperations } from '../database/operations';
 import { formatDate } from '../utils/date';
+import { colors } from '../utils/colors';
 
 interface VenueWithCoords {
   id: string;
@@ -74,16 +75,16 @@ export default function VenuesMapView() {
 
   const getMarkerColor = (concertCount: number): string => {
     // Color code markers based on visit count
-    if (concertCount >= 5) return '#FF6B6B'; // Red for frequent venues
-    if (concertCount >= 3) return '#4ECDC4'; // Teal for moderate
-    if (concertCount >= 2) return '#45B7D1'; // Blue for occasional
-    return '#96CEB4'; // Green for single visits
+    if (concertCount >= 5) return colors.mapFrequent; // Red for frequent venues
+    if (concertCount >= 3) return colors.mapModerate; // Teal for moderate
+    if (concertCount >= 2) return colors.mapOccasional; // Blue for occasional
+    return colors.mapSingleVisit; // Green for single visits
   };
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Loading venue locations...</Text>
       </View>
     );
@@ -135,19 +136,19 @@ export default function VenuesMapView() {
         <Text style={styles.legendTitle}>Visit Count Legend:</Text>
         <View style={styles.legendItems}>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#96CEB4' }]} />
+            <View style={[styles.legendDot, { backgroundColor: colors.mapSingleVisit }]} />
             <Text style={styles.legendText}>1 visit</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#45B7D1' }]} />
+            <View style={[styles.legendDot, { backgroundColor: colors.mapOccasional }]} />
             <Text style={styles.legendText}>2 visits</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#4ECDC4' }]} />
+            <View style={[styles.legendDot, { backgroundColor: colors.mapModerate }]} />
             <Text style={styles.legendText}>3-4 visits</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#FF6B6B' }]} />
+            <View style={[styles.legendDot, { backgroundColor: colors.mapFrequent }]} />
             <Text style={styles.legendText}>5+ visits</Text>
           </View>
         </View>
@@ -159,36 +160,36 @@ export default function VenuesMapView() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
   },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 40,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
   },
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: colors.textPrimary,
     textAlign: 'center',
     marginBottom: 10,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -196,27 +197,27 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   venueCount: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundCard,
     padding: 15,
     borderTopWidth: 1,
-    borderTopColor: '#e9ecef',
+    borderTopColor: colors.border,
     alignItems: 'center',
   },
   venueCountText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   legend: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundCard,
     padding: 15,
     borderTopWidth: 1,
-    borderTopColor: '#e9ecef',
+    borderTopColor: colors.border,
   },
   legendTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: colors.textPrimary,
     marginBottom: 10,
   },
   legendItems: {
@@ -235,6 +236,6 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 12,
-    color: '#666',
+    color: colors.textSecondary,
   },
 });

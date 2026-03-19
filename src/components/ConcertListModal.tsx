@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import type { SetlistWithDetails } from '../types/database';
 import { formatDate } from '../utils/date';
+import { colors } from '../utils/colors';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -100,28 +101,28 @@ export default function ConcertListModal({
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundCard,
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    borderBottomColor: colors.border,
   },
   closeButton: {
     padding: 10,
   },
   closeButtonText: {
     fontSize: 24,
-    color: '#666',
+    color: colors.textSecondary,
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
     flex: 1,
     textAlign: 'center',
   },
@@ -133,11 +134,11 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   concertItem: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundCard,
     borderRadius: 12,
     padding: 20,
     marginBottom: 15,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -152,22 +153,22 @@ const styles = StyleSheet.create({
   concertMainName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
   },
   concertDate: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
   },
   concertDetails: {
     marginTop: 5,
   },
   concertLocation: {
     fontSize: 13,
-    color: '#666',
+    color: colors.textSecondary,
   },
   tourName: {
     fontSize: 14,
-    color: '#007AFF',
+    color: colors.primary,
     fontStyle: 'italic',
     marginTop: 5,
   },
@@ -178,7 +179,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 18,
-    color: '#666',
+    color: colors.textSecondary,
   },
   emptyState: {
     alignItems: 'center',
@@ -186,7 +187,7 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
 });

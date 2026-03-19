@@ -12,6 +12,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails } from '../../../src/types/database';
 import { formatDate } from '../../../src/utils/date';
+import { colors } from '../../../src/utils/colors';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -172,63 +173,63 @@ export default function VenueConcertsListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
   },
   header: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundCard,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: colors.borderLight,
   },
   backButton: {
     padding: 10,
   },
   backButtonText: {
-    color: '#007AFF',
+    color: colors.primary,
     fontSize: 16,
     fontWeight: '600',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
     marginBottom: 5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
   },
   entityInfo: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundCard,
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: colors.borderLight,
   },
   entityName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
     marginBottom: 5,
   },
   concertCount: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
   },
   visitCount: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     marginBottom: 5,
   },
   artistCount: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
   },
   concertsList: {
     flex: 1,
     padding: 20,
   },
   concertItem: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.backgroundPill,
     borderRadius: 10,
     padding: 15,
     marginBottom: 10,
@@ -246,23 +247,23 @@ const styles = StyleSheet.create({
   concertMainName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
     flexWrap: 'wrap',
   },
   concertDate: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
   },
   concertDetails: {
     marginTop: 5,
   },
   concertLocation: {
     fontSize: 13,
-    color: '#666',
+    color: colors.textSecondary,
   },
   tourName: {
     fontSize: 14,
-    color: '#007AFF',
+    color: colors.primary,
     fontStyle: 'italic',
     marginTop: 5,
   },
@@ -273,7 +274,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 18,
-    color: '#666',
+    color: colors.textSecondary,
   },
   emptyState: {
     alignItems: 'center',
@@ -281,7 +282,7 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
 });

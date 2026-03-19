@@ -13,6 +13,7 @@ import { useRouter } from 'expo-router';
 import { dbOperations } from '../../src/database/operations';
 import { SetlistApiService } from '../../src/services/setlistApi';
 import { DataProcessor } from '../../src/services/dataProcessor';
+import { colors } from '../../src/utils/colors';
 
 interface Stats {
   totalSetlists: number;
@@ -191,7 +192,7 @@ export default function DebugScreen() {
         {/* Action Buttons */}
         <View style={styles.actionsContainer}>
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: '#007AFF' }]}
+            style={[styles.button, { backgroundColor: colors.primary }]}
             onPress={handleFetchData}
             disabled={loading}
           >
@@ -201,21 +202,21 @@ export default function DebugScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.buttonSecondary, { backgroundColor: '#6f42c1' }]}
+            style={[styles.buttonSecondary, { backgroundColor: colors.purple }]}
             onPress={handleDebugArtists}
           >
             <Text style={styles.buttonTextSecondary}>Debug Artists</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.buttonSecondary, { backgroundColor: '#dc3545' }]}
+            style={[styles.buttonSecondary, { backgroundColor: colors.danger }]}
             onPress={handleClearDatabase}
           >
-            <Text style={[styles.buttonTextSecondary, { color: '#fff' }]}>Clear Database</Text>
+            <Text style={[styles.buttonTextSecondary, { color: colors.textInverse }]}>Clear Database</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.buttonSecondary, { backgroundColor: '#28a745' }]}
+            style={[styles.buttonSecondary, { backgroundColor: colors.success }]}
             onPress={loadStats}
           >
             <Text style={styles.buttonTextSecondary}>Refresh Stats</Text>
@@ -228,21 +229,21 @@ export default function DebugScreen() {
           <Text style={styles.sectionSubtitle}>Test navigation to different screens</Text>
 
           <TouchableOpacity
-            style={[styles.buttonSecondary, { backgroundColor: '#17a2b8' }]}
+            style={[styles.buttonSecondary, { backgroundColor: colors.teal }]}
             onPress={showAvailableRoutes}
           >
             <Text style={styles.buttonTextSecondary}>Show All Routes</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.buttonSecondary, { backgroundColor: '#6c757d' }]}
+            style={[styles.buttonSecondary, { backgroundColor: colors.gray }]}
             onPress={logCurrentRoute}
           >
             <Text style={styles.buttonTextSecondary}>Log Current Route</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.buttonSecondary, { backgroundColor: '#20c997' }]}
+            style={[styles.buttonSecondary, { backgroundColor: colors.mint }]}
             onPress={showRouteStructure}
           >
             <Text style={styles.buttonTextSecondary}>Show Route Structure</Text>
@@ -250,14 +251,14 @@ export default function DebugScreen() {
 
           <View style={styles.routeButtonsRow}>
             <TouchableOpacity
-              style={[styles.routeButton, { backgroundColor: '#007AFF' }]}
+              style={[styles.routeButton, { backgroundColor: colors.primary }]}
               onPress={() => testRoute('/artists')}
             >
               <Text style={styles.routeButtonText}>Artists Tab</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.routeButton, { backgroundColor: '#28a745' }]}
+              style={[styles.routeButton, { backgroundColor: colors.success }]}
               onPress={() => testRoute('/venues')}
             >
               <Text style={styles.routeButtonText}>Venues Tab</Text>
@@ -266,14 +267,14 @@ export default function DebugScreen() {
 
           <View style={styles.routeButtonsRow}>
             <TouchableOpacity
-              style={[styles.routeButton, { backgroundColor: '#6f42c1' }]}
+              style={[styles.routeButton, { backgroundColor: colors.purple }]}
               onPress={() => testRoute('/artists/_concerts-list', { artist: 'test' })}
             >
               <Text style={styles.routeButtonText}>Artist Concerts</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.routeButton, { backgroundColor: '#fd7e14' }]}
+              style={[styles.routeButton, { backgroundColor: colors.orange }]}
               onPress={() => testRoute('/venues/_concerts-list', { venue: 'test' })}
             >
               <Text style={styles.routeButtonText}>Venue Concerts</Text>
@@ -302,7 +303,7 @@ export default function DebugScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -314,12 +315,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
     marginBottom: 5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -328,14 +329,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   statCard: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundCard,
     borderRadius: 12,
     padding: 20,
     marginBottom: 15,
     marginRight: 15,
     minWidth: 80,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -344,12 +345,12 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#007AFF',
+    color: colors.primary,
     marginBottom: 5,
   },
   statLabel: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   actionsContainer: {
@@ -357,7 +358,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primary,
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 10,
@@ -365,22 +366,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: '#fff',
+    color: colors.textInverse,
     fontSize: 16,
     fontWeight: '600',
   },
   buttonSecondary: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 10,
     marginBottom: 15,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#dee2e6',
+    borderColor: colors.borderMedium,
   },
   buttonTextSecondary: {
-    color: '#333',
+    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -391,12 +392,12 @@ const styles = StyleSheet.create({
   infoTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
     marginBottom: 10,
   },
   infoText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     lineHeight: 20,
     marginBottom: 10,
   },
@@ -407,12 +408,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
     marginBottom: 5,
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     marginBottom: 15,
   },
   routeButtonsRow: {
@@ -422,7 +423,7 @@ const styles = StyleSheet.create({
   },
   routeButton: {
     flex: 1,
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primary,
     paddingVertical: 12,
     paddingHorizontal: 15,
     borderRadius: 8,
@@ -430,7 +431,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   routeButtonText: {
-    color: '#fff',
+    color: colors.textInverse,
     fontSize: 14,
     fontWeight: '600',
   },

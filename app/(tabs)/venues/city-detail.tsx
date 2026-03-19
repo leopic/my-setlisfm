@@ -11,6 +11,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
+import { colors } from '../../../src/utils/colors';
 
 interface VenueWithStats {
   id: string;
@@ -169,13 +170,13 @@ export default function CityDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
   },
   header: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundCard,
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    borderBottomColor: colors.border,
   },
   backButton: {
     padding: 10,
@@ -183,25 +184,25 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: '#007AFF',
+    color: colors.primary,
     fontWeight: '600',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
     marginBottom: 5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
   },
   venuesList: {
     flex: 1,
     padding: 20,
   },
   venueCard: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.backgroundPill,
     borderRadius: 10,
     padding: 15,
     marginBottom: 10,
@@ -219,15 +220,15 @@ const styles = StyleSheet.create({
   venueName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
     marginBottom: 5,
   },
   venueLocation: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
   },
   concertCountBadge: {
-    backgroundColor: '#28a745',
+    backgroundColor: colors.success,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
@@ -237,11 +238,11 @@ const styles = StyleSheet.create({
   concertCountText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
+    color: colors.textInverse,
   },
   concertCountLabel: {
     fontSize: 10,
-    color: '#fff',
+    color: colors.textInverse,
     opacity: 0.9,
   },
   venueStats: {
@@ -249,18 +250,18 @@ const styles = StyleSheet.create({
   },
   lastConcertText: {
     fontSize: 14,
-    color: '#28a745',
+    color: colors.success,
     fontWeight: '500',
     marginBottom: 5,
   },
   artistsText: {
     fontSize: 13,
-    color: '#666',
+    color: colors.textSecondary,
     marginBottom: 5,
   },
   coordsText: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textMuted,
     fontFamily: 'monospace',
   },
   emptyState: {
@@ -269,7 +270,7 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   loadingContainer: {
@@ -279,6 +280,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 18,
-    color: '#666',
+    color: colors.textSecondary,
   },
 });

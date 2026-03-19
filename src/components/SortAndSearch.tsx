@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import type { SortOption } from '../utils/sort';
+import { colors } from '../utils/colors';
 
 interface SortAndSearchProps {
   sortOption: SortOption;
@@ -77,7 +78,7 @@ export default function SortAndSearch({
           placeholder={searchPlaceholder}
           value={searchQuery}
           onChangeText={onSearchChange}
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.textMuted}
         />
       )}
     </View>
@@ -90,7 +91,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 15,
     paddingHorizontal: 20,
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundCard,
     paddingVertical: 20,
   },
   sortRow: {
@@ -99,12 +100,12 @@ const styles = StyleSheet.create({
   },
   sortLabel: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     marginRight: 10,
   },
   sortButtons: {
     flexDirection: 'row',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.backgroundPill,
     borderRadius: 20,
     padding: 5,
   },
@@ -114,24 +115,24 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   sortButtonActive: {
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primary,
   },
   sortButtonText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     fontWeight: '600',
   },
   sortButtonTextActive: {
-    color: '#fff',
+    color: colors.textInverse,
   },
   searchInput: {
     height: 40,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.background,
     borderRadius: 20,
     paddingHorizontal: 15,
     fontSize: 14,
     borderWidth: 1,
-    borderColor: '#e9ecef',
+    borderColor: colors.border,
     marginTop: 15,
   },
 });
