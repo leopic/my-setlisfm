@@ -31,6 +31,7 @@ export default function DebugScreen() {
     totalSongs: 0,
   });
   const [loading, setLoading] = useState(false);
+  const [lastFetched, setLastFetched] = useState<string | null>(null);
 
   // Create service instances
   const setlistApi = new SetlistApiService();
@@ -44,6 +45,8 @@ export default function DebugScreen() {
     try {
       const newStats = await dbOperations.getStats();
       setStats(newStats);
+      const fetchedAt = await dbOperations.getLastFetchedAt();
+      setLastFetched(fetchedAt ? fetchedAt.toLocaleString() : null);
     } catch (error) {
       console.error('Failed to load stats:', error);
     }
@@ -65,6 +68,7 @@ export default function DebugScreen() {
 
       // Process all pages
       await dataProcessor.processMultipleSetlistsResponses(allPages);
+      await dbOperations.setLastFetchedAt();
 
       await loadStats();
       Alert.alert(
@@ -189,6 +193,10 @@ export default function DebugScreen() {
           </View>
         </View>
 
+        {lastFetched && (
+          <Text style={styles.lastFetched}>Last synced: {lastFetched}</Text>
+        )}
+
         {/* Action Buttons */}
         <View style={styles.actionsContainer}>
           <TouchableOpacity
@@ -307,6 +315,12 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  lastFetched: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 12,
   },
   header: {
     padding: 20,

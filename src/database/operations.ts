@@ -121,6 +121,30 @@ export class DatabaseOperations {
     );
   }
 
+  // Metadata operations
+  async setMetadata(key: string, value: string): Promise<void> {
+    await this.db.runAsync('INSERT OR REPLACE INTO metadata (key, value) VALUES (?, ?)', [
+      key,
+      value,
+    ]);
+  }
+
+  async getMetadata(key: string): Promise<string | null> {
+    const result = (await this.db.getFirstAsync('SELECT value FROM metadata WHERE key = ?', [
+      key,
+    ])) as { value: string } | null;
+    return result?.value ?? null;
+  }
+
+  async getLastFetchedAt(): Promise<Date | null> {
+    const value = await this.getMetadata('lastFetchedAt');
+    return value ? new Date(value) : null;
+  }
+
+  async setLastFetchedAt(date: Date = new Date()): Promise<void> {
+    await this.setMetadata('lastFetchedAt', date.toISOString());
+  }
+
   // Query operations
   async getAllSetlists(): Promise<SetlistWithDetails[]> {
     const result = await this.db.getAllAsync(`

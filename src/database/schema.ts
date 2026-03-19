@@ -87,6 +87,12 @@ export const CREATE_TABLES_SQL = `
     UNIQUE(setId, name, songOrder)
   );
 
+  -- App metadata (key-value store for settings and sync state)
+  CREATE TABLE IF NOT EXISTS metadata (
+    key TEXT PRIMARY KEY,
+    value TEXT
+  );
+
   -- Indexes for performance
   CREATE INDEX IF NOT EXISTS idx_setlists_artist ON setlists(artistMbid);
   CREATE INDEX IF NOT EXISTS idx_setlists_venue ON setlists(venueId);
