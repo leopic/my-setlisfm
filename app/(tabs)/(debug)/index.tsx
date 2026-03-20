@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';

@@ -5,9 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Modal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import type { SetlistWithDetails } from '../types/database';
 import { formatDate } from '../utils/date';
 import { useColors } from '../utils/colors';
