@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  TextInput,
   Alert,
   RefreshControl,
 } from 'react-native';
@@ -81,6 +82,21 @@ export default function ConcertsScreen() {
     },
     sortButtonTextActive: {
       color: colors.textInverse,
+    },
+    searchContainer: {
+      paddingHorizontal: 20,
+      paddingBottom: 10,
+    },
+    searchInput: {
+      backgroundColor: colors.backgroundCard,
+      borderRadius: 10,
+      borderCurve: 'continuous' as const,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      fontSize: 15,
+      color: colors.textPrimary,
+      borderWidth: 1,
+      borderColor: colors.border,
     },
     alphabeticalContainer: {
       backgroundColor: colors.backgroundCard,
@@ -242,6 +258,7 @@ export default function ConcertsScreen() {
   const [loading, setLoading] = useState(true);
 
   const [sortOption, setSortOption] = useState<SortOption>('recent');
+  const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -349,7 +366,22 @@ export default function ConcertsScreen() {
     setRefreshing(false);
   };
 
-  const filteredYearGroups = yearGroups;
+  const filteredYearGroups = useMemo(() => {
+    if (!searchQuery.trim()) return yearGroups;
+    const q = searchQuery.toLowerCase();
+    return yearGroups
+      .map((group) => ({
+        ...group,
+        concerts: group.concerts.filter(
+          (c) =>
+            c.artistName.toLowerCase().includes(q) ||
+            c.venueName.toLowerCase().includes(q) ||
+            (c.cityName && c.cityName.toLowerCase().includes(q)) ||
+            (c.countryName && c.countryName.toLowerCase().includes(q)),
+        ),
+      }))
+      .filter((group) => group.concerts.length > 0);
+  }, [yearGroups, searchQuery]);
 
   const totalConcerts = yearGroups.reduce((sum, group) => sum + group.totalConcerts, 0);
 
@@ -402,6 +434,20 @@ export default function ConcertsScreen() {
         </View>
       </View>
 
+      {/* Search */}
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search by artist, venue, city..."
+          placeholderTextColor={colors.textMuted}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          autoCapitalize="none"
+          autoCorrect={false}
+          clearButtonMode="while-editing"
+        />
+      </View>
+
       {/* Concerts List */}
       <ScrollView
         style={styles.scrollView}
@@ -410,7 +456,10 @@ export default function ConcertsScreen() {
         showsVerticalScrollIndicator={false}
       >
         {filteredYearGroups.length === 0 ? (
-          <EmptyState title="No concerts found" />
+          <EmptyState
+            title={searchQuery.trim() ? 'No matches found' : 'No concerts found'}
+            subtitle={searchQuery.trim() ? 'Try a different search term' : undefined}
+          />
         ) : sortOption === 'alphabetical' ? (
           // Flat list for alphabetical sorting with proper container spacing
           <View style={styles.alphabeticalContainer}>
