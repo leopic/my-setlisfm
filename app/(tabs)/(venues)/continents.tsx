@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -126,6 +127,7 @@ export default function ContinentsScreen() {
   const [continents, setContinents] = useState<ContinentWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<SortOption>('alphabetical');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadContinents();
@@ -168,6 +170,12 @@ export default function ContinentsScreen() {
         continentName: continent.name,
       },
     });
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadContinents();
+    setRefreshing(false);
   };
 
   const getContinentCard = (continent: ContinentWithStats) => (
@@ -229,7 +237,7 @@ export default function ContinentsScreen() {
       {/* Sorting Controls */}
       <SortBar value={sortOption} onChange={handleSortChange} />
 
-      <ScrollView style={styles.continentsList} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.continentsList} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         {continents.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No continents found</Text>

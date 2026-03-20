@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
@@ -130,6 +130,7 @@ export default function DashboardScreen() {
   const [stats, setStats] = useState<DashboardStats>(emptyStats);
   const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadDashboard();
@@ -148,6 +149,12 @@ export default function DashboardScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadDashboard();
+    setRefreshing(false);
   };
 
   if (loading) {
@@ -170,7 +177,9 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="dashboard-screen">
-      <ScrollView>
+      <ScrollView
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <ScreenHeader title="Dashboard" />
 
         {/* Hero stats */}

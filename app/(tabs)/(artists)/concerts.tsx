@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -91,6 +92,7 @@ export default function ArtistConcertsListScreen() {
 
   const [concerts, setConcerts] = useState<ConcertWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [artistName, setArtistName] = useState<string>('');
 
   // Get artist parameter from navigation
@@ -135,6 +137,12 @@ export default function ArtistConcertsListScreen() {
     }));
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadArtistConcerts(artistMbid);
+    setRefreshing(false);
+  };
+
   const handleConcertPress = (concert: ConcertWithDetails) => {
     router.push({
       pathname: '/(artists)/[id]',
@@ -165,7 +173,7 @@ export default function ArtistConcertsListScreen() {
       />
 
       {/* Concerts List */}
-      <ScrollView style={styles.concertsList} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.concertsList} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         {concerts.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No concerts found</Text>

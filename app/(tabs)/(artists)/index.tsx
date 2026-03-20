@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -131,6 +132,7 @@ export default function ArtistsScreen() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('recent');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadArtists();
@@ -189,6 +191,12 @@ export default function ArtistsScreen() {
     );
 
     setFilteredArtists(filtered);
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadArtists();
+    setRefreshing(false);
   };
 
   const getArtistCard = (artist: ArtistWithStats) => (
@@ -253,7 +261,7 @@ export default function ArtistsScreen() {
         searchPlaceholder="Search artists..."
       />
 
-      <ScrollView style={styles.artistsList} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.artistsList} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         {filteredArtists.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>

@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -184,6 +185,7 @@ export default function VenuesScreen() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('recent');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadVenues();
@@ -247,6 +249,12 @@ export default function VenuesScreen() {
     );
 
     setFilteredVenues(filtered);
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadVenues();
+    setRefreshing(false);
   };
 
   const getVenueCard = (venue: VenueWithStats) => (
@@ -368,7 +376,7 @@ export default function VenuesScreen() {
         searchPlaceholder="Search venues, cities, countries..."
       />
 
-      <ScrollView style={styles.venuesList} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.venuesList} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         {filteredVenues.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>

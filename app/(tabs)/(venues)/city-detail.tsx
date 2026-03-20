@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -126,6 +127,7 @@ export default function CityDetailScreen() {
 
   const [venues, setVenues] = useState<VenueWithStats[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (city && country) {
@@ -150,6 +152,12 @@ export default function CityDetailScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadVenuesForCity(city as string, country as string);
+    setRefreshing(false);
   };
 
   const handleVenuePress = (venue: VenueWithStats) => {
@@ -218,7 +226,7 @@ export default function CityDetailScreen() {
         onBackPress={() => router.back()}
       />
 
-      <ScrollView style={styles.venuesList} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.venuesList} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         {venues.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No venues found in this city</Text>
