@@ -6,11 +6,16 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
+  TextInput,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { dbOperations } from '../../../src/database/operations';
-import { syncConcertData } from '../../../src/services/syncService';
+import {
+  syncConcertData,
+  getStoredUsername,
+  setStoredUsername,
+} from '../../../src/services/syncService';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
 import DashboardSkeleton from '../../../src/components/skeletons/DashboardSkeleton';
@@ -151,6 +156,19 @@ export default function DashboardScreen() {
           marginBottom: 24,
           lineHeight: 22,
         },
+        usernameInput: {
+          backgroundColor: colors.backgroundCard,
+          borderRadius: 12,
+          borderCurve: 'continuous' as const,
+          paddingHorizontal: 16,
+          paddingVertical: 14,
+          fontSize: 16,
+          color: colors.textPrimary,
+          width: '100%',
+          marginBottom: 16,
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
         syncButton: {
           backgroundColor: colors.primary,
           paddingHorizontal: 28,
@@ -175,9 +193,15 @@ export default function DashboardScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [username, setUsername] = useState('');
 
   useEffect(() => {
-    loadDashboard();
+    const init = async () => {
+      const stored = await getStoredUsername();
+      if (stored) setUsername(stored);
+      await loadDashboard();
+    };
+    init();
   }, []);
 
   const loadDashboard = async () => {
@@ -196,8 +220,14 @@ export default function DashboardScreen() {
   };
 
   const handleSync = async () => {
+    const trimmed = username.trim();
+    if (!trimmed) {
+      Alert.alert('Username Required', 'Enter your setlist.fm username to sync.');
+      return;
+    }
     setSyncing(true);
-    const result = await syncConcertData();
+    await setStoredUsername(trimmed);
+    const result = await syncConcertData(trimmed);
     if (result.success) {
       await loadDashboard();
       if (result.pagesProcessed > 0) {
@@ -226,12 +256,23 @@ export default function DashboardScreen() {
         <View style={styles.emptyState}>
           <Text style={styles.emptyTitle}>No concert data yet</Text>
           <Text style={styles.emptySubtitle}>
-            Fetch your concert history from Setlist.fm to get started
+            Enter your setlist.fm username to sync your concert history
           </Text>
+          <TextInput
+            style={styles.usernameInput}
+            placeholder="setlist.fm username"
+            placeholderTextColor={colors.textMuted}
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="go"
+            onSubmitEditing={handleSync}
+          />
           <TouchableOpacity
-            style={[styles.syncButton, syncing && styles.syncButtonDisabled]}
+            style={[styles.syncButton, (syncing || !username.trim()) && styles.syncButtonDisabled]}
             onPress={handleSync}
-            disabled={syncing}
+            disabled={syncing || !username.trim()}
           >
             <Text style={styles.syncButtonText}>
               {syncing ? 'Syncing...' : 'Fetch Concert Data'}
