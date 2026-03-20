@@ -36,3 +36,15 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# Native build output
+ios/
+android/
+
+# Skills / agents (installed locally)
+.agents/
+.agent/
+skills-lock.json
+
+# Claude Code
+.claude/

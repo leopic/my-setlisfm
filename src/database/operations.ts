@@ -147,6 +147,7 @@ export class DatabaseOperations {
 
   // Query operations
   async getAllSetlists(): Promise<SetlistWithDetails[]> {
+
     const result = (await this.db.getAllAsync(`
       SELECT
         sl.*,
@@ -236,6 +237,7 @@ export class DatabaseOperations {
   }
 
   async getSetlistById(id: string): Promise<SetlistWithDetails | null> {
+
     const result = (await this.db.getFirstAsync(
       `
       SELECT 
@@ -453,6 +455,7 @@ export class DatabaseOperations {
     lastConcert: { artistName: string; eventDate: string } | null;
     concertsByYear: { year: string; count: number }[];
   }> {
+
     const [counts, topArtist, topVenue, firstConcert, lastConcert, byYear] = await Promise.all([
       this.db.getFirstAsync(`
         SELECT
@@ -525,6 +528,7 @@ export class DatabaseOperations {
   // Get all artists with their concert counts and stats
   async getArtistsWithStats(): Promise<
     {
+
       mbid: string;
       name: string;
       sortName?: string;
@@ -535,6 +539,7 @@ export class DatabaseOperations {
       venues: string[];
     }[]
   > {
+
     // First get basic artist stats
     const result = (await this.db.getAllAsync(`
       SELECT 
@@ -613,6 +618,7 @@ export class DatabaseOperations {
   // Get all venues with their concert counts and stats
   async getVenuesWithStats(): Promise<
     {
+
       id: string;
       name: string;
       url?: string;
@@ -629,8 +635,9 @@ export class DatabaseOperations {
       artists: string[];
     }[]
   > {
+
     const result = (await this.db.getAllAsync(`
-      SELECT 
+      SELECT
         v.id,
         v.name,
         v.url,
@@ -675,6 +682,7 @@ export class DatabaseOperations {
 
   // Get setlists by specific artist
   async getSetlistsByArtist(artistMbid: string): Promise<SetlistWithDetails[]> {
+
     const result = (await this.db.getAllAsync(
       `
       SELECT 
@@ -764,6 +772,7 @@ export class DatabaseOperations {
 
   // Get setlists by specific venue
   async getSetlistsByVenue(venueId: string): Promise<SetlistWithDetails[]> {
+
     const result = (await this.db.getAllAsync(
       `
       SELECT 
@@ -870,6 +879,7 @@ export class DatabaseOperations {
     countries: string[];
     cities: string[];
   }> {
+
     const result = (await this.db.getAllAsync(`
       SELECT DISTINCT
         co.name as countryName,
@@ -901,6 +911,7 @@ export class DatabaseOperations {
   // Get continents with detailed statistics
   async getContinentsWithStats(): Promise<
     {
+
       name: string;
       countryCount: number;
       cityCount: number;
@@ -909,6 +920,7 @@ export class DatabaseOperations {
       countries: string[];
     }[]
   > {
+
     // First get all countries and map them to continents
     const countryResult = (await this.db.getAllAsync(`
       SELECT DISTINCT co.name as countryName
@@ -973,6 +985,7 @@ export class DatabaseOperations {
   // Get countries with detailed statistics
   async getCountriesWithStats(): Promise<
     {
+
       name: string;
       cityCount: number;
       venueCount: number;
@@ -980,8 +993,9 @@ export class DatabaseOperations {
       cities: string[];
     }[]
   > {
+
     const result = (await this.db.getAllAsync(`
-      SELECT 
+      SELECT
         co.name,
         COUNT(DISTINCT c.name) as cityCount,
         COUNT(DISTINCT v.id) as venueCount,
@@ -1008,6 +1022,7 @@ export class DatabaseOperations {
   // Get cities with detailed statistics
   async getCitiesWithStats(): Promise<
     {
+
       name: string;
       countryName: string;
       venueCount: number;
@@ -1015,8 +1030,9 @@ export class DatabaseOperations {
       venues: string[];
     }[]
   > {
+
     const result = (await this.db.getAllAsync(`
-      SELECT 
+      SELECT
         c.name,
         co.name as countryName,
         COUNT(DISTINCT v.id) as venueCount,
