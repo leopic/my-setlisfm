@@ -419,7 +419,7 @@ export default function ConcertsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} testID="concerts-screen">
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>My Concerts</Text>
@@ -486,6 +486,7 @@ export default function ConcertsScreen() {
                 <TouchableOpacity
                   key={concert.id}
                   style={styles.concertItem}
+                  testID={`concert-${concert.id}`}
                   onPress={() => {
                     router.push({
                       pathname: '/(concerts)/[id]',
@@ -560,6 +561,7 @@ export default function ConcertsScreen() {
                 <TouchableOpacity
                   key={concert.id}
                   style={styles.concertItem}
+                  testID={`concert-${concert.id}`}
                   onPress={() => {
                     router.push({
                       pathname: '/(concerts)/[id]',

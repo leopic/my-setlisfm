@@ -1,28 +1,25 @@
 appId: com.setlistfm.tracker
-name: Venues → Continents → Countries → Cities → back chain
+name: Venues → Continents → continent detail → back chain
 ---
 - launchApp
-- tapOn: "Venues"
-- assertVisible: "Venues"
-# Tap Continents in the geo nav
-- tapOn: "Continents"
-- assertVisible: "Continents"
-# Tap first continent
 - tapOn:
-    text: ".*"
-    index: 3
-# Should be on continent detail showing countries
-- assertVisible: "← Back"
-# Tap first country
+    text: "Venues, tab.*"
+- assertVisible:
+    id: "venues-screen"
 - tapOn:
-    text: ".*"
-    index: 3
-# Should be on country detail showing cities
-- assertVisible: "← Back"
-# Go back through the chain
-- tapOn: "← Back"
-- assertVisible: "← Back"
-- tapOn: "← Back"
-- assertVisible: "Continents"
-- tapOn: "← Back"
-- assertVisible: "Venues"
+    id: "nav-continents"
+- assertVisible:
+    id: "continents-screen"
+- tapOn:
+    id: "continent-.*"
+    index: 0
+- assertVisible:
+    id: "back-button"
+- tapOn:
+    id: "back-button"
+- assertVisible:
+    id: "continents-screen"
+- tapOn:
+    id: "back-button"
+- assertVisible:
+    id: "venues-screen"

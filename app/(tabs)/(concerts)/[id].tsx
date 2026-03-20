@@ -70,7 +70,7 @@ export default function SetlistDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} testID="setlist-screen">
       <Setlist setlist={setlist} sets={sets} onBackPress={() => router.back()} />
     </SafeAreaView>
   );

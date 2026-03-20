@@ -215,10 +215,10 @@ export default function ArtistConcertsListScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} testID="artist-concerts-screen">
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
+        <TouchableOpacity onPress={handleBackPress} style={styles.backButton} testID="back-button">
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>{artistName}</Text>
@@ -246,6 +246,7 @@ export default function ArtistConcertsListScreen() {
             <TouchableOpacity
               key={concert.id}
               style={styles.concertItem}
+              testID={`artist-concert-${concert.id}`}
               onPress={() => handleConcertPress(concert)}
             >
               <View style={styles.concertHeader}>

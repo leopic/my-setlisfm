@@ -313,6 +313,7 @@ export default function VenuesScreen() {
     <TouchableOpacity
       key={venue.id}
       style={styles.venueCard}
+      testID={`venue-${venue.id}`}
       activeOpacity={0.7}
       onPress={() => handleViewConcerts(venue)}
     >
@@ -363,7 +364,7 @@ export default function VenuesScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} testID="venues-screen">
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Venues</Text>
@@ -388,6 +389,7 @@ export default function VenuesScreen() {
 
                 <TouchableOpacity
                   style={styles.geoStatButton}
+                  testID="nav-continents"
                   onPress={() => router.push('/(venues)/continents')}
                 >
                   <Text style={styles.geoStatEmoji}>Continents</Text>
@@ -400,6 +402,7 @@ export default function VenuesScreen() {
               <View style={styles.geoStatsRow}>
                 <TouchableOpacity
                   style={styles.geoStatButton}
+                  testID="nav-countries"
                   onPress={() => router.push('/(venues)/countries')}
                 >
                   <Text style={styles.geoStatEmoji}>Countries</Text>
@@ -410,6 +413,7 @@ export default function VenuesScreen() {
 
                 <TouchableOpacity
                   style={styles.geoStatButton}
+                  testID="nav-cities"
                   onPress={() => router.push('/(venues)/cities')}
                 >
                   <Text style={styles.geoStatEmoji}>Cities</Text>

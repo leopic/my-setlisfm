@@ -213,10 +213,10 @@ export default function VenueConcertsListScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} testID="venue-concerts-screen">
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
+        <TouchableOpacity onPress={handleBackPress} style={styles.backButton} testID="back-button">
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>{venueName}</Text>
@@ -243,6 +243,7 @@ export default function VenueConcertsListScreen() {
             <TouchableOpacity
               key={concert.id}
               style={styles.concertItem}
+              testID={`venue-concert-${concert.id}`}
               onPress={() => handleConcertPress(concert)}
             >
               <View style={styles.concertHeader}>

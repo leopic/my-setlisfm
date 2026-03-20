@@ -133,7 +133,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
     <>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
+        <TouchableOpacity style={styles.backButton} testID="back-button" onPress={onBackPress}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>{setlist.artist?.name || 'Unknown Artist'}</Text>

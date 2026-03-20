@@ -244,6 +244,7 @@ export default function ContinentsScreen() {
     <TouchableOpacity
       key={continent.name}
       style={styles.continentCard}
+      testID={`continent-${continent.name}`}
       onPress={() => handleContinentPress(continent)}
       activeOpacity={0.7}
     >
@@ -288,10 +289,10 @@ export default function ContinentsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} testID="continents-screen">
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.backButton} testID="back-button" onPress={() => router.back()}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Continents</Text>

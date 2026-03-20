@@ -232,6 +232,7 @@ export default function ArtistsScreen() {
     <TouchableOpacity
       key={artist.mbid}
       style={styles.artistCard}
+      testID={`artist-${artist.mbid}`}
       activeOpacity={0.7}
       onPress={() => handleViewConcerts(artist)}
     >
@@ -275,7 +276,7 @@ export default function ArtistsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} testID="artists-screen">
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Artists</Text>
