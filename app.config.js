@@ -28,7 +28,6 @@ module.exports = {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#ffffff"
       },
-      edgeToEdgeEnabled: true,
       package: "com.setlistfm.tracker"
     },
     plugins: [
