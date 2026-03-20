@@ -8,6 +8,7 @@ import {
   Alert,
   RefreshControl,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails } from '../../../src/types/database';
@@ -359,7 +360,7 @@ export default function ConcertsScreen() {
   }
 
   return (
-    <View style={styles.container} testID="concerts-screen">
+    <SafeAreaView edges={['top']} style={styles.container} testID="concerts-screen">
       {/* Header */}
       <ScreenHeader
         title="My Concerts"
@@ -530,6 +531,6 @@ export default function ConcertsScreen() {
           ))
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

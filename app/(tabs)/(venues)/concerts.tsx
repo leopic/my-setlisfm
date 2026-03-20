@@ -7,6 +7,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails } from '../../../src/types/database';
@@ -157,7 +158,7 @@ export default function VenueConcertsListScreen() {
   }
 
   return (
-    <View style={styles.container} testID="venue-concerts-screen">
+    <SafeAreaView edges={['top']} style={styles.container} testID="venue-concerts-screen">
       {/* Header */}
       <ScreenHeader
         title={venueName}
@@ -200,6 +201,6 @@ export default function VenueConcertsListScreen() {
           ))
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

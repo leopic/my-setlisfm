@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import SortAndSearch from '../../../src/components/SortAndSearch';
@@ -234,7 +235,7 @@ export default function ArtistsScreen() {
   }
 
   return (
-    <View style={styles.container} testID="artists-screen">
+    <SafeAreaView edges={['top']} style={styles.container} testID="artists-screen">
       {/* Header */}
       <ScreenHeader
         title="Artists"
@@ -268,6 +269,6 @@ export default function ArtistsScreen() {
           filteredArtists.map(getArtistCard)
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

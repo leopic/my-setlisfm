@@ -18,7 +18,7 @@ export default function VenuesMapScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
+    <SafeAreaView edges={["top"]} style={styles.container}>
       {/* Header */}
       <ScreenHeader
         title="Venues Map"

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
@@ -214,7 +215,7 @@ export default function ContinentsScreen() {
   }
 
   return (
-    <View style={styles.container} testID="continents-screen">
+    <SafeAreaView edges={['top']} style={styles.container} testID="continents-screen">
       {/* Header */}
       <ScreenHeader
         title="Continents"
@@ -242,6 +243,6 @@ export default function ContinentsScreen() {
           continents.map(getContinentCard)
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

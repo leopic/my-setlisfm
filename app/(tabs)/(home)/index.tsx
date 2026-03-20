@@ -158,7 +158,7 @@ export default function DashboardScreen() {
 
   if (stats.totalConcerts === 0) {
     return (
-      <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
+      <SafeAreaView edges={["top"]} style={styles.container}>
         <ScreenHeader title="Dashboard" />
         <EmptyState
           title="No concert data yet"
@@ -171,7 +171,7 @@ export default function DashboardScreen() {
   const maxYearCount = Math.max(...stats.concertsByYear.map((y) => y.count), 1);
 
   return (
-    <View style={styles.container} testID="dashboard-screen">
+    <SafeAreaView edges={['top']} style={styles.container} testID="dashboard-screen">
       <ScrollView contentContainerStyle={tabBarInset}>
         <ScreenHeader title="Dashboard" />
 
@@ -259,6 +259,6 @@ export default function DashboardScreen() {
 
         {lastSynced && <Text style={styles.lastSynced}>Last synced: {lastSynced}</Text>}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

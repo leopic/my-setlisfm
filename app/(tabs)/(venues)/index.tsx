@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import SortAndSearch from '../../../src/components/SortAndSearch';
@@ -299,7 +300,7 @@ export default function VenuesScreen() {
   }
 
   return (
-    <View style={styles.container} testID="venues-screen">
+    <SafeAreaView edges={['top']} style={styles.container} testID="venues-screen">
       {/* Header */}
       <ScreenHeader
         title="Venues"
@@ -383,6 +384,6 @@ export default function VenuesScreen() {
           filteredVenues.map(getVenueCard)
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

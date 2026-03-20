@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import CityList from '../../../src/components/CityList';
@@ -75,7 +76,7 @@ export default function CitiesScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView edges={['top']} style={styles.container}>
       {/* Header */}
       <ScreenHeader
         title="Cities"
@@ -92,6 +93,6 @@ export default function CitiesScreen() {
       <SortBar value={sortOption} onChange={handleSortChange} />
 
       <CityList cities={cities} onCityPress={handleCityPress} emptyMessage="No cities found" />
-    </View>
+    </SafeAreaView>
   );
 }

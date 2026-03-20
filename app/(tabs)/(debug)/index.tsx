@@ -7,6 +7,7 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
@@ -275,7 +276,7 @@ export default function DebugScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView edges={['top']} style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={tabBarInset} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <ScreenHeader title="Debug & Admin" subtitle="Database management and testing tools" />
@@ -399,6 +400,6 @@ export default function DebugScreen() {
           </Text>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
