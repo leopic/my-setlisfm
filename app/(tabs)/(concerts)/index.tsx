@@ -405,7 +405,7 @@ export default function ConcertsScreen() {
       {/* Concerts List */}
       <ScrollView
         style={styles.scrollView}
-        contentInsetAdjustmentBehavior="automatic"
+       
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
       >

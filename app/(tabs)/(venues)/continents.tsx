@@ -229,7 +229,7 @@ export default function ContinentsScreen() {
       {/* Sorting Controls */}
       <SortBar value={sortOption} onChange={handleSortChange} />
 
-      <ScrollView style={styles.continentsList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.continentsList} showsVerticalScrollIndicator={false}>
         {continents.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No continents found</Text>

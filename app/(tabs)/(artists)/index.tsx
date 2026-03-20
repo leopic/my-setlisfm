@@ -253,7 +253,7 @@ export default function ArtistsScreen() {
         searchPlaceholder="Search artists..."
       />
 
-      <ScrollView style={styles.artistsList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.artistsList} showsVerticalScrollIndicator={false}>
         {filteredArtists.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>

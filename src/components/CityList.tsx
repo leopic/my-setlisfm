@@ -135,7 +135,7 @@ export default function CityList({
   );
 
   return (
-    <ScrollView style={styles.citiesList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.citiesList} showsVerticalScrollIndicator={false}>
       {cities.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateText}>{emptyMessage}</Text>

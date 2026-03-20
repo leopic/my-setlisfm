@@ -170,7 +170,7 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView style={styles.container} testID="dashboard-screen">
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
+      <ScrollView>
         <ScreenHeader title="Dashboard" />
 
         {/* Hero stats */}

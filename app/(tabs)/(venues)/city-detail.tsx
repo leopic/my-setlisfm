@@ -218,7 +218,7 @@ export default function CityDetailScreen() {
         onBackPress={() => router.back()}
       />
 
-      <ScrollView style={styles.venuesList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.venuesList} showsVerticalScrollIndicator={false}>
         {venues.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No venues found in this city</Text>

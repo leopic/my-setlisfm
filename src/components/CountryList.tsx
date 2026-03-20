@@ -137,7 +137,7 @@ export default function CountryList({
   );
 
   return (
-    <ScrollView style={styles.countriesList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.countriesList} showsVerticalScrollIndicator={false}>
       {countries.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateText}>{emptyMessage}</Text>

@@ -42,7 +42,7 @@ export default function DashboardSkeleton() {
 
   return (
     <SafeAreaView style={styles.container} testID="loading-skeleton">
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
+      <ScrollView>
         <View style={styles.header}>
           <SkeletonBox width={140} height={28} />
         </View>

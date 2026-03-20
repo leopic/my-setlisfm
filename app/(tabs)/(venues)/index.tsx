@@ -368,7 +368,7 @@ export default function VenuesScreen() {
         searchPlaceholder="Search venues, cities, countries..."
       />
 
-      <ScrollView style={styles.venuesList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.venuesList} showsVerticalScrollIndicator={false}>
         {filteredVenues.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>
