@@ -15,7 +15,6 @@ import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
-import { useTabBarInset } from '../../../src/utils/useTabBarInset';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
 import { ScreenHeader } from '../../../src/components/ui';
 
@@ -47,7 +46,6 @@ interface GeoStats {
 
 export default function VenuesScreen() {
   const colors = useColors();
-  const tabBarInset = useTabBarInset();
   const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
@@ -300,7 +298,7 @@ export default function VenuesScreen() {
   }
 
   return (
-    <SafeAreaView edges={['top']} style={styles.container} testID="venues-screen">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="venues-screen">
       {/* Header */}
       <ScreenHeader
         title="Venues"
@@ -370,7 +368,7 @@ export default function VenuesScreen() {
         searchPlaceholder="Search venues, cities, countries..."
       />
 
-      <ScrollView style={styles.venuesList} contentContainerStyle={tabBarInset} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.venuesList} showsVerticalScrollIndicator={false}>
         {filteredVenues.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>

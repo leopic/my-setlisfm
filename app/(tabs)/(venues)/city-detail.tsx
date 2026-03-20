@@ -12,7 +12,6 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
-import { useTabBarInset } from '../../../src/utils/useTabBarInset';
 import DetailSkeleton from '../../../src/components/skeletons/DetailSkeleton';
 import { ScreenHeader } from '../../../src/components/ui';
 
@@ -35,7 +34,6 @@ interface VenueWithStats {
 
 export default function CityDetailScreen() {
   const colors = useColors();
-  const tabBarInset = useTabBarInset();
   const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
@@ -211,7 +209,7 @@ export default function CityDetailScreen() {
   }
 
   return (
-    <SafeAreaView edges={['top']} style={styles.container}>
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
       {/* Header */}
       <ScreenHeader
         title={city as string}
@@ -220,7 +218,7 @@ export default function CityDetailScreen() {
         onBackPress={() => router.back()}
       />
 
-      <ScrollView style={styles.venuesList} contentContainerStyle={tabBarInset} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.venuesList} showsVerticalScrollIndicator={false}>
         {venues.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No venues found in this city</Text>

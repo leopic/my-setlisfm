@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { formatDate } from '../utils/date';
 import { useColors } from '../utils/colors';
-import { useTabBarInset } from '../utils/useTabBarInset';
 
 interface CountryWithStats {
   name: string;
@@ -24,7 +23,6 @@ export default function CountryList({
   emptyMessage = 'No countries found',
 }: CountryListProps) {
   const colors = useColors();
-  const tabBarInset = useTabBarInset();
   const styles = useMemo(() => StyleSheet.create({
     countriesList: {
       flex: 1,
@@ -139,7 +137,7 @@ export default function CountryList({
   );
 
   return (
-    <ScrollView style={styles.countriesList} contentContainerStyle={tabBarInset} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.countriesList} showsVerticalScrollIndicator={false}>
       {countries.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateText}>{emptyMessage}</Text>

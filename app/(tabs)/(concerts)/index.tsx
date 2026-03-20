@@ -16,7 +16,6 @@ import { parseSetlistDate, formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
-import { useTabBarInset } from '../../../src/utils/useTabBarInset';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
 import { ScreenHeader, EmptyState } from '../../../src/components/ui';
 
@@ -37,7 +36,6 @@ interface YearGroup {
 
 export default function ConcertsScreen() {
   const colors = useColors();
-  const tabBarInset = useTabBarInset();
   const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
@@ -360,7 +358,7 @@ export default function ConcertsScreen() {
   }
 
   return (
-    <SafeAreaView edges={['top']} style={styles.container} testID="concerts-screen">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="concerts-screen">
       {/* Header */}
       <ScreenHeader
         title="My Concerts"
@@ -407,7 +405,7 @@ export default function ConcertsScreen() {
       {/* Concerts List */}
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={tabBarInset}
+       
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
       >

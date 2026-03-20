@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
@@ -66,7 +66,7 @@ export default function CountriesScreen() {
   }
 
   return (
-    <SafeAreaView edges={['top']} style={styles.container} testID="countries-screen">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="countries-screen">
       {/* Header */}
       <ScreenHeader
         title="Countries"

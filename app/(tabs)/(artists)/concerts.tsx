@@ -13,7 +13,6 @@ import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails } from '../../../src/types/database';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
-import { useTabBarInset } from '../../../src/utils/useTabBarInset';
 import ConcertListSkeleton from '../../../src/components/skeletons/ConcertListSkeleton';
 import { ScreenHeader } from '../../../src/components/ui';
 
@@ -27,7 +26,6 @@ interface ConcertWithDetails extends SetlistWithDetails {
 
 export default function ArtistConcertsListScreen() {
   const colors = useColors();
-  const tabBarInset = useTabBarInset();
   const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
@@ -157,7 +155,7 @@ export default function ArtistConcertsListScreen() {
   ];
 
   return (
-    <SafeAreaView edges={['top']} style={styles.container} testID="artist-concerts-screen">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="artist-concerts-screen">
       {/* Header */}
       <ScreenHeader
         title={artistName}
@@ -167,7 +165,7 @@ export default function ArtistConcertsListScreen() {
       />
 
       {/* Concerts List */}
-      <ScrollView style={styles.concertsList} contentContainerStyle={tabBarInset} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.concertsList} showsVerticalScrollIndicator={false}>
         {concerts.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No concerts found</Text>

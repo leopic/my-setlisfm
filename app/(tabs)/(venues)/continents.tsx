@@ -14,7 +14,6 @@ import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
-import { useTabBarInset } from '../../../src/utils/useTabBarInset';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
 import { ScreenHeader, SortBar } from '../../../src/components/ui';
 
@@ -29,7 +28,6 @@ interface ContinentWithStats {
 
 export default function ContinentsScreen() {
   const colors = useColors();
-  const tabBarInset = useTabBarInset();
   const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
@@ -215,7 +213,7 @@ export default function ContinentsScreen() {
   }
 
   return (
-    <SafeAreaView edges={['top']} style={styles.container} testID="continents-screen">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="continents-screen">
       {/* Header */}
       <ScreenHeader
         title="Continents"
@@ -231,7 +229,7 @@ export default function ContinentsScreen() {
       {/* Sorting Controls */}
       <SortBar value={sortOption} onChange={handleSortChange} />
 
-      <ScrollView style={styles.continentsList} contentContainerStyle={tabBarInset} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.continentsList} showsVerticalScrollIndicator={false}>
         {continents.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No continents found</Text>

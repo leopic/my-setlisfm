@@ -14,7 +14,6 @@ import { dbOperations } from '../../../src/database/operations';
 import { SetlistApiService } from '../../../src/services/setlistApi';
 import { DataProcessor } from '../../../src/services/dataProcessor';
 import { useColors } from '../../../src/utils/colors';
-import { useTabBarInset } from '../../../src/utils/useTabBarInset';
 import { ScreenHeader, StatBox } from '../../../src/components/ui';
 
 interface Stats {
@@ -26,7 +25,6 @@ interface Stats {
 
 export default function DebugScreen() {
   const colors = useColors();
-  const tabBarInset = useTabBarInset();
   const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
@@ -276,8 +274,8 @@ export default function DebugScreen() {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={tabBarInset} showsVerticalScrollIndicator={false}>
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <ScreenHeader title="Debug & Admin" subtitle="Database management and testing tools" />
 

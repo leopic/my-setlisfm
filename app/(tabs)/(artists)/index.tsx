@@ -16,7 +16,6 @@ import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
-import { useTabBarInset } from '../../../src/utils/useTabBarInset';
 import { ScreenHeader } from '../../../src/components/ui';
 
 interface ArtistWithStats {
@@ -32,7 +31,6 @@ interface ArtistWithStats {
 
 export default function ArtistsScreen() {
   const colors = useColors();
-  const tabBarInset = useTabBarInset();
   const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
@@ -235,7 +233,7 @@ export default function ArtistsScreen() {
   }
 
   return (
-    <SafeAreaView edges={['top']} style={styles.container} testID="artists-screen">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="artists-screen">
       {/* Header */}
       <ScreenHeader
         title="Artists"
@@ -255,7 +253,7 @@ export default function ArtistsScreen() {
         searchPlaceholder="Search artists..."
       />
 
-      <ScrollView style={styles.artistsList} contentContainerStyle={tabBarInset} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.artistsList} showsVerticalScrollIndicator={false}>
         {filteredArtists.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>
