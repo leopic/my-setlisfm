@@ -69,6 +69,7 @@ export default function CityDetailScreen() {
     venueCard: {
       backgroundColor: colors.backgroundPill,
       borderRadius: 10,
+      borderCurve: 'continuous' as const,
       padding: 15,
       marginBottom: 10,
     },
@@ -97,6 +98,7 @@ export default function CityDetailScreen() {
       paddingHorizontal: 12,
       paddingVertical: 8,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
       alignItems: 'center',
       minWidth: 60,
     },
@@ -104,6 +106,7 @@ export default function CityDetailScreen() {
       fontSize: 18,
       fontWeight: 'bold',
       color: colors.textInverse,
+      fontVariant: ['tabular-nums'] as const,
     },
     concertCountLabel: {
       fontSize: 10,
@@ -260,7 +263,7 @@ export default function CityDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
@@ -272,7 +275,7 @@ export default function CityDetailScreen() {
         </Text>
       </View>
 
-      <ScrollView style={styles.venuesList} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.venuesList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
         {venues.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No venues found in this city</Text>
@@ -281,6 +284,6 @@ export default function CityDetailScreen() {
           venues.map(getVenueCard)
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

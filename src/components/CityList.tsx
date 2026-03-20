@@ -31,6 +31,7 @@ export default function CityList({
     cityCard: {
       backgroundColor: colors.backgroundPill,
       borderRadius: 10,
+      borderCurve: 'continuous' as const,
       padding: 15,
       marginBottom: 10,
     },
@@ -59,6 +60,7 @@ export default function CityList({
       paddingHorizontal: 12,
       paddingVertical: 8,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
       alignItems: 'center',
       minWidth: 60,
     },
@@ -66,6 +68,7 @@ export default function CityList({
       fontSize: 18,
       fontWeight: 'bold',
       color: colors.textInverse,
+      fontVariant: ['tabular-nums'] as const,
     },
     venueCountLabel: {
       fontSize: 10,
@@ -132,7 +135,7 @@ export default function CityList({
   );
 
   return (
-    <ScrollView style={styles.citiesList} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.citiesList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
       {cities.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateText}>{emptyMessage}</Text>

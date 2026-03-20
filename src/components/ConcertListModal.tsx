@@ -76,6 +76,7 @@ export default function ConcertListModal({
     concertItem: {
       backgroundColor: colors.backgroundCard,
       borderRadius: 12,
+      borderCurve: 'continuous' as const,
       padding: 20,
       marginBottom: 15,
       shadowColor: colors.shadow,
@@ -155,7 +156,7 @@ export default function ConcertListModal({
             <Text style={styles.loadingText}>Loading concerts...</Text>
           </View>
         ) : (
-          <ScrollView style={styles.concertsList} showsVerticalScrollIndicator={false}>
+          <ScrollView style={styles.concertsList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
             {concerts.length === 0 ? (
               <View style={styles.emptyState}>
                 <Text style={styles.emptyStateText}>No concerts found</Text>

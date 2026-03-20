@@ -75,12 +75,14 @@ export default function CountriesScreen() {
       flexDirection: 'row',
       backgroundColor: colors.backgroundPill,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
       padding: 5,
     },
     sortButton: {
       paddingHorizontal: 15,
       paddingVertical: 8,
       borderRadius: 15,
+      borderCurve: 'continuous' as const,
     },
     sortButtonActive: {
       backgroundColor: colors.primary,
@@ -140,7 +142,7 @@ export default function CountriesScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.push('/venues')}>
@@ -207,6 +209,6 @@ export default function CountriesScreen() {
         }}
         emptyMessage="No countries found"
       />
-    </SafeAreaView>
+    </View>
   );
 }

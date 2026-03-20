@@ -87,6 +87,7 @@ export default function ArtistConcertsListScreen() {
     concertItem: {
       backgroundColor: colors.backgroundPill,
       borderRadius: 10,
+      borderCurve: 'continuous' as const,
       padding: 15,
       marginBottom: 10,
     },
@@ -221,7 +222,7 @@ export default function ArtistConcertsListScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
@@ -242,7 +243,7 @@ export default function ArtistConcertsListScreen() {
       </View>
 
       {/* Concerts List */}
-      <ScrollView style={styles.concertsList} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.concertsList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
         {concerts.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No concerts found</Text>
@@ -274,6 +275,6 @@ export default function ArtistConcertsListScreen() {
           ))
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

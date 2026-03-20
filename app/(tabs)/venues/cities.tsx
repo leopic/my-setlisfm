@@ -75,12 +75,14 @@ export default function CitiesScreen() {
       flexDirection: 'row',
       backgroundColor: colors.backgroundPill,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
       padding: 5,
     },
     sortButton: {
       paddingHorizontal: 15,
       paddingVertical: 8,
       borderRadius: 15,
+      borderCurve: 'continuous' as const,
     },
     sortButtonActive: {
       backgroundColor: colors.primary,
@@ -152,7 +154,7 @@ export default function CitiesScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.push('/venues')}>
@@ -210,6 +212,6 @@ export default function CitiesScreen() {
       </View>
 
       <CityList cities={cities} onCityPress={handleCityPress} emptyMessage="No cities found" />
-    </SafeAreaView>
+    </View>
   );
 }

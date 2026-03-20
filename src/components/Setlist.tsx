@@ -62,6 +62,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
     setContainer: {
       backgroundColor: colors.backgroundCard,
       borderRadius: 12,
+      borderCurve: 'continuous' as const,
       padding: 20,
       marginBottom: 20,
       shadowColor: colors.shadow,

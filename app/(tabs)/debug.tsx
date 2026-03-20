@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
-  SafeAreaView,
 } from 'react-native';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
@@ -61,6 +60,7 @@ export default function DebugScreen() {
     statCard: {
       backgroundColor: colors.backgroundCard,
       borderRadius: 12,
+      borderCurve: 'continuous' as const,
       padding: 20,
       marginBottom: 15,
       marginRight: 15,
@@ -77,6 +77,7 @@ export default function DebugScreen() {
       fontWeight: 'bold',
       color: colors.primary,
       marginBottom: 5,
+      fontVariant: ['tabular-nums'] as const,
     },
     statLabel: {
       fontSize: 14,
@@ -92,6 +93,7 @@ export default function DebugScreen() {
       paddingVertical: 15,
       paddingHorizontal: 20,
       borderRadius: 10,
+      borderCurve: 'continuous' as const,
       marginBottom: 15,
       alignItems: 'center',
     },
@@ -105,6 +107,7 @@ export default function DebugScreen() {
       paddingVertical: 15,
       paddingHorizontal: 20,
       borderRadius: 10,
+      borderCurve: 'continuous' as const,
       marginBottom: 15,
       alignItems: 'center',
       borderWidth: 1,
@@ -157,6 +160,7 @@ export default function DebugScreen() {
       paddingVertical: 12,
       paddingHorizontal: 15,
       borderRadius: 8,
+      borderCurve: 'continuous' as const,
       marginHorizontal: 5,
       alignItems: 'center',
     },
@@ -309,8 +313,8 @@ export default function DebugScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollView} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Debug & Admin</Text>
@@ -448,6 +452,6 @@ export default function DebugScreen() {
           </Text>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

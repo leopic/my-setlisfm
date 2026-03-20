@@ -97,6 +97,7 @@ export default function VenuesScreen() {
       flex: 1,
       backgroundColor: colors.background,
       borderRadius: 12,
+      borderCurve: 'continuous' as const,
       padding: 12,
       alignItems: 'center',
       borderWidth: 1,
@@ -115,6 +116,7 @@ export default function VenuesScreen() {
     mapButton: {
       backgroundColor: colors.primary,
       borderRadius: 12,
+      borderCurve: 'continuous' as const,
       padding: 15,
       marginTop: 10,
       flexDirection: 'row',
@@ -138,6 +140,7 @@ export default function VenuesScreen() {
     venueCard: {
       backgroundColor: colors.backgroundPill,
       borderRadius: 10,
+      borderCurve: 'continuous' as const,
       padding: 15,
       marginBottom: 10,
     },
@@ -166,6 +169,7 @@ export default function VenuesScreen() {
       paddingHorizontal: 12,
       paddingVertical: 8,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
       alignItems: 'center',
       minWidth: 60,
     },
@@ -173,6 +177,7 @@ export default function VenuesScreen() {
       fontSize: 18,
       fontWeight: 'bold',
       color: colors.textInverse,
+      fontVariant: ['tabular-nums'] as const,
     },
     concertCountLabel: {
       fontSize: 10,
@@ -214,6 +219,7 @@ export default function VenuesScreen() {
       paddingHorizontal: 20,
       paddingVertical: 12,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
     },
     refreshButtonText: {
       color: colors.textInverse,
@@ -357,7 +363,7 @@ export default function VenuesScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Venues</Text>
@@ -426,7 +432,7 @@ export default function VenuesScreen() {
         searchPlaceholder="Search venues, cities, countries..."
       />
 
-      <ScrollView style={styles.venuesList} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.venuesList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
         {filteredVenues.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>
@@ -440,6 +446,6 @@ export default function VenuesScreen() {
           filteredVenues.map(getVenueCard)
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

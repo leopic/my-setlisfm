@@ -71,6 +71,7 @@ export default function ArtistsScreen() {
     artistCard: {
       backgroundColor: colors.backgroundPill,
       borderRadius: 10,
+      borderCurve: 'continuous' as const,
       padding: 15,
       marginBottom: 10,
     },
@@ -100,6 +101,7 @@ export default function ArtistsScreen() {
       paddingHorizontal: 12,
       paddingVertical: 8,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
       alignItems: 'center',
       minWidth: 60,
     },
@@ -107,6 +109,7 @@ export default function ArtistsScreen() {
       fontSize: 18,
       fontWeight: 'bold',
       color: colors.textInverse,
+      fontVariant: ['tabular-nums'] as const,
     },
     concertCountLabel: {
       fontSize: 10,
@@ -141,6 +144,7 @@ export default function ArtistsScreen() {
       paddingHorizontal: 20,
       paddingVertical: 12,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
     },
     refreshButtonText: {
       color: colors.textInverse,
@@ -271,7 +275,7 @@ export default function ArtistsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Artists</Text>
@@ -291,7 +295,7 @@ export default function ArtistsScreen() {
         searchPlaceholder="Search artists..."
       />
 
-      <ScrollView style={styles.artistsList} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.artistsList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
         {filteredArtists.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>
@@ -305,6 +309,6 @@ export default function ArtistsScreen() {
           filteredArtists.map(getArtistCard)
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

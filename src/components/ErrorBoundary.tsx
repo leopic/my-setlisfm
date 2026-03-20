@@ -71,6 +71,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
+    borderCurve: 'continuous' as const,
   },
   buttonText: {
     color: colors.textInverse,

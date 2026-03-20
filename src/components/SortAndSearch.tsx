@@ -51,12 +51,14 @@ export default function SortAndSearch({
       flexDirection: 'row',
       backgroundColor: colors.backgroundPill,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
       padding: 5,
     },
     sortButton: {
       paddingHorizontal: 15,
       paddingVertical: 8,
       borderRadius: 15,
+      borderCurve: 'continuous' as const,
     },
     sortButtonActive: {
       backgroundColor: colors.primary,
@@ -73,6 +75,7 @@ export default function SortAndSearch({
       height: 40,
       backgroundColor: colors.background,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
       paddingHorizontal: 15,
       fontSize: 14,
       borderWidth: 1,

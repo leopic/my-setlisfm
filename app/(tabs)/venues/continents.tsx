@@ -63,6 +63,7 @@ export default function ContinentsScreen() {
     continentCard: {
       backgroundColor: colors.backgroundPill,
       borderRadius: 10,
+      borderCurve: 'continuous' as const,
       padding: 15,
       marginBottom: 10,
     },
@@ -91,6 +92,7 @@ export default function ContinentsScreen() {
       paddingHorizontal: 12,
       paddingVertical: 8,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
       alignItems: 'center',
       minWidth: 60,
     },
@@ -98,6 +100,7 @@ export default function ContinentsScreen() {
       fontSize: 18,
       fontWeight: 'bold',
       color: colors.textInverse,
+      fontVariant: ['tabular-nums'] as const,
     },
     venueCountLabel: {
       fontSize: 10,
@@ -133,6 +136,7 @@ export default function ContinentsScreen() {
       paddingHorizontal: 20,
       paddingVertical: 12,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
     },
     refreshButtonText: {
       color: colors.textInverse,
@@ -166,12 +170,14 @@ export default function ContinentsScreen() {
       flexDirection: 'row',
       backgroundColor: colors.backgroundPill,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
       padding: 5,
     },
     sortButton: {
       paddingHorizontal: 15,
       paddingVertical: 8,
       borderRadius: 15,
+      borderCurve: 'continuous' as const,
     },
     sortButtonActive: {
       backgroundColor: colors.primary,
@@ -284,7 +290,7 @@ export default function ContinentsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.push('/venues')}>
@@ -341,7 +347,7 @@ export default function ContinentsScreen() {
         </View>
       </View>
 
-      <ScrollView style={styles.continentsList} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.continentsList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
         {continents.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No continents found</Text>
@@ -353,6 +359,6 @@ export default function ContinentsScreen() {
           continents.map(getContinentCard)
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

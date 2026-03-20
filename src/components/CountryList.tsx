@@ -31,6 +31,7 @@ export default function CountryList({
     countryCard: {
       backgroundColor: colors.backgroundPill,
       borderRadius: 10,
+      borderCurve: 'continuous' as const,
       padding: 15,
       marginBottom: 10,
     },
@@ -59,6 +60,7 @@ export default function CountryList({
       paddingHorizontal: 12,
       paddingVertical: 8,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
       alignItems: 'center',
       minWidth: 60,
     },
@@ -66,6 +68,7 @@ export default function CountryList({
       fontSize: 18,
       fontWeight: 'bold',
       color: colors.textInverse,
+      fontVariant: ['tabular-nums'] as const,
     },
     venueCountLabel: {
       fontSize: 10,
@@ -134,7 +137,7 @@ export default function CountryList({
   );
 
   return (
-    <ScrollView style={styles.countriesList} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.countriesList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
       {countries.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateText}>{emptyMessage}</Text>

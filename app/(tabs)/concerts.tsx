@@ -52,6 +52,7 @@ export default function ConcertsScreen() {
       paddingVertical: 8,
       paddingHorizontal: 15,
       borderRadius: 15,
+      borderCurve: 'continuous' as const,
       backgroundColor: colors.backgroundPill,
     },
     backButtonText: {
@@ -77,6 +78,7 @@ export default function ConcertsScreen() {
       height: 50,
       backgroundColor: colors.background,
       borderRadius: 25,
+      borderCurve: 'continuous' as const,
       paddingHorizontal: 20,
       fontSize: 16,
       borderWidth: 1,
@@ -103,12 +105,14 @@ export default function ConcertsScreen() {
       flexDirection: 'row',
       backgroundColor: colors.backgroundPill,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
       padding: 5,
     },
     sortButton: {
       paddingVertical: 8,
       paddingHorizontal: 15,
       borderRadius: 15,
+      borderCurve: 'continuous' as const,
     },
     sortButtonActive: {
       backgroundColor: colors.primary,
@@ -124,6 +128,7 @@ export default function ConcertsScreen() {
     alphabeticalContainer: {
       backgroundColor: colors.backgroundCard,
       borderRadius: 12,
+      borderCurve: 'continuous' as const,
       padding: 20,
       marginBottom: 15,
       shadowColor: colors.shadow,
@@ -135,6 +140,7 @@ export default function ConcertsScreen() {
     yearGroup: {
       backgroundColor: colors.backgroundCard,
       borderRadius: 12,
+      borderCurve: 'continuous' as const,
       padding: 20,
       marginBottom: 15,
       shadowColor: colors.shadow,
@@ -153,10 +159,12 @@ export default function ConcertsScreen() {
       fontSize: 24,
       fontWeight: 'bold',
       color: colors.textPrimary,
+      fontVariant: ['tabular-nums'] as const,
     },
     yearStats: {
       fontSize: 14,
       color: colors.textSecondary,
+      fontVariant: ['tabular-nums'] as const,
     },
     monthlyStats: {
       flexDirection: 'row',
@@ -178,10 +186,12 @@ export default function ConcertsScreen() {
       fontSize: 18,
       fontWeight: 'bold',
       color: colors.primary,
+      fontVariant: ['tabular-nums'] as const,
     },
     concertItem: {
       backgroundColor: colors.backgroundPill,
       borderRadius: 10,
+      borderCurve: 'continuous' as const,
       padding: 15,
       marginBottom: 10,
     },
@@ -243,6 +253,7 @@ export default function ConcertsScreen() {
       alignItems: 'center',
       backgroundColor: colors.backgroundDisabled,
       borderRadius: 20,
+      borderCurve: 'continuous' as const,
       paddingVertical: 5,
       paddingHorizontal: 10,
       marginTop: 10,
@@ -253,6 +264,7 @@ export default function ConcertsScreen() {
       alignItems: 'center',
       backgroundColor: colors.primary,
       borderRadius: 15,
+      borderCurve: 'continuous' as const,
       paddingVertical: 5,
       paddingHorizontal: 10,
       marginRight: 10,
@@ -271,6 +283,7 @@ export default function ConcertsScreen() {
       paddingVertical: 5,
       paddingHorizontal: 10,
       borderRadius: 15,
+      borderCurve: 'continuous' as const,
       backgroundColor: colors.backgroundPill,
     },
     clearFilterText: {
@@ -454,7 +467,7 @@ export default function ConcertsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
@@ -541,6 +554,7 @@ export default function ConcertsScreen() {
       {/* Concerts List */}
       <ScrollView
         style={styles.scrollView}
+        contentInsetAdjustmentBehavior="automatic"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
       >
@@ -692,6 +706,6 @@ export default function ConcertsScreen() {
           ))
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

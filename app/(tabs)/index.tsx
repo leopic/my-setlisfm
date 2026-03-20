@@ -45,6 +45,7 @@ export default function DashboardScreen() {
           flex: 1,
           backgroundColor: colors.backgroundCard,
           borderRadius: 12,
+          borderCurve: 'continuous' as const,
           padding: 14,
           marginHorizontal: 4,
           alignItems: 'center',
@@ -53,6 +54,7 @@ export default function DashboardScreen() {
           fontSize: 22,
           fontWeight: '700',
           color: colors.primary,
+          fontVariant: ['tabular-nums'] as const,
         },
         statLabel: {
           fontSize: 11,
@@ -66,6 +68,7 @@ export default function DashboardScreen() {
           marginBottom: 16,
           backgroundColor: colors.backgroundCard,
           borderRadius: 12,
+          borderCurve: 'continuous' as const,
           padding: 16,
         },
         sectionTitle: {
@@ -96,6 +99,7 @@ export default function DashboardScreen() {
         highlightDetail: {
           fontSize: 14,
           color: colors.textSecondary,
+          fontVariant: ['tabular-nums'] as const,
         },
         highlightSub: {
           fontSize: 13,
@@ -122,6 +126,7 @@ export default function DashboardScreen() {
           fontWeight: '600',
           color: colors.textPrimary,
           width: 44,
+          fontVariant: ['tabular-nums'] as const,
         },
         yearBarContainer: {
           flex: 1,
@@ -141,6 +146,7 @@ export default function DashboardScreen() {
           color: colors.textSecondary,
           width: 24,
           textAlign: 'right',
+          fontVariant: ['tabular-nums'] as const,
         },
         lastSynced: {
           fontSize: 12,
@@ -208,8 +214,8 @@ export default function DashboardScreen() {
   const maxYearCount = Math.max(...stats.concertsByYear.map((y) => y.count), 1);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView>
+    <View style={styles.container}>
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View style={styles.header}>
           <Text style={styles.title}>Dashboard</Text>
         </View>
@@ -310,6 +316,6 @@ export default function DashboardScreen() {
 
         {lastSynced && <Text style={styles.lastSynced}>Last synced: {lastSynced}</Text>}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
