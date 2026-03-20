@@ -5,13 +5,15 @@ module.exports = {
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/icon.png",
-    userInterfaceStyle: "light",
-    newArchEnabled: true,
+    userInterfaceStyle: "automatic",
     scheme: "setlist-fm-tracker",
     platforms: [
       "ios",
       "android"
     ],
+    experiments: {
+      reactCompiler: true,
+    },
     splash: {
       image: "./assets/splash-icon.png",
       resizeMode: "contain",
@@ -30,7 +32,8 @@ module.exports = {
       package: "com.setlistfm.tracker"
     },
     plugins: [
-      "expo-router"
+      "expo-router",
+      "expo-sqlite"
     ],
     extra: {
       setlistfmApiKey: process.env.SETLISTFM_API_KEY,

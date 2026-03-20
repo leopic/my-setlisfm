@@ -1,10 +1,11 @@
 module.exports = {
   testMatch: ['**/__tests__/**/*.test.ts'],
   transform: {
-    '^.+\\.tsx?$': 'babel-jest',
+    '^.+\\.tsx?$': [
+      'babel-jest',
+      { presets: ['babel-preset-expo'] },
+    ],
   },
-  transformIgnorePatterns: [
-    'node_modules/(?!(expo-constants)/)',
-  ],
+  transformIgnorePatterns: ['node_modules/(?!(expo-constants)/)'],
   setupFiles: ['./jest.setup.js'],
 };
