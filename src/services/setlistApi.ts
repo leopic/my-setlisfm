@@ -1,5 +1,5 @@
 // Setlist.fm API service with rate limiting
-import type { SetlistsResponse } from '../types/api';
+import type { SetlistsResponse, Setlist, Artist, Venue } from '../types/api';
 import Constants from 'expo-constants';
 
 const API_BASE_URL = 'https://api.setlist.fm/rest/1.0';
@@ -133,19 +133,19 @@ export class SetlistApiService {
     return allPages;
   }
 
-  async getSetlistById(setlistId: string): Promise<any> {
+  async getSetlistById(setlistId: string): Promise<Setlist> {
     const url = `${API_BASE_URL}/setlist/${setlistId}`;
     const response = await this.makeRequest(url);
     return response.json();
   }
 
-  async getArtistByMbid(mbid: string): Promise<any> {
+  async getArtistByMbid(mbid: string): Promise<Artist> {
     const url = `${API_BASE_URL}/artist/${mbid}`;
     const response = await this.makeRequest(url);
     return response.json();
   }
 
-  async getVenueById(venueId: string): Promise<any> {
+  async getVenueById(venueId: string): Promise<Venue> {
     const url = `${API_BASE_URL}/venue/${venueId}`;
     const response = await this.makeRequest(url);
     return response.json();

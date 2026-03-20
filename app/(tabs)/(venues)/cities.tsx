@@ -20,12 +20,16 @@ interface CityWithStats {
 
 export default function CitiesScreen() {
   const colors = useColors();
-  const styles = useMemo(() => StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-  }), [colors]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+      }),
+    [colors],
+  );
 
   const router = useRouter();
   const [cities, setCities] = useState<CityWithStats[]>([]);
@@ -76,7 +80,7 @@ export default function CitiesScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       {/* Header */}
       <ScreenHeader
         title="Cities"

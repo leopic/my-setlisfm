@@ -1,5 +1,6 @@
 import { DataProcessor } from '../services/dataProcessor';
 import type { SetlistsResponse, Setlist } from '../types/api';
+import type { SetlistWithDetails } from '../types/database';
 
 // Mock the dbOperations module
 jest.mock('../database/operations', () => ({
@@ -67,10 +68,8 @@ describe('DataProcessor', () => {
   beforeEach(() => {
     processor = new DataProcessor();
     jest.clearAllMocks();
-    mockDbOps.getSetlistById.mockResolvedValue(null as any);
-    mockDbOps.getSetsForSetlist.mockResolvedValue([
-      { id: 100, setlistId: 'set-1', songOrder: 0 },
-    ] as any);
+    mockDbOps.getSetlistById.mockResolvedValue(null);
+    mockDbOps.getSetsForSetlist.mockResolvedValue([{ id: 100, setlistId: 'set-1', songOrder: 0 }]);
   });
 
   describe('importSetlistsFromResponse', () => {
@@ -98,7 +97,7 @@ describe('DataProcessor', () => {
     });
 
     it('should skip setlists that already exist in the database', async () => {
-      mockDbOps.getSetlistById.mockResolvedValue({ id: 'set-1' } as any);
+      mockDbOps.getSetlistById.mockResolvedValue({ id: 'set-1' } as SetlistWithDetails);
       const response = makeResponse([makeSetlist()]);
 
       await processor.importSetlistsFromResponse(response);

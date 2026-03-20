@@ -35,91 +35,95 @@ interface VenueWithStats {
 
 export default function CityDetailScreen() {
   const colors = useColors();
-  const styles = useMemo(() => StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    venuesList: {
-      flex: 1,
-      padding: 20,
-    },
-    venueCard: {
-      backgroundColor: colors.backgroundPill,
-      borderRadius: 10,
-      borderCurve: 'continuous' as const,
-      padding: 15,
-      marginBottom: 10,
-    },
-    venueHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 5,
-    },
-    venueInfo: {
-      flex: 1,
-      marginRight: 15,
-    },
-    venueName: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    venueLocation: {
-      fontSize: 14,
-      color: colors.textSecondary,
-    },
-    concertCountBadge: {
-      backgroundColor: colors.success,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 20,
-      borderCurve: 'continuous' as const,
-      alignItems: 'center',
-      minWidth: 60,
-    },
-    concertCountText: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.textInverse,
-      fontVariant: ['tabular-nums'] as const,
-    },
-    concertCountLabel: {
-      fontSize: 10,
-      color: colors.textInverse,
-      opacity: 0.9,
-    },
-    venueStats: {
-      marginTop: 5,
-    },
-    lastConcertText: {
-      fontSize: 14,
-      color: colors.success,
-      fontWeight: '500',
-      marginBottom: 5,
-    },
-    artistsText: {
-      fontSize: 13,
-      color: colors.textSecondary,
-      marginBottom: 5,
-    },
-    coordsText: {
-      fontSize: 12,
-      color: colors.textMuted,
-      fontFamily: 'monospace',
-    },
-    emptyState: {
-      alignItems: 'center',
-      paddingVertical: 60,
-    },
-    emptyStateText: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      textAlign: 'center',
-    },
-  }), [colors]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        venuesList: {
+          flex: 1,
+          padding: 20,
+        },
+        venueCard: {
+          backgroundColor: colors.backgroundPill,
+          borderRadius: 10,
+          borderCurve: 'continuous' as const,
+          padding: 15,
+          marginBottom: 10,
+        },
+        venueHeader: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 5,
+        },
+        venueInfo: {
+          flex: 1,
+          marginRight: 15,
+        },
+        venueName: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: colors.textPrimary,
+          marginBottom: 5,
+        },
+        venueLocation: {
+          fontSize: 14,
+          color: colors.textSecondary,
+        },
+        concertCountBadge: {
+          backgroundColor: colors.success,
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          borderRadius: 20,
+          borderCurve: 'continuous' as const,
+          alignItems: 'center',
+          minWidth: 60,
+        },
+        concertCountText: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: colors.textInverse,
+          fontVariant: ['tabular-nums'] as const,
+        },
+        concertCountLabel: {
+          fontSize: 10,
+          color: colors.textInverse,
+          opacity: 0.9,
+        },
+        venueStats: {
+          marginTop: 5,
+        },
+        lastConcertText: {
+          fontSize: 14,
+          color: colors.success,
+          fontWeight: '500',
+          marginBottom: 5,
+        },
+        artistsText: {
+          fontSize: 13,
+          color: colors.textSecondary,
+          marginBottom: 5,
+        },
+        coordsText: {
+          fontSize: 12,
+          color: colors.textMuted,
+          fontFamily: 'monospace',
+        },
+        emptyState: {
+          alignItems: 'center',
+          paddingVertical: 60,
+        },
+        emptyStateText: {
+          fontSize: 16,
+          color: colors.textSecondary,
+          textAlign: 'center',
+        },
+      }),
+    [colors],
+  );
 
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -193,9 +197,7 @@ export default function CityDetailScreen() {
 
       <View style={styles.venueStats}>
         {venue.lastConcertDate && (
-          <Text style={styles.lastConcertText}>
-            Last show: {formatDate(venue.lastConcertDate)}
-          </Text>
+          <Text style={styles.lastConcertText}>Last show: {formatDate(venue.lastConcertDate)}</Text>
         )}
         {venue.artists.length > 0 && (
           <Text style={styles.artistsText}>
@@ -217,7 +219,7 @@ export default function CityDetailScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       {/* Header */}
       <ScreenHeader
         title={city as string}
@@ -226,7 +228,11 @@ export default function CityDetailScreen() {
         onBackPress={() => router.back()}
       />
 
-      <ScrollView style={styles.venuesList} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+      <ScrollView
+        style={styles.venuesList}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {venues.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No venues found in this city</Text>

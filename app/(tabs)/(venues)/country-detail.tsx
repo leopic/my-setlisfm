@@ -18,12 +18,16 @@ interface CityWithStats {
 
 export default function CountryDetailScreen() {
   const colors = useColors();
-  const styles = useMemo(() => StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-  }), [colors]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+      }),
+    [colors],
+  );
 
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -67,7 +71,7 @@ export default function CountryDetailScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       {/* Header */}
       <ScreenHeader
         title={country as string}

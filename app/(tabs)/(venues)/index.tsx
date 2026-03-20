@@ -47,136 +47,140 @@ interface GeoStats {
 
 export default function VenuesScreen() {
   const colors = useColors();
-  const styles = useMemo(() => StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    geoStatsContainer: {
-      marginTop: 15,
-      gap: 10,
-      paddingHorizontal: 20,
-    },
-    geoStatsRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      gap: 10,
-    },
-    geoStatButton: {
-      flex: 1,
-      backgroundColor: colors.background,
-      borderRadius: 12,
-      borderCurve: 'continuous' as const,
-      padding: 12,
-      alignItems: 'center',
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    geoStatEmoji: {
-      fontSize: 20,
-      marginBottom: 4,
-    },
-    geoStatText: {
-      fontSize: 12,
-      color: colors.textPrimary,
-      fontWeight: '600',
-      textAlign: 'center',
-    },
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        geoStatsContainer: {
+          marginTop: 15,
+          gap: 10,
+          paddingHorizontal: 20,
+        },
+        geoStatsRow: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          gap: 10,
+        },
+        geoStatButton: {
+          flex: 1,
+          backgroundColor: colors.background,
+          borderRadius: 12,
+          borderCurve: 'continuous' as const,
+          padding: 12,
+          alignItems: 'center',
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        geoStatEmoji: {
+          fontSize: 20,
+          marginBottom: 4,
+        },
+        geoStatText: {
+          fontSize: 12,
+          color: colors.textPrimary,
+          fontWeight: '600',
+          textAlign: 'center',
+        },
 
-    venuesList: {
-      flex: 1,
-      padding: 20,
-    },
-    venueCard: {
-      backgroundColor: colors.backgroundPill,
-      borderRadius: 10,
-      borderCurve: 'continuous' as const,
-      padding: 15,
-      marginBottom: 10,
-    },
-    venueHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 5,
-    },
-    venueInfo: {
-      flex: 1,
-      marginRight: 15,
-    },
-    venueName: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    venueLocation: {
-      fontSize: 14,
-      color: colors.textSecondary,
-    },
-    concertCountBadge: {
-      backgroundColor: colors.success,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 20,
-      borderCurve: 'continuous' as const,
-      alignItems: 'center',
-      minWidth: 60,
-    },
-    concertCountText: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.textInverse,
-      fontVariant: ['tabular-nums'] as const,
-    },
-    concertCountLabel: {
-      fontSize: 10,
-      color: colors.textInverse,
-      opacity: 0.9,
-    },
-    venueStats: {
-      marginTop: 5,
-    },
-    lastConcertText: {
-      fontSize: 14,
-      color: colors.success,
-      fontWeight: '500',
-      marginBottom: 5,
-    },
-    artistsText: {
-      fontSize: 13,
-      color: colors.textSecondary,
-      marginBottom: 5,
-    },
-    coordsText: {
-      fontSize: 12,
-      color: colors.textMuted,
-      fontFamily: 'monospace',
-    },
+        venuesList: {
+          flex: 1,
+          padding: 20,
+        },
+        venueCard: {
+          backgroundColor: colors.backgroundPill,
+          borderRadius: 10,
+          borderCurve: 'continuous' as const,
+          padding: 15,
+          marginBottom: 10,
+        },
+        venueHeader: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 5,
+        },
+        venueInfo: {
+          flex: 1,
+          marginRight: 15,
+        },
+        venueName: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: colors.textPrimary,
+          marginBottom: 5,
+        },
+        venueLocation: {
+          fontSize: 14,
+          color: colors.textSecondary,
+        },
+        concertCountBadge: {
+          backgroundColor: colors.success,
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          borderRadius: 20,
+          borderCurve: 'continuous' as const,
+          alignItems: 'center',
+          minWidth: 60,
+        },
+        concertCountText: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: colors.textInverse,
+          fontVariant: ['tabular-nums'] as const,
+        },
+        concertCountLabel: {
+          fontSize: 10,
+          color: colors.textInverse,
+          opacity: 0.9,
+        },
+        venueStats: {
+          marginTop: 5,
+        },
+        lastConcertText: {
+          fontSize: 14,
+          color: colors.success,
+          fontWeight: '500',
+          marginBottom: 5,
+        },
+        artistsText: {
+          fontSize: 13,
+          color: colors.textSecondary,
+          marginBottom: 5,
+        },
+        coordsText: {
+          fontSize: 12,
+          color: colors.textMuted,
+          fontFamily: 'monospace',
+        },
 
-    emptyState: {
-      alignItems: 'center',
-      paddingVertical: 60,
-    },
-    emptyStateText: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      marginBottom: 20,
-    },
-    refreshButton: {
-      backgroundColor: colors.success,
-      paddingHorizontal: 20,
-      paddingVertical: 12,
-      borderRadius: 20,
-      borderCurve: 'continuous' as const,
-    },
-    refreshButtonText: {
-      color: colors.textInverse,
-      fontSize: 16,
-      fontWeight: '600',
-    },
-  }), [colors]);
+        emptyState: {
+          alignItems: 'center',
+          paddingVertical: 60,
+        },
+        emptyStateText: {
+          fontSize: 16,
+          color: colors.textSecondary,
+          textAlign: 'center',
+          marginBottom: 20,
+        },
+        refreshButton: {
+          backgroundColor: colors.success,
+          paddingHorizontal: 20,
+          paddingVertical: 12,
+          borderRadius: 20,
+          borderCurve: 'continuous' as const,
+        },
+        refreshButtonText: {
+          color: colors.textInverse,
+          fontSize: 16,
+          fontWeight: '600',
+        },
+      }),
+    [colors],
+  );
 
   const router = useRouter();
   const [venues, setVenues] = useState<VenueWithStats[]>([]);
@@ -282,9 +286,7 @@ export default function VenuesScreen() {
 
       <View style={styles.venueStats}>
         {venue.lastConcertDate && (
-          <Text style={styles.lastConcertText}>
-            Last show: {formatDate(venue.lastConcertDate)}
-          </Text>
+          <Text style={styles.lastConcertText}>Last show: {formatDate(venue.lastConcertDate)}</Text>
         )}
         {venue.artists.length > 0 && (
           <Text style={styles.artistsText}>
@@ -306,7 +308,7 @@ export default function VenuesScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="venues-screen">
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="venues-screen">
       {/* Header */}
       <ScreenHeader
         title="Venues"
@@ -376,7 +378,11 @@ export default function VenuesScreen() {
         searchPlaceholder="Search venues, cities, countries..."
       />
 
-      <ScrollView style={styles.venuesList} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+      <ScrollView
+        style={styles.venuesList}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {filteredVenues.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>

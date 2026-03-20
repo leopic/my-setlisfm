@@ -23,82 +23,86 @@ export default function CountryList({
   emptyMessage = 'No countries found',
 }: CountryListProps) {
   const colors = useColors();
-  const styles = useMemo(() => StyleSheet.create({
-    countriesList: {
-      flex: 1,
-      padding: 20,
-    },
-    countryCard: {
-      backgroundColor: colors.backgroundPill,
-      borderRadius: 10,
-      borderCurve: 'continuous' as const,
-      padding: 15,
-      marginBottom: 10,
-    },
-    countryHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 5,
-    },
-    countryInfo: {
-      flex: 1,
-      marginRight: 15,
-    },
-    countryName: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    countryLocation: {
-      fontSize: 14,
-      color: colors.textSecondary,
-    },
-    venueCountBadge: {
-      backgroundColor: colors.success,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 20,
-      borderCurve: 'continuous' as const,
-      alignItems: 'center',
-      minWidth: 60,
-    },
-    venueCountText: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.textInverse,
-      fontVariant: ['tabular-nums'] as const,
-    },
-    venueCountLabel: {
-      fontSize: 10,
-      color: colors.textInverse,
-      opacity: 0.9,
-    },
-    countryStats: {
-      marginTop: 5,
-    },
-    lastConcertText: {
-      fontSize: 14,
-      color: colors.success,
-      fontWeight: '500',
-      marginBottom: 5,
-    },
-    citiesText: {
-      fontSize: 13,
-      color: colors.textSecondary,
-      marginBottom: 5,
-    },
-    emptyState: {
-      alignItems: 'center',
-      paddingVertical: 60,
-    },
-    emptyStateText: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      textAlign: 'center',
-    },
-  }), [colors]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        countriesList: {
+          flex: 1,
+          padding: 20,
+        },
+        countryCard: {
+          backgroundColor: colors.backgroundPill,
+          borderRadius: 10,
+          borderCurve: 'continuous' as const,
+          padding: 15,
+          marginBottom: 10,
+        },
+        countryHeader: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 5,
+        },
+        countryInfo: {
+          flex: 1,
+          marginRight: 15,
+        },
+        countryName: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: colors.textPrimary,
+          marginBottom: 5,
+        },
+        countryLocation: {
+          fontSize: 14,
+          color: colors.textSecondary,
+        },
+        venueCountBadge: {
+          backgroundColor: colors.success,
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          borderRadius: 20,
+          borderCurve: 'continuous' as const,
+          alignItems: 'center',
+          minWidth: 60,
+        },
+        venueCountText: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: colors.textInverse,
+          fontVariant: ['tabular-nums'] as const,
+        },
+        venueCountLabel: {
+          fontSize: 10,
+          color: colors.textInverse,
+          opacity: 0.9,
+        },
+        countryStats: {
+          marginTop: 5,
+        },
+        lastConcertText: {
+          fontSize: 14,
+          color: colors.success,
+          fontWeight: '500',
+          marginBottom: 5,
+        },
+        citiesText: {
+          fontSize: 13,
+          color: colors.textSecondary,
+          marginBottom: 5,
+        },
+        emptyState: {
+          alignItems: 'center',
+          paddingVertical: 60,
+        },
+        emptyStateText: {
+          fontSize: 16,
+          color: colors.textSecondary,
+          textAlign: 'center',
+        },
+      }),
+    [colors],
+  );
 
   const getCountryCard = (country: CountryWithStats) => (
     <TouchableOpacity

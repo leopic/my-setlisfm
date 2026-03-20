@@ -29,60 +29,64 @@ export default function SortAndSearch({
   },
 }: SortAndSearchProps) {
   const colors = useColors();
-  const styles = useMemo(() => StyleSheet.create({
-    sortContainer: {
-      flexDirection: 'column',
-      marginTop: 20,
-      marginBottom: 15,
-      paddingHorizontal: 20,
-      backgroundColor: colors.backgroundCard,
-      paddingVertical: 20,
-    },
-    sortRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    sortLabel: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      marginRight: 10,
-    },
-    sortButtons: {
-      flexDirection: 'row',
-      backgroundColor: colors.backgroundPill,
-      borderRadius: 20,
-      borderCurve: 'continuous' as const,
-      padding: 5,
-    },
-    sortButton: {
-      paddingHorizontal: 15,
-      paddingVertical: 8,
-      borderRadius: 15,
-      borderCurve: 'continuous' as const,
-    },
-    sortButtonActive: {
-      backgroundColor: colors.primary,
-    },
-    sortButtonText: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      fontWeight: '600',
-    },
-    sortButtonTextActive: {
-      color: colors.textInverse,
-    },
-    searchInput: {
-      height: 40,
-      backgroundColor: colors.background,
-      borderRadius: 20,
-      borderCurve: 'continuous' as const,
-      paddingHorizontal: 15,
-      fontSize: 14,
-      borderWidth: 1,
-      borderColor: colors.border,
-      marginTop: 15,
-    },
-  }), [colors]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        sortContainer: {
+          flexDirection: 'column',
+          marginTop: 20,
+          marginBottom: 15,
+          paddingHorizontal: 20,
+          backgroundColor: colors.backgroundCard,
+          paddingVertical: 20,
+        },
+        sortRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+        },
+        sortLabel: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          marginRight: 10,
+        },
+        sortButtons: {
+          flexDirection: 'row',
+          backgroundColor: colors.backgroundPill,
+          borderRadius: 20,
+          borderCurve: 'continuous' as const,
+          padding: 5,
+        },
+        sortButton: {
+          paddingHorizontal: 15,
+          paddingVertical: 8,
+          borderRadius: 15,
+          borderCurve: 'continuous' as const,
+        },
+        sortButtonActive: {
+          backgroundColor: colors.primary,
+        },
+        sortButtonText: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          fontWeight: '600',
+        },
+        sortButtonTextActive: {
+          color: colors.textInverse,
+        },
+        searchInput: {
+          height: 40,
+          backgroundColor: colors.background,
+          borderRadius: 20,
+          borderCurve: 'continuous' as const,
+          paddingHorizontal: 15,
+          fontSize: 14,
+          borderWidth: 1,
+          borderColor: colors.border,
+          marginTop: 15,
+        },
+      }),
+    [colors],
+  );
 
   return (
     <View style={styles.sortContainer}>

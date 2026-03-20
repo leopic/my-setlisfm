@@ -37,220 +37,224 @@ interface YearGroup {
 
 export default function ConcertsScreen() {
   const colors = useColors();
-  const styles = useMemo(() => StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    scrollView: {
-      flex: 1,
-    },
-    sortContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginTop: 20,
-      marginBottom: 15,
-      paddingHorizontal: 20,
-      backgroundColor: colors.backgroundCard,
-      paddingVertical: 20,
-    },
-    sortLabel: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      marginRight: 10,
-    },
-    sortButtons: {
-      flexDirection: 'row',
-      backgroundColor: colors.backgroundPill,
-      borderRadius: 20,
-      borderCurve: 'continuous' as const,
-      padding: 5,
-    },
-    sortButton: {
-      paddingVertical: 8,
-      paddingHorizontal: 15,
-      borderRadius: 15,
-      borderCurve: 'continuous' as const,
-    },
-    sortButtonActive: {
-      backgroundColor: colors.primary,
-    },
-    sortButtonText: {
-      fontSize: 14,
-      color: colors.textPrimary,
-      fontWeight: '600',
-    },
-    sortButtonTextActive: {
-      color: colors.textInverse,
-    },
-    searchContainer: {
-      paddingHorizontal: 20,
-      paddingBottom: 10,
-    },
-    searchInput: {
-      backgroundColor: colors.backgroundCard,
-      borderRadius: 10,
-      borderCurve: 'continuous' as const,
-      paddingHorizontal: 14,
-      paddingVertical: 10,
-      fontSize: 15,
-      color: colors.textPrimary,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    alphabeticalContainer: {
-      backgroundColor: colors.backgroundCard,
-      borderRadius: 12,
-      borderCurve: 'continuous' as const,
-      padding: 20,
-      marginBottom: 15,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
-    },
-    yearGroup: {
-      backgroundColor: colors.backgroundCard,
-      borderRadius: 12,
-      borderCurve: 'continuous' as const,
-      padding: 20,
-      marginBottom: 15,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
-    },
-    yearHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 15,
-    },
-    yearTitle: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      fontVariant: ['tabular-nums'] as const,
-    },
-    yearStats: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      fontVariant: ['tabular-nums'] as const,
-    },
-    monthlyStats: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      justifyContent: 'space-around',
-      marginBottom: 15,
-    },
-    monthStat: {
-      alignItems: 'center',
-      marginHorizontal: 10,
-      marginBottom: 10,
-    },
-    monthName: {
-      fontSize: 14,
-      color: colors.textTertiary,
-      marginBottom: 5,
-    },
-    monthCount: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.primary,
-      fontVariant: ['tabular-nums'] as const,
-    },
-    concertItem: {
-      backgroundColor: colors.backgroundPill,
-      borderRadius: 10,
-      borderCurve: 'continuous' as const,
-      padding: 15,
-      marginBottom: 10,
-    },
-    concertHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'flex-start',
-      marginBottom: 5,
-    },
-    concertMainInfo: {
-      flex: 1,
-      marginRight: 10,
-    },
-    artistName: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      flexWrap: 'wrap',
-    },
-    concertDate: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      fontWeight: '500',
-    },
-    concertDetails: {
-      marginTop: 5,
-    },
-    venueName: {
-      fontSize: 15,
-      fontWeight: '600',
-      color: colors.textTertiary,
-    },
-    locationText: {
-      fontSize: 13,
-      color: colors.textSecondary,
-    },
-    tourName: {
-      fontSize: 14,
-      color: colors.primary,
-      fontWeight: '500',
-      marginTop: 5,
-    },
-    filterContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: colors.backgroundDisabled,
-      borderRadius: 20,
-      borderCurve: 'continuous' as const,
-      paddingVertical: 5,
-      paddingHorizontal: 10,
-      marginTop: 10,
-      marginBottom: 15,
-    },
-    filterBadge: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: colors.primary,
-      borderRadius: 15,
-      borderCurve: 'continuous' as const,
-      paddingVertical: 5,
-      paddingHorizontal: 10,
-      marginRight: 10,
-    },
-    filterLabel: {
-      fontSize: 12,
-      color: colors.textInverse,
-      fontWeight: 'bold',
-    },
-    filterValue: {
-      fontSize: 12,
-      color: colors.textInverse,
-      fontWeight: 'bold',
-    },
-    clearFilterButton: {
-      paddingVertical: 5,
-      paddingHorizontal: 10,
-      borderRadius: 15,
-      borderCurve: 'continuous' as const,
-      backgroundColor: colors.backgroundPill,
-    },
-    clearFilterText: {
-      fontSize: 12,
-      color: colors.textPrimary,
-      fontWeight: '600',
-    },
-  }), [colors]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        scrollView: {
+          flex: 1,
+        },
+        sortContainer: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginTop: 20,
+          marginBottom: 15,
+          paddingHorizontal: 20,
+          backgroundColor: colors.backgroundCard,
+          paddingVertical: 20,
+        },
+        sortLabel: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          marginRight: 10,
+        },
+        sortButtons: {
+          flexDirection: 'row',
+          backgroundColor: colors.backgroundPill,
+          borderRadius: 20,
+          borderCurve: 'continuous' as const,
+          padding: 5,
+        },
+        sortButton: {
+          paddingVertical: 8,
+          paddingHorizontal: 15,
+          borderRadius: 15,
+          borderCurve: 'continuous' as const,
+        },
+        sortButtonActive: {
+          backgroundColor: colors.primary,
+        },
+        sortButtonText: {
+          fontSize: 14,
+          color: colors.textPrimary,
+          fontWeight: '600',
+        },
+        sortButtonTextActive: {
+          color: colors.textInverse,
+        },
+        searchContainer: {
+          paddingHorizontal: 20,
+          paddingBottom: 10,
+        },
+        searchInput: {
+          backgroundColor: colors.backgroundCard,
+          borderRadius: 10,
+          borderCurve: 'continuous' as const,
+          paddingHorizontal: 14,
+          paddingVertical: 10,
+          fontSize: 15,
+          color: colors.textPrimary,
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        alphabeticalContainer: {
+          backgroundColor: colors.backgroundCard,
+          borderRadius: 12,
+          borderCurve: 'continuous' as const,
+          padding: 20,
+          marginBottom: 15,
+          shadowColor: colors.shadow,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 3,
+        },
+        yearGroup: {
+          backgroundColor: colors.backgroundCard,
+          borderRadius: 12,
+          borderCurve: 'continuous' as const,
+          padding: 20,
+          marginBottom: 15,
+          shadowColor: colors.shadow,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 3,
+        },
+        yearHeader: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 15,
+        },
+        yearTitle: {
+          fontSize: 24,
+          fontWeight: 'bold',
+          color: colors.textPrimary,
+          fontVariant: ['tabular-nums'] as const,
+        },
+        yearStats: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          fontVariant: ['tabular-nums'] as const,
+        },
+        monthlyStats: {
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          justifyContent: 'space-around',
+          marginBottom: 15,
+        },
+        monthStat: {
+          alignItems: 'center',
+          marginHorizontal: 10,
+          marginBottom: 10,
+        },
+        monthName: {
+          fontSize: 14,
+          color: colors.textTertiary,
+          marginBottom: 5,
+        },
+        monthCount: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: colors.primary,
+          fontVariant: ['tabular-nums'] as const,
+        },
+        concertItem: {
+          backgroundColor: colors.backgroundPill,
+          borderRadius: 10,
+          borderCurve: 'continuous' as const,
+          padding: 15,
+          marginBottom: 10,
+        },
+        concertHeader: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          marginBottom: 5,
+        },
+        concertMainInfo: {
+          flex: 1,
+          marginRight: 10,
+        },
+        artistName: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: colors.textPrimary,
+          flexWrap: 'wrap',
+        },
+        concertDate: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          fontWeight: '500',
+        },
+        concertDetails: {
+          marginTop: 5,
+        },
+        venueName: {
+          fontSize: 15,
+          fontWeight: '600',
+          color: colors.textTertiary,
+        },
+        locationText: {
+          fontSize: 13,
+          color: colors.textSecondary,
+        },
+        tourName: {
+          fontSize: 14,
+          color: colors.primary,
+          fontWeight: '500',
+          marginTop: 5,
+        },
+        filterContainer: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: colors.backgroundDisabled,
+          borderRadius: 20,
+          borderCurve: 'continuous' as const,
+          paddingVertical: 5,
+          paddingHorizontal: 10,
+          marginTop: 10,
+          marginBottom: 15,
+        },
+        filterBadge: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: colors.primary,
+          borderRadius: 15,
+          borderCurve: 'continuous' as const,
+          paddingVertical: 5,
+          paddingHorizontal: 10,
+          marginRight: 10,
+        },
+        filterLabel: {
+          fontSize: 12,
+          color: colors.textInverse,
+          fontWeight: 'bold',
+        },
+        filterValue: {
+          fontSize: 12,
+          color: colors.textInverse,
+          fontWeight: 'bold',
+        },
+        clearFilterButton: {
+          paddingVertical: 5,
+          paddingHorizontal: 10,
+          borderRadius: 15,
+          borderCurve: 'continuous' as const,
+          backgroundColor: colors.backgroundPill,
+        },
+        clearFilterText: {
+          fontSize: 12,
+          color: colors.textPrimary,
+          fontWeight: '600',
+        },
+      }),
+    [colors],
+  );
 
   const router = useRouter();
   const [concerts, setConcerts] = useState<ConcertWithDetails[]>([]);
@@ -390,7 +394,11 @@ export default function ConcertsScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="concerts-screen">
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={styles.container}
+      testID="concerts-screen"
+    >
       {/* Header */}
       <ScreenHeader
         title="My Concerts"
@@ -451,7 +459,6 @@ export default function ConcertsScreen() {
       {/* Concerts List */}
       <ScrollView
         style={styles.scrollView}
-       
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
       >

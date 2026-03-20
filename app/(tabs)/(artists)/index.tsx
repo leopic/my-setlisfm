@@ -32,99 +32,103 @@ interface ArtistWithStats {
 
 export default function ArtistsScreen() {
   const colors = useColors();
-  const styles = useMemo(() => StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    artistsList: {
-      flex: 1,
-      padding: 20,
-    },
-    artistCard: {
-      backgroundColor: colors.backgroundPill,
-      borderRadius: 10,
-      borderCurve: 'continuous' as const,
-      padding: 15,
-      marginBottom: 10,
-    },
-    artistHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 5,
-    },
-    artistInfo: {
-      flex: 1,
-      marginRight: 15,
-    },
-    artistName: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 3,
-    },
-    artistDisambiguation: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      fontStyle: 'italic',
-    },
-    concertCountBadge: {
-      backgroundColor: colors.primary,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 20,
-      borderCurve: 'continuous' as const,
-      alignItems: 'center',
-      minWidth: 60,
-    },
-    concertCountText: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.textInverse,
-      fontVariant: ['tabular-nums'] as const,
-    },
-    concertCountLabel: {
-      fontSize: 10,
-      color: colors.textInverse,
-      opacity: 0.9,
-    },
-    artistStats: {
-      marginTop: 5,
-    },
-    lastConcertText: {
-      fontSize: 14,
-      color: colors.primary,
-      fontWeight: '500',
-      marginBottom: 5,
-    },
-    venuesText: {
-      fontSize: 13,
-      color: colors.textSecondary,
-    },
-    emptyState: {
-      alignItems: 'center',
-      paddingVertical: 60,
-    },
-    emptyStateText: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      marginBottom: 20,
-    },
-    refreshButton: {
-      backgroundColor: colors.primary,
-      paddingHorizontal: 20,
-      paddingVertical: 12,
-      borderRadius: 20,
-      borderCurve: 'continuous' as const,
-    },
-    refreshButtonText: {
-      color: colors.textInverse,
-      fontSize: 16,
-      fontWeight: '600',
-    },
-  }), [colors]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        artistsList: {
+          flex: 1,
+          padding: 20,
+        },
+        artistCard: {
+          backgroundColor: colors.backgroundPill,
+          borderRadius: 10,
+          borderCurve: 'continuous' as const,
+          padding: 15,
+          marginBottom: 10,
+        },
+        artistHeader: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 5,
+        },
+        artistInfo: {
+          flex: 1,
+          marginRight: 15,
+        },
+        artistName: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: colors.textPrimary,
+          marginBottom: 3,
+        },
+        artistDisambiguation: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          fontStyle: 'italic',
+        },
+        concertCountBadge: {
+          backgroundColor: colors.primary,
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          borderRadius: 20,
+          borderCurve: 'continuous' as const,
+          alignItems: 'center',
+          minWidth: 60,
+        },
+        concertCountText: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: colors.textInverse,
+          fontVariant: ['tabular-nums'] as const,
+        },
+        concertCountLabel: {
+          fontSize: 10,
+          color: colors.textInverse,
+          opacity: 0.9,
+        },
+        artistStats: {
+          marginTop: 5,
+        },
+        lastConcertText: {
+          fontSize: 14,
+          color: colors.primary,
+          fontWeight: '500',
+          marginBottom: 5,
+        },
+        venuesText: {
+          fontSize: 13,
+          color: colors.textSecondary,
+        },
+        emptyState: {
+          alignItems: 'center',
+          paddingVertical: 60,
+        },
+        emptyStateText: {
+          fontSize: 16,
+          color: colors.textSecondary,
+          textAlign: 'center',
+          marginBottom: 20,
+        },
+        refreshButton: {
+          backgroundColor: colors.primary,
+          paddingHorizontal: 20,
+          paddingVertical: 12,
+          borderRadius: 20,
+          borderCurve: 'continuous' as const,
+        },
+        refreshButtonText: {
+          color: colors.textInverse,
+          fontSize: 16,
+          fontWeight: '600',
+        },
+      }),
+    [colors],
+  );
 
   const router = useRouter();
   const [artists, setArtists] = useState<ArtistWithStats[]>([]);
@@ -241,7 +245,7 @@ export default function ArtistsScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="artists-screen">
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="artists-screen">
       {/* Header */}
       <ScreenHeader
         title="Artists"
@@ -261,7 +265,11 @@ export default function ArtistsScreen() {
         searchPlaceholder="Search artists..."
       />
 
-      <ScrollView style={styles.artistsList} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+      <ScrollView
+        style={styles.artistsList}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {filteredArtists.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>

@@ -27,65 +27,69 @@ interface ConcertWithDetails extends SetlistWithDetails {
 
 export default function VenueConcertsListScreen() {
   const colors = useColors();
-  const styles = useMemo(() => StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    concertsList: {
-      flex: 1,
-      padding: 20,
-    },
-    concertItem: {
-      backgroundColor: colors.backgroundPill,
-      borderRadius: 10,
-      borderCurve: 'continuous' as const,
-      padding: 15,
-      marginBottom: 10,
-    },
-    concertHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'flex-start',
-      marginBottom: 10,
-    },
-    concertMainInfo: {
-      flex: 1,
-      marginRight: 10,
-    },
-    concertMainName: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      flexWrap: 'wrap',
-    },
-    concertDate: {
-      fontSize: 14,
-      color: colors.textSecondary,
-    },
-    concertDetails: {
-      marginTop: 5,
-    },
-    concertLocation: {
-      fontSize: 13,
-      color: colors.textSecondary,
-    },
-    tourName: {
-      fontSize: 14,
-      color: colors.primary,
-      fontStyle: 'italic',
-      marginTop: 5,
-    },
-    emptyState: {
-      alignItems: 'center',
-      paddingVertical: 60,
-    },
-    emptyStateText: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      textAlign: 'center',
-    },
-  }), [colors]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        concertsList: {
+          flex: 1,
+          padding: 20,
+        },
+        concertItem: {
+          backgroundColor: colors.backgroundPill,
+          borderRadius: 10,
+          borderCurve: 'continuous' as const,
+          padding: 15,
+          marginBottom: 10,
+        },
+        concertHeader: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          marginBottom: 10,
+        },
+        concertMainInfo: {
+          flex: 1,
+          marginRight: 10,
+        },
+        concertMainName: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: colors.textPrimary,
+          flexWrap: 'wrap',
+        },
+        concertDate: {
+          fontSize: 14,
+          color: colors.textSecondary,
+        },
+        concertDetails: {
+          marginTop: 5,
+        },
+        concertLocation: {
+          fontSize: 13,
+          color: colors.textSecondary,
+        },
+        tourName: {
+          fontSize: 14,
+          color: colors.primary,
+          fontStyle: 'italic',
+          marginTop: 5,
+        },
+        emptyState: {
+          alignItems: 'center',
+          paddingVertical: 60,
+        },
+        emptyStateText: {
+          fontSize: 16,
+          color: colors.textSecondary,
+          textAlign: 'center',
+        },
+      }),
+    [colors],
+  );
 
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -156,15 +160,17 @@ export default function VenueConcertsListScreen() {
 
   const uniqueVisits = new Set(concerts.map((c) => c.eventDate)).size;
   const uniqueArtists = new Set(concerts.map((c) => c.artistName)).size;
-  const subtitleParts = [
-    `${uniqueVisits} Visit${uniqueVisits !== 1 ? 's' : ''}`,
-  ];
+  const subtitleParts = [`${uniqueVisits} Visit${uniqueVisits !== 1 ? 's' : ''}`];
   if (uniqueArtists > 1) {
     subtitleParts.push(`${uniqueArtists} Artist${uniqueArtists !== 1 ? 's' : ''}`);
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="venue-concerts-screen">
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={styles.container}
+      testID="venue-concerts-screen"
+    >
       {/* Header */}
       <ScreenHeader
         title={venueName}
@@ -174,7 +180,11 @@ export default function VenueConcertsListScreen() {
       />
 
       {/* Concerts List */}
-      <ScrollView style={styles.concertsList} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+      <ScrollView
+        style={styles.concertsList}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {concerts.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No concerts found</Text>

@@ -9,7 +9,12 @@ interface ScreenHeaderProps {
   onBackPress?: () => void;
 }
 
-export default function ScreenHeader({ title, subtitle, showBack, onBackPress }: ScreenHeaderProps) {
+export default function ScreenHeader({
+  title,
+  subtitle,
+  showBack,
+  onBackPress,
+}: ScreenHeaderProps) {
   const colors = useColors();
   const styles = useMemo(
     () =>

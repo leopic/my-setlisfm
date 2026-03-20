@@ -18,12 +18,16 @@ interface CountryWithStats {
 
 export default function ContinentDetailScreen() {
   const colors = useColors();
-  const styles = useMemo(() => StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-  }), [colors]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+      }),
+    [colors],
+  );
 
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -70,7 +74,7 @@ export default function ContinentDetailScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       {/* Header */}
       <ScreenHeader
         title={continentName as string}

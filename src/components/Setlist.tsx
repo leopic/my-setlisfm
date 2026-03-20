@@ -13,76 +13,80 @@ interface SetlistProps {
 
 export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   const colors = useColors();
-  const styles = useMemo(() => StyleSheet.create({
-    headerExtra: {
-      paddingHorizontal: 20,
-      paddingBottom: 10,
-    },
-    venueText: {
-      fontSize: 18,
-      fontWeight: '600',
-      color: colors.textPrimary,
-      marginBottom: 4,
-    },
-    locationText: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      marginBottom: 6,
-    },
-    dateText: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      marginBottom: 6,
-    },
-    tourText: {
-      fontSize: 16,
-      color: colors.primary,
-      fontWeight: '600',
-    },
-    content: {
-      flex: 1,
-      padding: 20,
-    },
-    setContainer: {
-      marginBottom: 20,
-    },
-    setTitle: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 15,
-      textAlign: 'center',
-    },
-    songItem: {
-      paddingVertical: 8,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.backgroundPill,
-    },
-    songName: {
-      fontSize: 16,
-      color: colors.textPrimary,
-      marginBottom: 4,
-    },
-    withArtistText: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      fontStyle: 'italic',
-    },
-    coverArtistText: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      fontStyle: 'italic',
-    },
-    emptyState: {
-      alignItems: 'center',
-      paddingVertical: 60,
-    },
-    emptyStateText: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      textAlign: 'center',
-    },
-  }), [colors]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        headerExtra: {
+          paddingHorizontal: 20,
+          paddingBottom: 10,
+        },
+        venueText: {
+          fontSize: 18,
+          fontWeight: '600',
+          color: colors.textPrimary,
+          marginBottom: 4,
+        },
+        locationText: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          marginBottom: 6,
+        },
+        dateText: {
+          fontSize: 16,
+          color: colors.textSecondary,
+          marginBottom: 6,
+        },
+        tourText: {
+          fontSize: 16,
+          color: colors.primary,
+          fontWeight: '600',
+        },
+        content: {
+          flex: 1,
+          padding: 20,
+        },
+        setContainer: {
+          marginBottom: 20,
+        },
+        setTitle: {
+          fontSize: 20,
+          fontWeight: 'bold',
+          color: colors.textPrimary,
+          marginBottom: 15,
+          textAlign: 'center',
+        },
+        songItem: {
+          paddingVertical: 8,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.backgroundPill,
+        },
+        songName: {
+          fontSize: 16,
+          color: colors.textPrimary,
+          marginBottom: 4,
+        },
+        withArtistText: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          fontStyle: 'italic',
+        },
+        coverArtistText: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          fontStyle: 'italic',
+        },
+        emptyState: {
+          alignItems: 'center',
+          paddingVertical: 60,
+        },
+        emptyStateText: {
+          fontSize: 16,
+          color: colors.textSecondary,
+          textAlign: 'center',
+        },
+      }),
+    [colors],
+  );
 
   const getSetTitle = (set: SetWithSongs, index: number): string => {
     if (set.encore) {

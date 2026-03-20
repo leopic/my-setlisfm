@@ -20,12 +20,16 @@ interface CountryWithStats {
 
 export default function CountriesScreen() {
   const colors = useColors();
-  const styles = useMemo(() => StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-  }), [colors]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+      }),
+    [colors],
+  );
 
   const router = useRouter();
   const [countries, setCountries] = useState<CountryWithStats[]>([]);
@@ -66,7 +70,11 @@ export default function CountriesScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="countries-screen">
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={styles.container}
+      testID="countries-screen"
+    >
       {/* Header */}
       <ScreenHeader
         title="Countries"

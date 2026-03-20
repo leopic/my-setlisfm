@@ -13,6 +13,169 @@ import type {
   SetWithSongs,
 } from '../types/database';
 
+// Row types for SQL query results
+interface SetlistJoinRow {
+  id: string;
+  versionId?: string;
+  artistMbid?: string;
+  venueId?: string;
+  tourName?: string;
+  eventDate?: string;
+  lastUpdated?: string;
+  lastFmEventId?: number;
+  info?: string;
+  url?: string;
+  artistTmid?: number;
+  artistName?: string;
+  artistSortName?: string;
+  artistDisambiguation?: string;
+  artistUrl?: string;
+  venueName?: string;
+  venueUrl?: string;
+  cityId?: string;
+  cityName?: string;
+  cityState?: string;
+  cityStateCode?: string;
+  cityCountryCode?: string;
+  cityCoordsLat?: number;
+  cityCoordsLong?: number;
+  coordsLat?: number;
+  coordsLong?: number;
+  countryCode?: string;
+  countryName?: string;
+}
+
+interface SetSongJoinRow {
+  setId: number;
+  setlistId: string;
+  setName?: string;
+  encore?: number;
+  setSongOrder: number;
+  songId?: number;
+  songName?: string;
+  tape?: boolean;
+  songInfo?: string;
+  withArtistMbid?: string;
+  coverArtistMbid?: string;
+  songSongOrder?: number;
+  songSetId?: number;
+  withArtistName?: string;
+  coverArtistName?: string;
+}
+
+interface SongWithSetInfoRow {
+  songId: number;
+  songName?: string;
+  tape?: boolean;
+  info?: string;
+  songOrder: number;
+  setId: number;
+  setName?: string;
+  encore?: number;
+  setlistId: string;
+  eventDate?: string;
+  artistName?: string;
+}
+
+interface CountRow {
+  count: number;
+}
+
+interface DashboardCountsRow {
+  concerts: number;
+  artists: number;
+  venues: number;
+  countries: number;
+}
+
+interface TopArtistRow {
+  name: string;
+  count: number;
+}
+
+interface TopVenueRow {
+  name: string;
+  cityName: string;
+  count: number;
+}
+
+interface ConcertDateRow {
+  artistName: string;
+  eventDate: string;
+}
+
+interface YearCountRow {
+  year: string;
+  count: number;
+}
+
+interface ArtistStatsRow {
+  mbid: string;
+  name?: string;
+  sortName?: string;
+  disambiguation?: string;
+  url?: string;
+  concertCount: number;
+  venueNames?: string;
+}
+
+interface EventDateRow {
+  eventDate?: string;
+}
+
+interface OrphanedArtistRow {
+  mbid: string;
+  name?: string;
+}
+
+interface VenueStatsRow {
+  id: string;
+  name?: string;
+  url?: string;
+  cityId?: string;
+  cityName?: string;
+  state?: string;
+  stateCode?: string;
+  countryCode?: string;
+  countryName?: string;
+  coordsLat?: number;
+  coordsLong?: number;
+  concertCount: number;
+  lastConcertDate?: string;
+  artistNames?: string;
+}
+
+interface GeoRow {
+  countryName: string;
+  cityName: string;
+}
+
+interface ContinentStatsRow {
+  cityCount: number;
+  venueCount: number;
+  lastConcertDate?: string;
+}
+
+interface CountryStatsRow {
+  name: string;
+  cityCount: number;
+  venueCount: number;
+  lastConcertDate?: string;
+  cityNames?: string;
+}
+
+interface CityStatsRow {
+  name: string;
+  countryName: string;
+  venueCount: number;
+  lastConcertDate?: string;
+  venueNames?: string;
+}
+
+interface CountryNameRow {
+  countryName: string;
+}
+
 export class DatabaseOperations {
   private get db() {
     return databaseManager.getDatabase();
@@ -147,7 +310,6 @@ export class DatabaseOperations {
 
   // Query operations
   async getAllSetlists(): Promise<SetlistWithDetails[]> {
-
     const result = (await this.db.getAllAsync(`
       SELECT
         sl.*,
@@ -177,7 +339,7 @@ export class DatabaseOperations {
       LEFT JOIN countries co ON c.countryCode = co.code
       LEFT JOIN tours t ON sl.tourName = t.name
       ORDER BY sl.eventDate DESC
-    `)) as any[];
+    `)) as SetlistJoinRow[];
 
     return result.map(
       (row) =>
@@ -237,10 +399,9 @@ export class DatabaseOperations {
   }
 
   async getSetlistById(id: string): Promise<SetlistWithDetails | null> {
-
     const result = (await this.db.getFirstAsync(
       `
-      SELECT 
+      SELECT
         sl.*,
         a.mbid as artistMbid,
         a.name as artistName,
@@ -267,7 +428,7 @@ export class DatabaseOperations {
       WHERE sl.id = ?
     `,
       [id],
-    )) as any;
+    )) as SetlistJoinRow | null;
 
     if (!result) return null;
 
@@ -362,7 +523,7 @@ export class DatabaseOperations {
       ORDER BY st.id, s.songOrder
     `,
       [setlistId],
-    )) as any[];
+    )) as SetSongJoinRow[];
 
     const setsMap = new Map<number, SetWithSongs>();
 
@@ -408,7 +569,7 @@ export class DatabaseOperations {
     return result as DBSong[];
   }
 
-  async getSongsWithSetInfo(): Promise<any[]> {
+  async getSongsWithSetInfo(): Promise<SongWithSetInfoRow[]> {
     const result = await this.db.getAllAsync(`
       SELECT 
         s.id as songId,
@@ -429,7 +590,7 @@ export class DatabaseOperations {
       ORDER BY sl.eventDate DESC, st.songOrder, s.songOrder
     `);
 
-    return result;
+    return result as SongWithSetInfoRow[];
   }
 
   // Get statistics
@@ -447,10 +608,10 @@ export class DatabaseOperations {
     ]);
 
     return {
-      totalSetlists: (setlists as any)?.count || 0,
-      totalArtists: (artists as any)?.count || 0,
-      totalVenues: (venues as any)?.count || 0,
-      totalSongs: (songs as any)?.count || 0,
+      totalSetlists: (setlists as CountRow | null)?.count || 0,
+      totalArtists: (artists as CountRow | null)?.count || 0,
+      totalVenues: (venues as CountRow | null)?.count || 0,
+      totalSongs: (songs as CountRow | null)?.count || 0,
     };
   }
 
@@ -465,7 +626,6 @@ export class DatabaseOperations {
     lastConcert: { artistName: string; eventDate: string } | null;
     concertsByYear: { year: string; count: number }[];
   }> {
-
     const [counts, topArtist, topVenue, firstConcert, lastConcert, byYear] = await Promise.all([
       this.db.getFirstAsync(`
         SELECT
@@ -476,7 +636,7 @@ export class DatabaseOperations {
            INNER JOIN venues v ON sl.venueId = v.id
            INNER JOIN cities c ON v.cityId = c.id
            INNER JOIN countries co ON c.countryCode = co.code) as countries
-      `) as any,
+      `) as Promise<DashboardCountsRow | null>,
       this.db.getFirstAsync(`
         SELECT a.name, COUNT(*) as count
         FROM setlists sl
@@ -484,7 +644,7 @@ export class DatabaseOperations {
         GROUP BY sl.artistMbid
         ORDER BY count DESC
         LIMIT 1
-      `) as any,
+      `) as Promise<TopArtistRow | null>,
       this.db.getFirstAsync(`
         SELECT v.name, c.name as cityName, COUNT(*) as count
         FROM setlists sl
@@ -493,27 +653,27 @@ export class DatabaseOperations {
         GROUP BY sl.venueId
         ORDER BY count DESC
         LIMIT 1
-      `) as any,
+      `) as Promise<TopVenueRow | null>,
       this.db.getFirstAsync(`
         SELECT a.name as artistName, sl.eventDate
         FROM setlists sl
         LEFT JOIN artists a ON sl.artistMbid = a.mbid
         ORDER BY substr(sl.eventDate, 7, 4) || substr(sl.eventDate, 4, 2) || substr(sl.eventDate, 1, 2) ASC
         LIMIT 1
-      `) as any,
+      `) as Promise<ConcertDateRow | null>,
       this.db.getFirstAsync(`
         SELECT a.name as artistName, sl.eventDate
         FROM setlists sl
         LEFT JOIN artists a ON sl.artistMbid = a.mbid
         ORDER BY substr(sl.eventDate, 7, 4) || substr(sl.eventDate, 4, 2) || substr(sl.eventDate, 1, 2) DESC
         LIMIT 1
-      `) as any,
+      `) as Promise<ConcertDateRow | null>,
       this.db.getAllAsync(`
         SELECT substr(eventDate, 7, 4) as year, COUNT(*) as count
         FROM setlists
         GROUP BY year
         ORDER BY year ASC
-      `) as any[],
+      `) as Promise<YearCountRow[]>,
     ]);
 
     return {
@@ -531,14 +691,13 @@ export class DatabaseOperations {
       lastConcert: lastConcert?.eventDate
         ? { artistName: lastConcert.artistName, eventDate: lastConcert.eventDate }
         : null,
-      concertsByYear: byYear.map((row: any) => ({ year: row.year, count: row.count })),
+      concertsByYear: byYear.map((row) => ({ year: row.year, count: row.count })),
     };
   }
 
   // Get all artists with their concert counts and stats
   async getArtistsWithStats(): Promise<
     {
-
       mbid: string;
       name: string;
       sortName?: string;
@@ -549,7 +708,6 @@ export class DatabaseOperations {
       venues: string[];
     }[]
   > {
-
     // First get basic artist stats
     const result = (await this.db.getAllAsync(`
       SELECT 
@@ -566,7 +724,7 @@ export class DatabaseOperations {
       GROUP BY a.mbid, a.name, a.sortName, a.disambiguation, a.url
       HAVING COUNT(DISTINCT sl.eventDate || '|' || sl.venueId) > 0
       ORDER BY a.name COLLATE NOCASE
-    `)) as any[];
+    `)) as ArtistStatsRow[];
 
     // Then get the last concert date for each artist separately
     const artistsWithLastDates = await Promise.all(
@@ -574,7 +732,7 @@ export class DatabaseOperations {
         const lastConcertResult = (await this.db.getFirstAsync(
           'SELECT eventDate FROM setlists WHERE artistMbid = ? ORDER BY substr(eventDate, 7, 4) || "-" || substr(eventDate, 4, 2) || "-" || substr(eventDate, 1, 2) DESC LIMIT 1',
           [artist.mbid],
-        )) as any;
+        )) as EventDateRow | null;
 
         return {
           ...artist,
@@ -604,18 +762,18 @@ export class DatabaseOperations {
   }> {
     const totalArtists = (await this.db.getFirstAsync(
       'SELECT COUNT(*) as count FROM artists',
-    )) as any;
+    )) as CountRow | null;
     const artistsWithConcerts = (await this.db.getFirstAsync(`
-      SELECT COUNT(DISTINCT a.mbid) as count 
-      FROM artists a 
+      SELECT COUNT(DISTINCT a.mbid) as count
+      FROM artists a
       INNER JOIN setlists sl ON a.mbid = sl.artistMbid
-    `)) as any;
+    `)) as CountRow | null;
     const orphanedArtists = (await this.db.getAllAsync(`
-      SELECT a.mbid, a.name 
-      FROM artists a 
-      LEFT JOIN setlists sl ON a.mbid = sl.artistMbid 
+      SELECT a.mbid, a.name
+      FROM artists a
+      LEFT JOIN setlists sl ON a.mbid = sl.artistMbid
       WHERE sl.id IS NULL
-    `)) as any[];
+    `)) as OrphanedArtistRow[];
 
     return {
       totalArtists: totalArtists?.count || 0,
@@ -628,7 +786,6 @@ export class DatabaseOperations {
   // Get all venues with their concert counts and stats
   async getVenuesWithStats(): Promise<
     {
-
       id: string;
       name: string;
       url?: string;
@@ -645,7 +802,6 @@ export class DatabaseOperations {
       artists: string[];
     }[]
   > {
-
     const result = (await this.db.getAllAsync(`
       SELECT
         v.id,
@@ -670,7 +826,7 @@ export class DatabaseOperations {
       GROUP BY v.id, v.name, v.url, c.id, c.name, c.state, c.stateCode, c.countryCode, co.name, c.coordsLat, c.coordsLong
       HAVING COUNT(DISTINCT sl.eventDate) > 0
       ORDER BY v.name COLLATE NOCASE
-    `)) as any[];
+    `)) as VenueStatsRow[];
 
     return result.map((row) => ({
       id: row.id,
@@ -692,7 +848,6 @@ export class DatabaseOperations {
 
   // Get setlists by specific artist
   async getSetlistsByArtist(artistMbid: string): Promise<SetlistWithDetails[]> {
-
     const result = (await this.db.getAllAsync(
       `
       SELECT 
@@ -722,7 +877,7 @@ export class DatabaseOperations {
       WHERE sl.artistMbid = ?
     `,
       [artistMbid],
-    )) as any[];
+    )) as SetlistJoinRow[];
 
     return result.map(
       (row) =>
@@ -782,7 +937,6 @@ export class DatabaseOperations {
 
   // Get setlists by specific venue
   async getSetlistsByVenue(venueId: string): Promise<SetlistWithDetails[]> {
-
     const result = (await this.db.getAllAsync(
       `
       SELECT 
@@ -812,7 +966,7 @@ export class DatabaseOperations {
       WHERE sl.venueId = ?
     `,
       [venueId],
-    )) as any[];
+    )) as SetlistJoinRow[];
 
     return result.map(
       (row) =>
@@ -889,7 +1043,6 @@ export class DatabaseOperations {
     countries: string[];
     cities: string[];
   }> {
-
     const result = (await this.db.getAllAsync(`
       SELECT DISTINCT
         co.name as countryName,
@@ -900,10 +1053,10 @@ export class DatabaseOperations {
       INNER JOIN countries co ON c.countryCode = co.code
       WHERE co.name IS NOT NULL AND c.name IS NOT NULL
       ORDER BY co.name, c.name
-    `)) as any[];
+    `)) as GeoRow[];
 
-    const countries = [...new Set(result.map((row: any) => row.countryName))];
-    const cities = [...new Set(result.map((row: any) => row.cityName))];
+    const countries = [...new Set(result.map((row) => row.countryName))];
+    const cities = [...new Set(result.map((row) => row.cityName))];
 
     // Map countries to continents
     const continents = [...new Set(countries.map((country) => this.getContinent(country)))];
@@ -921,7 +1074,6 @@ export class DatabaseOperations {
   // Get continents with detailed statistics
   async getContinentsWithStats(): Promise<
     {
-
       name: string;
       countryCount: number;
       cityCount: number;
@@ -930,7 +1082,6 @@ export class DatabaseOperations {
       countries: string[];
     }[]
   > {
-
     // First get all countries and map them to continents
     const countryResult = (await this.db.getAllAsync(`
       SELECT DISTINCT co.name as countryName
@@ -939,7 +1090,7 @@ export class DatabaseOperations {
       INNER JOIN cities c ON v.cityId = c.id
       INNER JOIN countries co ON c.countryCode = co.code
       WHERE co.name IS NOT NULL
-    `)) as any[];
+    `)) as CountryNameRow[];
 
     const countries = countryResult.map((row) => row.countryName);
     const continentMap = new Map<string, string[]>();
@@ -974,7 +1125,7 @@ export class DatabaseOperations {
           WHERE co.name IN (${placeholders})
         `,
           continentCountries,
-        )) as any[];
+        )) as ContinentStatsRow[];
 
         const stats = statsResult[0] || {};
 
@@ -995,7 +1146,6 @@ export class DatabaseOperations {
   // Get countries with detailed statistics
   async getCountriesWithStats(): Promise<
     {
-
       name: string;
       cityCount: number;
       venueCount: number;
@@ -1003,7 +1153,6 @@ export class DatabaseOperations {
       cities: string[];
     }[]
   > {
-
     const result = (await this.db.getAllAsync(`
       SELECT
         co.name,
@@ -1018,7 +1167,7 @@ export class DatabaseOperations {
       WHERE co.name IS NOT NULL AND c.name IS NOT NULL
       GROUP BY co.name
       ORDER BY co.name
-    `)) as any[];
+    `)) as CountryStatsRow[];
 
     return result.map((row) => ({
       name: row.name,
@@ -1032,7 +1181,6 @@ export class DatabaseOperations {
   // Get cities with detailed statistics
   async getCitiesWithStats(): Promise<
     {
-
       name: string;
       countryName: string;
       venueCount: number;
@@ -1040,7 +1188,6 @@ export class DatabaseOperations {
       venues: string[];
     }[]
   > {
-
     const result = (await this.db.getAllAsync(`
       SELECT
         c.name,
@@ -1055,7 +1202,7 @@ export class DatabaseOperations {
       WHERE c.name IS NOT NULL AND co.name IS NOT NULL
       GROUP BY c.name, co.name
       ORDER BY c.name
-    `)) as any[];
+    `)) as CityStatsRow[];
 
     return result.map((row) => ({
       name: row.name,

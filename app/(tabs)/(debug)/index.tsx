@@ -1,12 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
@@ -23,112 +16,116 @@ interface Stats {
 
 export default function DebugScreen() {
   const colors = useColors();
-  const styles = useMemo(() => StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    scrollView: {
-      flex: 1,
-    },
-    lastFetched: {
-      fontSize: 13,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      marginBottom: 12,
-    },
-    statsContainer: {
-      flexDirection: 'row',
-      paddingHorizontal: 16,
-      marginBottom: 20,
-      gap: 8,
-    },
-    actionsContainer: {
-      paddingHorizontal: 20,
-      marginBottom: 20,
-    },
-    button: {
-      backgroundColor: colors.primary,
-      paddingVertical: 15,
-      paddingHorizontal: 20,
-      borderRadius: 10,
-      borderCurve: 'continuous' as const,
-      marginBottom: 15,
-      alignItems: 'center',
-    },
-    buttonText: {
-      color: colors.textInverse,
-      fontSize: 16,
-      fontWeight: '600',
-    },
-    buttonSecondary: {
-      backgroundColor: colors.background,
-      paddingVertical: 15,
-      paddingHorizontal: 20,
-      borderRadius: 10,
-      borderCurve: 'continuous' as const,
-      marginBottom: 15,
-      alignItems: 'center',
-      borderWidth: 1,
-      borderColor: colors.borderMedium,
-    },
-    buttonTextSecondary: {
-      color: colors.textPrimary,
-      fontSize: 16,
-      fontWeight: '600',
-    },
-    infoContainer: {
-      paddingHorizontal: 20,
-      paddingBottom: 20,
-    },
-    infoTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 10,
-    },
-    infoText: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      lineHeight: 20,
-      marginBottom: 10,
-    },
-    routeTestingContainer: {
-      paddingHorizontal: 20,
-      marginBottom: 20,
-    },
-    sectionTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    sectionSubtitle: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      marginBottom: 15,
-    },
-    routeButtonsRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginBottom: 15,
-    },
-    routeButton: {
-      flex: 1,
-      backgroundColor: colors.primary,
-      paddingVertical: 12,
-      paddingHorizontal: 15,
-      borderRadius: 8,
-      borderCurve: 'continuous' as const,
-      marginHorizontal: 5,
-      alignItems: 'center',
-    },
-    routeButtonText: {
-      color: colors.textInverse,
-      fontSize: 14,
-      fontWeight: '600',
-    },
-  }), [colors]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        scrollView: {
+          flex: 1,
+        },
+        lastFetched: {
+          fontSize: 13,
+          color: colors.textSecondary,
+          textAlign: 'center',
+          marginBottom: 12,
+        },
+        statsContainer: {
+          flexDirection: 'row',
+          paddingHorizontal: 16,
+          marginBottom: 20,
+          gap: 8,
+        },
+        actionsContainer: {
+          paddingHorizontal: 20,
+          marginBottom: 20,
+        },
+        button: {
+          backgroundColor: colors.primary,
+          paddingVertical: 15,
+          paddingHorizontal: 20,
+          borderRadius: 10,
+          borderCurve: 'continuous' as const,
+          marginBottom: 15,
+          alignItems: 'center',
+        },
+        buttonText: {
+          color: colors.textInverse,
+          fontSize: 16,
+          fontWeight: '600',
+        },
+        buttonSecondary: {
+          backgroundColor: colors.background,
+          paddingVertical: 15,
+          paddingHorizontal: 20,
+          borderRadius: 10,
+          borderCurve: 'continuous' as const,
+          marginBottom: 15,
+          alignItems: 'center',
+          borderWidth: 1,
+          borderColor: colors.borderMedium,
+        },
+        buttonTextSecondary: {
+          color: colors.textPrimary,
+          fontSize: 16,
+          fontWeight: '600',
+        },
+        infoContainer: {
+          paddingHorizontal: 20,
+          paddingBottom: 20,
+        },
+        infoTitle: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: colors.textPrimary,
+          marginBottom: 10,
+        },
+        infoText: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          lineHeight: 20,
+          marginBottom: 10,
+        },
+        routeTestingContainer: {
+          paddingHorizontal: 20,
+          marginBottom: 20,
+        },
+        sectionTitle: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: colors.textPrimary,
+          marginBottom: 5,
+        },
+        sectionSubtitle: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          marginBottom: 15,
+        },
+        routeButtonsRow: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          marginBottom: 15,
+        },
+        routeButton: {
+          flex: 1,
+          backgroundColor: colors.primary,
+          paddingVertical: 12,
+          paddingHorizontal: 15,
+          borderRadius: 8,
+          borderCurve: 'continuous' as const,
+          marginHorizontal: 5,
+          alignItems: 'center',
+        },
+        routeButtonText: {
+          color: colors.textInverse,
+          fontSize: 14,
+          fontWeight: '600',
+        },
+      }),
+    [colors],
+  );
 
   const router = useRouter();
   const [stats, setStats] = useState<Stats>({
@@ -207,10 +204,10 @@ export default function DebugScreen() {
   };
 
   // Route testing functions
-  const testRoute = (route: string, params?: any) => {
+  const testRoute = (route: string, params?: Record<string, string>) => {
     try {
       router.push({
-        pathname: route as any,
+        pathname: route as never,
         params: params || {},
       });
     } catch (error) {
@@ -249,7 +246,7 @@ export default function DebugScreen() {
   };
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <ScreenHeader title="Debug & Admin" subtitle="Database management and testing tools" />
@@ -262,9 +259,7 @@ export default function DebugScreen() {
           <StatBox value={stats.totalSongs} label="Songs" />
         </View>
 
-        {lastFetched && (
-          <Text style={styles.lastFetched}>Last synced: {lastFetched}</Text>
-        )}
+        {lastFetched && <Text style={styles.lastFetched}>Last synced: {lastFetched}</Text>}
 
         {/* Action Buttons */}
         <View style={styles.actionsContainer}>
@@ -289,7 +284,9 @@ export default function DebugScreen() {
             style={[styles.buttonSecondary, { backgroundColor: colors.danger }]}
             onPress={handleClearDatabase}
           >
-            <Text style={[styles.buttonTextSecondary, { color: colors.textInverse }]}>Clear Database</Text>
+            <Text style={[styles.buttonTextSecondary, { color: colors.textInverse }]}>
+              Clear Database
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity

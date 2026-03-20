@@ -19,88 +19,92 @@ interface VenueWithCoords {
 
 export default function VenuesMapView() {
   const colors = useColors();
-  const styles = useMemo(() => StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: colors.background,
-    },
-    loadingText: {
-      marginTop: 10,
-      fontSize: 16,
-      color: colors.textSecondary,
-    },
-    emptyContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 40,
-      backgroundColor: colors.background,
-    },
-    emptyText: {
-      fontSize: 18,
-      fontWeight: '600',
-      color: colors.textPrimary,
-      textAlign: 'center',
-      marginBottom: 10,
-    },
-    emptySubtext: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      lineHeight: 20,
-    },
-    map: {
-      flex: 1,
-    },
-    venueCount: {
-      backgroundColor: colors.backgroundCard,
-      padding: 15,
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
-      alignItems: 'center',
-    },
-    venueCountText: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      fontWeight: '500',
-    },
-    legend: {
-      backgroundColor: colors.backgroundCard,
-      padding: 15,
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
-    },
-    legendTitle: {
-      fontSize: 14,
-      fontWeight: '600',
-      color: colors.textPrimary,
-      marginBottom: 10,
-    },
-    legendItems: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-    },
-    legendItem: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    legendDot: {
-      width: 12,
-      height: 12,
-      borderRadius: 6,
-      marginRight: 5,
-    },
-    legendText: {
-      fontSize: 12,
-      color: colors.textSecondary,
-    },
-  }), [colors]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        loadingContainer: {
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: colors.background,
+        },
+        loadingText: {
+          marginTop: 10,
+          fontSize: 16,
+          color: colors.textSecondary,
+        },
+        emptyContainer: {
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: 40,
+          backgroundColor: colors.background,
+        },
+        emptyText: {
+          fontSize: 18,
+          fontWeight: '600',
+          color: colors.textPrimary,
+          textAlign: 'center',
+          marginBottom: 10,
+        },
+        emptySubtext: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          textAlign: 'center',
+          lineHeight: 20,
+        },
+        map: {
+          flex: 1,
+        },
+        venueCount: {
+          backgroundColor: colors.backgroundCard,
+          padding: 15,
+          borderTopWidth: 1,
+          borderTopColor: colors.border,
+          alignItems: 'center',
+        },
+        venueCountText: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          fontWeight: '500',
+        },
+        legend: {
+          backgroundColor: colors.backgroundCard,
+          padding: 15,
+          borderTopWidth: 1,
+          borderTopColor: colors.border,
+        },
+        legendTitle: {
+          fontSize: 14,
+          fontWeight: '600',
+          color: colors.textPrimary,
+          marginBottom: 10,
+        },
+        legendItems: {
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+        },
+        legendItem: {
+          flexDirection: 'row',
+          alignItems: 'center',
+        },
+        legendDot: {
+          width: 12,
+          height: 12,
+          borderRadius: 6,
+          marginRight: 5,
+        },
+        legendText: {
+          fontSize: 12,
+          color: colors.textSecondary,
+        },
+      }),
+    [colors],
+  );
 
   const [venues, setVenues] = useState<VenueWithCoords[]>([]);
   const [loading, setLoading] = useState(true);

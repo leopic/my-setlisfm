@@ -4,6 +4,11 @@ import { SetlistApiService } from '../services/setlistApi';
 const mockFetch = jest.fn();
 global.fetch = mockFetch;
 
+// Helper to access private members for testing
+function setPrivateField<T>(obj: T, field: string, value: unknown): void {
+  (obj as Record<string, unknown>)[field] = value;
+}
+
 describe('SetlistApiService', () => {
   let api: SetlistApiService;
 
@@ -26,7 +31,7 @@ describe('SetlistApiService', () => {
 
     it('should throw when daily limit is exceeded', async () => {
       // Manually set request count to the limit
-      (api as any).requestCount = 1440;
+      setPrivateField(api, 'requestCount', 1440);
 
       mockFetch.mockResolvedValue({
         ok: true,
@@ -126,27 +131,21 @@ describe('SetlistApiService', () => {
       expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
-    it(
-      'should throw after exhausting all retries',
-      async () => {
-        mockFetch.mockResolvedValue({ status: 500, statusText: 'Internal Server Error' });
+    it('should throw after exhausting all retries', async () => {
+      mockFetch.mockResolvedValue({ status: 500, statusText: 'Internal Server Error' });
 
-        await expect(api.getUserAttendedConcerts('testuser')).rejects.toThrow(
-          'API request failed: 500 Internal Server Error',
-        );
-        expect(mockFetch).toHaveBeenCalledTimes(3);
-      },
-      15000,
-    );
+      await expect(api.getUserAttendedConcerts('testuser')).rejects.toThrow(
+        'API request failed: 500 Internal Server Error',
+      );
+      expect(mockFetch).toHaveBeenCalledTimes(3);
+    }, 15000);
 
     it('should retry on network errors', async () => {
-      mockFetch
-        .mockRejectedValueOnce(new Error('Network error'))
-        .mockResolvedValueOnce({
-          ok: true,
-          status: 200,
-          json: async () => ({ setlist: [] }),
-        });
+      mockFetch.mockRejectedValueOnce(new Error('Network error')).mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ setlist: [] }),
+      });
 
       const result = await api.getUserAttendedConcerts('testuser');
       expect(result).toEqual({ setlist: [] });
@@ -197,27 +196,23 @@ describe('SetlistApiService', () => {
       expect(result).toHaveLength(0);
     });
 
-    it(
-      'should stop on error and return pages fetched so far',
-      async () => {
-        const page1 = {
-          setlist: Array(20).fill({ id: 'test' }),
-          type: '',
-          itemsPerPage: 20,
-          page: 1,
-          total: 40,
-        };
+    it('should stop on error and return pages fetched so far', async () => {
+      const page1 = {
+        setlist: Array(20).fill({ id: 'test' }),
+        type: '',
+        itemsPerPage: 20,
+        page: 1,
+        total: 40,
+      };
 
-        // Page 1 succeeds, then page 2 fails with a 4xx (no retry)
-        mockFetch
-          .mockResolvedValueOnce({ ok: true, status: 200, json: async () => page1 })
-          .mockResolvedValueOnce({ ok: false, status: 404, statusText: 'Not Found' });
+      // Page 1 succeeds, then page 2 fails with a 4xx (no retry)
+      mockFetch
+        .mockResolvedValueOnce({ ok: true, status: 200, json: async () => page1 })
+        .mockResolvedValueOnce({ ok: false, status: 404, statusText: 'Not Found' });
 
-        const result = await api.getAllUserAttendedConcerts('testuser');
+      const result = await api.getAllUserAttendedConcerts('testuser');
 
-        expect(result).toHaveLength(1);
-      },
-      15000,
-    );
+      expect(result).toHaveLength(1);
+    }, 15000);
   });
 });

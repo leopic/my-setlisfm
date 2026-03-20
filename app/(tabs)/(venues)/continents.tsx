@@ -29,99 +29,103 @@ interface ContinentWithStats {
 
 export default function ContinentsScreen() {
   const colors = useColors();
-  const styles = useMemo(() => StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    continentsList: {
-      flex: 1,
-      padding: 20,
-    },
-    continentCard: {
-      backgroundColor: colors.backgroundPill,
-      borderRadius: 10,
-      borderCurve: 'continuous' as const,
-      padding: 15,
-      marginBottom: 10,
-    },
-    continentHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 5,
-    },
-    continentInfo: {
-      flex: 1,
-      marginRight: 15,
-    },
-    continentName: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    continentLocation: {
-      fontSize: 14,
-      color: colors.textSecondary,
-    },
-    venueCountBadge: {
-      backgroundColor: colors.success,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 20,
-      borderCurve: 'continuous' as const,
-      alignItems: 'center',
-      minWidth: 60,
-    },
-    venueCountText: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.textInverse,
-      fontVariant: ['tabular-nums'] as const,
-    },
-    venueCountLabel: {
-      fontSize: 10,
-      color: colors.textInverse,
-      opacity: 0.9,
-    },
-    continentStats: {
-      marginTop: 5,
-    },
-    lastConcertText: {
-      fontSize: 14,
-      color: colors.success,
-      fontWeight: '500',
-      marginBottom: 5,
-    },
-    countriesText: {
-      fontSize: 13,
-      color: colors.textSecondary,
-      marginBottom: 5,
-    },
-    emptyState: {
-      alignItems: 'center',
-      paddingVertical: 60,
-    },
-    emptyStateText: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      marginBottom: 20,
-    },
-    refreshButton: {
-      backgroundColor: colors.success,
-      paddingHorizontal: 20,
-      paddingVertical: 12,
-      borderRadius: 20,
-      borderCurve: 'continuous' as const,
-    },
-    refreshButtonText: {
-      color: colors.textInverse,
-      fontSize: 16,
-      fontWeight: '600',
-    },
-  }), [colors]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background,
+        },
+        continentsList: {
+          flex: 1,
+          padding: 20,
+        },
+        continentCard: {
+          backgroundColor: colors.backgroundPill,
+          borderRadius: 10,
+          borderCurve: 'continuous' as const,
+          padding: 15,
+          marginBottom: 10,
+        },
+        continentHeader: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 5,
+        },
+        continentInfo: {
+          flex: 1,
+          marginRight: 15,
+        },
+        continentName: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: colors.textPrimary,
+          marginBottom: 5,
+        },
+        continentLocation: {
+          fontSize: 14,
+          color: colors.textSecondary,
+        },
+        venueCountBadge: {
+          backgroundColor: colors.success,
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          borderRadius: 20,
+          borderCurve: 'continuous' as const,
+          alignItems: 'center',
+          minWidth: 60,
+        },
+        venueCountText: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: colors.textInverse,
+          fontVariant: ['tabular-nums'] as const,
+        },
+        venueCountLabel: {
+          fontSize: 10,
+          color: colors.textInverse,
+          opacity: 0.9,
+        },
+        continentStats: {
+          marginTop: 5,
+        },
+        lastConcertText: {
+          fontSize: 14,
+          color: colors.success,
+          fontWeight: '500',
+          marginBottom: 5,
+        },
+        countriesText: {
+          fontSize: 13,
+          color: colors.textSecondary,
+          marginBottom: 5,
+        },
+        emptyState: {
+          alignItems: 'center',
+          paddingVertical: 60,
+        },
+        emptyStateText: {
+          fontSize: 16,
+          color: colors.textSecondary,
+          textAlign: 'center',
+          marginBottom: 20,
+        },
+        refreshButton: {
+          backgroundColor: colors.success,
+          paddingHorizontal: 20,
+          paddingVertical: 12,
+          borderRadius: 20,
+          borderCurve: 'continuous' as const,
+        },
+        refreshButtonText: {
+          color: colors.textInverse,
+          fontSize: 16,
+          fontWeight: '600',
+        },
+      }),
+    [colors],
+  );
 
   const router = useRouter();
   const [continents, setContinents] = useState<ContinentWithStats[]>([]);
@@ -221,7 +225,11 @@ export default function ContinentsScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="continents-screen">
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={styles.container}
+      testID="continents-screen"
+    >
       {/* Header */}
       <ScreenHeader
         title="Continents"
@@ -237,7 +245,11 @@ export default function ContinentsScreen() {
       {/* Sorting Controls */}
       <SortBar value={sortOption} onChange={handleSortChange} />
 
-      <ScrollView style={styles.continentsList} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+      <ScrollView
+        style={styles.continentsList}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {continents.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No continents found</Text>

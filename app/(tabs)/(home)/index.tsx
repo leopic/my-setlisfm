@@ -253,7 +253,7 @@ export default function DashboardScreen() {
 
   if (stats.totalConcerts === 0) {
     return (
-      <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
         <ScreenHeader title="Dashboard" />
         <View style={styles.emptyState}>
           <Text style={styles.emptyTitle}>No concert data yet</Text>
@@ -288,10 +288,12 @@ export default function DashboardScreen() {
   const maxYearCount = Math.max(...stats.concertsByYear.map((y) => y.count), 1);
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="dashboard-screen">
-      <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      >
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={styles.container}
+      testID="dashboard-screen"
+    >
+      <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         <ScreenHeader title="Dashboard" />
 
         {/* Hero stats */}
@@ -337,9 +339,7 @@ export default function DashboardScreen() {
           {stats.firstConcert && (
             <View style={styles.highlightRow}>
               <View>
-                <Text style={styles.timelineDate}>
-                  {formatDate(stats.firstConcert.eventDate)}
-                </Text>
+                <Text style={styles.timelineDate}>{formatDate(stats.firstConcert.eventDate)}</Text>
                 <Text style={styles.timelineArtist}>{stats.firstConcert.artistName}</Text>
               </View>
               <Text style={styles.highlightDetail}>First concert</Text>
@@ -348,9 +348,7 @@ export default function DashboardScreen() {
           {stats.lastConcert && (
             <View style={[styles.highlightRow, styles.highlightRowLast]}>
               <View>
-                <Text style={styles.timelineDate}>
-                  {formatDate(stats.lastConcert.eventDate)}
-                </Text>
+                <Text style={styles.timelineDate}>{formatDate(stats.lastConcert.eventDate)}</Text>
                 <Text style={styles.timelineArtist}>{stats.lastConcert.artistName}</Text>
               </View>
               <Text style={styles.highlightDetail}>Most recent</Text>

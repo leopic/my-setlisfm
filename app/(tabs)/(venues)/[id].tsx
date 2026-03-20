@@ -61,14 +61,14 @@ export default function SetlistDetailScreen() {
 
   if (!setlist) {
     return (
-      <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
         <Text style={styles.errorText}>Setlist not found</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="setlist-screen">
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="setlist-screen">
       <Setlist setlist={setlist} sets={sets} onBackPress={() => router.back()} />
     </SafeAreaView>
   );
