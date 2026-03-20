@@ -3,11 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
@@ -15,6 +15,7 @@ import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
+import { ScreenHeader, SortBar } from '../../../src/components/ui';
 
 interface ContinentWithStats {
   name: string;
@@ -31,31 +32,6 @@ export default function ContinentsScreen() {
     container: {
       flex: 1,
       backgroundColor: colors.background,
-    },
-    header: {
-      padding: 20,
-      backgroundColor: colors.backgroundCard,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    backButton: {
-      padding: 10,
-      marginBottom: 10,
-    },
-    backButtonText: {
-      fontSize: 16,
-      color: colors.primary,
-      fontWeight: '600',
-    },
-    title: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    subtitle: {
-      fontSize: 16,
-      color: colors.textSecondary,
     },
     continentsList: {
       flex: 1,
@@ -143,53 +119,6 @@ export default function ContinentsScreen() {
       color: colors.textInverse,
       fontSize: 16,
       fontWeight: '600',
-    },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    loadingText: {
-      fontSize: 18,
-      color: colors.textSecondary,
-    },
-    sortContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginTop: 20,
-      marginBottom: 15,
-      paddingHorizontal: 20,
-      backgroundColor: colors.backgroundCard,
-      paddingVertical: 20,
-    },
-    sortLabel: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      marginRight: 10,
-    },
-    sortButtons: {
-      flexDirection: 'row',
-      backgroundColor: colors.backgroundPill,
-      borderRadius: 20,
-      borderCurve: 'continuous' as const,
-      padding: 5,
-    },
-    sortButton: {
-      paddingHorizontal: 15,
-      paddingVertical: 8,
-      borderRadius: 15,
-      borderCurve: 'continuous' as const,
-    },
-    sortButtonActive: {
-      backgroundColor: colors.primary,
-    },
-    sortButtonText: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      fontWeight: '600',
-    },
-    sortButtonTextActive: {
-      color: colors.textInverse,
     },
   }), [colors]);
 
@@ -286,60 +215,19 @@ export default function ContinentsScreen() {
   return (
     <SafeAreaView style={styles.container} testID="continents-screen">
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} testID="back-button" onPress={() => router.back()}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>Continents</Text>
-        <Text style={styles.subtitle}>
-          {sortOption === 'top'
+      <ScreenHeader
+        title="Continents"
+        subtitle={
+          sortOption === 'top'
             ? `${continents.length} continents (sorted by venue count)`
-            : `${continents.length} continents`}
-        </Text>
-      </View>
+            : `${continents.length} continents`
+        }
+        showBack
+        onBackPress={() => router.back()}
+      />
 
       {/* Sorting Controls */}
-      <View style={styles.sortContainer}>
-        <Text style={styles.sortLabel}>Sort by:</Text>
-        <View style={styles.sortButtons}>
-          <TouchableOpacity
-            style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]}
-            onPress={() => handleSortChange('alphabetical')}
-          >
-            <Text
-              style={[
-                styles.sortButtonText,
-                sortOption === 'alphabetical' && styles.sortButtonTextActive,
-              ]}
-            >
-              Alphabetical
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]}
-            onPress={() => handleSortChange('recent')}
-          >
-            <Text
-              style={[
-                styles.sortButtonText,
-                sortOption === 'recent' && styles.sortButtonTextActive,
-              ]}
-            >
-              Most Recent
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.sortButton, sortOption === 'top' && styles.sortButtonActive]}
-            onPress={() => handleSortChange('top')}
-          >
-            <Text
-              style={[styles.sortButtonText, sortOption === 'top' && styles.sortButtonTextActive]}
-            >
-              Top
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <SortBar value={sortOption} onChange={handleSortChange} />
 
       <ScrollView style={styles.continentsList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
         {continents.length === 0 ? (

@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import type { SetlistWithDetails, SetWithSongs } from '../types/database';
 import { formatDate } from '../utils/date';
 import { useColors } from '../utils/colors';
+import { ScreenHeader, Card } from './ui';
 
 interface SetlistProps {
   setlist: SetlistWithDetails;
@@ -13,26 +14,9 @@ interface SetlistProps {
 export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   const colors = useColors();
   const styles = useMemo(() => StyleSheet.create({
-    header: {
-      padding: 20,
-      backgroundColor: colors.backgroundCard,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.borderLight,
-    },
-    backButton: {
-      padding: 10,
-      marginBottom: 10,
-    },
-    backButtonText: {
-      color: colors.primary,
-      fontSize: 16,
-      fontWeight: '600',
-    },
-    title: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 8,
+    headerExtra: {
+      paddingHorizontal: 20,
+      paddingBottom: 10,
     },
     venueText: {
       fontSize: 18,
@@ -60,16 +44,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       padding: 20,
     },
     setContainer: {
-      backgroundColor: colors.backgroundCard,
-      borderRadius: 12,
-      borderCurve: 'continuous' as const,
-      padding: 20,
       marginBottom: 20,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
     },
     setTitle: {
       fontSize: 20,
@@ -132,11 +107,12 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   return (
     <>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} testID="back-button" onPress={onBackPress}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>{setlist.artist?.name || 'Unknown Artist'}</Text>
+      <ScreenHeader
+        title={setlist.artist?.name || 'Unknown Artist'}
+        showBack
+        onBackPress={onBackPress}
+      />
+      <View style={styles.headerExtra}>
         <Text style={styles.venueText}>{setlist.venue?.name || 'Unknown Venue'}</Text>
         <Text style={styles.locationText}>
           {setlist.city?.name}
@@ -152,7 +128,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
         {sets
           .filter((set) => set.songs && set.songs.length > 0)
           .map((set, index) => (
-            <View key={set.id} style={styles.setContainer}>
+            <Card key={set.id} style={styles.setContainer}>
               <Text style={styles.setTitle}>{getSetTitle(set, index)}</Text>
               {set.songs?.map((song, songIndex) => (
                 <View key={songIndex} style={styles.songItem}>
@@ -169,7 +145,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
                   )}
                 </View>
               ))}
-            </View>
+            </Card>
           ))}
 
         {/* Empty state if no sets */}

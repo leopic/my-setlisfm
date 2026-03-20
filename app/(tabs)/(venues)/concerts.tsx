@@ -5,15 +5,16 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails } from '../../../src/types/database';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
 import ConcertListSkeleton from '../../../src/components/skeletons/ConcertListSkeleton';
+import { ScreenHeader } from '../../../src/components/ui';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -29,55 +30,6 @@ export default function VenueConcertsListScreen() {
     container: {
       flex: 1,
       backgroundColor: colors.background,
-    },
-    header: {
-      padding: 20,
-      backgroundColor: colors.backgroundCard,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.borderLight,
-    },
-    backButton: {
-      padding: 10,
-    },
-    backButtonText: {
-      color: colors.primary,
-      fontSize: 16,
-      fontWeight: '600',
-    },
-    title: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    subtitle: {
-      fontSize: 16,
-      color: colors.textSecondary,
-    },
-    entityInfo: {
-      backgroundColor: colors.backgroundCard,
-      padding: 20,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.borderLight,
-    },
-    entityName: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    concertCount: {
-      fontSize: 16,
-      color: colors.textSecondary,
-    },
-    visitCount: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      marginBottom: 5,
-    },
-    artistCount: {
-      fontSize: 16,
-      color: colors.textSecondary,
     },
     concertsList: {
       flex: 1,
@@ -122,15 +74,6 @@ export default function VenueConcertsListScreen() {
       color: colors.primary,
       fontStyle: 'italic',
       marginTop: 5,
-    },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    loadingText: {
-      fontSize: 18,
-      color: colors.textSecondary,
     },
     emptyState: {
       alignItems: 'center',
@@ -199,33 +142,28 @@ export default function VenueConcertsListScreen() {
     });
   };
 
-  const handleBackPress = () => {
-    router.back();
-  };
-
   if (loading) {
     return <ConcertListSkeleton />;
+  }
+
+  const uniqueVisits = new Set(concerts.map((c) => c.eventDate)).size;
+  const uniqueArtists = new Set(concerts.map((c) => c.artistName)).size;
+  const subtitleParts = [
+    `${uniqueVisits} Visit${uniqueVisits !== 1 ? 's' : ''}`,
+  ];
+  if (uniqueArtists > 1) {
+    subtitleParts.push(`${uniqueArtists} Artist${uniqueArtists !== 1 ? 's' : ''}`);
   }
 
   return (
     <SafeAreaView style={styles.container} testID="venue-concerts-screen">
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBackPress} style={styles.backButton} testID="back-button">
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>{venueName}</Text>
-        <Text style={styles.visitCount}>
-          {new Set(concerts.map((c) => c.eventDate)).size} Visit
-          {new Set(concerts.map((c) => c.eventDate)).size !== 1 ? 's' : ''}
-        </Text>
-        {new Set(concerts.map((c) => c.artistName)).size > 1 && (
-          <Text style={styles.artistCount}>
-            {new Set(concerts.map((c) => c.artistName)).size} Artist
-            {new Set(concerts.map((c) => c.artistName)).size !== 1 ? 's' : ''}
-          </Text>
-        )}
-      </View>
+      <ScreenHeader
+        title={venueName}
+        subtitle={subtitleParts.join(' · ')}
+        showBack
+        onBackPress={() => router.back()}
+      />
 
       {/* Concerts List */}
       <ScrollView style={styles.concertsList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>

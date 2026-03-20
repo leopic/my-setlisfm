@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import CityList from '../../../src/components/CityList';
 import { useColors } from '../../../src/utils/colors';
 import DetailSkeleton from '../../../src/components/skeletons/DetailSkeleton';
+import { ScreenHeader } from '../../../src/components/ui';
 
 interface CityWithStats {
   name: string;
@@ -20,41 +22,6 @@ export default function CountryDetailScreen() {
     container: {
       flex: 1,
       backgroundColor: colors.background,
-    },
-    header: {
-      padding: 20,
-      backgroundColor: colors.backgroundCard,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    backButton: {
-      padding: 10,
-      marginBottom: 10,
-    },
-    backButtonText: {
-      fontSize: 16,
-      color: colors.primary,
-      fontWeight: '600',
-    },
-    title: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    subtitle: {
-      fontSize: 16,
-      color: colors.textSecondary,
-    },
-
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    loadingText: {
-      fontSize: 18,
-      color: colors.textSecondary,
     },
   }), [colors]);
 
@@ -95,10 +62,6 @@ export default function CountryDetailScreen() {
     });
   };
 
-  const handleBackPress = () => {
-    router.back();
-  };
-
   if (loading) {
     return <DetailSkeleton cardCount={3} />;
   }
@@ -106,15 +69,12 @@ export default function CountryDetailScreen() {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} testID="back-button" onPress={handleBackPress}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>{country}</Text>
-        <Text style={styles.subtitle}>
-          {cities.length} cit{cities.length !== 1 ? 'ies' : 'y'}
-        </Text>
-      </View>
+      <ScreenHeader
+        title={country as string}
+        subtitle={`${cities.length} cit${cities.length !== 1 ? 'ies' : 'y'}`}
+        showBack
+        onBackPress={() => router.back()}
+      />
 
       <CityList
         cities={cities}

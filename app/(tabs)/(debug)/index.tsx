@@ -14,6 +14,7 @@ import { dbOperations } from '../../../src/database/operations';
 import { SetlistApiService } from '../../../src/services/setlistApi';
 import { DataProcessor } from '../../../src/services/dataProcessor';
 import { useColors } from '../../../src/utils/colors';
+import { ScreenHeader, StatBox } from '../../../src/components/ui';
 
 interface Stats {
   totalSetlists: number;
@@ -38,52 +39,11 @@ export default function DebugScreen() {
       textAlign: 'center',
       marginBottom: 12,
     },
-    header: {
-      padding: 20,
-      paddingTop: 10,
-    },
-    title: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    subtitle: {
-      fontSize: 16,
-      color: colors.textSecondary,
-    },
     statsContainer: {
       flexDirection: 'row',
-      flexWrap: 'wrap',
-      paddingHorizontal: 20,
+      paddingHorizontal: 16,
       marginBottom: 20,
-    },
-    statCard: {
-      backgroundColor: colors.backgroundCard,
-      borderRadius: 12,
-      borderCurve: 'continuous' as const,
-      padding: 20,
-      marginBottom: 15,
-      marginRight: 15,
-      minWidth: 80,
-      alignItems: 'center',
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
-    },
-    statNumber: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color: colors.primary,
-      marginBottom: 5,
-      fontVariant: ['tabular-nums'] as const,
-    },
-    statLabel: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      textAlign: 'center',
+      gap: 8,
     },
     actionsContainer: {
       paddingHorizontal: 20,
@@ -317,29 +277,14 @@ export default function DebugScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Debug & Admin</Text>
-          <Text style={styles.subtitle}>Database management and testing tools</Text>
-        </View>
+        <ScreenHeader title="Debug & Admin" subtitle="Database management and testing tools" />
 
         {/* Stats Cards */}
         <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{stats.totalSetlists}</Text>
-            <Text style={styles.statLabel}>Concerts</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{stats.totalArtists}</Text>
-            <Text style={styles.statLabel}>Artists</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{stats.totalVenues}</Text>
-            <Text style={styles.statLabel}>Venues</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{stats.totalSongs}</Text>
-            <Text style={styles.statLabel}>Songs</Text>
-          </View>
+          <StatBox value={stats.totalSetlists} label="Concerts" />
+          <StatBox value={stats.totalArtists} label="Artists" />
+          <StatBox value={stats.totalVenues} label="Venues" />
+          <StatBox value={stats.totalSongs} label="Songs" />
         </View>
 
         {lastFetched && (

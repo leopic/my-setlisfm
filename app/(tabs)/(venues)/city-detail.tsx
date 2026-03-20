@@ -3,16 +3,17 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
 import DetailSkeleton from '../../../src/components/skeletons/DetailSkeleton';
+import { ScreenHeader } from '../../../src/components/ui';
 
 interface VenueWithStats {
   id: string;
@@ -37,31 +38,6 @@ export default function CityDetailScreen() {
     container: {
       flex: 1,
       backgroundColor: colors.background,
-    },
-    header: {
-      padding: 20,
-      backgroundColor: colors.backgroundCard,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    backButton: {
-      padding: 10,
-      marginBottom: 10,
-    },
-    backButtonText: {
-      fontSize: 16,
-      color: colors.primary,
-      fontWeight: '600',
-    },
-    title: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    subtitle: {
-      fontSize: 16,
-      color: colors.textSecondary,
     },
     venuesList: {
       flex: 1,
@@ -142,15 +118,6 @@ export default function CityDetailScreen() {
       color: colors.textSecondary,
       textAlign: 'center',
     },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    loadingText: {
-      fontSize: 18,
-      color: colors.textSecondary,
-    },
   }), [colors]);
 
   const router = useRouter();
@@ -192,10 +159,6 @@ export default function CityDetailScreen() {
         venue: venue.id,
       },
     });
-  };
-
-  const handleBackPress = () => {
-    router.back();
   };
 
   const getVenueCard = (venue: VenueWithStats) => (
@@ -248,15 +211,12 @@ export default function CityDetailScreen() {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} testID="back-button" onPress={handleBackPress}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>{city}</Text>
-        <Text style={styles.subtitle}>
-          {country} • {venues.length} venue{venues.length !== 1 ? 's' : ''}
-        </Text>
-      </View>
+      <ScreenHeader
+        title={city as string}
+        subtitle={`${country} • ${venues.length} venue${venues.length !== 1 ? 's' : ''}`}
+        showBack
+        onBackPress={() => router.back()}
+      />
 
       <ScrollView style={styles.venuesList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
         {venues.length === 0 ? (

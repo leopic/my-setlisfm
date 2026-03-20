@@ -5,15 +5,16 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails } from '../../../src/types/database';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
 import ConcertListSkeleton from '../../../src/components/skeletons/ConcertListSkeleton';
+import { ScreenHeader } from '../../../src/components/ui';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -29,57 +30,6 @@ export default function ArtistConcertsListScreen() {
     container: {
       flex: 1,
       backgroundColor: colors.background,
-    },
-    header: {
-      padding: 20,
-      backgroundColor: colors.backgroundCard,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.borderLight,
-    },
-    backButton: {
-      padding: 10,
-      marginBottom: 10,
-    },
-    backButtonText: {
-      color: colors.primary,
-      fontSize: 16,
-      fontWeight: '600',
-    },
-    title: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    subtitle: {
-      fontSize: 16,
-      color: colors.textSecondary,
-    },
-    entityInfo: {
-      backgroundColor: colors.backgroundCard,
-      padding: 20,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.borderLight,
-    },
-    entityName: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    concertCount: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      marginBottom: 5,
-    },
-    cityCount: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      marginBottom: 5,
-    },
-    countryCount: {
-      fontSize: 16,
-      color: colors.textSecondary,
     },
     concertsList: {
       flex: 1,
@@ -124,15 +74,6 @@ export default function ArtistConcertsListScreen() {
       color: colors.primary,
       fontStyle: 'italic',
       marginTop: 5,
-    },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    loadingText: {
-      fontSize: 18,
-      color: colors.textSecondary,
     },
     emptyState: {
       alignItems: 'center',
@@ -201,34 +142,27 @@ export default function ArtistConcertsListScreen() {
     });
   };
 
-  const handleBackPress = () => {
-    router.back();
-  };
-
   if (loading) {
     return <ConcertListSkeleton />;
   }
 
+  const uniqueCities = new Set(concerts.map((c) => c.cityName)).size;
+  const uniqueCountries = new Set(concerts.map((c) => c.countryName)).size;
+  const subtitleParts = [
+    `${concerts.length} Concert${concerts.length !== 1 ? 's' : ''}`,
+    `${uniqueCities} Cit${uniqueCities !== 1 ? 'ies' : 'y'}`,
+    `${uniqueCountries} Countr${uniqueCountries !== 1 ? 'ies' : 'y'}`,
+  ];
+
   return (
     <SafeAreaView style={styles.container} testID="artist-concerts-screen">
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBackPress} style={styles.backButton} testID="back-button">
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>{artistName}</Text>
-        <Text style={styles.concertCount}>
-          {concerts.length} Concert{concerts.length !== 1 ? 's' : ''}
-        </Text>
-        <Text style={styles.cityCount}>
-          {new Set(concerts.map((c) => c.cityName)).size} Cit
-          {new Set(concerts.map((c) => c.cityName)).size !== 1 ? 'ies' : 'y'}
-        </Text>
-        <Text style={styles.countryCount}>
-          {new Set(concerts.map((c) => c.countryName)).size} Countr
-          {new Set(concerts.map((c) => c.countryName)).size !== 1 ? 'ies' : 'y'}
-        </Text>
-      </View>
+      <ScreenHeader
+        title={artistName}
+        subtitle={subtitleParts.join(' · ')}
+        showBack
+        onBackPress={() => router.back()}
+      />
 
       {/* Concerts List */}
       <ScrollView style={styles.concertsList} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>

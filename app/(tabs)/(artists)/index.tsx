@@ -3,11 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import SortAndSearch from '../../../src/components/SortAndSearch';
@@ -16,6 +16,7 @@ import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
+import { ScreenHeader } from '../../../src/components/ui';
 
 interface ArtistWithStats {
   mbid: string;
@@ -35,36 +36,6 @@ export default function ArtistsScreen() {
       flex: 1,
       backgroundColor: colors.background,
     },
-    header: {
-      padding: 20,
-      backgroundColor: colors.backgroundCard,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    headerTop: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 10,
-    },
-    backButton: {
-      padding: 10,
-    },
-    backButtonText: {
-      fontSize: 16,
-      color: colors.textSecondary,
-    },
-    title: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    subtitle: {
-      fontSize: 16,
-      color: colors.textSecondary,
-    },
-
     artistsList: {
       flex: 1,
       padding: 20,
@@ -151,15 +122,6 @@ export default function ArtistsScreen() {
       color: colors.textInverse,
       fontSize: 16,
       fontWeight: '600',
-    },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    loadingText: {
-      fontSize: 18,
-      color: colors.textSecondary,
     },
   }), [colors]);
 
@@ -273,14 +235,14 @@ export default function ArtistsScreen() {
   return (
     <SafeAreaView style={styles.container} testID="artists-screen">
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Artists</Text>
-        <Text style={styles.subtitle}>
-          {sortOption === 'top'
+      <ScreenHeader
+        title="Artists"
+        subtitle={
+          sortOption === 'top'
             ? `${artists.length} artists (sorted by concert count)`
-            : `${artists.length} artists`}
-        </Text>
-      </View>
+            : `${artists.length} artists`
+        }
+      />
 
       {/* Sorting Controls */}
       <SortAndSearch

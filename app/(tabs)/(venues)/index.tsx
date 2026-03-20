@@ -3,11 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import SortAndSearch from '../../../src/components/SortAndSearch';
@@ -16,6 +16,7 @@ import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
+import { ScreenHeader } from '../../../src/components/ui';
 
 interface VenueWithStats {
   id: string;
@@ -50,44 +51,10 @@ export default function VenuesScreen() {
       flex: 1,
       backgroundColor: colors.background,
     },
-    header: {
-      padding: 20,
-      backgroundColor: colors.backgroundCard,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    headerTop: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 10,
-    },
-    backButton: {
-      padding: 10,
-    },
-    backButtonText: {
-      fontSize: 16,
-      color: colors.textSecondary,
-    },
-    title: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    subtitle: {
-      fontSize: 16,
-      color: colors.textSecondary,
-    },
-    geoStats: {
-      fontSize: 14,
-      color: colors.primary,
-      marginTop: 8,
-      fontWeight: '500',
-    },
     geoStatsContainer: {
       marginTop: 15,
       gap: 10,
+      paddingHorizontal: 20,
     },
     geoStatsRow: {
       flexDirection: 'row',
@@ -113,25 +80,6 @@ export default function VenuesScreen() {
       color: colors.textPrimary,
       fontWeight: '600',
       textAlign: 'center',
-    },
-    mapButton: {
-      backgroundColor: colors.primary,
-      borderRadius: 12,
-      borderCurve: 'continuous' as const,
-      padding: 15,
-      marginTop: 10,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    mapButtonEmoji: {
-      fontSize: 20,
-      marginRight: 8,
-    },
-    mapButtonText: {
-      fontSize: 16,
-      color: colors.textInverse,
-      fontWeight: '600',
     },
 
     venuesList: {
@@ -226,15 +174,6 @@ export default function VenuesScreen() {
       color: colors.textInverse,
       fontSize: 16,
       fontWeight: '600',
-    },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    loadingText: {
-      fontSize: 18,
-      color: colors.textSecondary,
     },
   }), [colors]);
 
@@ -361,66 +300,64 @@ export default function VenuesScreen() {
   return (
     <SafeAreaView style={styles.container} testID="venues-screen">
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Venues</Text>
-        <Text style={styles.subtitle}>
-          {sortOption === 'top'
+      <ScreenHeader
+        title="Venues"
+        subtitle={
+          sortOption === 'top'
             ? `${venues.length} venues (sorted by visit count)`
             : sortOption === 'recent'
               ? `${venues.length} venues (sorted by most recent)`
-              : `${venues.length} venues`}
-        </Text>
-        {geoStats && (
-          <>
-            <View style={styles.geoStatsContainer}>
-              <View style={styles.geoStatsRow}>
-                <TouchableOpacity
-                  style={styles.geoStatButton}
-                  onPress={() => router.push('/(venues)/map')}
-                >
-                  <Text style={styles.geoStatEmoji}>Map</Text>
-                  <Text style={styles.geoStatText}>Map</Text>
-                </TouchableOpacity>
+              : `${venues.length} venues`
+        }
+      />
+      {geoStats && (
+        <View style={styles.geoStatsContainer}>
+          <View style={styles.geoStatsRow}>
+            <TouchableOpacity
+              style={styles.geoStatButton}
+              onPress={() => router.push('/(venues)/map')}
+            >
+              <Text style={styles.geoStatEmoji}>Map</Text>
+              <Text style={styles.geoStatText}>Map</Text>
+            </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={styles.geoStatButton}
-                  testID="nav-continents"
-                  onPress={() => router.push('/(venues)/continents')}
-                >
-                  <Text style={styles.geoStatEmoji}>Continents</Text>
-                  <Text style={styles.geoStatText}>
-                    {geoStats.totalContinents} continent{geoStats.totalContinents !== 1 ? 's' : ''}
-                  </Text>
-                </TouchableOpacity>
-              </View>
+            <TouchableOpacity
+              style={styles.geoStatButton}
+              testID="nav-continents"
+              onPress={() => router.push('/(venues)/continents')}
+            >
+              <Text style={styles.geoStatEmoji}>Continents</Text>
+              <Text style={styles.geoStatText}>
+                {geoStats.totalContinents} continent{geoStats.totalContinents !== 1 ? 's' : ''}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-              <View style={styles.geoStatsRow}>
-                <TouchableOpacity
-                  style={styles.geoStatButton}
-                  testID="nav-countries"
-                  onPress={() => router.push('/(venues)/countries')}
-                >
-                  <Text style={styles.geoStatEmoji}>Countries</Text>
-                  <Text style={styles.geoStatText}>
-                    {geoStats.totalCountries} countr{geoStats.totalCountries !== 1 ? 'ies' : 'y'}
-                  </Text>
-                </TouchableOpacity>
+          <View style={styles.geoStatsRow}>
+            <TouchableOpacity
+              style={styles.geoStatButton}
+              testID="nav-countries"
+              onPress={() => router.push('/(venues)/countries')}
+            >
+              <Text style={styles.geoStatEmoji}>Countries</Text>
+              <Text style={styles.geoStatText}>
+                {geoStats.totalCountries} countr{geoStats.totalCountries !== 1 ? 'ies' : 'y'}
+              </Text>
+            </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={styles.geoStatButton}
-                  testID="nav-cities"
-                  onPress={() => router.push('/(venues)/cities')}
-                >
-                  <Text style={styles.geoStatEmoji}>Cities</Text>
-                  <Text style={styles.geoStatText}>
-                    {geoStats.totalCities} cit{geoStats.totalCities !== 1 ? 'ies' : 'y'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </>
-        )}
-      </View>
+            <TouchableOpacity
+              style={styles.geoStatButton}
+              testID="nav-cities"
+              onPress={() => router.push('/(venues)/cities')}
+            >
+              <Text style={styles.geoStatEmoji}>Cities</Text>
+              <Text style={styles.geoStatText}>
+                {geoStats.totalCities} cit{geoStats.totalCities !== 1 ? 'ies' : 'y'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
 
       {/* Sorting Controls */}
       <SortAndSearch

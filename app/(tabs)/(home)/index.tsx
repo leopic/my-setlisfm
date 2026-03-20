@@ -1,9 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
 import DashboardSkeleton from '../../../src/components/skeletons/DashboardSkeleton';
+import { ScreenHeader, StatBox, Card, EmptyState } from '../../../src/components/ui';
 
 type DashboardStats = Awaited<ReturnType<typeof dbOperations.getDashboardStats>>;
 
@@ -28,49 +30,15 @@ export default function DashboardScreen() {
           flex: 1,
           backgroundColor: colors.background,
         },
-        header: {
-          padding: 20,
-          paddingTop: 10,
-        },
-        title: {
-          fontSize: 28,
-          fontWeight: 'bold',
-          color: colors.textPrimary,
-        },
         statsRow: {
           flexDirection: 'row',
           paddingHorizontal: 16,
           marginBottom: 20,
-        },
-        statBox: {
-          flex: 1,
-          backgroundColor: colors.backgroundCard,
-          borderRadius: 12,
-          borderCurve: 'continuous' as const,
-          padding: 14,
-          marginHorizontal: 4,
-          alignItems: 'center',
-        },
-        statNumber: {
-          fontSize: 22,
-          fontWeight: '700',
-          color: colors.primary,
-          fontVariant: ['tabular-nums'] as const,
-        },
-        statLabel: {
-          fontSize: 11,
-          color: colors.textSecondary,
-          marginTop: 2,
-          textTransform: 'uppercase',
-          letterSpacing: 0.5,
+          gap: 8,
         },
         section: {
           marginHorizontal: 20,
           marginBottom: 16,
-          backgroundColor: colors.backgroundCard,
-          borderRadius: 12,
-          borderCurve: 'continuous' as const,
-          padding: 16,
         },
         sectionTitle: {
           fontSize: 13,
@@ -155,23 +123,6 @@ export default function DashboardScreen() {
           textAlign: 'center',
           paddingVertical: 16,
         },
-        emptyState: {
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: 40,
-        },
-        emptyText: {
-          fontSize: 18,
-          fontWeight: '600',
-          color: colors.textPrimary,
-          marginBottom: 8,
-        },
-        emptySubtext: {
-          fontSize: 14,
-          color: colors.textSecondary,
-          textAlign: 'center',
-        },
       }),
     [colors],
   );
@@ -206,15 +157,11 @@ export default function DashboardScreen() {
   if (stats.totalConcerts === 0) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Dashboard</Text>
-        </View>
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>No concert data yet</Text>
-          <Text style={styles.emptySubtext}>
-            Head to the Debug tab to fetch your concert history from Setlist.fm
-          </Text>
-        </View>
+        <ScreenHeader title="Dashboard" />
+        <EmptyState
+          title="No concert data yet"
+          subtitle="Head to the Debug tab to fetch your concert history from Setlist.fm"
+        />
       </SafeAreaView>
     );
   }
@@ -224,32 +171,18 @@ export default function DashboardScreen() {
   return (
     <SafeAreaView style={styles.container} testID="dashboard-screen">
       <ScrollView contentInsetAdjustmentBehavior="automatic">
-        <View style={styles.header}>
-          <Text style={styles.title}>Dashboard</Text>
-        </View>
+        <ScreenHeader title="Dashboard" />
 
         {/* Hero stats */}
         <View style={styles.statsRow}>
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>{stats.totalConcerts}</Text>
-            <Text style={styles.statLabel}>Concerts</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>{stats.totalArtists}</Text>
-            <Text style={styles.statLabel}>Artists</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>{stats.totalVenues}</Text>
-            <Text style={styles.statLabel}>Venues</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>{stats.totalCountries}</Text>
-            <Text style={styles.statLabel}>Countries</Text>
-          </View>
+          <StatBox value={stats.totalConcerts} label="Concerts" />
+          <StatBox value={stats.totalArtists} label="Artists" />
+          <StatBox value={stats.totalVenues} label="Venues" />
+          <StatBox value={stats.totalCountries} label="Countries" />
         </View>
 
         {/* Highlights */}
-        <View style={styles.section}>
+        <Card style={styles.section}>
           <Text style={styles.sectionTitle}>Highlights</Text>
           {stats.topArtist && (
             <View style={styles.highlightRow}>
@@ -275,10 +208,10 @@ export default function DashboardScreen() {
               </Text>
             </View>
           )}
-        </View>
+        </Card>
 
         {/* Timeline */}
-        <View style={styles.section}>
+        <Card style={styles.section}>
           <Text style={styles.sectionTitle}>Timeline</Text>
           {stats.firstConcert && (
             <View style={styles.highlightRow}>
@@ -302,11 +235,11 @@ export default function DashboardScreen() {
               <Text style={styles.highlightDetail}>Most recent</Text>
             </View>
           )}
-        </View>
+        </Card>
 
         {/* Concerts by year */}
         {stats.concertsByYear.length > 0 && (
-          <View style={styles.section}>
+          <Card style={styles.section}>
             <Text style={styles.sectionTitle}>Concerts per Year</Text>
             {stats.concertsByYear.map((item) => (
               <View key={item.year} style={styles.yearRow}>
@@ -319,7 +252,7 @@ export default function DashboardScreen() {
                 <Text style={styles.yearCount}>{item.count}</Text>
               </View>
             ))}
-          </View>
+          </Card>
         )}
 
         {lastSynced && <Text style={styles.lastSynced}>Last synced: {lastSynced}</Text>}

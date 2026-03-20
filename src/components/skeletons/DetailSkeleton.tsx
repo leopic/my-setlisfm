@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { View, StyleSheet, SafeAreaView } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '../SkeletonBox';
 import { useColors } from '../../utils/colors';
 

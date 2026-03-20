@@ -7,8 +7,8 @@ import {
   ScrollView,
   Alert,
   RefreshControl,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails } from '../../../src/types/database';
@@ -17,6 +17,8 @@ import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
+import { ScreenHeader, EmptyState } from '../../../src/components/ui';
+
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
   venueName: string;
@@ -38,52 +40,6 @@ export default function ConcertsScreen() {
     container: {
       flex: 1,
       backgroundColor: colors.background,
-    },
-    header: {
-      padding: 20,
-      paddingTop: 10,
-    },
-    headerTop: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 10,
-    },
-    backButton: {
-      paddingVertical: 8,
-      paddingHorizontal: 15,
-      borderRadius: 15,
-      borderCurve: 'continuous' as const,
-      backgroundColor: colors.backgroundPill,
-    },
-    backButtonText: {
-      fontSize: 14,
-      color: colors.textPrimary,
-      fontWeight: '600',
-    },
-    title: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: colors.textPrimary,
-      marginBottom: 5,
-    },
-    subtitle: {
-      fontSize: 16,
-      color: colors.textSecondary,
-    },
-    searchContainer: {
-      padding: 20,
-      backgroundColor: colors.backgroundCard,
-    },
-    searchInput: {
-      height: 50,
-      backgroundColor: colors.background,
-      borderRadius: 25,
-      borderCurve: 'continuous' as const,
-      paddingHorizontal: 20,
-      fontSize: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
     },
     scrollView: {
       flex: 1,
@@ -234,20 +190,6 @@ export default function ConcertsScreen() {
       color: colors.primary,
       fontWeight: '500',
       marginTop: 5,
-    },
-    emptyState: {
-      alignItems: 'center',
-      paddingVertical: 60,
-    },
-    emptyStateText: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      marginBottom: 20,
-    },
-    loadingText: {
-      fontSize: 18,
-      color: colors.textSecondary,
     },
     filterContainer: {
       flexDirection: 'row',
@@ -418,14 +360,14 @@ export default function ConcertsScreen() {
   return (
     <SafeAreaView style={styles.container} testID="concerts-screen">
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>My Concerts</Text>
-        <Text style={styles.subtitle}>
-          {sortOption === 'alphabetical'
+      <ScreenHeader
+        title="My Concerts"
+        subtitle={
+          sortOption === 'alphabetical'
             ? `${totalConcerts} concerts (alphabetical by artist)`
-            : `${totalConcerts} concerts grouped by year`}
-        </Text>
-      </View>
+            : `${totalConcerts} concerts grouped by year`
+        }
+      />
 
       {/* Sorting Options */}
       <View style={styles.sortContainer}>
@@ -468,11 +410,7 @@ export default function ConcertsScreen() {
         showsVerticalScrollIndicator={false}
       >
         {filteredYearGroups.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>
-              No concerts found
-            </Text>
-          </View>
+          <EmptyState title="No concerts found" />
         ) : sortOption === 'alphabetical' ? (
           // Flat list for alphabetical sorting with proper container spacing
           <View style={styles.alphabeticalContainer}>

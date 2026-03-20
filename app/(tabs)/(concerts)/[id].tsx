@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Text, StyleSheet, SafeAreaView } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails, SetWithSongs } from '../../../src/types/database';
