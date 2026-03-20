@@ -230,8 +230,10 @@ export default function DashboardScreen() {
     const result = await syncConcertData(trimmed);
     if (result.success) {
       await loadDashboard();
-      if (result.pagesProcessed > 0) {
-        Alert.alert('Sync Complete', `Processed ${result.pagesProcessed} pages of concert data.`);
+      if (result.newConcerts > 0) {
+        Alert.alert('Sync Complete', `Added ${result.newConcerts} new concerts.`);
+      } else if (result.pagesProcessed > 0) {
+        Alert.alert('Up to Date', 'No new concerts found.');
       }
     } else {
       Alert.alert('Sync Failed', result.error ?? 'Unknown error');

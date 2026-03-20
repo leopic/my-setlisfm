@@ -23,10 +23,13 @@ import type {
 import { dbOperations } from '../database/operations';
 
 export class DataProcessor {
-  async importSetlistsFromResponse(response: SetlistsResponse): Promise<void> {
+  async importSetlistsFromResponse(response: SetlistsResponse): Promise<number> {
+    let newCount = 0;
     for (const setlist of response.setlist) {
-      await this.processSetlist(setlist);
+      const wasNew = await this.processSetlist(setlist);
+      if (wasNew) newCount++;
     }
+    return newCount;
   }
 
   async importSetlistsFromPages(responses: SetlistsResponse[]): Promise<void> {
@@ -35,13 +38,13 @@ export class DataProcessor {
     }
   }
 
-  private async processSetlist(setlist: Setlist): Promise<void> {
+  private async processSetlist(setlist: Setlist): Promise<boolean> {
     try {
       // Check if setlist already exists
-      if (!setlist.id) return;
+      if (!setlist.id) return false;
       const existingSetlist = await dbOperations.getSetlistById(setlist.id);
       if (existingSetlist) {
-        return;
+        return false;
       }
 
       // Extract and store country first (if exists)
@@ -76,8 +79,11 @@ export class DataProcessor {
       if (setlist.sets?.set && setlist.sets.set.length > 0) {
         await this.processSets(setlist.sets.set, setlist.id as string);
       }
+
+      return true;
     } catch (error) {
       console.error(`Error processing setlist ${setlist.id}:`, error);
+      return false;
     }
   }
 

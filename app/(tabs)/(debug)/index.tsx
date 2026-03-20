@@ -160,7 +160,10 @@ export default function DebugScreen() {
     const result = await syncConcertData();
     if (result.success) {
       await loadStats();
-      Alert.alert('Success', `Processed ${result.pagesProcessed} pages of concert data.`);
+      Alert.alert(
+        'Success',
+        `Processed ${result.pagesProcessed} pages, ${result.newConcerts} new concerts.`,
+      );
     } else {
       Alert.alert('Error', `Failed to fetch data: ${result.error}`);
     }
