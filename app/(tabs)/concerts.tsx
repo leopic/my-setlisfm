@@ -300,6 +300,7 @@ export default function ConcertsScreen() {
   const [loading, setLoading] = useState(true);
 
   const [sortOption, setSortOption] = useState<SortOption>('recent');
+  const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [filterEntityName, setFilterEntityName] = useState<string>('');
 
