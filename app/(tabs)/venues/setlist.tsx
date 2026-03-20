@@ -29,11 +29,7 @@ export default function VenueSetlistDetailScreen() {
   }), [colors]);
 
   const router = useRouter();
-  const { id, returnTo } = useLocalSearchParams<{
-    id: string;
-    returnTo?: string;
-    returnParams?: string;
-  }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const [setlist, setSetlist] = useState<SetlistWithDetails | null>(null);
   const [sets, setSets] = useState<SetWithSongs[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,20 +56,7 @@ export default function VenueSetlistDetailScreen() {
   };
 
   const handleBackPress = () => {
-    if (returnTo) {
-      try {
-        const parsedParams = JSON.parse(returnTo);
-        router.push({
-          pathname: parsedParams.pathname as any,
-          params: parsedParams.params,
-        });
-      } catch (error) {
-        console.error('Error parsing return params:', error);
-        router.back();
-      }
-    } else {
-      router.back();
-    }
+    router.back();
   };
 
   if (loading) {

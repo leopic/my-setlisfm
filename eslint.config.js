@@ -14,7 +14,7 @@ module.exports = tseslint.config(
     rules: {
       'prettier/prettier': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/consistent-type-imports': 'error',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
@@ -23,6 +23,7 @@ module.exports = tseslint.config(
     ignores: [
       'node_modules/',
       '.expo/',
+      '.agents/',
       'ios/',
       'android/',
       'babel.config.js',
