@@ -122,7 +122,7 @@ export default function ContinentDetailScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
@@ -139,6 +139,6 @@ export default function ContinentDetailScreen() {
         onCountryPress={handleCountryPress}
         emptyMessage="No countries found in this continent"
       />
-    </View>
+    </SafeAreaView>
   );
 }

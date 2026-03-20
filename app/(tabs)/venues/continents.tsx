@@ -290,7 +290,7 @@ export default function ContinentsScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.push('/venues')}>
@@ -359,6 +359,6 @@ export default function ContinentsScreen() {
           continents.map(getContinentCard)
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

@@ -142,7 +142,7 @@ export default function CountriesScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.push('/venues')}>
@@ -209,6 +209,6 @@ export default function CountriesScreen() {
         }}
         emptyMessage="No countries found"
       />
-    </View>
+    </SafeAreaView>
   );
 }

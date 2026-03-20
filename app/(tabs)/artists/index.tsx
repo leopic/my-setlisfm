@@ -275,7 +275,7 @@ export default function ArtistsScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Artists</Text>
@@ -309,6 +309,6 @@ export default function ArtistsScreen() {
           filteredArtists.map(getArtistCard)
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
@@ -313,7 +314,7 @@ export default function DebugScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} contentInsetAdjustmentBehavior="automatic" showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
@@ -452,6 +453,6 @@ export default function DebugScreen() {
           </Text>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

@@ -363,7 +363,7 @@ export default function VenuesScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Venues</Text>
@@ -446,6 +446,6 @@ export default function VenuesScreen() {
           filteredVenues.map(getVenueCard)
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

@@ -154,7 +154,7 @@ export default function CitiesScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.push('/venues')}>
@@ -212,6 +212,6 @@ export default function CitiesScreen() {
       </View>
 
       <CityList cities={cities} onCityPress={handleCityPress} emptyMessage="No cities found" />
-    </View>
+    </SafeAreaView>
   );
 }

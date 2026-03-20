@@ -263,7 +263,7 @@ export default function CityDetailScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
@@ -284,6 +284,6 @@ export default function CityDetailScreen() {
           venues.map(getVenueCard)
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

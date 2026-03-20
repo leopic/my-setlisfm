@@ -119,7 +119,7 @@ export default function CountryDetailScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
@@ -136,6 +136,6 @@ export default function CountryDetailScreen() {
         onCityPress={handleCityPress}
         emptyMessage="No cities found in this country"
       />
-    </View>
+    </SafeAreaView>
   );
 }

@@ -214,7 +214,7 @@ export default function DashboardScreen() {
   const maxYearCount = Math.max(...stats.concertsByYear.map((y) => y.count), 1);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View style={styles.header}>
           <Text style={styles.title}>Dashboard</Text>
@@ -316,6 +316,6 @@ export default function DashboardScreen() {
 
         {lastSynced && <Text style={styles.lastSynced}>Last synced: {lastSynced}</Text>}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
