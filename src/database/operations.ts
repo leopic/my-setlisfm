@@ -351,9 +351,13 @@ export class DatabaseOperations {
         s.withArtistMbid,
         s.coverArtistMbid,
         s.songOrder AS songSongOrder,
-        s.setId     AS songSetId
+        s.setId     AS songSetId,
+        wa.name     AS withArtistName,
+        ca.name     AS coverArtistName
       FROM sets st
       LEFT JOIN songs s ON s.setId = st.id
+      LEFT JOIN artists wa ON s.withArtistMbid = wa.mbid
+      LEFT JOIN artists ca ON s.coverArtistMbid = ca.mbid
       WHERE st.setlistId = ?
       ORDER BY st.id, s.songOrder
     `,
@@ -384,6 +388,12 @@ export class DatabaseOperations {
           info: row.songInfo,
           withArtistMbid: row.withArtistMbid,
           coverArtistMbid: row.coverArtistMbid,
+          withArtist: row.withArtistMbid
+            ? { mbid: row.withArtistMbid, name: row.withArtistName }
+            : undefined,
+          coverArtist: row.coverArtistMbid
+            ? { mbid: row.coverArtistMbid, name: row.coverArtistName }
+            : undefined,
           songOrder: row.songSongOrder,
         });
       }

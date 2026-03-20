@@ -137,11 +137,11 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
                     {song.name}
                     {song.info && ` (${song.info})`}
                   </Text>
-                  {song.withArtistMbid && (
-                    <Text style={styles.withArtistText}>with {song.withArtistMbid}</Text>
+                  {song.withArtist?.name && (
+                    <Text style={styles.withArtistText}>with {song.withArtist.name}</Text>
                   )}
-                  {song.coverArtistMbid && (
-                    <Text style={styles.coverArtistText}>cover of {song.coverArtistMbid}</Text>
+                  {song.coverArtist?.name && (
+                    <Text style={styles.coverArtistText}>cover of {song.coverArtist.name}</Text>
                   )}
                 </View>
               ))}
