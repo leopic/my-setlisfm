@@ -1,65 +1,39 @@
-import { useMemo } from 'react';
-import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { useColors } from '../../src/utils/colors';
+import { NativeTabs } from 'expo-router/unstable-native-tabs';
 
 export { ErrorBoundary } from '../../src/components/ErrorBoundary';
 
 export default function TabLayout() {
-  const colors = useColors();
-  const screenOptions = useMemo(
-    () => ({
-      tabBarActiveTintColor: colors.primary,
-      tabBarInactiveTintColor: colors.tabInactive,
-      tabBarStyle: {
-        backgroundColor: colors.backgroundCard,
-        borderTopWidth: 1,
-        borderTopColor: colors.borderLight,
-      },
-      headerShown: false,
-    }),
-    [colors],
-  );
-
   return (
-    <Tabs screenOptions={screenOptions} initialRouteName="(home)">
-      <Tabs.Screen
-        name="(home)"
-        options={{
-          title: 'Dashboard',
-          tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="(concerts)"
-        options={{
-          title: 'Concerts',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="musical-notes" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="(artists)"
-        options={{
-          title: 'Artists',
-          tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="(venues)"
-        options={{
-          title: 'Venues',
-          tabBarIcon: ({ color, size }) => <Ionicons name="location" size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="(debug)"
-        options={{
-          title: 'Debug',
-          tabBarIcon: ({ color, size }) => <Ionicons name="settings" size={size} color={color} />,
-        }}
-      />
-    </Tabs>
+    <NativeTabs initialRouteName="(home)">
+      <NativeTabs.Trigger name="(home)">
+        <NativeTabs.Trigger.Icon sf={{ default: 'house', selected: 'house.fill' }} md="home" />
+        <NativeTabs.Trigger.Label>Dashboard</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="(concerts)">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'music.note.list', selected: 'music.note.list' }}
+          md="library_music"
+        />
+        <NativeTabs.Trigger.Label>Concerts</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="(artists)">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'person.2', selected: 'person.2.fill' }}
+          md="group"
+        />
+        <NativeTabs.Trigger.Label>Artists</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="(venues)">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'mappin.and.ellipse', selected: 'mappin.and.ellipse' }}
+          md="location_on"
+        />
+        <NativeTabs.Trigger.Label>Venues</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="(debug)">
+        <NativeTabs.Trigger.Icon sf={{ default: 'gear', selected: 'gear' }} md="settings" />
+        <NativeTabs.Trigger.Label>Debug</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }

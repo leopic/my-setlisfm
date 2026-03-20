@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
+import { useColorScheme } from 'react-native';
+import { ThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native';
 import { databaseManager } from '../src/database/database';
 import { Stack } from 'expo-router';
 
 export { ErrorBoundary } from '../src/components/ErrorBoundary';
 
 export default function Layout() {
+  const colorScheme = useColorScheme();
   const [dbReady, setDbReady] = useState(false);
 
   useEffect(() => {
-    // Initialize database once when the app starts
     const initDb = async () => {
       try {
         await databaseManager.initialize();
@@ -21,14 +23,15 @@ export default function Layout() {
     initDb();
   }, []);
 
-  // Don't render tabs until database is ready
   if (!dbReady) {
-    return null; // or a loading screen
+    return null;
   }
 
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-    </Stack>
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+    </ThemeProvider>
   );
 }
