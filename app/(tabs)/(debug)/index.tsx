@@ -8,11 +8,9 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
-import { SetlistApiService } from '../../../src/services/setlistApi';
-import { DataProcessor } from '../../../src/services/dataProcessor';
+import { syncConcertData } from '../../../src/services/syncService';
 import { useColors } from '../../../src/utils/colors';
 import { ScreenHeader, StatBox } from '../../../src/components/ui';
 
@@ -142,10 +140,6 @@ export default function DebugScreen() {
   const [loading, setLoading] = useState(false);
   const [lastFetched, setLastFetched] = useState<string | null>(null);
 
-  // Create service instances
-  const setlistApi = new SetlistApiService();
-  const dataProcessor = new DataProcessor();
-
   useEffect(() => {
     loadStats();
   }, []);
@@ -162,37 +156,15 @@ export default function DebugScreen() {
   };
 
   const handleFetchData = async () => {
-    try {
-      setLoading(true);
-
-      const username = Constants.expoConfig?.extra?.setlistfmTestUsername || 'leopic';
-
-      // Fetch all available pages
-      const allPages = await setlistApi.getAllUserAttendedConcerts(username);
-
-      if (allPages.length === 0) {
-        Alert.alert('No Data', 'No concert data found for this user');
-        return;
-      }
-
-      // Process all pages
-      await dataProcessor.importSetlistsFromPages(allPages);
-      await dbOperations.updateLastFetchedAt();
-
+    setLoading(true);
+    const result = await syncConcertData();
+    if (result.success) {
       await loadStats();
-      Alert.alert(
-        'Success',
-        `Data fetched successfully! Processed ${allPages.length} pages of concert data.`,
-      );
-    } catch (error) {
-      console.error('Failed to fetch data:', error);
-      Alert.alert(
-        'Error',
-        `Failed to fetch data: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
-    } finally {
-      setLoading(false);
+      Alert.alert('Success', `Processed ${result.pagesProcessed} pages of concert data.`);
+    } else {
+      Alert.alert('Error', `Failed to fetch data: ${result.error}`);
     }
+    setLoading(false);
   };
 
   const handleClearDatabase = async () => {

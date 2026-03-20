@@ -1,11 +1,20 @@
 import { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  RefreshControl,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { dbOperations } from '../../../src/database/operations';
+import { syncConcertData } from '../../../src/services/syncService';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
 import DashboardSkeleton from '../../../src/components/skeletons/DashboardSkeleton';
-import { ScreenHeader, StatBox, Card, EmptyState } from '../../../src/components/ui';
+import { ScreenHeader, StatBox, Card } from '../../../src/components/ui';
 
 type DashboardStats = Awaited<ReturnType<typeof dbOperations.getDashboardStats>>;
 
@@ -123,6 +132,40 @@ export default function DashboardScreen() {
           textAlign: 'center',
           paddingVertical: 16,
         },
+        emptyState: {
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: 40,
+        },
+        emptyTitle: {
+          fontSize: 20,
+          fontWeight: '600',
+          color: colors.textPrimary,
+          marginBottom: 8,
+        },
+        emptySubtitle: {
+          fontSize: 15,
+          color: colors.textSecondary,
+          textAlign: 'center',
+          marginBottom: 24,
+          lineHeight: 22,
+        },
+        syncButton: {
+          backgroundColor: colors.primary,
+          paddingHorizontal: 28,
+          paddingVertical: 14,
+          borderRadius: 12,
+          borderCurve: 'continuous' as const,
+        },
+        syncButtonDisabled: {
+          opacity: 0.6,
+        },
+        syncButtonText: {
+          color: colors.textInverse,
+          fontSize: 16,
+          fontWeight: '600',
+        },
       }),
     [colors],
   );
@@ -131,6 +174,7 @@ export default function DashboardScreen() {
   const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     loadDashboard();
@@ -151,9 +195,23 @@ export default function DashboardScreen() {
     }
   };
 
+  const handleSync = async () => {
+    setSyncing(true);
+    const result = await syncConcertData();
+    if (result.success) {
+      await loadDashboard();
+      if (result.pagesProcessed > 0) {
+        Alert.alert('Sync Complete', `Processed ${result.pagesProcessed} pages of concert data.`);
+      }
+    } else {
+      Alert.alert('Sync Failed', result.error ?? 'Unknown error');
+    }
+    setSyncing(false);
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadDashboard();
+    await handleSync();
     setRefreshing(false);
   };
 
@@ -165,10 +223,21 @@ export default function DashboardScreen() {
     return (
       <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
         <ScreenHeader title="Dashboard" />
-        <EmptyState
-          title="No concert data yet"
-          subtitle="Head to the Debug tab to fetch your concert history from Setlist.fm"
-        />
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyTitle}>No concert data yet</Text>
+          <Text style={styles.emptySubtitle}>
+            Fetch your concert history from Setlist.fm to get started
+          </Text>
+          <TouchableOpacity
+            style={[styles.syncButton, syncing && styles.syncButtonDisabled]}
+            onPress={handleSync}
+            disabled={syncing}
+          >
+            <Text style={styles.syncButtonText}>
+              {syncing ? 'Syncing...' : 'Fetch Concert Data'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     );
   }
