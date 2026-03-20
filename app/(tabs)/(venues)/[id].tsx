@@ -5,6 +5,7 @@ import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails, SetWithSongs } from '../../../src/types/database';
 import Setlist from '../../../src/components/Setlist';
 import { useColors } from '../../../src/utils/colors';
+import SetlistSkeleton from '../../../src/components/skeletons/SetlistSkeleton';
 
 export default function SetlistDetailScreen() {
   const colors = useColors();
@@ -54,11 +55,7 @@ export default function SetlistDetailScreen() {
   };
 
   if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.loadingText}>Loading setlist...</Text>
-      </SafeAreaView>
-    );
+    return <SetlistSkeleton />;
   }
 
   if (!setlist) {

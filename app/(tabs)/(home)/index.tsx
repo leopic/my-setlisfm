@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
+import DashboardSkeleton from '../../../src/components/skeletons/DashboardSkeleton';
 
 type DashboardStats = Awaited<ReturnType<typeof dbOperations.getDashboardStats>>;
 
@@ -177,6 +178,7 @@ export default function DashboardScreen() {
 
   const [stats, setStats] = useState<DashboardStats>(emptyStats);
   const [lastSynced, setLastSynced] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadDashboard();
@@ -192,8 +194,14 @@ export default function DashboardScreen() {
       setLastSynced(fetchedAt ? fetchedAt.toLocaleString() : null);
     } catch (error) {
       console.error('Failed to load dashboard:', error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
 
   if (stats.totalConcerts === 0) {
     return (

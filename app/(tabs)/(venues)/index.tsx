@@ -15,6 +15,7 @@ import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
+import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
 
 interface VenueWithStats {
   id: string;
@@ -354,13 +355,7 @@ export default function VenuesScreen() {
   );
 
   if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading venues...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <ListSkeleton showSortBar />;
   }
 
   return (

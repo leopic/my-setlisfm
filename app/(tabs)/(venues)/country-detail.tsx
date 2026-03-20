@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import CityList from '../../../src/components/CityList';
 import { useColors } from '../../../src/utils/colors';
+import DetailSkeleton from '../../../src/components/skeletons/DetailSkeleton';
 
 interface CityWithStats {
   name: string;
@@ -99,13 +100,7 @@ export default function CountryDetailScreen() {
   };
 
   if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading cities...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <DetailSkeleton cardCount={3} />;
   }
 
   return (

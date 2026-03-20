@@ -13,6 +13,7 @@ import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails } from '../../../src/types/database';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
+import ConcertListSkeleton from '../../../src/components/skeletons/ConcertListSkeleton';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -203,13 +204,7 @@ export default function VenueConcertsListScreen() {
   };
 
   if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading concerts...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <ConcertListSkeleton />;
   }
 
   return (

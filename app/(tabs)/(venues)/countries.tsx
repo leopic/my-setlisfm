@@ -6,6 +6,7 @@ import CountryList from '../../../src/components/CountryList';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
+import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
 
 interface CountryWithStats {
   name: string;
@@ -132,13 +133,7 @@ export default function CountriesScreen() {
   };
 
   if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading countries...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <ListSkeleton showSortBar />;
   }
 
   return (

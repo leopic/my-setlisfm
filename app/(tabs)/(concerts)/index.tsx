@@ -16,6 +16,7 @@ import { parseSetlistDate, formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
+import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
   venueName: string;
@@ -411,11 +412,7 @@ export default function ConcertsScreen() {
   const totalConcerts = yearGroups.reduce((sum, group) => sum + group.totalConcerts, 0);
 
   if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.loadingText}>Loading concerts...</Text>
-      </SafeAreaView>
-    );
+    return <ListSkeleton showSortBar />;
   }
 
   return (

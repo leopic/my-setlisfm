@@ -11,6 +11,7 @@ import {
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import SortAndSearch from '../../../src/components/SortAndSearch';
+import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
 import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
@@ -266,13 +267,7 @@ export default function ArtistsScreen() {
   );
 
   if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading artists...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <ListSkeleton showSortBar />;
   }
 
   return (

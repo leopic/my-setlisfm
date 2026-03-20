@@ -6,6 +6,7 @@ import CityList from '../../../src/components/CityList';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
+import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
 
 interface CityWithStats {
   name: string;
@@ -142,13 +143,7 @@ export default function CitiesScreen() {
   };
 
   if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading cities...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <ListSkeleton showSortBar />;
   }
 
   return (

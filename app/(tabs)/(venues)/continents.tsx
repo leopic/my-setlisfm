@@ -14,6 +14,7 @@ import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
+import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
 
 interface ContinentWithStats {
   name: string;
@@ -279,13 +280,7 @@ export default function ContinentsScreen() {
   );
 
   if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading continents...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <ListSkeleton showSortBar />;
   }
 
   return (
