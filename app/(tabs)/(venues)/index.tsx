@@ -298,7 +298,7 @@ export default function VenuesScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} testID="venues-screen">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="venues-screen">
       {/* Header */}
       <ScreenHeader
         title="Venues"

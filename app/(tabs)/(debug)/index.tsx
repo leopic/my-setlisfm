@@ -274,7 +274,7 @@ export default function DebugScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <ScreenHeader title="Debug & Admin" subtitle="Database management and testing tools" />

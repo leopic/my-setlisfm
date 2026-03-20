@@ -213,7 +213,7 @@ export default function ContinentsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} testID="continents-screen">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="continents-screen">
       {/* Header */}
       <ScreenHeader
         title="Continents"

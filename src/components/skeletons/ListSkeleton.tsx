@@ -52,7 +52,7 @@ export default function ListSkeleton({
   );
 
   return (
-    <SafeAreaView style={styles.container} testID="loading-skeleton">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="loading-skeleton">
       {showHeader && (
         <View style={styles.header}>
           <SkeletonBox width={180} height={28} style={{ marginBottom: 8 }} />

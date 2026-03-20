@@ -30,7 +30,7 @@ export default function SetlistSkeleton() {
   );
 
   return (
-    <SafeAreaView style={styles.container} testID="loading-skeleton">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="loading-skeleton">
       <View style={styles.header}>
         <SkeletonBox width={60} height={16} style={{ marginBottom: 16 }} />
         <SkeletonBox width="70%" height={22} style={{ marginBottom: 10 }} />

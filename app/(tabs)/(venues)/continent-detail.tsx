@@ -70,7 +70,7 @@ export default function ContinentDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
       {/* Header */}
       <ScreenHeader
         title={continentName as string}

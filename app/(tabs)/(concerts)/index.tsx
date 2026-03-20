@@ -358,7 +358,7 @@ export default function ConcertsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} testID="concerts-screen">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="concerts-screen">
       {/* Header */}
       <ScreenHeader
         title="My Concerts"

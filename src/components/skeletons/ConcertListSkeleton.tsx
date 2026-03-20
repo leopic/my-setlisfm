@@ -37,7 +37,7 @@ export default function ConcertListSkeleton({ showHeader = true }: Props) {
   );
 
   return (
-    <SafeAreaView style={styles.container} testID="loading-skeleton">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="loading-skeleton">
       {showHeader && (
         <View style={styles.header}>
           <SkeletonBox width={60} height={16} style={{ marginBottom: 12 }} />

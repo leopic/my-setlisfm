@@ -66,7 +66,7 @@ export default function CountriesScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} testID="countries-screen">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="countries-screen">
       {/* Header */}
       <ScreenHeader
         title="Countries"

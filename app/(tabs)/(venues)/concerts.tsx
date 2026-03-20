@@ -156,7 +156,7 @@ export default function VenueConcertsListScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} testID="venue-concerts-screen">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="venue-concerts-screen">
       {/* Header */}
       <ScreenHeader
         title={venueName}

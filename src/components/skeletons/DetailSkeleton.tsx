@@ -39,7 +39,7 @@ export default function DetailSkeleton({ cardCount = 3 }: Props) {
   );
 
   return (
-    <SafeAreaView style={styles.container} testID="loading-skeleton">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="loading-skeleton">
       <View style={styles.header}>
         <SkeletonBox width={60} height={16} style={{ marginBottom: 12 }} />
         <SkeletonBox width="60%" height={28} style={{ marginBottom: 8 }} />

@@ -155,7 +155,7 @@ export default function ArtistConcertsListScreen() {
   ];
 
   return (
-    <SafeAreaView style={styles.container} testID="artist-concerts-screen">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="artist-concerts-screen">
       {/* Header */}
       <ScreenHeader
         title={artistName}

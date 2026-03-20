@@ -209,7 +209,7 @@ export default function CityDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
       {/* Header */}
       <ScreenHeader
         title={city as string}

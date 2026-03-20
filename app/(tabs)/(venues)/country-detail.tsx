@@ -67,7 +67,7 @@ export default function CountryDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
       {/* Header */}
       <ScreenHeader
         title={country as string}

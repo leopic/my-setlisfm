@@ -233,7 +233,7 @@ export default function ArtistsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} testID="artists-screen">
+    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="artists-screen">
       {/* Header */}
       <ScreenHeader
         title="Artists"
