@@ -115,15 +115,17 @@ describe('DataProcessor', () => {
       expect(mockDbOps.insertSetlist).not.toHaveBeenCalled();
     });
 
-    it('should skip setlists with no sets (no actual concert data)', async () => {
+    it('should store setlists with no sets (attended but no song data)', async () => {
       const response = makeResponse([makeSetlist({ sets: { set: [] } })]);
 
       await processor.importSetlistsFromResponse(response);
 
-      // Country/city/venue should still be processed, but no artist/setlist/songs
+      // All entities should be stored, just no sets/songs
       expect(mockDbOps.insertCountry).toHaveBeenCalled();
-      expect(mockDbOps.insertArtist).not.toHaveBeenCalled();
-      expect(mockDbOps.insertSetlist).not.toHaveBeenCalled();
+      expect(mockDbOps.insertArtist).toHaveBeenCalled();
+      expect(mockDbOps.insertSetlist).toHaveBeenCalled();
+      expect(mockDbOps.insertSet).not.toHaveBeenCalled();
+      expect(mockDbOps.insertSong).not.toHaveBeenCalled();
     });
 
     it('should process cover artists as separate artist entries', async () => {

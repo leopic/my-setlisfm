@@ -64,12 +64,7 @@ export class DataProcessor {
         await this.processTour(setlist.tour);
       }
 
-      // Check if setlist has actual concert data before storing anything else
-      if (!setlist.sets?.set || setlist.sets.set.length === 0) {
-        return;
-      }
-
-      // Extract and store artist (if exists) - only after confirming we have concert data
+      // Extract and store artist (if exists)
       if (setlist.artist) {
         await this.processArtist(setlist.artist);
       }
@@ -77,8 +72,10 @@ export class DataProcessor {
       // Extract and store setlist
       await this.insertSetlistRecord(setlist);
 
-      // Extract and store sets and songs
-      await this.processSets(setlist.sets.set, setlist.id as string);
+      // Extract and store sets and songs (if any)
+      if (setlist.sets?.set && setlist.sets.set.length > 0) {
+        await this.processSets(setlist.sets.set, setlist.id as string);
+      }
     } catch (error) {
       console.error(`Error processing setlist ${setlist.id}:`, error);
     }
