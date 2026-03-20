@@ -10,7 +10,10 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx}\" \"app/**/*.{ts,tsx}\"",
-    "test:e2e": "maestro test .maestro/"
+    "test:e2e": ".maestro/scripts/run-seeded.sh",
+    "test:e2e:empty": ".maestro/scripts/run-empty.sh",
+    "test:e2e:seed": ".maestro/scripts/seed-db.sh",
+    "test:e2e:clear": ".maestro/scripts/seed-db.sh --clear"
   },
   "dependencies": {
     "expo": "~53.0.20",
