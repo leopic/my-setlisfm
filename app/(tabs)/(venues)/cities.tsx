@@ -2,20 +2,20 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
-import CountryList from '../../../src/components/CountryList';
+import CityList from '../../../src/components/CityList';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
 
-interface CountryWithStats {
+interface CityWithStats {
   name: string;
-  cityCount: number;
+  countryName: string;
   venueCount: number;
   lastConcertDate?: string;
-  cities: string[];
+  venues: string[];
 }
 
-export default function CountriesScreen() {
+export default function CitiesScreen() {
   const colors = useColors();
   const styles = useMemo(() => StyleSheet.create({
     container: {
@@ -98,28 +98,28 @@ export default function CountriesScreen() {
   }), [colors]);
 
   const router = useRouter();
-  const [countries, setCountries] = useState<CountryWithStats[]>([]);
+  const [cities, setCities] = useState<CityWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<SortOption>('alphabetical');
 
   useEffect(() => {
-    loadCountries();
+    loadCities();
   }, []);
 
-  const loadCountries = async () => {
+  const loadCities = async () => {
     try {
       setLoading(true);
-      const countriesWithStats = await dbOperations.getCountriesWithStats();
-      const sortedCountries = sortByOption(
-        countriesWithStats,
+      const citiesWithStats = await dbOperations.getCitiesWithStats();
+      const sortedCities = sortByOption(
+        citiesWithStats,
         sortOption,
         undefined,
         (c) => c.venueCount,
       );
-      setCountries(sortedCountries);
+      setCities(sortedCities);
     } catch (error) {
-      console.error('Failed to load countries:', error);
-      Alert.alert('Error', 'Failed to load countries');
+      console.error('Failed to load cities:', error);
+      Alert.alert('Error', 'Failed to load cities');
     } finally {
       setLoading(false);
     }
@@ -127,15 +127,25 @@ export default function CountriesScreen() {
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    const sortedCountries = sortByOption(countries, newSortOption, undefined, (c) => c.venueCount);
-    setCountries(sortedCountries);
+    const sortedCities = sortByOption(cities, newSortOption, undefined, (c) => c.venueCount);
+    setCities(sortedCities);
+  };
+
+  const handleCityPress = (city: CityWithStats) => {
+    router.push({
+      pathname: '/(venues)/city-detail',
+      params: {
+        city: city.name,
+        country: city.countryName,
+      },
+    });
   };
 
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading countries...</Text>
+          <Text style={styles.loadingText}>Loading cities...</Text>
         </View>
       </SafeAreaView>
     );
@@ -145,14 +155,14 @@ export default function CountriesScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.push('/venues')}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Countries</Text>
+        <Text style={styles.title}>Cities</Text>
         <Text style={styles.subtitle}>
           {sortOption === 'top'
-            ? `${countries.length} countries (sorted by venue count)`
-            : `${countries.length} countries`}
+            ? `${cities.length} cities (sorted by venue count)`
+            : `${cities.length} cities`}
         </Text>
       </View>
 
@@ -199,16 +209,7 @@ export default function CountriesScreen() {
         </View>
       </View>
 
-      <CountryList
-        countries={countries}
-        onCountryPress={(country) => {
-          router.push({
-            pathname: '/venues/country-detail',
-            params: { countryCode: country.code },
-          });
-        }}
-        emptyMessage="No countries found"
-      />
+      <CityList cities={cities} onCityPress={handleCityPress} emptyMessage="No cities found" />
     </SafeAreaView>
   );
 }

@@ -9,13 +9,13 @@ import {
   RefreshControl,
   SafeAreaView,
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { dbOperations } from '../../src/database/operations';
-import type { SetlistWithDetails } from '../../src/types/database';
-import { parseSetlistDate, formatDate } from '../../src/utils/date';
-import type { SortOption } from '../../src/utils/sort';
-import { sortByOption } from '../../src/utils/sort';
-import { useColors } from '../../src/utils/colors';
+import { useRouter } from 'expo-router';
+import { dbOperations } from '../../../src/database/operations';
+import type { SetlistWithDetails } from '../../../src/types/database';
+import { parseSetlistDate, formatDate } from '../../../src/utils/date';
+import type { SortOption } from '../../../src/utils/sort';
+import { sortByOption } from '../../../src/utils/sort';
+import { useColors } from '../../../src/utils/colors';
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
   venueName: string;
@@ -294,61 +294,21 @@ export default function ConcertsScreen() {
   }), [colors]);
 
   const router = useRouter();
-  const params = useLocalSearchParams();
   const [concerts, setConcerts] = useState<ConcertWithDetails[]>([]);
   const [yearGroups, setYearGroups] = useState<YearGroup[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [sortOption, setSortOption] = useState<SortOption>('recent');
-  const [searchQuery, _setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [filterEntityName, setFilterEntityName] = useState<string>('');
-
-  // Get filter parameters from navigation
-  const artist = params.artist as string;
-  const venue = params.venue as string;
 
   useEffect(() => {
     loadConcerts();
-    if (artist || venue) {
-      loadFilterEntityName();
-    }
-  }, [artist, venue]);
-
-  const loadFilterEntityName = async () => {
-    try {
-      if (artist) {
-        // Fetch artist name by MBID
-        const artistData = await dbOperations.getArtistByMbid(artist);
-        if (artistData?.name) {
-          setFilterEntityName(artistData.name);
-        }
-      } else if (venue) {
-        // Fetch venue name by ID
-        const venueData = await dbOperations.getVenueById(venue);
-        if (venueData?.name) {
-          setFilterEntityName(venueData.name);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to load filter entity name:', error);
-      // Fallback to ID if name fetch fails
-      setFilterEntityName(artist || venue || '');
-    }
-  };
+  }, []);
 
   const loadConcerts = async () => {
     try {
       setLoading(true);
-      let rawConcerts: SetlistWithDetails[] = [];
-
-      if (artist) {
-        rawConcerts = await dbOperations.getSetlistsByArtist(artist);
-      } else if (venue) {
-        rawConcerts = await dbOperations.getSetlistsByVenue(venue);
-      } else {
-        rawConcerts = await dbOperations.getAllSetlists();
-      }
+      const rawConcerts = await dbOperations.getAllSetlists();
 
       // Transform and add display names
       const concertsWithDetails: ConcertWithDetails[] = rawConcerts.map((concert) => ({
@@ -446,16 +406,7 @@ export default function ConcertsScreen() {
     setRefreshing(false);
   };
 
-  const filteredYearGroups = yearGroups.filter((yearGroup) => {
-    if (!searchQuery) return true;
-
-    return yearGroup.concerts.some(
-      (concert) =>
-        concert.artistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        concert.venueName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (concert.cityName && concert.cityName.toLowerCase().includes(searchQuery.toLowerCase())),
-    );
-  });
+  const filteredYearGroups = yearGroups;
 
   const totalConcerts = yearGroups.reduce((sum, group) => sum + group.totalConcerts, 0);
 
@@ -471,52 +422,12 @@ export default function ConcertsScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.headerTop}>
-          {(artist || venue) && (
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => {
-                router.back();
-              }}
-            >
-              <Text style={styles.backButtonText}>← Back</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-        <Text style={styles.title}>
-          {artist ? 'Artist Concerts' : venue ? 'Venue Concerts' : 'My Concerts'}
+        <Text style={styles.title}>My Concerts</Text>
+        <Text style={styles.subtitle}>
+          {sortOption === 'alphabetical'
+            ? `${totalConcerts} concerts (alphabetical by artist)`
+            : `${totalConcerts} concerts grouped by year`}
         </Text>
-        {artist || venue ? (
-          <Text style={styles.subtitle}>{totalConcerts} concerts found</Text>
-        ) : (
-          <Text style={styles.subtitle}>
-            {sortOption === 'alphabetical'
-              ? `${totalConcerts} concerts (alphabetical by artist)`
-              : `${totalConcerts} concerts grouped by year`}
-          </Text>
-        )}
-
-        {/* Filter Display */}
-        {(artist || venue) && (
-          <View style={styles.filterContainer}>
-            <View style={styles.filterBadge}>
-              <Text style={styles.filterLabel}>
-                {artist ? 'Filtered by Artist' : 'Filtered by Venue'}
-              </Text>
-              <Text style={styles.filterValue}>
-                {filterEntityName || (artist ? `Artist ID: ${artist}` : `Venue ID: ${venue}`)}
-              </Text>
-            </View>
-            <TouchableOpacity
-              style={styles.clearFilterButton}
-              onPress={() => {
-                router.back();
-              }}
-            >
-              <Text style={styles.clearFilterText}>Clear Filter</Text>
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
 
       {/* Sorting Options */}
@@ -562,7 +473,7 @@ export default function ConcertsScreen() {
         {filteredYearGroups.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>
-              {searchQuery ? 'No concerts found matching your search' : 'No concerts found'}
+              No concerts found
             </Text>
           </View>
         ) : sortOption === 'alphabetical' ? (
@@ -576,22 +487,9 @@ export default function ConcertsScreen() {
                   key={concert.id}
                   style={styles.concertItem}
                   onPress={() => {
-                    // Pass return information so the setlist knows where to return
-                    const returnParams = artist ? { artist } : venue ? { venue } : {};
-                    const returnTo = artist
-                      ? '/artists/concerts'
-                      : venue
-                        ? '/venues/concerts'
-                        : '/';
-
                     router.push({
-                      pathname: '/setlist',
-                      params: {
-                        id: concert.id,
-                        source: 'concerts',
-                        returnTo,
-                        returnParams: JSON.stringify(returnParams),
-                      },
+                      pathname: '/(concerts)/[id]',
+                      params: { id: concert.id },
                     });
                   }}
                 >
@@ -663,22 +561,9 @@ export default function ConcertsScreen() {
                   key={concert.id}
                   style={styles.concertItem}
                   onPress={() => {
-                    // Pass return information so the setlist knows where to return
-                    const returnParams = artist ? { artist } : venue ? { venue } : {};
-                    const returnTo = artist
-                      ? '/artists/concerts'
-                      : venue
-                        ? '/venues/concerts'
-                        : '/';
-
                     router.push({
-                      pathname: '/setlist',
-                      params: {
-                        id: concert.id,
-                        source: 'concerts',
-                        returnTo,
-                        returnParams: JSON.stringify(returnParams),
-                      },
+                      pathname: '/(concerts)/[id]',
+                      params: { id: concert.id },
                     });
                   }}
                 >

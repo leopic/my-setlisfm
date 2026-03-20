@@ -280,7 +280,7 @@ export default function VenuesScreen() {
   const handleViewConcerts = (venue: VenueWithStats) => {
     // Navigate to concerts list screen
     router.push({
-      pathname: '/venues/concerts',
+      pathname: '/(venues)/concerts',
       params: { venue: venue.id },
     });
   };
@@ -380,7 +380,7 @@ export default function VenuesScreen() {
               <View style={styles.geoStatsRow}>
                 <TouchableOpacity
                   style={styles.geoStatButton}
-                  onPress={() => router.push('/venues/map')}
+                  onPress={() => router.push('/(venues)/map')}
                 >
                   <Text style={styles.geoStatEmoji}>Map</Text>
                   <Text style={styles.geoStatText}>Map</Text>
@@ -388,7 +388,7 @@ export default function VenuesScreen() {
 
                 <TouchableOpacity
                   style={styles.geoStatButton}
-                  onPress={() => router.push('/venues/continents')}
+                  onPress={() => router.push('/(venues)/continents')}
                 >
                   <Text style={styles.geoStatEmoji}>Continents</Text>
                   <Text style={styles.geoStatText}>
@@ -400,7 +400,7 @@ export default function VenuesScreen() {
               <View style={styles.geoStatsRow}>
                 <TouchableOpacity
                   style={styles.geoStatButton}
-                  onPress={() => router.push('/venues/countries')}
+                  onPress={() => router.push('/(venues)/countries')}
                 >
                   <Text style={styles.geoStatEmoji}>Countries</Text>
                   <Text style={styles.geoStatText}>
@@ -410,7 +410,7 @@ export default function VenuesScreen() {
 
                 <TouchableOpacity
                   style={styles.geoStatButton}
-                  onPress={() => router.push('/venues/cities')}
+                  onPress={() => router.push('/(venues)/cities')}
                 >
                   <Text style={styles.geoStatEmoji}>Cities</Text>
                   <Text style={styles.geoStatText}>

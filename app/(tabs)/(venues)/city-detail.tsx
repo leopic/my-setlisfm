@@ -154,7 +154,7 @@ export default function CityDetailScreen() {
 
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { city, country, returnTo, returnParams } = params;
+  const { city, country } = params;
 
   const [venues, setVenues] = useState<VenueWithStats[]>([]);
   const [loading, setLoading] = useState(true);
@@ -186,27 +186,15 @@ export default function CityDetailScreen() {
 
   const handleVenuePress = (venue: VenueWithStats) => {
     router.push({
-      pathname: '/venues/concerts',
+      pathname: '/(venues)/concerts',
       params: {
         venue: venue.id,
-        returnTo: '/venues/city-detail',
-        returnParams: JSON.stringify({ city, country, returnTo, returnParams }),
       },
     });
   };
 
   const handleBackPress = () => {
-    if (returnTo && returnParams) {
-      try {
-        const parsedParams = JSON.parse(returnParams as string);
-        router.push({ pathname: returnTo as string, params: parsedParams });
-      } catch (error) {
-        console.error('Error parsing return params:', error);
-        router.back();
-      }
-    } else {
-      router.back();
-    }
+    router.back();
   };
 
   const getVenueCard = (venue: VenueWithStats) => (

@@ -149,10 +149,8 @@ export default function VenueConcertsListScreen() {
   const [loading, setLoading] = useState(true);
   const [venueName, setVenueName] = useState<string>('');
 
-  // Get venue parameter and navigation context from navigation
+  // Get venue parameter from navigation
   const venueId = params.venue as string;
-  const returnTo = params.returnTo as string;
-  const returnParams = params.returnParams as string;
 
   useEffect(() => {
     if (venueId) {
@@ -194,32 +192,14 @@ export default function VenueConcertsListScreen() {
   };
 
   const handleConcertPress = (concert: ConcertWithDetails) => {
-    const returnInfo = {
-      pathname: '/venues/concerts' as any,
-      params: { venueId: venueId },
-    };
-
     router.push({
-      pathname: '/venues/setlist',
-      params: {
-        setlistId: concert.id,
-        returnTo: JSON.stringify(returnInfo),
-      },
+      pathname: '/(venues)/[id]',
+      params: { id: concert.id },
     });
   };
 
   const handleBackPress = () => {
-    if (returnTo && returnParams) {
-      try {
-        const parsedParams = JSON.parse(returnParams);
-        router.push({ pathname: returnTo as any, params: parsedParams });
-      } catch (error) {
-        console.error('Error parsing return params:', error);
-        router.back();
-      }
-    } else {
-      router.back();
-    }
+    router.back();
   };
 
   if (loading) {

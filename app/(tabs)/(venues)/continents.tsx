@@ -233,11 +233,9 @@ export default function ContinentsScreen() {
 
   const handleContinentPress = (continent: ContinentWithStats) => {
     router.push({
-      pathname: '/venues/continent-detail',
+      pathname: '/(venues)/continent-detail',
       params: {
         continentName: continent.name,
-        returnTo: '/venues/continents',
-        returnParams: JSON.stringify({}),
       },
     });
   };
@@ -293,7 +291,7 @@ export default function ContinentsScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.push('/venues')}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Continents</Text>

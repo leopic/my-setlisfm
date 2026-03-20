@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
-import { dbOperations } from '../../src/database/operations';
-import { formatDate } from '../../src/utils/date';
-import { useColors } from '../../src/utils/colors';
+import { dbOperations } from '../../../src/database/operations';
+import { formatDate } from '../../../src/utils/date';
+import { useColors } from '../../../src/utils/colors';
 
 type DashboardStats = Awaited<ReturnType<typeof dbOperations.getDashboardStats>>;
 

@@ -194,21 +194,14 @@ export default function ArtistConcertsListScreen() {
   };
 
   const handleConcertPress = (concert: ConcertWithDetails) => {
-    // Navigate to setlist detail within artists tab
-    // Pass the current artist parameter so the setlist page knows where to return
-    const currentParams = { artist: artistMbid };
     router.push({
-      pathname: '/artists/setlist',
-      params: {
-        id: concert.id,
-        returnTo: '/artists/concerts',
-        returnParams: JSON.stringify(currentParams),
-      },
+      pathname: '/(artists)/[id]',
+      params: { id: concert.id },
     });
   };
 
   const handleBackPress = () => {
-    router.push('/artists');
+    router.back();
   };
 
   if (loading) {

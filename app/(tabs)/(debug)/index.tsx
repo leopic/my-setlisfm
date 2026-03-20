@@ -10,10 +10,10 @@ import {
 } from 'react-native';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
-import { dbOperations } from '../../src/database/operations';
-import { SetlistApiService } from '../../src/services/setlistApi';
-import { DataProcessor } from '../../src/services/dataProcessor';
-import { useColors } from '../../src/utils/colors';
+import { dbOperations } from '../../../src/database/operations';
+import { SetlistApiService } from '../../../src/services/setlistApi';
+import { DataProcessor } from '../../../src/services/dataProcessor';
+import { useColors } from '../../../src/utils/colors';
 
 interface Stats {
   totalSetlists: number;
@@ -286,13 +286,13 @@ export default function DebugScreen() {
 
   const showAvailableRoutes = () => {
     const routes = [
-      '/artists',
-      '/venues',
-      '/artists/_concerts-list?artist=test',
-      '/venues/_concerts-list?venue=test',
-      '/artists/setlist?id=test',
-      '/venues/setlist?id=test',
-      '/setlist?id=test',
+      '/(artists)',
+      '/(venues)',
+      '/(artists)/concerts?artist=test',
+      '/(venues)/concerts?venue=test',
+      '/(artists)/[id]?id=test',
+      '/(venues)/[id]?id=test',
+      '/(concerts)/[id]?id=test',
     ];
 
     Alert.alert(
@@ -409,14 +409,14 @@ export default function DebugScreen() {
           <View style={styles.routeButtonsRow}>
             <TouchableOpacity
               style={[styles.routeButton, { backgroundColor: colors.primary }]}
-              onPress={() => testRoute('/artists')}
+              onPress={() => testRoute('/(artists)')}
             >
               <Text style={styles.routeButtonText}>Artists Tab</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.routeButton, { backgroundColor: colors.success }]}
-              onPress={() => testRoute('/venues')}
+              onPress={() => testRoute('/(venues)')}
             >
               <Text style={styles.routeButtonText}>Venues Tab</Text>
             </TouchableOpacity>
@@ -425,14 +425,14 @@ export default function DebugScreen() {
           <View style={styles.routeButtonsRow}>
             <TouchableOpacity
               style={[styles.routeButton, { backgroundColor: colors.purple }]}
-              onPress={() => testRoute('/artists/_concerts-list', { artist: 'test' })}
+              onPress={() => testRoute('/(artists)/concerts', { artist: 'test' })}
             >
               <Text style={styles.routeButtonText}>Artist Concerts</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.routeButton, { backgroundColor: colors.orange }]}
-              onPress={() => testRoute('/venues/_concerts-list', { venue: 'test' })}
+              onPress={() => testRoute('/(venues)/concerts', { venue: 'test' })}
             >
               <Text style={styles.routeButtonText}>Venue Concerts</Text>
             </TouchableOpacity>

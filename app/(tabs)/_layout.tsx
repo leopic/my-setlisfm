@@ -7,32 +7,31 @@ export { ErrorBoundary } from '../../src/components/ErrorBoundary';
 
 export default function TabLayout() {
   const colors = useColors();
-  const screenOptions = useMemo(() => ({
-    tabBarActiveTintColor: colors.primary,
-    tabBarInactiveTintColor: colors.tabInactive,
-    tabBarStyle: {
-      backgroundColor: colors.backgroundCard,
-      borderTopWidth: 1,
-      borderTopColor: colors.borderLight,
-    },
-    headerShown: false,
-  }), [colors]);
+  const screenOptions = useMemo(
+    () => ({
+      tabBarActiveTintColor: colors.primary,
+      tabBarInactiveTintColor: colors.tabInactive,
+      tabBarStyle: {
+        backgroundColor: colors.backgroundCard,
+        borderTopWidth: 1,
+        borderTopColor: colors.borderLight,
+      },
+      headerShown: false,
+    }),
+    [colors],
+  );
 
   return (
-    <Tabs
-      screenOptions={screenOptions}
-    >
+    <Tabs screenOptions={screenOptions}>
       <Tabs.Screen
-        name="index"
+        name="(home)"
         options={{
           title: 'Dashboard',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="concerts"
+        name="(concerts)"
         options={{
           title: 'Concerts',
           tabBarIcon: ({ color, size }) => (
@@ -41,97 +40,24 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="artists/index"
+        name="(artists)"
         options={{
           title: 'Artists',
           tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="venues/index"
+        name="(venues)"
         options={{
           title: 'Venues',
           tabBarIcon: ({ color, size }) => <Ionicons name="location" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="debug"
+        name="(debug)"
         options={{
           title: 'Debug',
           tabBarIcon: ({ color, size }) => <Ionicons name="settings" size={size} color={color} />,
-        }}
-      />
-      {/* don't create tabs for these screens */}
-      <Tabs.Screen
-        name="setlist"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="venues/concerts"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="venues/setlist"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="artists/concerts"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="artists/setlist"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="venues/continents"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="venues/countries"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="venues/cities"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="venues/continent-detail"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="venues/country-detail"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="venues/city-detail"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="venues/map"
-        options={{
-          href: null,
         }}
       />
     </Tabs>

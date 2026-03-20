@@ -2,18 +2,18 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
-import CityList from '../../../src/components/CityList';
+import CountryList from '../../../src/components/CountryList';
 import { useColors } from '../../../src/utils/colors';
 
-interface CityWithStats {
+interface CountryWithStats {
   name: string;
-  countryName: string;
+  cityCount: number;
   venueCount: number;
   lastConcertDate?: string;
-  venues: string[];
+  cities: string[];
 }
 
-export default function CountryDetailScreen() {
+export default function ContinentDetailScreen() {
   const colors = useColors();
   const styles = useMemo(() => StyleSheet.create({
     container: {
@@ -59,60 +59,53 @@ export default function CountryDetailScreen() {
 
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { country, returnTo, returnParams } = params;
+  const { continentName } = params;
 
-  const [cities, setCities] = useState<CityWithStats[]>([]);
+  const [countries, setCountries] = useState<CountryWithStats[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (country) {
-      loadCitiesForCountry(country as string);
+    if (continentName) {
+      loadCountriesForContinent(continentName as string);
     }
-  }, [country]);
+  }, [continentName]);
 
-  const loadCitiesForCountry = async (countryName: string) => {
+  const loadCountriesForContinent = async (continent: string) => {
     try {
       setLoading(true);
-      const allCities = await dbOperations.getCitiesWithStats();
+      const allCountries = await dbOperations.getCountriesWithStats();
 
-      // Filter cities that belong to this country
-      const countryCities = allCities.filter((city) => city.countryName === countryName);
+      // Filter countries that belong to this continent
+      const continentCountries = allCountries.filter((country) => {
+        const countryContinent = dbOperations.getContinent(country.name);
+        return countryContinent === continent;
+      });
 
-      setCities(countryCities);
+      setCountries(continentCountries);
     } catch (error) {
-      console.error('Failed to load cities for country:', error);
-      Alert.alert('Error', 'Failed to load cities');
+      console.error('Failed to load countries for continent:', error);
+      Alert.alert('Error', 'Failed to load countries');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCityPress = (city: CityWithStats) => {
+  const handleCountryPress = (country: CountryWithStats) => {
     router.push({
-      pathname: '/venues/city-detail',
-      params: { cityId: city.id },
+      pathname: '/(venues)/country-detail',
+      params: { countryCode: country.name },
     });
   };
 
   const handleBackPress = () => {
-    if (returnTo && returnParams) {
-      try {
-        const parsedParams = JSON.parse(returnParams);
-        router.push({ pathname: returnTo as any, params: parsedParams });
-      } catch (error) {
-        console.error('Error parsing return params:', error);
-        router.back();
-      }
-    } else {
-      router.back();
-    }
+    router.back();
   };
 
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading cities...</Text>
+          <Text style={styles.loadingText}>Loading countries...</Text>
         </View>
       </SafeAreaView>
     );
@@ -125,16 +118,16 @@ export default function CountryDetailScreen() {
         <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>{country}</Text>
+        <Text style={styles.title}>{continentName}</Text>
         <Text style={styles.subtitle}>
-          {cities.length} cit{cities.length !== 1 ? 'ies' : 'y'}
+          {countries.length} countr{countries.length !== 1 ? 'ies' : 'y'}
         </Text>
       </View>
 
-      <CityList
-        cities={cities}
-        onCityPress={handleCityPress}
-        emptyMessage="No cities found in this country"
+      <CountryList
+        countries={countries}
+        onCountryPress={handleCountryPress}
+        emptyMessage="No countries found in this continent"
       />
     </SafeAreaView>
   );
