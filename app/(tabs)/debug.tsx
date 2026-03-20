@@ -187,7 +187,7 @@ export default function DebugScreen() {
 
   const loadStats = async () => {
     try {
-      const newStats = await dbOperations.getStats();
+      const newStats = await dbOperations.getDatabaseCounts();
       setStats(newStats);
       const fetchedAt = await dbOperations.getLastFetchedAt();
       setLastFetched(fetchedAt ? fetchedAt.toLocaleString() : null);
@@ -211,8 +211,8 @@ export default function DebugScreen() {
       }
 
       // Process all pages
-      await dataProcessor.processMultipleSetlistsResponses(allPages);
-      await dbOperations.setLastFetchedAt();
+      await dataProcessor.importSetlistsFromPages(allPages);
+      await dbOperations.updateLastFetchedAt();
 
       await loadStats();
       Alert.alert(

@@ -12,7 +12,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../src/database/operations';
 import type { SetlistWithDetails } from '../../src/types/database';
-import { parseDateCorrectly, formatDate } from '../../src/utils/date';
+import { parseSetlistDate, formatDate } from '../../src/utils/date';
 import type { SortOption } from '../../src/utils/sort';
 import { sortByOption } from '../../src/utils/sort';
 import { useColors } from '../../src/utils/colors';
@@ -333,7 +333,7 @@ export default function ConcertsScreen() {
       } else if (venue) {
         rawConcerts = await dbOperations.getSetlistsByVenue(venue);
       } else {
-        rawConcerts = await dbOperations.getAllSetlistsWithDetails();
+        rawConcerts = await dbOperations.getAllSetlists();
       }
 
       // Transform and add display names
@@ -366,7 +366,7 @@ export default function ConcertsScreen() {
     concertsToGroup.forEach((concert) => {
       if (!concert.eventDate) return;
 
-      const date = parseDateCorrectly(concert.eventDate);
+      const date = parseSetlistDate(concert.eventDate);
       const year = date.getFullYear().toString();
 
       if (!groups[year]) {
@@ -381,8 +381,8 @@ export default function ConcertsScreen() {
         // Sort concerts within year by date (most recent first)
         const sortedConcerts = concerts.sort((a, b) => {
           if (!a.eventDate || !b.eventDate) return 0;
-          const dateA = parseDateCorrectly(a.eventDate);
-          const dateB = parseDateCorrectly(b.eventDate);
+          const dateA = parseSetlistDate(a.eventDate);
+          const dateB = parseSetlistDate(b.eventDate);
           return dateB.getTime() - dateA.getTime();
         });
 
@@ -390,7 +390,7 @@ export default function ConcertsScreen() {
         const monthStats: { [month: string]: number } = {};
         sortedConcerts.forEach((concert) => {
           if (concert.eventDate) {
-            const date = parseDateCorrectly(concert.eventDate);
+            const date = parseSetlistDate(concert.eventDate);
             const month = date.toLocaleDateString('en-US', { month: 'long' });
             monthStats[month] = (monthStats[month] || 0) + 1;
           }

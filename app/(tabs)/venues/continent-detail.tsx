@@ -77,7 +77,7 @@ export default function ContinentDetailScreen() {
 
       // Filter countries that belong to this continent
       const continentCountries = allCountries.filter((country) => {
-        const countryContinent = dbOperations.getContinentForCountry(country.name);
+        const countryContinent = dbOperations.getContinent(country.name);
         return countryContinent === continent;
       });
 

@@ -23,15 +23,15 @@ import type {
 import { dbOperations } from '../database/operations';
 
 export class DataProcessor {
-  async processSetlistsResponse(response: SetlistsResponse): Promise<void> {
+  async importSetlistsFromResponse(response: SetlistsResponse): Promise<void> {
     for (const setlist of response.setlist) {
       await this.processSetlist(setlist);
     }
   }
 
-  async processMultipleSetlistsResponses(responses: SetlistsResponse[]): Promise<void> {
+  async importSetlistsFromPages(responses: SetlistsResponse[]): Promise<void> {
     for (const response of responses) {
-      await this.processSetlistsResponse(response);
+      await this.importSetlistsFromResponse(response);
     }
   }
 
@@ -75,7 +75,7 @@ export class DataProcessor {
       }
 
       // Extract and store setlist
-      await this.processSetlistEntity(setlist);
+      await this.insertSetlistRecord(setlist);
 
       // Extract and store sets and songs
       await this.processSets(setlist.sets.set, setlist.id as string);
@@ -149,7 +149,7 @@ export class DataProcessor {
     await dbOperations.insertTour(dbTour);
   }
 
-  private async processSetlistEntity(setlist: Setlist): Promise<void> {
+  private async insertSetlistRecord(setlist: Setlist): Promise<void> {
     if (!setlist.id) return;
 
     const dbSetlist: DBSetlist = {

@@ -73,11 +73,11 @@ describe('DataProcessor', () => {
     ] as any);
   });
 
-  describe('processSetlistsResponse', () => {
+  describe('importSetlistsFromResponse', () => {
     it('should process a full setlist with all entities', async () => {
       const response = makeResponse([makeSetlist()]);
 
-      await processor.processSetlistsResponse(response);
+      await processor.importSetlistsFromResponse(response);
 
       expect(mockDbOps.insertCountry).toHaveBeenCalledWith({ code: 'US', name: 'United States' });
       expect(mockDbOps.insertCity).toHaveBeenCalledWith(
@@ -101,7 +101,7 @@ describe('DataProcessor', () => {
       mockDbOps.getSetlistById.mockResolvedValue({ id: 'set-1' } as any);
       const response = makeResponse([makeSetlist()]);
 
-      await processor.processSetlistsResponse(response);
+      await processor.importSetlistsFromResponse(response);
 
       expect(mockDbOps.insertSetlist).not.toHaveBeenCalled();
       expect(mockDbOps.insertSong).not.toHaveBeenCalled();
@@ -110,7 +110,7 @@ describe('DataProcessor', () => {
     it('should skip setlists without an id', async () => {
       const response = makeResponse([makeSetlist({ id: undefined })]);
 
-      await processor.processSetlistsResponse(response);
+      await processor.importSetlistsFromResponse(response);
 
       expect(mockDbOps.insertSetlist).not.toHaveBeenCalled();
     });
@@ -118,7 +118,7 @@ describe('DataProcessor', () => {
     it('should skip setlists with no sets (no actual concert data)', async () => {
       const response = makeResponse([makeSetlist({ sets: { set: [] } })]);
 
-      await processor.processSetlistsResponse(response);
+      await processor.importSetlistsFromResponse(response);
 
       // Country/city/venue should still be processed, but no artist/setlist/songs
       expect(mockDbOps.insertCountry).toHaveBeenCalled();
@@ -129,7 +129,7 @@ describe('DataProcessor', () => {
     it('should process cover artists as separate artist entries', async () => {
       const response = makeResponse([makeSetlist()]);
 
-      await processor.processSetlistsResponse(response);
+      await processor.importSetlistsFromResponse(response);
 
       // Main artist + cover artist
       expect(mockDbOps.insertArtist).toHaveBeenCalledWith(
@@ -140,7 +140,7 @@ describe('DataProcessor', () => {
     it('should handle setlists without a venue gracefully', async () => {
       const response = makeResponse([makeSetlist({ venue: undefined })]);
 
-      await processor.processSetlistsResponse(response);
+      await processor.importSetlistsFromResponse(response);
 
       expect(mockDbOps.insertVenue).not.toHaveBeenCalled();
       expect(mockDbOps.insertCity).not.toHaveBeenCalled();
@@ -150,20 +150,20 @@ describe('DataProcessor', () => {
     it('should handle setlists without a tour', async () => {
       const response = makeResponse([makeSetlist({ tour: undefined })]);
 
-      await processor.processSetlistsResponse(response);
+      await processor.importSetlistsFromResponse(response);
 
       expect(mockDbOps.insertTour).not.toHaveBeenCalled();
     });
   });
 
-  describe('processMultipleSetlistsResponses', () => {
+  describe('importSetlistsFromPages', () => {
     it('should process all responses in order', async () => {
       const responses = [
         makeResponse([makeSetlist({ id: 'set-1' })]),
         makeResponse([makeSetlist({ id: 'set-2' })]),
       ];
 
-      await processor.processMultipleSetlistsResponses(responses);
+      await processor.importSetlistsFromPages(responses);
 
       expect(mockDbOps.insertSetlist).toHaveBeenCalledTimes(2);
     });

@@ -1,7 +1,7 @@
 /**
  * Parses a DD-MM-YYYY date string (setlist.fm format) into a Date object.
  */
-export function parseDateCorrectly(dateString: string): Date {
+export function parseSetlistDate(dateString: string): Date {
   try {
     const [day, month, year] = dateString.split('-').map(Number);
     return new Date(year, month - 1, day);
@@ -19,7 +19,7 @@ type DateFormat = 'short' | 'long';
  */
 export function formatDate(dateString: string, format: DateFormat = 'short'): string {
   try {
-    const date = parseDateCorrectly(dateString);
+    const date = parseSetlistDate(dateString);
     if (format === 'long') {
       return date.toLocaleDateString('en-US', {
         weekday: 'long',

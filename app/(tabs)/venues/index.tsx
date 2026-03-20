@@ -252,7 +252,7 @@ export default function VenuesScreen() {
       setLoading(true);
       const [venuesWithStats, geoData] = await Promise.all([
         dbOperations.getVenuesWithStats(),
-        dbOperations.getVenueGeoStats(),
+        dbOperations.getGeographicBreakdown(),
       ]);
 
       const sortedVenues = sortByOption(

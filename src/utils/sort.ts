@@ -1,4 +1,4 @@
-import { parseDateCorrectly } from './date';
+import { parseSetlistDate } from './date';
 
 export type SortOption = 'alphabetical' | 'recent' | 'top';
 
@@ -30,7 +30,7 @@ export function sortByOption<T extends Sortable>(
         const dateA = getDate(a);
         const dateB = getDate(b);
         if (!dateA || !dateB) return 0;
-        return parseDateCorrectly(dateB).getTime() - parseDateCorrectly(dateA).getTime();
+        return parseSetlistDate(dateB).getTime() - parseSetlistDate(dateA).getTime();
       });
     case 'top':
       if (!getCount) return items;
