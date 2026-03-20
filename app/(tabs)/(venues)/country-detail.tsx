@@ -90,7 +90,7 @@ export default function CountryDetailScreen() {
   const handleCityPress = (city: CityWithStats) => {
     router.push({
       pathname: '/(venues)/city-detail',
-      params: { cityId: city.id },
+      params: { city: city.name, country: city.countryName },
     });
   };
 

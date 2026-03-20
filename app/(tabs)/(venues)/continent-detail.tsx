@@ -93,7 +93,7 @@ export default function ContinentDetailScreen() {
   const handleCountryPress = (country: CountryWithStats) => {
     router.push({
       pathname: '/(venues)/country-detail',
-      params: { countryCode: country.name },
+      params: { country: country.name },
     });
   };
 

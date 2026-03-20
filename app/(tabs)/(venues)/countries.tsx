@@ -204,7 +204,7 @@ export default function CountriesScreen() {
         onCountryPress={(country) => {
           router.push({
             pathname: '/(venues)/country-detail',
-            params: { countryCode: country.code },
+            params: { country: country.name },
           });
         }}
         emptyMessage="No countries found"
