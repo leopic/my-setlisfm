@@ -38,7 +38,7 @@ describe('SetlistApiService', () => {
       );
     });
 
-    it('should delay requests to respect 2 req/sec limit', async () => {
+    it('should delay requests to respect 1 req/sec limit', async () => {
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => ({ setlist: [], type: '', itemsPerPage: 20, page: 1, total: 0 }),
@@ -51,10 +51,9 @@ describe('SetlistApiService', () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
 
-      // Second request should be delayed
+      // Second request should be delayed by 1 second
       const promise2 = api.getUserAttendedConcerts('testuser');
-      // Advance past the 500ms rate limit window
-      jest.advanceTimersByTime(500);
+      jest.advanceTimersByTime(1000);
       await promise2;
 
       expect(mockFetch).toHaveBeenCalledTimes(2);

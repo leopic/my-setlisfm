@@ -34,10 +34,10 @@ export class SetlistApiService {
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt < SetlistApiService.MAX_RETRIES; attempt++) {
-      // Rate limiting: max 2 requests per second
+      // Rate limiting: max 1 request per second (conservative to avoid 429s)
       const timeSinceLastRequest = Date.now() - this.lastRequestTime;
-      if (timeSinceLastRequest < 500) {
-        await new Promise((resolve) => setTimeout(resolve, 500 - timeSinceLastRequest));
+      if (timeSinceLastRequest < 1000) {
+        await new Promise((resolve) => setTimeout(resolve, 1000 - timeSinceLastRequest));
       }
 
       this.lastRequestTime = Date.now();
@@ -51,7 +51,15 @@ export class SetlistApiService {
           },
         });
 
-        // 4xx errors are client errors — don't retry
+        // 429 Too Many Requests — wait and retry
+        if (response.status === 429) {
+          lastError = new Error('Rate limited by API (429)');
+          const backoff = SetlistApiService.INITIAL_BACKOFF_MS * Math.pow(2, attempt);
+          await new Promise((resolve) => setTimeout(resolve, backoff));
+          continue;
+        }
+
+        // Other 4xx errors are client errors — don't retry
         if (response.status >= 400 && response.status < 500) {
           throw new Error(`API request failed: ${response.status} ${response.statusText}`);
         }
