@@ -22,7 +22,7 @@ export default function TabLayout() {
   );
 
   return (
-    <Tabs screenOptions={screenOptions}>
+    <Tabs screenOptions={screenOptions} initialRouteName="(home)">
       <Tabs.Screen
         name="(home)"
         options={{
