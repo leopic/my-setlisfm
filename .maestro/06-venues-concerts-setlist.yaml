@@ -1,0 +1,25 @@
+appId: com.setlistfm.tracker
+name: Venues → venue concerts → setlist → back chain
+---
+- launchApp
+- tapOn: "Venues"
+- assertVisible: "Venues"
+# Tap first venue card
+- scroll
+- tapOn:
+    text: "View Concerts"
+    index: 0
+# Should see venue concerts
+- assertVisible: "← Back"
+# Tap a concert to see setlist
+- tapOn:
+    text: ".*"
+    index: 3
+# Should see setlist
+- assertVisible: "← Back"
+- tapOn: "← Back"
+# Back to venue concerts
+- assertVisible: "← Back"
+- tapOn: "← Back"
+# Back to venues list
+- assertVisible: "Venues"

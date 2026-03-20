@@ -9,7 +9,8 @@
     "test": "jest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"app/**/*.{ts,tsx}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"app/**/*.{ts,tsx}\"",
+    "test:e2e": "maestro test .maestro/"
   },
   "dependencies": {
     "expo": "~53.0.20",

@@ -1,0 +1,10 @@
+appId: com.setlistfm.tracker
+name: Dashboard loads with stats
+---
+- launchApp
+- tapOn: "Dashboard"
+- assertVisible: "Dashboard"
+- assertVisible: "Concerts"
+- assertVisible: "Artists"
+- assertVisible: "Venues"
+- assertVisible: "Countries"

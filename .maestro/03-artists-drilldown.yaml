@@ -1,0 +1,25 @@
+appId: com.setlistfm.tracker
+name: Artists → artist concerts → setlist → back → back → back
+---
+- launchApp
+- tapOn: "Artists"
+- assertVisible: "Artists"
+# Tap first artist in the list
+- tapOn:
+    text: "View Concerts"
+    index: 0
+# Should be on artist concerts screen
+- assertVisible: "← Back"
+# Tap a concert to see setlist
+- scroll
+- tapOn:
+    text: ".*"
+    index: 4
+# Should see setlist with back button
+- assertVisible: "← Back"
+- tapOn: "← Back"
+# Should be back on artist concerts
+- assertVisible: "← Back"
+- tapOn: "← Back"
+# Should be back on artists list
+- assertVisible: "Artists"

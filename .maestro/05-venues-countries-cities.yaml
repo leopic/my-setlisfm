@@ -1,0 +1,20 @@
+appId: com.setlistfm.tracker
+name: Venues → Countries → Cities (direct path)
+---
+- launchApp
+- tapOn: "Venues"
+- assertVisible: "Venues"
+# Tap Countries directly
+- tapOn: "Countries"
+- assertVisible: "Countries"
+# Tap first country
+- tapOn:
+    text: ".*"
+    index: 3
+# Should see cities for that country
+- assertVisible: "← Back"
+# Go back
+- tapOn: "← Back"
+- assertVisible: "Countries"
+- tapOn: "← Back"
+- assertVisible: "Venues"

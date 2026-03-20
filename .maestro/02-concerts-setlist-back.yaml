@@ -1,0 +1,14 @@
+appId: com.setlistfm.tracker
+name: Concerts → setlist detail → back returns to concerts
+---
+- launchApp
+- tapOn: "Concerts"
+- assertVisible: "My Concerts"
+# Scroll to find a concert and tap it
+- scroll
+- tapOn:
+    text: ".*"
+    index: 5
+- assertVisible: "← Back"
+- tapOn: "← Back"
+- assertVisible: "My Concerts"
