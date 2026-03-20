@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { StyleSheet, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import CountryList from '../../../src/components/CountryList';
@@ -66,7 +65,7 @@ export default function CountriesScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="countries-screen">
+    <View style={styles.container} testID="countries-screen">
       {/* Header */}
       <ScreenHeader
         title="Countries"
@@ -92,6 +91,6 @@ export default function CountriesScreen() {
         }}
         emptyMessage="No countries found"
       />
-    </SafeAreaView>
+    </View>
   );
 }

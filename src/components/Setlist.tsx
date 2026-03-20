@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import type { SetlistWithDetails, SetWithSongs } from '../types/database';
 import { formatDate } from '../utils/date';
 import { useColors } from '../utils/colors';
+import { useTabBarInset } from '../utils/useTabBarInset';
 import { ScreenHeader, Card } from './ui';
 
 interface SetlistProps {
@@ -13,6 +14,7 @@ interface SetlistProps {
 
 export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   const colors = useColors();
+  const tabBarInset = useTabBarInset();
   const styles = useMemo(() => StyleSheet.create({
     headerExtra: {
       paddingHorizontal: 20,
@@ -123,7 +125,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
         {setlist.tour?.name && <Text style={styles.tourText}>{setlist.tour.name}</Text>}
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.content} contentContainerStyle={tabBarInset} showsVerticalScrollIndicator={false}>
         {/* Sets */}
         {sets
           .filter((set) => set.songs && set.songs.length > 0)

@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { formatDate } from '../utils/date';
 import { useColors } from '../utils/colors';
+import { useTabBarInset } from '../utils/useTabBarInset';
 
 interface CityWithStats {
   name: string;
@@ -23,6 +24,7 @@ export default function CityList({
   emptyMessage = 'No cities found',
 }: CityListProps) {
   const colors = useColors();
+  const tabBarInset = useTabBarInset();
   const styles = useMemo(() => StyleSheet.create({
     citiesList: {
       flex: 1,
@@ -135,7 +137,7 @@ export default function CityList({
   );
 
   return (
-    <ScrollView style={styles.citiesList} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.citiesList} contentContainerStyle={tabBarInset} showsVerticalScrollIndicator={false}>
       {cities.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateText}>{emptyMessage}</Text>

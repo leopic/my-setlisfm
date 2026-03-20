@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '../SkeletonBox';
 import { useColors } from '../../utils/colors';
 
@@ -41,7 +40,7 @@ export default function DashboardSkeleton() {
   );
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="loading-skeleton">
+    <View style={styles.container} testID="loading-skeleton">
       <ScrollView>
         <View style={styles.header}>
           <SkeletonBox width={140} height={28} />
@@ -73,6 +72,6 @@ export default function DashboardSkeleton() {
           ))}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

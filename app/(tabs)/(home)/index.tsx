@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
+import { useTabBarInset } from '../../../src/utils/useTabBarInset';
 import DashboardSkeleton from '../../../src/components/skeletons/DashboardSkeleton';
 import { ScreenHeader, StatBox, Card, EmptyState } from '../../../src/components/ui';
 
@@ -23,6 +24,7 @@ const emptyStats: DashboardStats = {
 
 export default function DashboardScreen() {
   const colors = useColors();
+  const tabBarInset = useTabBarInset();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -169,8 +171,8 @@ export default function DashboardScreen() {
   const maxYearCount = Math.max(...stats.concertsByYear.map((y) => y.count), 1);
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="dashboard-screen">
-      <ScrollView>
+    <View style={styles.container} testID="dashboard-screen">
+      <ScrollView contentContainerStyle={tabBarInset}>
         <ScreenHeader title="Dashboard" />
 
         {/* Hero stats */}
@@ -257,6 +259,6 @@ export default function DashboardScreen() {
 
         {lastSynced && <Text style={styles.lastSynced}>Last synced: {lastSynced}</Text>}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

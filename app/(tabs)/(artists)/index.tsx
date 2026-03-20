@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import SortAndSearch from '../../../src/components/SortAndSearch';
@@ -16,6 +15,7 @@ import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
+import { useTabBarInset } from '../../../src/utils/useTabBarInset';
 import { ScreenHeader } from '../../../src/components/ui';
 
 interface ArtistWithStats {
@@ -31,6 +31,7 @@ interface ArtistWithStats {
 
 export default function ArtistsScreen() {
   const colors = useColors();
+  const tabBarInset = useTabBarInset();
   const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
@@ -233,7 +234,7 @@ export default function ArtistsScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="artists-screen">
+    <View style={styles.container} testID="artists-screen">
       {/* Header */}
       <ScreenHeader
         title="Artists"
@@ -253,7 +254,7 @@ export default function ArtistsScreen() {
         searchPlaceholder="Search artists..."
       />
 
-      <ScrollView style={styles.artistsList} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.artistsList} contentContainerStyle={tabBarInset} showsVerticalScrollIndicator={false}>
         {filteredArtists.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>
@@ -267,6 +268,6 @@ export default function ArtistsScreen() {
           filteredArtists.map(getArtistCard)
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

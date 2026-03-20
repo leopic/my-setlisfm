@@ -8,7 +8,6 @@ import {
   Alert,
   RefreshControl,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails } from '../../../src/types/database';
@@ -16,6 +15,7 @@ import { parseSetlistDate, formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
+import { useTabBarInset } from '../../../src/utils/useTabBarInset';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
 import { ScreenHeader, EmptyState } from '../../../src/components/ui';
 
@@ -36,6 +36,7 @@ interface YearGroup {
 
 export default function ConcertsScreen() {
   const colors = useColors();
+  const tabBarInset = useTabBarInset();
   const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
@@ -358,7 +359,7 @@ export default function ConcertsScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="concerts-screen">
+    <View style={styles.container} testID="concerts-screen">
       {/* Header */}
       <ScreenHeader
         title="My Concerts"
@@ -405,7 +406,7 @@ export default function ConcertsScreen() {
       {/* Concerts List */}
       <ScrollView
         style={styles.scrollView}
-       
+        contentContainerStyle={tabBarInset}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
       >
@@ -529,6 +530,6 @@ export default function ConcertsScreen() {
           ))
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

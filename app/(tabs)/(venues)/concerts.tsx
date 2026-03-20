@@ -7,12 +7,12 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails } from '../../../src/types/database';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
+import { useTabBarInset } from '../../../src/utils/useTabBarInset';
 import ConcertListSkeleton from '../../../src/components/skeletons/ConcertListSkeleton';
 import { ScreenHeader } from '../../../src/components/ui';
 
@@ -26,6 +26,7 @@ interface ConcertWithDetails extends SetlistWithDetails {
 
 export default function VenueConcertsListScreen() {
   const colors = useColors();
+  const tabBarInset = useTabBarInset();
   const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
@@ -156,7 +157,7 @@ export default function VenueConcertsListScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container} testID="venue-concerts-screen">
+    <View style={styles.container} testID="venue-concerts-screen">
       {/* Header */}
       <ScreenHeader
         title={venueName}
@@ -166,7 +167,7 @@ export default function VenueConcertsListScreen() {
       />
 
       {/* Concerts List */}
-      <ScrollView style={styles.concertsList} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.concertsList} contentContainerStyle={tabBarInset} showsVerticalScrollIndicator={false}>
         {concerts.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No concerts found</Text>
@@ -199,6 +200,6 @@ export default function VenueConcertsListScreen() {
           ))
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

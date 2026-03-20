@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { StyleSheet, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, StyleSheet, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import CountryList from '../../../src/components/CountryList';
@@ -70,7 +69,7 @@ export default function ContinentDetailScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <ScreenHeader
         title={continentName as string}
@@ -84,6 +83,6 @@ export default function ContinentDetailScreen() {
         onCountryPress={handleCountryPress}
         emptyMessage="No countries found in this continent"
       />
-    </SafeAreaView>
+    </View>
   );
 }
