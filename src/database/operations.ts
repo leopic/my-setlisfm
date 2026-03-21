@@ -89,19 +89,30 @@ interface DashboardCountsRow {
 }
 
 interface TopArtistRow {
+  mbid: string;
   name: string;
   count: number;
 }
 
 interface TopVenueRow {
+  id: string;
   name: string;
   cityName: string;
   count: number;
 }
 
 interface ConcertDateRow {
+  setlistId: string;
   artistName: string;
   eventDate: string;
+}
+
+interface OnThisDayRow {
+  setlistId: string;
+  artistName: string;
+  eventDate: string;
+  venueName: string;
+  dayDiff: number;
 }
 
 interface YearCountRow {
@@ -620,10 +631,10 @@ export class DatabaseOperations {
     totalArtists: number;
     totalVenues: number;
     totalCountries: number;
-    topArtist: { name: string; count: number } | null;
-    topVenue: { name: string; cityName: string; count: number } | null;
-    firstConcert: { artistName: string; eventDate: string } | null;
-    lastConcert: { artistName: string; eventDate: string } | null;
+    topArtist: { mbid: string; name: string; count: number } | null;
+    topVenue: { id: string; name: string; cityName: string; count: number } | null;
+    firstConcert: { setlistId: string; artistName: string; eventDate: string } | null;
+    lastConcert: { setlistId: string; artistName: string; eventDate: string } | null;
     concertsByYear: { year: string; count: number }[];
   }> {
     const [counts, topArtist, topVenue, firstConcert, lastConcert, byYear] = await Promise.all([
@@ -638,7 +649,7 @@ export class DatabaseOperations {
            INNER JOIN countries co ON c.countryCode = co.code) as countries
       `) as Promise<DashboardCountsRow | null>,
       this.db.getFirstAsync(`
-        SELECT a.name, COUNT(*) as count
+        SELECT a.mbid, a.name, COUNT(*) as count
         FROM setlists sl
         INNER JOIN artists a ON sl.artistMbid = a.mbid
         GROUP BY sl.artistMbid
@@ -646,7 +657,7 @@ export class DatabaseOperations {
         LIMIT 1
       `) as Promise<TopArtistRow | null>,
       this.db.getFirstAsync(`
-        SELECT v.name, c.name as cityName, COUNT(*) as count
+        SELECT v.id, v.name, c.name as cityName, COUNT(*) as count
         FROM setlists sl
         INNER JOIN venues v ON sl.venueId = v.id
         LEFT JOIN cities c ON v.cityId = c.id
@@ -655,14 +666,14 @@ export class DatabaseOperations {
         LIMIT 1
       `) as Promise<TopVenueRow | null>,
       this.db.getFirstAsync(`
-        SELECT a.name as artistName, sl.eventDate
+        SELECT sl.id as setlistId, a.name as artistName, sl.eventDate
         FROM setlists sl
         LEFT JOIN artists a ON sl.artistMbid = a.mbid
         ORDER BY substr(sl.eventDate, 7, 4) || substr(sl.eventDate, 4, 2) || substr(sl.eventDate, 1, 2) ASC
         LIMIT 1
       `) as Promise<ConcertDateRow | null>,
       this.db.getFirstAsync(`
-        SELECT a.name as artistName, sl.eventDate
+        SELECT sl.id as setlistId, a.name as artistName, sl.eventDate
         FROM setlists sl
         LEFT JOIN artists a ON sl.artistMbid = a.mbid
         ORDER BY substr(sl.eventDate, 7, 4) || substr(sl.eventDate, 4, 2) || substr(sl.eventDate, 1, 2) DESC
@@ -681,17 +692,91 @@ export class DatabaseOperations {
       totalArtists: counts?.artists || 0,
       totalVenues: counts?.venues || 0,
       totalCountries: counts?.countries || 0,
-      topArtist: topArtist?.name ? { name: topArtist.name, count: topArtist.count } : null,
+      topArtist: topArtist?.name
+        ? { mbid: topArtist.mbid, name: topArtist.name, count: topArtist.count }
+        : null,
       topVenue: topVenue?.name
-        ? { name: topVenue.name, cityName: topVenue.cityName, count: topVenue.count }
+        ? {
+            id: topVenue.id,
+            name: topVenue.name,
+            cityName: topVenue.cityName,
+            count: topVenue.count,
+          }
         : null,
       firstConcert: firstConcert?.eventDate
-        ? { artistName: firstConcert.artistName, eventDate: firstConcert.eventDate }
+        ? {
+            setlistId: firstConcert.setlistId,
+            artistName: firstConcert.artistName,
+            eventDate: firstConcert.eventDate,
+          }
         : null,
       lastConcert: lastConcert?.eventDate
-        ? { artistName: lastConcert.artistName, eventDate: lastConcert.eventDate }
+        ? {
+            setlistId: lastConcert.setlistId,
+            artistName: lastConcert.artistName,
+            eventDate: lastConcert.eventDate,
+          }
         : null,
       concertsByYear: byYear.map((row) => ({ year: row.year, count: row.count })),
+    };
+  }
+
+  // Find a past concert that happened around this date in a previous year
+  async getOnThisDayConcert(): Promise<{
+    setlistId: string;
+    artistName: string;
+    eventDate: string;
+    venueName: string;
+    yearsAgo: number;
+  } | null> {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    // DD-MM format for the current date
+    const dd = String(now.getDate()).padStart(2, '0');
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+
+    // Find concerts within ±7 days of today's month/day in any previous year.
+    // We compute the day difference using SQLite date functions:
+    // 1. Build a comparable date from the eventDate (DD-MM-YYYY) as YYYY-MM-DD
+    // 2. Build a reference date in that same year with today's month/day
+    // 3. Compute the absolute day difference
+    // 4. Pick the smallest diff, then most recent year
+    const result = (await this.db.getFirstAsync(
+      `
+      SELECT setlistId, artistName, eventDate, venueName, dayDiff FROM (
+        SELECT
+          sl.id as setlistId,
+          a.name as artistName,
+          sl.eventDate,
+          v.name as venueName,
+          ABS(
+            julianday(
+              substr(sl.eventDate, 7, 4) || '-' || substr(sl.eventDate, 4, 2) || '-' || substr(sl.eventDate, 1, 2)
+            ) - julianday(
+              substr(sl.eventDate, 7, 4) || '-' || ? || '-' || ?
+            )
+          ) as dayDiff
+        FROM setlists sl
+        LEFT JOIN artists a ON sl.artistMbid = a.mbid
+        LEFT JOIN venues v ON sl.venueId = v.id
+        WHERE CAST(substr(sl.eventDate, 7, 4) AS INTEGER) < ?
+      )
+      WHERE dayDiff <= 7
+      ORDER BY dayDiff ASC, substr(eventDate, 7, 4) DESC
+      LIMIT 1
+      `,
+      [mm, dd, currentYear],
+    )) as OnThisDayRow | null;
+
+    if (!result?.eventDate) return null;
+
+    const eventYear = parseInt(result.eventDate.substring(6, 10), 10);
+    return {
+      setlistId: result.setlistId,
+      artistName: result.artistName,
+      eventDate: result.eventDate,
+      venueName: result.venueName,
+      yearsAgo: currentYear - eventYear,
     };
   }
 

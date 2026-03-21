@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import {
   syncConcertData,
@@ -36,6 +37,7 @@ const emptyStats: DashboardStats = {
 };
 
 export default function DashboardScreen() {
+  const router = useRouter();
   const colors = useColors();
   const styles = useMemo(
     () =>
@@ -189,6 +191,13 @@ export default function DashboardScreen() {
   );
 
   const [stats, setStats] = useState<DashboardStats>(emptyStats);
+  const [onThisDay, setOnThisDay] = useState<{
+    setlistId: string;
+    artistName: string;
+    eventDate: string;
+    venueName: string;
+    yearsAgo: number;
+  } | null>(null);
   const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -206,11 +215,13 @@ export default function DashboardScreen() {
 
   const loadDashboard = async () => {
     try {
-      const [dashStats, fetchedAt] = await Promise.all([
+      const [dashStats, fetchedAt, onThisDayResult] = await Promise.all([
         dbOperations.getDashboardStats(),
         dbOperations.getLastFetchedAt(),
+        dbOperations.getOnThisDayConcert(),
       ]);
       setStats(dashStats);
+      setOnThisDay(onThisDayResult);
       setLastSynced(fetchedAt ? fetchedAt.toLocaleString() : null);
     } catch (error) {
       console.error('Failed to load dashboard:', error);
@@ -300,6 +311,8 @@ export default function DashboardScreen() {
         <View style={styles.statsRow}>
           <StatBox value={stats.totalConcerts} label="Concerts" />
           <StatBox value={stats.totalArtists} label="Artists" />
+        </View>
+        <View style={styles.statsRow}>
           <StatBox value={stats.totalVenues} label="Venues" />
           <StatBox value={stats.totalCountries} label="Countries" />
         </View>
@@ -308,7 +321,15 @@ export default function DashboardScreen() {
         <Card style={styles.section}>
           <Text style={styles.sectionTitle}>Highlights</Text>
           {stats.topArtist && (
-            <View style={styles.highlightRow}>
+            <TouchableOpacity
+              style={styles.highlightRow}
+              onPress={() =>
+                router.push({
+                  pathname: '/(home)/artist-concerts',
+                  params: { artist: stats.topArtist?.mbid },
+                })
+              }
+            >
               <View style={{ flex: 1 }}>
                 <Text style={styles.highlightName}>{stats.topArtist.name}</Text>
                 <Text style={styles.highlightSub}>Most seen artist</Text>
@@ -316,10 +337,18 @@ export default function DashboardScreen() {
               <Text style={styles.highlightDetail}>
                 {stats.topArtist.count} show{stats.topArtist.count !== 1 ? 's' : ''}
               </Text>
-            </View>
+            </TouchableOpacity>
           )}
           {stats.topVenue && (
-            <View style={[styles.highlightRow, styles.highlightRowLast]}>
+            <TouchableOpacity
+              style={[styles.highlightRow, styles.highlightRowLast]}
+              onPress={() =>
+                router.push({
+                  pathname: '/(home)/venue-concerts',
+                  params: { venue: stats.topVenue?.id },
+                })
+              }
+            >
               <View style={{ flex: 1 }}>
                 <Text style={styles.highlightName}>{stats.topVenue.name}</Text>
                 <Text style={styles.highlightSub}>
@@ -329,30 +358,67 @@ export default function DashboardScreen() {
               <Text style={styles.highlightDetail}>
                 {stats.topVenue.count} show{stats.topVenue.count !== 1 ? 's' : ''}
               </Text>
-            </View>
+            </TouchableOpacity>
           )}
         </Card>
 
         {/* Timeline */}
         <Card style={styles.section}>
           <Text style={styles.sectionTitle}>Timeline</Text>
-          {stats.firstConcert && (
-            <View style={styles.highlightRow}>
-              <View>
-                <Text style={styles.timelineDate}>{formatDate(stats.firstConcert.eventDate)}</Text>
-                <Text style={styles.timelineArtist}>{stats.firstConcert.artistName}</Text>
-              </View>
-              <Text style={styles.highlightDetail}>First concert</Text>
-            </View>
-          )}
           {stats.lastConcert && (
-            <View style={[styles.highlightRow, styles.highlightRowLast]}>
+            <TouchableOpacity
+              style={[styles.highlightRow, !onThisDay && styles.highlightRowLast]}
+              onPress={() =>
+                router.push({
+                  pathname: '/(home)/concert/[id]',
+                  params: { id: stats.lastConcert?.setlistId },
+                })
+              }
+            >
               <View>
                 <Text style={styles.timelineDate}>{formatDate(stats.lastConcert.eventDate)}</Text>
                 <Text style={styles.timelineArtist}>{stats.lastConcert.artistName}</Text>
               </View>
               <Text style={styles.highlightDetail}>Most recent</Text>
-            </View>
+            </TouchableOpacity>
+          )}
+          {onThisDay && (
+            <TouchableOpacity
+              style={[styles.highlightRow, styles.highlightRowLast]}
+              onPress={() =>
+                router.push({
+                  pathname: '/(home)/concert/[id]',
+                  params: { id: onThisDay.setlistId },
+                })
+              }
+            >
+              <View>
+                <Text style={styles.timelineDate}>{formatDate(onThisDay.eventDate)}</Text>
+                <Text style={styles.timelineArtist}>
+                  {onThisDay.artistName} @ {onThisDay.venueName}
+                </Text>
+              </View>
+              <Text style={styles.highlightDetail}>
+                {onThisDay.yearsAgo} year{onThisDay.yearsAgo !== 1 ? 's' : ''} ago
+              </Text>
+            </TouchableOpacity>
+          )}
+          {stats.firstConcert && (
+            <TouchableOpacity
+              style={styles.highlightRow}
+              onPress={() =>
+                router.push({
+                  pathname: '/(home)/concert/[id]',
+                  params: { id: stats.firstConcert?.setlistId },
+                })
+              }
+            >
+              <View>
+                <Text style={styles.timelineDate}>{formatDate(stats.firstConcert.eventDate)}</Text>
+                <Text style={styles.timelineArtist}>{stats.firstConcert.artistName}</Text>
+              </View>
+              <Text style={styles.highlightDetail}>First concert</Text>
+            </TouchableOpacity>
           )}
         </Card>
 
