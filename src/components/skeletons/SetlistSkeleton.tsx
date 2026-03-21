@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '../SkeletonBox';
 import { useColors } from '../../utils/colors';
 
@@ -29,7 +30,11 @@ export default function SetlistSkeleton() {
   );
 
   return (
-    <View style={styles.container} testID="loading-skeleton">
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={styles.container}
+      testID="loading-skeleton"
+    >
       <View style={styles.header}>
         <SkeletonBox width={60} height={16} style={{ marginBottom: 16 }} />
         <SkeletonBox width="70%" height={22} style={{ marginBottom: 10 }} />
@@ -47,6 +52,6 @@ export default function SetlistSkeleton() {
           ))}
         </View>
       ))}
-    </View>
+    </SafeAreaView>
   );
 }
