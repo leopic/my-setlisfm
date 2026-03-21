@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  RefreshControl,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +10,7 @@ import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
-import { ScreenHeader } from '../../../src/components/ui';
+import { ScreenHeader, TabScrollView } from '../../../src/components/ui';
 
 interface VenueWithStats {
   id: string;
@@ -393,7 +385,7 @@ export default function VenuesScreen() {
         searchPlaceholder={t('venues.searchPlaceholder')}
       />
 
-      <ScrollView
+      <TabScrollView
         style={styles.venuesList}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -414,7 +406,7 @@ export default function VenuesScreen() {
         ) : (
           filteredVenues.map(getVenueCard)
         )}
-      </ScrollView>
+      </TabScrollView>
     </SafeAreaView>
   );
 }

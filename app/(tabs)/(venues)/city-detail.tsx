@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  RefreshControl,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +7,7 @@ import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
 import DetailSkeleton from '../../../src/components/skeletons/DetailSkeleton';
-import { ScreenHeader } from '../../../src/components/ui';
+import { ScreenHeader, TabScrollView } from '../../../src/components/ui';
 
 interface VenueWithStats {
   id: string;
@@ -235,7 +227,7 @@ export default function CityDetailScreen() {
         onBackPress={() => router.back()}
       />
 
-      <ScrollView
+      <TabScrollView
         style={styles.venuesList}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -247,7 +239,7 @@ export default function CityDetailScreen() {
         ) : (
           venues.map(getVenueCard)
         )}
-      </ScrollView>
+      </TabScrollView>
     </SafeAreaView>
   );
 }

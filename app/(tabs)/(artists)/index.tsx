@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
@@ -9,7 +9,7 @@ import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
-import { ScreenHeader } from '../../../src/components/ui';
+import { ScreenHeader, TabScrollView } from '../../../src/components/ui';
 import ArtistImage from '../../../src/components/ArtistImage';
 import { useTranslation } from 'react-i18next';
 
@@ -261,7 +261,7 @@ export default function ArtistsScreen() {
         searchPlaceholder={t('artists.searchPlaceholder')}
       />
 
-      <ScrollView
+      <TabScrollView
         style={styles.artistsList}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -282,7 +282,7 @@ export default function ArtistsScreen() {
         ) : (
           filteredArtists.map(getArtistCard)
         )}
-      </ScrollView>
+      </TabScrollView>
     </SafeAreaView>
   );
 }

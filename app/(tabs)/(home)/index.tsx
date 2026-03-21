@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   RefreshControl,
   TouchableOpacity,
   TextInput,
@@ -21,7 +20,7 @@ import {
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
 import DashboardSkeleton from '../../../src/components/skeletons/DashboardSkeleton';
-import { ScreenHeader, StatBox, Card } from '../../../src/components/ui';
+import { ScreenHeader, StatBox, Card, TabScrollView } from '../../../src/components/ui';
 
 type DashboardStats = Awaited<ReturnType<typeof dbOperations.getDashboardStats>>;
 
@@ -311,7 +310,7 @@ export default function DashboardScreen() {
       style={styles.container}
       testID="dashboard-screen"
     >
-      <ScrollView
+      <TabScrollView
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         <ScreenHeader title={t('dashboard.title')} />
@@ -465,7 +464,7 @@ export default function DashboardScreen() {
         {lastSynced && (
           <Text style={styles.lastSynced}>{t('dashboard.lastSynced', { date: lastSynced })}</Text>
         )}
-      </ScrollView>
+      </TabScrollView>
     </SafeAreaView>
   );
 }

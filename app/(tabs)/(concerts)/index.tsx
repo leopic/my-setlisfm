@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   TextInput,
   Alert,
   RefreshControl,
@@ -19,7 +18,7 @@ import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
-import { ScreenHeader, EmptyState } from '../../../src/components/ui';
+import { ScreenHeader, EmptyState, TabScrollView } from '../../../src/components/ui';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -466,7 +465,7 @@ export default function ConcertsScreen() {
       </View>
 
       {/* Concerts List */}
-      <ScrollView
+      <TabScrollView
         style={styles.scrollView}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
@@ -599,7 +598,7 @@ export default function ConcertsScreen() {
             </View>
           ))
         )}
-      </ScrollView>
+      </TabScrollView>
     </SafeAreaView>
   );
 }

@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  RefreshControl,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +8,7 @@ import type { SetlistWithDetails } from '../../../src/types/database';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
 import ConcertListSkeleton from '../../../src/components/skeletons/ConcertListSkeleton';
-import { ScreenHeader } from '../../../src/components/ui';
+import { ScreenHeader, TabScrollView } from '../../../src/components/ui';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -182,7 +174,7 @@ export default function VenueConcertsListScreen() {
       />
 
       {/* Concerts List */}
-      <ScrollView
+      <TabScrollView
         style={styles.concertsList}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -220,7 +212,7 @@ export default function VenueConcertsListScreen() {
             </TouchableOpacity>
           ))
         )}
-      </ScrollView>
+      </TabScrollView>
     </SafeAreaView>
   );
 }

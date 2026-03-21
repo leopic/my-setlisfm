@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  RefreshControl,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +9,7 @@ import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
-import { ScreenHeader, SortBar } from '../../../src/components/ui';
+import { ScreenHeader, SortBar, TabScrollView } from '../../../src/components/ui';
 
 interface ContinentWithStats {
   name: string;
@@ -250,7 +242,7 @@ export default function ContinentsScreen() {
       {/* Sorting Controls */}
       <SortBar value={sortOption} onChange={handleSortChange} />
 
-      <ScrollView
+      <TabScrollView
         style={styles.continentsList}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -269,7 +261,7 @@ export default function ContinentsScreen() {
         ) : (
           continents.map(getContinentCard)
         )}
-      </ScrollView>
+      </TabScrollView>
     </SafeAreaView>
   );
 }
