@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { dbOperations } from '../../../src/database/operations';
 import CityList from '../../../src/components/CityList';
 import type { SortOption } from '../../../src/utils/sort';
@@ -20,6 +21,7 @@ interface CityWithStats {
 
 export default function CitiesScreen() {
   const colors = useColors();
+  const { t } = useTranslation();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -53,7 +55,7 @@ export default function CitiesScreen() {
       setCities(sortedCities);
     } catch (error) {
       console.error('Failed to load cities:', error);
-      Alert.alert('Error', 'Failed to load cities');
+      Alert.alert(t('common.error'), t('geo.failedToLoadCities'));
     } finally {
       setLoading(false);
     }
@@ -83,11 +85,11 @@ export default function CitiesScreen() {
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       {/* Header */}
       <ScreenHeader
-        title="Cities"
+        title={t('geo.citiesTitle')}
         subtitle={
           sortOption === 'top'
-            ? `${cities.length} cities (sorted by venue count)`
-            : `${cities.length} cities`
+            ? t('geo.citiesSubtitleSorted', { count: cities.length })
+            : t('geo.citiesSubtitle', { count: cities.length })
         }
         showBack
         onBackPress={() => router.back()}
@@ -96,7 +98,11 @@ export default function CitiesScreen() {
       {/* Sorting Controls */}
       <SortBar value={sortOption} onChange={handleSortChange} />
 
-      <CityList cities={cities} onCityPress={handleCityPress} emptyMessage="No cities found" />
+      <CityList
+        cities={cities}
+        onCityPress={handleCityPress}
+        emptyMessage={t('geo.noCitiesFound')}
+      />
     </SafeAreaView>
   );
 }

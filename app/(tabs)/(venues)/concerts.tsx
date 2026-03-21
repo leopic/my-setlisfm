@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails } from '../../../src/types/database';
 import { formatDate } from '../../../src/utils/date';
@@ -27,6 +28,7 @@ interface ConcertWithDetails extends SetlistWithDetails {
 
 export default function VenueConcertsListScreen() {
   const colors = useColors();
+  const { t } = useTranslation();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -124,7 +126,7 @@ export default function VenueConcertsListScreen() {
       setConcerts(concertsWithDetails);
     } catch (error) {
       console.error('Failed to load venue concerts:', error);
-      Alert.alert('Error', 'Failed to load venue concerts');
+      Alert.alert(t('common.error'), t('venues.failedToLoadConcerts'));
     } finally {
       setLoading(false);
     }
@@ -160,9 +162,9 @@ export default function VenueConcertsListScreen() {
 
   const uniqueVisits = new Set(concerts.map((c) => c.eventDate)).size;
   const uniqueArtists = new Set(concerts.map((c) => c.artistName)).size;
-  const subtitleParts = [`${uniqueVisits} Visit${uniqueVisits !== 1 ? 's' : ''}`];
+  const subtitleParts = [t('common.visit', { count: uniqueVisits })];
   if (uniqueArtists > 1) {
-    subtitleParts.push(`${uniqueArtists} Artist${uniqueArtists !== 1 ? 's' : ''}`);
+    subtitleParts.push(t('common.artist', { count: uniqueArtists }));
   }
 
   return (
@@ -187,7 +189,7 @@ export default function VenueConcertsListScreen() {
       >
         {concerts.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>No concerts found</Text>
+            <Text style={styles.emptyStateText}>{t('venues.noConcertsFound')}</Text>
           </View>
         ) : (
           concerts.map((concert) => (

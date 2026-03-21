@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { dbOperations } from '../../../src/database/operations';
 import CountryList from '../../../src/components/CountryList';
 import { useColors } from '../../../src/utils/colors';
@@ -18,6 +19,7 @@ interface CountryWithStats {
 
 export default function ContinentDetailScreen() {
   const colors = useColors();
+  const { t } = useTranslation();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -56,7 +58,7 @@ export default function ContinentDetailScreen() {
       setCountries(continentCountries);
     } catch (error) {
       console.error('Failed to load countries for continent:', error);
-      Alert.alert('Error', 'Failed to load countries');
+      Alert.alert(t('common.error'), t('geo.failedToLoadCountries'));
     } finally {
       setLoading(false);
     }
@@ -78,7 +80,7 @@ export default function ContinentDetailScreen() {
       {/* Header */}
       <ScreenHeader
         title={continentName as string}
-        subtitle={`${countries.length} countr${countries.length !== 1 ? 'ies' : 'y'}`}
+        subtitle={t('common.country', { count: countries.length })}
         showBack
         onBackPress={() => router.back()}
       />
@@ -86,7 +88,7 @@ export default function ContinentDetailScreen() {
       <CountryList
         countries={countries}
         onCountryPress={handleCountryPress}
-        emptyMessage="No countries found in this continent"
+        emptyMessage={t('geo.noCountriesInContinent')}
       />
     </SafeAreaView>
   );

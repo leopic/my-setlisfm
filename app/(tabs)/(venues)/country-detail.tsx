@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { dbOperations } from '../../../src/database/operations';
 import CityList from '../../../src/components/CityList';
 import { useColors } from '../../../src/utils/colors';
@@ -18,6 +19,7 @@ interface CityWithStats {
 
 export default function CountryDetailScreen() {
   const colors = useColors();
+  const { t } = useTranslation();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -53,7 +55,7 @@ export default function CountryDetailScreen() {
       setCities(countryCities);
     } catch (error) {
       console.error('Failed to load cities for country:', error);
-      Alert.alert('Error', 'Failed to load cities');
+      Alert.alert(t('common.error'), t('geo.failedToLoadCities'));
     } finally {
       setLoading(false);
     }
@@ -75,7 +77,7 @@ export default function CountryDetailScreen() {
       {/* Header */}
       <ScreenHeader
         title={country as string}
-        subtitle={`${cities.length} cit${cities.length !== 1 ? 'ies' : 'y'}`}
+        subtitle={t('common.city', { count: cities.length })}
         showBack
         onBackPress={() => router.back()}
       />
@@ -83,7 +85,7 @@ export default function CountryDetailScreen() {
       <CityList
         cities={cities}
         onCityPress={handleCityPress}
-        emptyMessage="No cities found in this country"
+        emptyMessage={t('geo.noCitiesInCountry')}
       />
     </SafeAreaView>
   );

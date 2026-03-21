@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import type { SetlistWithDetails, SetWithSongs } from '../types/database';
 import { formatDate } from '../utils/date';
 import { useColors } from '../utils/colors';
@@ -12,6 +13,7 @@ interface SetlistProps {
 }
 
 export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
+  const { t } = useTranslation();
   const colors = useColors();
   const styles = useMemo(
     () =>
@@ -93,9 +95,9 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       // Count total encore sets
       const encoreSets = sets.filter((s) => s.encore && s.songs && s.songs.length > 0);
       if (encoreSets.length === 1) {
-        return 'Encore';
+        return t('setlist.encore');
       } else {
-        return `Encore ${set.encore}`;
+        return t('setlist.encoreNumber', { number: set.encore });
       }
     }
     if (set.name && set.name !== 'Set 1:' && set.name !== 'Set 1') {
@@ -103,9 +105,9 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
     }
     // If there's only one set or it's the first set, call it "Main Set"
     if (setlist?.sets && setlist.sets.filter((s) => s.songs && s.songs.length > 0).length === 1) {
-      return 'Main Set';
+      return t('setlist.mainSet');
     }
-    return index === 0 ? 'Main Set' : `Set ${index + 1}`;
+    return index === 0 ? t('setlist.mainSet') : t('setlist.setNumber', { number: index + 1 });
   };
 
   return (
@@ -142,10 +144,14 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
                     {song.info && ` (${song.info})`}
                   </Text>
                   {song.withArtist?.name && (
-                    <Text style={styles.withArtistText}>with {song.withArtist.name}</Text>
+                    <Text style={styles.withArtistText}>
+                      {t('setlist.withArtist', { name: song.withArtist.name })}
+                    </Text>
                   )}
                   {song.coverArtist?.name && (
-                    <Text style={styles.coverArtistText}>cover of {song.coverArtist.name}</Text>
+                    <Text style={styles.coverArtistText}>
+                      {t('setlist.coverOf', { name: song.coverArtist.name })}
+                    </Text>
                   )}
                 </View>
               ))}
@@ -155,7 +161,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
         {/* Empty state if no sets */}
         {sets.filter((set) => set.songs && set.songs.length > 0).length === 0 && (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>No setlist information available</Text>
+            <Text style={styles.emptyStateText}>{t('setlist.noInfo')}</Text>
           </View>
         )}
       </ScrollView>

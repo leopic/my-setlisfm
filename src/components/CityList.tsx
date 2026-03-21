@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { formatDate } from '../utils/date';
 import { useColors } from '../utils/colors';
 
@@ -17,11 +18,8 @@ interface CityListProps {
   emptyMessage?: string;
 }
 
-export default function CityList({
-  cities,
-  onCityPress,
-  emptyMessage = 'No cities found',
-}: CityListProps) {
+export default function CityList({ cities, onCityPress, emptyMessage }: CityListProps) {
+  const { t } = useTranslation();
   const colors = useColors();
   const styles = useMemo(
     () =>
@@ -124,12 +122,15 @@ export default function CityList({
 
       <View style={styles.cityStats}>
         {city.lastConcertDate && (
-          <Text style={styles.lastConcertText}>Last show: {formatDate(city.lastConcertDate)}</Text>
+          <Text style={styles.lastConcertText}>
+            {t('common.lastShow', { date: formatDate(city.lastConcertDate) })}
+          </Text>
         )}
         {city.venues.length > 0 && (
           <Text style={styles.venuesText}>
             Venues: {city.venues.slice(0, 3).join(', ')}
-            {city.venues.length > 3 && ` +${city.venues.length - 3} more`}
+            {city.venues.length > 3 &&
+              ` ${t('common.moreCount', { count: city.venues.length - 3 })}`}
           </Text>
         )}
       </View>
@@ -140,7 +141,7 @@ export default function CityList({
     <ScrollView style={styles.citiesList} showsVerticalScrollIndicator={false}>
       {cities.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>{emptyMessage}</Text>
+          <Text style={styles.emptyStateText}>{emptyMessage ?? t('geo.noCitiesFound')}</Text>
         </View>
       ) : (
         cities.map(getCityCard)

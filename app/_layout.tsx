@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { databaseManager } from '../src/database/database';
 import { Stack } from 'expo-router';
+import '../src/i18n';
 
 export { ErrorBoundary } from '../src/components/ErrorBoundary';
 

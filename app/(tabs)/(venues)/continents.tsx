@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
@@ -29,6 +30,7 @@ interface ContinentWithStats {
 
 export default function ContinentsScreen() {
   const colors = useColors();
+  const { t } = useTranslation();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -150,7 +152,7 @@ export default function ContinentsScreen() {
       setContinents(sortedContinents);
     } catch (error) {
       console.error('Failed to load continents:', error);
-      Alert.alert('Error', 'Failed to load continents');
+      Alert.alert(t('common.error'), t('geo.failedToLoadContinents'));
     } finally {
       setLoading(false);
     }
@@ -194,26 +196,27 @@ export default function ContinentsScreen() {
         <View style={styles.continentInfo}>
           <Text style={styles.continentName}>{continent.name}</Text>
           <Text style={styles.continentLocation}>
-            {continent.countryCount} countr{continent.countryCount !== 1 ? 'ies' : 'y'} •{' '}
-            {continent.cityCount} cit{continent.cityCount !== 1 ? 'ies' : 'y'}
+            {t('common.country', { count: continent.countryCount })} •{' '}
+            {t('common.city', { count: continent.cityCount })}
           </Text>
         </View>
         <View style={styles.venueCountBadge}>
           <Text style={styles.venueCountText}>{continent.venueCount}</Text>
-          <Text style={styles.venueCountLabel}>venues</Text>
+          <Text style={styles.venueCountLabel}>{t('venues.visits')}</Text>
         </View>
       </View>
 
       <View style={styles.continentStats}>
         {continent.lastConcertDate && (
           <Text style={styles.lastConcertText}>
-            Last show: {formatDate(continent.lastConcertDate)}
+            {t('common.lastShow', { date: formatDate(continent.lastConcertDate) })}
           </Text>
         )}
         {continent.countries.length > 0 && (
           <Text style={styles.countriesText}>
             Countries: {continent.countries.slice(0, 3).join(', ')}
-            {continent.countries.length > 3 && ` +${continent.countries.length - 3} more`}
+            {continent.countries.length > 3 &&
+              ` ${t('common.moreCount', { count: continent.countries.length - 3 })}`}
           </Text>
         )}
       </View>
@@ -232,11 +235,11 @@ export default function ContinentsScreen() {
     >
       {/* Header */}
       <ScreenHeader
-        title="Continents"
+        title={t('geo.continentsTitle')}
         subtitle={
           sortOption === 'top'
-            ? `${continents.length} continents (sorted by venue count)`
-            : `${continents.length} continents`
+            ? t('geo.continentsSubtitleSorted', { count: continents.length })
+            : t('geo.continentsSubtitle', { count: continents.length })
         }
         showBack
         onBackPress={() => router.back()}
@@ -252,9 +255,9 @@ export default function ContinentsScreen() {
       >
         {continents.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>No continents found</Text>
+            <Text style={styles.emptyStateText}>{t('geo.noContinentsFound')}</Text>
             <TouchableOpacity style={styles.refreshButton} onPress={loadContinents}>
-              <Text style={styles.refreshButtonText}>Refresh</Text>
+              <Text style={styles.refreshButtonText}>{t('common.refresh')}</Text>
             </TouchableOpacity>
           </View>
         ) : (

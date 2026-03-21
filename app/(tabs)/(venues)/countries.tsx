@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { dbOperations } from '../../../src/database/operations';
 import CountryList from '../../../src/components/CountryList';
 import type { SortOption } from '../../../src/utils/sort';
@@ -20,6 +21,7 @@ interface CountryWithStats {
 
 export default function CountriesScreen() {
   const colors = useColors();
+  const { t } = useTranslation();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -53,7 +55,7 @@ export default function CountriesScreen() {
       setCountries(sortedCountries);
     } catch (error) {
       console.error('Failed to load countries:', error);
-      Alert.alert('Error', 'Failed to load countries');
+      Alert.alert(t('common.error'), t('geo.failedToLoadCountries'));
     } finally {
       setLoading(false);
     }
@@ -77,11 +79,11 @@ export default function CountriesScreen() {
     >
       {/* Header */}
       <ScreenHeader
-        title="Countries"
+        title={t('geo.countriesTitle')}
         subtitle={
           sortOption === 'top'
-            ? `${countries.length} countries (sorted by venue count)`
-            : `${countries.length} countries`
+            ? t('geo.countriesSubtitleSorted', { count: countries.length })
+            : t('geo.countriesSubtitle', { count: countries.length })
         }
         showBack
         onBackPress={() => router.back()}
@@ -98,7 +100,7 @@ export default function CountriesScreen() {
             params: { country: country.name },
           });
         }}
-        emptyMessage="No countries found"
+        emptyMessage={t('geo.noCountriesFound')}
       />
     </SafeAreaView>
   );

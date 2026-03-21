@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { formatDate } from '../utils/date';
 import { useColors } from '../utils/colors';
 
@@ -17,11 +18,8 @@ interface CountryListProps {
   emptyMessage?: string;
 }
 
-export default function CountryList({
-  countries,
-  onCountryPress,
-  emptyMessage = 'No countries found',
-}: CountryListProps) {
+export default function CountryList({ countries, onCountryPress, emptyMessage }: CountryListProps) {
+  const { t } = useTranslation();
   const colors = useColors();
   const styles = useMemo(
     () =>
@@ -115,7 +113,7 @@ export default function CountryList({
         <View style={styles.countryInfo}>
           <Text style={styles.countryName}>{country.name}</Text>
           <Text style={styles.countryLocation}>
-            {country.cityCount} cit{country.cityCount !== 1 ? 'ies' : 'y'}
+            {t('common.city', { count: country.cityCount })}
           </Text>
         </View>
         <View style={styles.venueCountBadge}>
@@ -127,13 +125,14 @@ export default function CountryList({
       <View style={styles.countryStats}>
         {country.lastConcertDate && (
           <Text style={styles.lastConcertText}>
-            Last show: {formatDate(country.lastConcertDate)}
+            {t('common.lastShow', { date: formatDate(country.lastConcertDate) })}
           </Text>
         )}
         {country.cities.length > 0 && (
           <Text style={styles.citiesText}>
             Cities: {country.cities.slice(0, 3).join(', ')}
-            {country.cities.length > 3 && ` +${country.cities.length - 3} more`}
+            {country.cities.length > 3 &&
+              ` ${t('common.moreCount', { count: country.cities.length - 3 })}`}
           </Text>
         )}
       </View>
@@ -144,7 +143,7 @@ export default function CountryList({
     <ScrollView style={styles.countriesList} showsVerticalScrollIndicator={false}>
       {countries.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>{emptyMessage}</Text>
+          <Text style={styles.emptyStateText}>{emptyMessage ?? t('geo.noCountriesFound')}</Text>
         </View>
       ) : (
         countries.map(getCountryCard)

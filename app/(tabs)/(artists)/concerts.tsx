@@ -16,6 +16,7 @@ import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
 import ConcertListSkeleton from '../../../src/components/skeletons/ConcertListSkeleton';
 import { ScreenHeader } from '../../../src/components/ui';
+import { useTranslation } from 'react-i18next';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -26,6 +27,7 @@ interface ConcertWithDetails extends SetlistWithDetails {
 }
 
 export default function ArtistConcertsListScreen() {
+  const { t } = useTranslation();
   const colors = useColors();
   const styles = useMemo(
     () =>
@@ -124,7 +126,7 @@ export default function ArtistConcertsListScreen() {
       setConcerts(concertsWithDetails);
     } catch (error) {
       console.error('Failed to load artist concerts:', error);
-      Alert.alert('Error', 'Failed to load artist concerts');
+      Alert.alert(t('common.error'), t('artists.failedToLoadConcerts'));
     } finally {
       setLoading(false);
     }
@@ -161,9 +163,9 @@ export default function ArtistConcertsListScreen() {
   const uniqueCities = new Set(concerts.map((c) => c.cityName)).size;
   const uniqueCountries = new Set(concerts.map((c) => c.countryName)).size;
   const subtitleParts = [
-    `${concerts.length} Concert${concerts.length !== 1 ? 's' : ''}`,
-    `${uniqueCities} Cit${uniqueCities !== 1 ? 'ies' : 'y'}`,
-    `${uniqueCountries} Countr${uniqueCountries !== 1 ? 'ies' : 'y'}`,
+    t('common.concert', { count: concerts.length }),
+    t('common.city', { count: uniqueCities }),
+    t('common.country', { count: uniqueCountries }),
   ];
 
   return (
@@ -188,7 +190,7 @@ export default function ArtistConcertsListScreen() {
       >
         {concerts.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>No concerts found</Text>
+            <Text style={styles.emptyStateText}>{t('artists.noConcertsFound')}</Text>
           </View>
         ) : (
           concerts.map((concert) => (

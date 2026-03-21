@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
@@ -35,6 +36,7 @@ interface VenueWithStats {
 
 export default function CityDetailScreen() {
   const colors = useColors();
+  const { t } = useTranslation();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -152,7 +154,7 @@ export default function CityDetailScreen() {
       setVenues(cityVenues);
     } catch (error) {
       console.error('Failed to load venues for city:', error);
-      Alert.alert('Error', 'Failed to load venues');
+      Alert.alert(t('common.error'), t('geo.failedToLoadVenues'));
     } finally {
       setLoading(false);
     }
@@ -191,18 +193,21 @@ export default function CityDetailScreen() {
         </View>
         <View style={styles.concertCountBadge}>
           <Text style={styles.concertCountText}>{venue.concertCount}</Text>
-          <Text style={styles.concertCountLabel}>visits</Text>
+          <Text style={styles.concertCountLabel}>{t('venues.visits')}</Text>
         </View>
       </View>
 
       <View style={styles.venueStats}>
         {venue.lastConcertDate && (
-          <Text style={styles.lastConcertText}>Last show: {formatDate(venue.lastConcertDate)}</Text>
+          <Text style={styles.lastConcertText}>
+            {t('common.lastShow', { date: formatDate(venue.lastConcertDate) })}
+          </Text>
         )}
         {venue.artists.length > 0 && (
           <Text style={styles.artistsText}>
             Artists: {venue.artists.slice(0, 3).join(', ')}
-            {venue.artists.length > 3 && ` +${venue.artists.length - 3} more`}
+            {venue.artists.length > 3 &&
+              ` ${t('common.moreCount', { count: venue.artists.length - 3 })}`}
           </Text>
         )}
         {venue.coordsLat && venue.coordsLong && (
@@ -223,7 +228,7 @@ export default function CityDetailScreen() {
       {/* Header */}
       <ScreenHeader
         title={city as string}
-        subtitle={`${country} • ${venues.length} venue${venues.length !== 1 ? 's' : ''}`}
+        subtitle={`${country} • ${t('common.venue', { count: venues.length })}`}
         showBack
         onBackPress={() => router.back()}
       />
@@ -235,7 +240,7 @@ export default function CityDetailScreen() {
       >
         {venues.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>No venues found in this city</Text>
+            <Text style={styles.emptyStateText}>{t('geo.noVenuesInCity')}</Text>
           </View>
         ) : (
           venues.map(getVenueCard)

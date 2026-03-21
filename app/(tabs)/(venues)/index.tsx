@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { dbOperations } from '../../../src/database/operations';
 import SortAndSearch from '../../../src/components/SortAndSearch';
 import { formatDate } from '../../../src/utils/date';
@@ -47,6 +48,7 @@ interface GeoStats {
 
 export default function VenuesScreen() {
   const colors = useColors();
+  const { t } = useTranslation();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -217,7 +219,7 @@ export default function VenuesScreen() {
       setGeoStats(geoData);
     } catch (error) {
       console.error('Failed to load venues:', error);
-      Alert.alert('Error', 'Failed to load venues');
+      Alert.alert(t('common.error'), t('venues.failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -280,18 +282,21 @@ export default function VenuesScreen() {
         </View>
         <View style={styles.concertCountBadge}>
           <Text style={styles.concertCountText}>{venue.concertCount}</Text>
-          <Text style={styles.concertCountLabel}>visits</Text>
+          <Text style={styles.concertCountLabel}>{t('venues.visits')}</Text>
         </View>
       </View>
 
       <View style={styles.venueStats}>
         {venue.lastConcertDate && (
-          <Text style={styles.lastConcertText}>Last show: {formatDate(venue.lastConcertDate)}</Text>
+          <Text style={styles.lastConcertText}>
+            {t('common.lastShow', { date: formatDate(venue.lastConcertDate) })}
+          </Text>
         )}
         {venue.artists.length > 0 && (
           <Text style={styles.artistsText}>
             Artists: {venue.artists.slice(0, 3).join(', ')}
-            {venue.artists.length > 3 && ` +${venue.artists.length - 3} more`}
+            {venue.artists.length > 3 &&
+              ` ${t('common.moreCount', { count: venue.artists.length - 3 })}`}
           </Text>
         )}
         {venue.coordsLat && venue.coordsLong && (
@@ -311,13 +316,13 @@ export default function VenuesScreen() {
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="venues-screen">
       {/* Header */}
       <ScreenHeader
-        title="Venues"
+        title={t('venues.title')}
         subtitle={
           sortOption === 'top'
-            ? `${venues.length} venues (sorted by visit count)`
+            ? t('venues.subtitleSorted', { count: venues.length })
             : sortOption === 'recent'
-              ? `${venues.length} venues (sorted by most recent)`
-              : `${venues.length} venues`
+              ? t('venues.subtitleRecent', { count: venues.length })
+              : t('venues.subtitle', { count: venues.length })
         }
       />
       {geoStats && (
@@ -327,8 +332,8 @@ export default function VenuesScreen() {
               style={styles.geoStatButton}
               onPress={() => router.push('/(venues)/map')}
             >
-              <Text style={styles.geoStatEmoji}>Map</Text>
-              <Text style={styles.geoStatText}>Map</Text>
+              <Text style={styles.geoStatEmoji}>{t('venues.map')}</Text>
+              <Text style={styles.geoStatText}>{t('venues.map')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -336,9 +341,9 @@ export default function VenuesScreen() {
               testID="nav-continents"
               onPress={() => router.push('/(venues)/continents')}
             >
-              <Text style={styles.geoStatEmoji}>Continents</Text>
+              <Text style={styles.geoStatEmoji}>{t('venues.continents')}</Text>
               <Text style={styles.geoStatText}>
-                {geoStats.totalContinents} continent{geoStats.totalContinents !== 1 ? 's' : ''}
+                {t('common.continent', { count: geoStats.totalContinents })}
               </Text>
             </TouchableOpacity>
           </View>
@@ -349,9 +354,9 @@ export default function VenuesScreen() {
               testID="nav-countries"
               onPress={() => router.push('/(venues)/countries')}
             >
-              <Text style={styles.geoStatEmoji}>Countries</Text>
+              <Text style={styles.geoStatEmoji}>{t('geo.countriesTitle')}</Text>
               <Text style={styles.geoStatText}>
-                {geoStats.totalCountries} countr{geoStats.totalCountries !== 1 ? 'ies' : 'y'}
+                {t('common.country', { count: geoStats.totalCountries })}
               </Text>
             </TouchableOpacity>
 
@@ -360,9 +365,9 @@ export default function VenuesScreen() {
               testID="nav-cities"
               onPress={() => router.push('/(venues)/cities')}
             >
-              <Text style={styles.geoStatEmoji}>Cities</Text>
+              <Text style={styles.geoStatEmoji}>{t('venues.cities')}</Text>
               <Text style={styles.geoStatText}>
-                {geoStats.totalCities} cit{geoStats.totalCities !== 1 ? 'ies' : 'y'}
+                {t('common.city', { count: geoStats.totalCities })}
               </Text>
             </TouchableOpacity>
           </View>
@@ -375,7 +380,7 @@ export default function VenuesScreen() {
         searchQuery={searchQuery}
         onSortChange={handleSortChange}
         onSearchChange={setSearchQuery}
-        searchPlaceholder="Search venues, cities, countries..."
+        searchPlaceholder={t('venues.searchPlaceholder')}
       />
 
       <ScrollView
@@ -386,10 +391,13 @@ export default function VenuesScreen() {
         {filteredVenues.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>
-              {searchQuery.trim() ? 'No venues match your search' : 'No venues found'}
+              {searchQuery.trim() ? t('venues.noMatch') : t('venues.empty')}
             </Text>
-            <TouchableOpacity style={styles.refreshButton} onPress={loadVenues}>
-              <Text style={styles.refreshButtonText}>Refresh</Text>
+            <TouchableOpacity
+              style={styles.refreshButton}
+              onPress={loadVenues}
+            >
+              <Text style={styles.refreshButtonText}>{t('common.refresh')}</Text>
             </TouchableOpacity>
           </View>
         ) : (

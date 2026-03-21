@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails } from '../../../src/types/database';
 import { parseSetlistDate, formatDate } from '../../../src/utils/date';
@@ -36,6 +37,7 @@ interface YearGroup {
 }
 
 export default function ConcertsScreen() {
+  const { t } = useTranslation();
   const colors = useColors();
   const styles = useMemo(
     () =>
@@ -292,7 +294,7 @@ export default function ConcertsScreen() {
       setYearGroups(grouped);
     } catch (error) {
       console.error('Failed to load concerts:', error);
-      Alert.alert('Error', 'Failed to load concerts');
+      Alert.alert(t('common.error'), t('concerts.failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -401,17 +403,17 @@ export default function ConcertsScreen() {
     >
       {/* Header */}
       <ScreenHeader
-        title="My Concerts"
+        title={t('concerts.title')}
         subtitle={
           sortOption === 'alphabetical'
-            ? `${totalConcerts} concerts (alphabetical by artist)`
-            : `${totalConcerts} concerts grouped by year`
+            ? t('concerts.subtitleAlphabetical', { count: totalConcerts })
+            : t('concerts.subtitleByYear', { count: totalConcerts })
         }
       />
 
       {/* Sorting Options */}
       <View style={styles.sortContainer}>
-        <Text style={styles.sortLabel}>Sort by:</Text>
+        <Text style={styles.sortLabel}>{t('concerts.sortBy')}</Text>
         <View style={styles.sortButtons}>
           <TouchableOpacity
             style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]}
@@ -423,7 +425,7 @@ export default function ConcertsScreen() {
                 sortOption === 'recent' && styles.sortButtonTextActive,
               ]}
             >
-              Most Recent
+              {t('concerts.mostRecent')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -436,7 +438,7 @@ export default function ConcertsScreen() {
                 sortOption === 'alphabetical' && styles.sortButtonTextActive,
               ]}
             >
-              Alphabetical
+              {t('concerts.alphabetical')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -446,7 +448,7 @@ export default function ConcertsScreen() {
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search by artist, venue, city..."
+          placeholder={t('concerts.searchPlaceholder')}
           placeholderTextColor={colors.textMuted}
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -464,8 +466,8 @@ export default function ConcertsScreen() {
       >
         {filteredYearGroups.length === 0 ? (
           <EmptyState
-            title={searchQuery.trim() ? 'No matches found' : 'No concerts found'}
-            subtitle={searchQuery.trim() ? 'Try a different search term' : undefined}
+            title={searchQuery.trim() ? t('common.noMatchesFound') : t('concerts.empty')}
+            subtitle={searchQuery.trim() ? t('common.tryDifferentSearch') : undefined}
           />
         ) : sortOption === 'alphabetical' ? (
           // Flat list for alphabetical sorting with proper container spacing
@@ -515,7 +517,7 @@ export default function ConcertsScreen() {
               <View style={styles.yearHeader}>
                 <Text style={styles.yearTitle}>{yearGroup.year}</Text>
                 <Text style={styles.yearStats}>
-                  {yearGroup.totalConcerts} concert{yearGroup.totalConcerts !== 1 ? 's' : ''}
+                  {t('common.concert', { count: yearGroup.totalConcerts })}
                 </Text>
               </View>
 

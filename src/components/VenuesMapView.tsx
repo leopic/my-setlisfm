@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import type { Region } from 'react-native-maps';
 import MapView, { Marker } from 'react-native-maps';
 import { dbOperations } from '../database/operations';
@@ -18,6 +19,7 @@ interface VenueWithCoords {
 }
 
 export default function VenuesMapView() {
+  const { t } = useTranslation();
   const colors = useColors();
   const styles = useMemo(
     () =>
@@ -155,7 +157,7 @@ export default function VenuesMapView() {
       }
     } catch (error) {
       console.error('Failed to load venues for map:', error);
-      Alert.alert('Error', 'Failed to load venue locations');
+      Alert.alert(t('common.error'), 'Failed to load venue locations');
     } finally {
       setLoading(false);
     }
@@ -173,7 +175,7 @@ export default function VenuesMapView() {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.loadingText}>Loading venue locations...</Text>
+        <Text style={styles.loadingText}>{t('map.loading')}</Text>
       </View>
     );
   }
@@ -181,10 +183,8 @@ export default function VenuesMapView() {
   if (venues.length === 0) {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>No venues with location data found</Text>
-        <Text style={styles.emptySubtext}>
-          Venues need coordinate information to appear on the map
-        </Text>
+        <Text style={styles.emptyText}>{t('map.noData')}</Text>
+        <Text style={styles.emptySubtext}>{t('map.noDataSubtitle')}</Text>
       </View>
     );
   }
@@ -209,35 +209,35 @@ export default function VenuesMapView() {
             }}
             pinColor={getMarkerColor(venue.concertCount)}
             title={venue.name}
-            description={`${venue.cityName}${venue.countryName ? `, ${venue.countryName}` : ''}\n${venue.concertCount} visit${venue.concertCount !== 1 ? 's' : ''}${venue.lastConcertDate ? `\nLast: ${formatDate(venue.lastConcertDate)}` : ''}`}
+            description={`${venue.cityName}${venue.countryName ? `, ${venue.countryName}` : ''}\n${t('common.visit', { count: venue.concertCount })}${venue.lastConcertDate ? `\nLast: ${formatDate(venue.lastConcertDate)}` : ''}`}
           />
         ))}
       </MapView>
 
       <View style={styles.venueCount}>
         <Text style={styles.venueCountText}>
-          {venues.length} venue{venues.length !== 1 ? 's' : ''} with location data
+          {t('map.venuesWithLocation', { count: venues.length })}
         </Text>
       </View>
 
       <View style={styles.legend}>
-        <Text style={styles.legendTitle}>Visit Count Legend:</Text>
+        <Text style={styles.legendTitle}>{t('map.legendTitle')}</Text>
         <View style={styles.legendItems}>
           <View style={styles.legendItem}>
             <View style={[styles.legendDot, { backgroundColor: colors.mapSingleVisit }]} />
-            <Text style={styles.legendText}>1 visit</Text>
+            <Text style={styles.legendText}>{t('map.legend1')}</Text>
           </View>
           <View style={styles.legendItem}>
             <View style={[styles.legendDot, { backgroundColor: colors.mapOccasional }]} />
-            <Text style={styles.legendText}>2 visits</Text>
+            <Text style={styles.legendText}>{t('map.legend2')}</Text>
           </View>
           <View style={styles.legendItem}>
             <View style={[styles.legendDot, { backgroundColor: colors.mapModerate }]} />
-            <Text style={styles.legendText}>3-4 visits</Text>
+            <Text style={styles.legendText}>{t('map.legend3')}</Text>
           </View>
           <View style={styles.legendItem}>
             <View style={[styles.legendDot, { backgroundColor: colors.mapFrequent }]} />
-            <Text style={styles.legendText}>5+ visits</Text>
+            <Text style={styles.legendText}>{t('map.legend5')}</Text>
           </View>
         </View>
       </View>

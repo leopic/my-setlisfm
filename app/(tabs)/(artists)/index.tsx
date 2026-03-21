@@ -18,6 +18,7 @@ import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
 import { ScreenHeader } from '../../../src/components/ui';
+import { useTranslation } from 'react-i18next';
 
 interface ArtistWithStats {
   mbid: string;
@@ -31,6 +32,7 @@ interface ArtistWithStats {
 }
 
 export default function ArtistsScreen() {
+  const { t } = useTranslation();
   const colors = useColors();
   const styles = useMemo(
     () =>
@@ -155,7 +157,7 @@ export default function ArtistsScreen() {
       setArtists(sortedArtists);
     } catch (error) {
       console.error('Failed to load artists:', error);
-      Alert.alert('Error', 'Failed to load artists');
+      Alert.alert(t('common.error'), t('artists.failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -212,14 +214,14 @@ export default function ArtistsScreen() {
         </View>
         <View style={styles.concertCountBadge}>
           <Text style={styles.concertCountText}>{artist.concertCount}</Text>
-          <Text style={styles.concertCountLabel}>shows</Text>
+          <Text style={styles.concertCountLabel}>{t('artists.shows')}</Text>
         </View>
       </View>
 
       <View style={styles.artistStats}>
         {artist.lastConcertDate && (
           <Text style={styles.lastConcertText}>
-            Last seen: {formatDate(artist.lastConcertDate)}
+            {t('common.lastSeen', { date: formatDate(artist.lastConcertDate) })}
           </Text>
         )}
         {artist.venues.length > 0 && (
@@ -240,11 +242,11 @@ export default function ArtistsScreen() {
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="artists-screen">
       {/* Header */}
       <ScreenHeader
-        title="Artists"
+        title={t('artists.title')}
         subtitle={
           sortOption === 'top'
-            ? `${artists.length} artists (sorted by concert count)`
-            : `${artists.length} artists`
+            ? t('artists.subtitleSorted', { count: artists.length })
+            : t('artists.subtitle', { count: artists.length })
         }
       />
 
@@ -254,7 +256,7 @@ export default function ArtistsScreen() {
         searchQuery={searchQuery}
         onSortChange={handleSortChange}
         onSearchChange={setSearchQuery}
-        searchPlaceholder="Search artists..."
+        searchPlaceholder={t('artists.searchPlaceholder')}
       />
 
       <ScrollView
@@ -265,10 +267,10 @@ export default function ArtistsScreen() {
         {filteredArtists.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>
-              {searchQuery.trim() ? 'No artists match your search' : 'No artists found'}
+              {searchQuery.trim() ? t('artists.noMatch') : t('artists.empty')}
             </Text>
             <TouchableOpacity style={styles.refreshButton} onPress={loadArtists}>
-              <Text style={styles.refreshButtonText}>Refresh</Text>
+              <Text style={styles.refreshButtonText}>{t('common.refresh')}</Text>
             </TouchableOpacity>
           </View>
         ) : (

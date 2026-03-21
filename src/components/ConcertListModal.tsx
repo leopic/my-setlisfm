@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { SetlistWithDetails } from '../types/database';
 import { formatDate } from '../utils/date';
@@ -30,6 +31,7 @@ export default function ConcertListModal({
   loading,
   onConcertPress,
 }: ConcertListModalProps) {
+  const { t } = useTranslation();
   const colors = useColors();
   const styles = useMemo(
     () =>
@@ -140,7 +142,10 @@ export default function ConcertListModal({
       <SafeAreaView style={styles.modalContainer}>
         {/* Modal Header */}
         <View style={styles.modalHeader}>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <TouchableOpacity
+            onPress={onClose}
+            style={styles.closeButton}
+          >
             <Text style={styles.closeButtonText}>X</Text>
           </TouchableOpacity>
           <Text style={styles.modalTitle}>{title}</Text>
@@ -150,13 +155,13 @@ export default function ConcertListModal({
         {/* Concerts List */}
         {loading ? (
           <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Loading concerts...</Text>
+            <Text style={styles.loadingText}>{t('concertListModal.loading')}</Text>
           </View>
         ) : (
           <ScrollView style={styles.concertsList} showsVerticalScrollIndicator={false}>
             {concerts.length === 0 ? (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyStateText}>No concerts found</Text>
+                <Text style={styles.emptyStateText}>{t('concertListModal.empty')}</Text>
               </View>
             ) : (
               concerts.map((concert) => (

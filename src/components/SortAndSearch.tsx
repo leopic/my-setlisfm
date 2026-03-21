@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import type { SortOption } from '../utils/sort';
 import { useColors } from '../utils/colors';
 
@@ -22,12 +23,9 @@ export default function SortAndSearch({
   onSortChange,
   onSearchChange,
   searchPlaceholder,
-  sortOptions = {
-    recent: 'Most Recent',
-    top: 'Top',
-    alphabetical: 'Name',
-  },
+  sortOptions,
 }: SortAndSearchProps) {
+  const { t } = useTranslation();
   const colors = useColors();
   const styles = useMemo(
     () =>
@@ -91,7 +89,7 @@ export default function SortAndSearch({
   return (
     <View style={styles.sortContainer}>
       <View style={styles.sortRow}>
-        <Text style={styles.sortLabel}>Sort by:</Text>
+        <Text style={styles.sortLabel}>{t('sort.sortBy')}</Text>
         <View style={styles.sortButtons}>
           <TouchableOpacity
             style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]}
@@ -103,7 +101,7 @@ export default function SortAndSearch({
                 sortOption === 'recent' && styles.sortButtonTextActive,
               ]}
             >
-              {sortOptions.recent}
+              {sortOptions?.recent ?? t('sort.mostRecent')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -113,7 +111,7 @@ export default function SortAndSearch({
             <Text
               style={[styles.sortButtonText, sortOption === 'top' && styles.sortButtonTextActive]}
             >
-              {sortOptions.top}
+              {sortOptions?.top ?? t('sort.top')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -126,7 +124,7 @@ export default function SortAndSearch({
                 sortOption === 'alphabetical' && styles.sortButtonTextActive,
               ]}
             >
-              {sortOptions.alphabetical}
+              {sortOptions?.alphabetical ?? t('sort.byName')}
             </Text>
           </TouchableOpacity>
         </View>

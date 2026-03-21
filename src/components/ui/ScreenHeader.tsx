@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useColors } from '../../utils/colors';
 
 interface ScreenHeaderProps {
@@ -15,6 +16,7 @@ export default function ScreenHeader({
   showBack,
   onBackPress,
 }: ScreenHeaderProps) {
+  const { t } = useTranslation();
   const colors = useColors();
   const styles = useMemo(
     () =>
@@ -50,8 +52,12 @@ export default function ScreenHeader({
   return (
     <View style={styles.container}>
       {showBack && (
-        <TouchableOpacity style={styles.backButton} testID="back-button" onPress={onBackPress}>
-          <Text style={styles.backButtonText}>← Back</Text>
+        <TouchableOpacity
+          style={styles.backButton}
+          testID="back-button"
+          onPress={onBackPress}
+        >
+          <Text style={styles.backButtonText}>{t('common.back')}</Text>
         </TouchableOpacity>
       )}
       <Text style={styles.title}>{title}</Text>

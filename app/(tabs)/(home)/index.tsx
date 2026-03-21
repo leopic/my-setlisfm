@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { dbOperations } from '../../../src/database/operations';
 import {
   syncConcertData,
@@ -39,6 +40,7 @@ const emptyStats: DashboardStats = {
 export default function DashboardScreen() {
   const router = useRouter();
   const colors = useColors();
+  const { t } = useTranslation();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -233,7 +235,7 @@ export default function DashboardScreen() {
   const handleSync = async () => {
     const trimmed = username.trim();
     if (!trimmed) {
-      Alert.alert('Username Required', 'Enter your setlist.fm username to sync.');
+      Alert.alert(t('dashboard.usernameRequired'), t('dashboard.usernameRequiredMessage'));
       return;
     }
     setSyncing(true);
@@ -242,12 +244,15 @@ export default function DashboardScreen() {
     if (result.success) {
       await loadDashboard();
       if (result.newConcerts > 0) {
-        Alert.alert('Sync Complete', `Added ${result.newConcerts} new concerts.`);
+        Alert.alert(
+          t('dashboard.syncComplete'),
+          t('dashboard.syncCompleteMessage', { count: result.newConcerts }),
+        );
       } else if (result.pagesProcessed > 0) {
-        Alert.alert('Up to Date', 'No new concerts found.');
+        Alert.alert(t('dashboard.upToDate'), t('dashboard.upToDateMessage'));
       }
     } else {
-      Alert.alert('Sync Failed', result.error ?? 'Unknown error');
+      Alert.alert(t('dashboard.syncFailed'), result.error ?? 'Unknown error');
     }
     setSyncing(false);
   };
@@ -265,15 +270,13 @@ export default function DashboardScreen() {
   if (stats.totalConcerts === 0) {
     return (
       <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-        <ScreenHeader title="Dashboard" />
+        <ScreenHeader title={t('dashboard.title')} />
         <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>No concert data yet</Text>
-          <Text style={styles.emptySubtitle}>
-            Enter your setlist.fm username to sync your concert history
-          </Text>
+          <Text style={styles.emptyTitle}>{t('dashboard.emptyTitle')}</Text>
+          <Text style={styles.emptySubtitle}>{t('dashboard.emptySubtitle')}</Text>
           <TextInput
             style={styles.usernameInput}
-            placeholder="setlist.fm username"
+            placeholder={t('dashboard.usernamePlaceholder')}
             placeholderTextColor={colors.textMuted}
             value={username}
             onChangeText={setUsername}
@@ -288,7 +291,7 @@ export default function DashboardScreen() {
             disabled={syncing || !username.trim()}
           >
             <Text style={styles.syncButtonText}>
-              {syncing ? 'Syncing...' : 'Fetch Concert Data'}
+              {syncing ? t('dashboard.syncing') : t('dashboard.fetchData')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -305,21 +308,21 @@ export default function DashboardScreen() {
       testID="dashboard-screen"
     >
       <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-        <ScreenHeader title="Dashboard" />
+        <ScreenHeader title={t('dashboard.title')} />
 
         {/* Hero stats */}
         <View style={styles.statsRow}>
-          <StatBox value={stats.totalConcerts} label="Concerts" />
-          <StatBox value={stats.totalArtists} label="Artists" />
+          <StatBox value={stats.totalConcerts} label={t('dashboard.concerts')} />
+          <StatBox value={stats.totalArtists} label={t('dashboard.artists')} />
         </View>
         <View style={styles.statsRow}>
-          <StatBox value={stats.totalVenues} label="Venues" />
-          <StatBox value={stats.totalCountries} label="Countries" />
+          <StatBox value={stats.totalVenues} label={t('dashboard.venues')} />
+          <StatBox value={stats.totalCountries} label={t('dashboard.countries')} />
         </View>
 
         {/* Highlights */}
         <Card style={styles.section}>
-          <Text style={styles.sectionTitle}>Highlights</Text>
+          <Text style={styles.sectionTitle}>{t('dashboard.highlights')}</Text>
           {stats.topArtist && (
             <TouchableOpacity
               style={styles.highlightRow}
@@ -332,10 +335,10 @@ export default function DashboardScreen() {
             >
               <View style={{ flex: 1 }}>
                 <Text style={styles.highlightName}>{stats.topArtist.name}</Text>
-                <Text style={styles.highlightSub}>Most seen artist</Text>
+                <Text style={styles.highlightSub}>{t('dashboard.mostSeenArtist')}</Text>
               </View>
               <Text style={styles.highlightDetail}>
-                {stats.topArtist.count} show{stats.topArtist.count !== 1 ? 's' : ''}
+                {t('common.show', { count: stats.topArtist.count })}
               </Text>
             </TouchableOpacity>
           )}
@@ -352,11 +355,11 @@ export default function DashboardScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.highlightName}>{stats.topVenue.name}</Text>
                 <Text style={styles.highlightSub}>
-                  Most visited venue — {stats.topVenue.cityName}
+                  {t('dashboard.mostVisitedVenue', { city: stats.topVenue.cityName })}
                 </Text>
               </View>
               <Text style={styles.highlightDetail}>
-                {stats.topVenue.count} show{stats.topVenue.count !== 1 ? 's' : ''}
+                {t('common.show', { count: stats.topVenue.count })}
               </Text>
             </TouchableOpacity>
           )}
@@ -364,7 +367,7 @@ export default function DashboardScreen() {
 
         {/* Timeline */}
         <Card style={styles.section}>
-          <Text style={styles.sectionTitle}>Timeline</Text>
+          <Text style={styles.sectionTitle}>{t('dashboard.timeline')}</Text>
           {stats.lastConcert && (
             <TouchableOpacity
               style={[styles.highlightRow, !onThisDay && styles.highlightRowLast]}
@@ -379,7 +382,7 @@ export default function DashboardScreen() {
                 <Text style={styles.timelineDate}>{formatDate(stats.lastConcert.eventDate)}</Text>
                 <Text style={styles.timelineArtist}>{stats.lastConcert.artistName}</Text>
               </View>
-              <Text style={styles.highlightDetail}>Most recent</Text>
+              <Text style={styles.highlightDetail}>{t('dashboard.mostRecent')}</Text>
             </TouchableOpacity>
           )}
           {onThisDay && (
@@ -399,7 +402,7 @@ export default function DashboardScreen() {
                 </Text>
               </View>
               <Text style={styles.highlightDetail}>
-                {onThisDay.yearsAgo} year{onThisDay.yearsAgo !== 1 ? 's' : ''} ago
+                {t('dashboard.yearsAgo', { count: onThisDay.yearsAgo })}
               </Text>
             </TouchableOpacity>
           )}
@@ -417,7 +420,7 @@ export default function DashboardScreen() {
                 <Text style={styles.timelineDate}>{formatDate(stats.firstConcert.eventDate)}</Text>
                 <Text style={styles.timelineArtist}>{stats.firstConcert.artistName}</Text>
               </View>
-              <Text style={styles.highlightDetail}>First concert</Text>
+              <Text style={styles.highlightDetail}>{t('dashboard.firstConcert')}</Text>
             </TouchableOpacity>
           )}
         </Card>
@@ -425,7 +428,7 @@ export default function DashboardScreen() {
         {/* Concerts by year */}
         {stats.concertsByYear.length > 0 && (
           <Card style={styles.section}>
-            <Text style={styles.sectionTitle}>Concerts per Year</Text>
+            <Text style={styles.sectionTitle}>{t('dashboard.concertsPerYear')}</Text>
             {stats.concertsByYear.map((item) => (
               <View key={item.year} style={styles.yearRow}>
                 <Text style={styles.yearLabel}>{item.year}</Text>
@@ -440,7 +443,9 @@ export default function DashboardScreen() {
           </Card>
         )}
 
-        {lastSynced && <Text style={styles.lastSynced}>Last synced: {lastSynced}</Text>}
+        {lastSynced && (
+          <Text style={styles.lastSynced}>{t('dashboard.lastSynced', { date: lastSynced })}</Text>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
