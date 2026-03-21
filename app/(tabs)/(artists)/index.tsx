@@ -66,11 +66,6 @@ export default function ArtistsScreen() {
           color: colors.textPrimary,
           marginBottom: 3,
         },
-        artistDisambiguation: {
-          fontSize: 14,
-          color: colors.textSecondary,
-          fontStyle: 'italic',
-        },
         concertCountBadge: {
           backgroundColor: colors.primary,
           paddingHorizontal: 12,
@@ -214,13 +209,10 @@ export default function ArtistsScreen() {
       <View style={styles.artistHeader}>
         <View style={styles.artistInfo}>
           <Text style={styles.artistName}>{artist.name}</Text>
-          {artist.disambiguation && (
-            <Text style={styles.artistDisambiguation}>{artist.disambiguation}</Text>
-          )}
         </View>
         <View style={styles.concertCountBadge}>
           <Text style={styles.concertCountText}>{artist.concertCount}</Text>
-          <Text style={styles.concertCountLabel}>visits</Text>
+          <Text style={styles.concertCountLabel}>shows</Text>
         </View>
       </View>
 
