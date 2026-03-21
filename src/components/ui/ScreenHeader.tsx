@@ -29,6 +29,9 @@ export default function ScreenHeader({
         backButton: {
           padding: 10,
           marginBottom: 10,
+          minHeight: 44,
+          minWidth: 44,
+          justifyContent: 'center' as const,
         },
         backButtonText: {
           color: colors.primary,
@@ -56,11 +59,15 @@ export default function ScreenHeader({
           style={styles.backButton}
           testID="back-button"
           onPress={onBackPress}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.back')}
         >
           <Text style={styles.backButtonText}>{t('common.back')}</Text>
         </TouchableOpacity>
       )}
-      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.title} accessibilityRole="header">
+        {title}
+      </Text>
       {subtitle != null && <Text style={styles.subtitle}>{subtitle}</Text>}
     </View>
   );

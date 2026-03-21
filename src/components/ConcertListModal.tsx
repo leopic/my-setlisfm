@@ -51,6 +51,10 @@ export default function ConcertListModal({
         },
         closeButton: {
           padding: 10,
+          minHeight: 44,
+          minWidth: 44,
+          justifyContent: 'center',
+          alignItems: 'center',
         },
         closeButtonText: {
           fontSize: 24,
@@ -139,12 +143,14 @@ export default function ConcertListModal({
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <SafeAreaView style={styles.modalContainer}>
+      <SafeAreaView style={styles.modalContainer} accessibilityViewIsModal={true}>
         {/* Modal Header */}
         <View style={styles.modalHeader}>
           <TouchableOpacity
             onPress={onClose}
             style={styles.closeButton}
+            accessibilityRole="button"
+            accessibilityLabel={t('common.close')}
           >
             <Text style={styles.closeButtonText}>X</Text>
           </TouchableOpacity>
@@ -169,6 +175,8 @@ export default function ConcertListModal({
                   key={concert.id}
                   style={styles.concertItem}
                   onPress={() => onConcertPress(concert)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
                 >
                   <View style={styles.concertHeader}>
                     <Text style={styles.concertMainName}>

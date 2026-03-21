@@ -75,6 +75,9 @@ export default function SortBar({
             key={option}
             style={[styles.pill, value === option && styles.pillActive]}
             onPress={() => onChange(option)}
+            accessibilityRole="button"
+            accessibilityState={{ selected: value === option }}
+            accessibilityLabel={`${t('sort.sortBy')} ${t(LABEL_KEYS[option])}`}
           >
             <Text style={[styles.pillText, value === option && styles.pillTextActive]}>
               {t(LABEL_KEYS[option])}

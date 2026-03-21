@@ -284,11 +284,15 @@ export default function DashboardScreen() {
             autoCorrect={false}
             returnKeyType="go"
             onSubmitEditing={handleSync}
+            accessibilityLabel={t('dashboard.usernamePlaceholder')}
           />
           <TouchableOpacity
             style={[styles.syncButton, (syncing || !username.trim()) && styles.syncButtonDisabled]}
             onPress={handleSync}
             disabled={syncing || !username.trim()}
+            accessibilityRole="button"
+            accessibilityLabel={syncing ? t('dashboard.syncing') : t('dashboard.fetchData')}
+            accessibilityState={{ disabled: syncing || !username.trim() }}
           >
             <Text style={styles.syncButtonText}>
               {syncing ? t('dashboard.syncing') : t('dashboard.fetchData')}
@@ -307,7 +311,9 @@ export default function DashboardScreen() {
       style={styles.container}
       testID="dashboard-screen"
     >
-      <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+      <ScrollView
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <ScreenHeader title={t('dashboard.title')} />
 
         {/* Hero stats */}
@@ -332,6 +338,8 @@ export default function DashboardScreen() {
                   params: { artist: stats.topArtist?.mbid },
                 })
               }
+              accessibilityRole="button"
+              accessibilityLabel={`${stats.topArtist.name}, ${t('dashboard.mostSeenArtist')}, ${t('common.show', { count: stats.topArtist.count })}`}
             >
               <View style={{ flex: 1 }}>
                 <Text style={styles.highlightName}>{stats.topArtist.name}</Text>
@@ -351,6 +359,8 @@ export default function DashboardScreen() {
                   params: { venue: stats.topVenue?.id },
                 })
               }
+              accessibilityRole="button"
+              accessibilityLabel={`${stats.topVenue.name}, ${stats.topVenue.cityName}, ${t('common.show', { count: stats.topVenue.count })}`}
             >
               <View style={{ flex: 1 }}>
                 <Text style={styles.highlightName}>{stats.topVenue.name}</Text>
@@ -377,6 +387,9 @@ export default function DashboardScreen() {
                   params: { id: stats.lastConcert?.setlistId },
                 })
               }
+              accessibilityRole="button"
+              accessibilityLabel={`${t('dashboard.mostRecent')}, ${stats.lastConcert.artistName}, ${formatDate(stats.lastConcert.eventDate)}`}
+              accessibilityHint={t('Opens concert details')}
             >
               <View>
                 <Text style={styles.timelineDate}>{formatDate(stats.lastConcert.eventDate)}</Text>
@@ -394,6 +407,9 @@ export default function DashboardScreen() {
                   params: { id: onThisDay.setlistId },
                 })
               }
+              accessibilityRole="button"
+              accessibilityLabel={`${t('dashboard.yearsAgo', { count: onThisDay.yearsAgo })}, ${onThisDay.artistName}, ${formatDate(onThisDay.eventDate)}`}
+              accessibilityHint={t('Opens concert details')}
             >
               <View>
                 <Text style={styles.timelineDate}>{formatDate(onThisDay.eventDate)}</Text>
@@ -415,6 +431,9 @@ export default function DashboardScreen() {
                   params: { id: stats.firstConcert?.setlistId },
                 })
               }
+              accessibilityRole="button"
+              accessibilityLabel={`${t('dashboard.firstConcert')}, ${stats.firstConcert.artistName}, ${formatDate(stats.firstConcert.eventDate)}`}
+              accessibilityHint={t('Opens concert details')}
             >
               <View>
                 <Text style={styles.timelineDate}>{formatDate(stats.firstConcert.eventDate)}</Text>

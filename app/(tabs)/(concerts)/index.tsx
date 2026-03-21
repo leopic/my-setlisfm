@@ -418,6 +418,9 @@ export default function ConcertsScreen() {
           <TouchableOpacity
             style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]}
             onPress={() => handleSortChange('recent')}
+            accessibilityRole="button"
+            accessibilityState={{ selected: sortOption === 'recent' }}
+            accessibilityLabel={t('concerts.sortByMostRecent')}
           >
             <Text
               style={[
@@ -431,6 +434,9 @@ export default function ConcertsScreen() {
           <TouchableOpacity
             style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]}
             onPress={() => handleSortChange('alphabetical')}
+            accessibilityRole="button"
+            accessibilityState={{ selected: sortOption === 'alphabetical' }}
+            accessibilityLabel={t('concerts.sortByAlphabetical')}
           >
             <Text
               style={[
@@ -455,6 +461,7 @@ export default function ConcertsScreen() {
           autoCapitalize="none"
           autoCorrect={false}
           clearButtonMode="while-editing"
+          accessibilityLabel={t('concerts.searchPlaceholder')}
         />
       </View>
 
@@ -486,6 +493,9 @@ export default function ConcertsScreen() {
                       params: { id: concert.id },
                     });
                   }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
+                  accessibilityHint={t('concerts.viewConcertDetails')}
                 >
                   <View style={styles.concertHeader}>
                     <View style={styles.concertMainInfo}>
@@ -561,6 +571,9 @@ export default function ConcertsScreen() {
                       params: { id: concert.id },
                     });
                   }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
+                  accessibilityHint={t('concerts.viewConcertDetails')}
                 >
                   <View style={styles.concertHeader}>
                     <View style={styles.concertMainInfo}>

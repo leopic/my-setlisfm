@@ -3,8 +3,8 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
+  TouchableOpacity,
   Alert,
   RefreshControl,
 } from 'react-native';
@@ -198,6 +198,8 @@ export default function VenueConcertsListScreen() {
               style={styles.concertItem}
               testID={`venue-concert-${concert.id}`}
               onPress={() => handleConcertPress(concert)}
+              accessibilityRole="button"
+              accessibilityLabel={`${concert.artistName}, ${formatDate(concert.eventDate ?? '')}`}
             >
               <View style={styles.concertHeader}>
                 <View style={styles.concertMainInfo}>

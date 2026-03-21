@@ -191,6 +191,8 @@ export default function ContinentsScreen() {
       testID={`continent-${continent.name}`}
       onPress={() => handleContinentPress(continent)}
       activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={`${continent.name}, ${t('common.country', { count: continent.countryCount })}, ${t('common.city', { count: continent.cityCount })}, ${continent.venueCount} ${t('venues.visits')}`}
     >
       <View style={styles.continentHeader}>
         <View style={styles.continentInfo}>
@@ -256,7 +258,11 @@ export default function ContinentsScreen() {
         {continents.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>{t('geo.noContinentsFound')}</Text>
-            <TouchableOpacity style={styles.refreshButton} onPress={loadContinents}>
+            <TouchableOpacity
+              style={styles.refreshButton}
+              onPress={loadContinents}
+              accessibilityRole="button"
+            >
               <Text style={styles.refreshButtonText}>{t('common.refresh')}</Text>
             </TouchableOpacity>
           </View>

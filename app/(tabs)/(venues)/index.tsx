@@ -270,6 +270,8 @@ export default function VenuesScreen() {
       testID={`venue-${venue.id}`}
       activeOpacity={0.7}
       onPress={() => handleViewConcerts(venue)}
+      accessibilityRole="button"
+      accessibilityLabel={`${venue.name}, ${venue.concertCount} ${t('venues.visits')}`}
     >
       <View style={styles.venueHeader}>
         <View style={styles.venueInfo}>
@@ -331,6 +333,8 @@ export default function VenuesScreen() {
             <TouchableOpacity
               style={styles.geoStatButton}
               onPress={() => router.push('/(venues)/map')}
+              accessibilityRole="button"
+              accessibilityLabel={t('venues.map')}
             >
               <Text style={styles.geoStatEmoji}>{t('venues.map')}</Text>
               <Text style={styles.geoStatText}>{t('venues.map')}</Text>
@@ -340,6 +344,8 @@ export default function VenuesScreen() {
               style={styles.geoStatButton}
               testID="nav-continents"
               onPress={() => router.push('/(venues)/continents')}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.continent', { count: geoStats.totalContinents })}
             >
               <Text style={styles.geoStatEmoji}>{t('venues.continents')}</Text>
               <Text style={styles.geoStatText}>
@@ -353,6 +359,8 @@ export default function VenuesScreen() {
               style={styles.geoStatButton}
               testID="nav-countries"
               onPress={() => router.push('/(venues)/countries')}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.country', { count: geoStats.totalCountries })}
             >
               <Text style={styles.geoStatEmoji}>{t('geo.countriesTitle')}</Text>
               <Text style={styles.geoStatText}>
@@ -364,6 +372,8 @@ export default function VenuesScreen() {
               style={styles.geoStatButton}
               testID="nav-cities"
               onPress={() => router.push('/(venues)/cities')}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.city', { count: geoStats.totalCities })}
             >
               <Text style={styles.geoStatEmoji}>{t('venues.cities')}</Text>
               <Text style={styles.geoStatText}>
@@ -396,6 +406,7 @@ export default function VenuesScreen() {
             <TouchableOpacity
               style={styles.refreshButton}
               onPress={loadVenues}
+              accessibilityRole="button"
             >
               <Text style={styles.refreshButtonText}>{t('common.refresh')}</Text>
             </TouchableOpacity>

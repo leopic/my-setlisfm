@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  RefreshControl,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
@@ -18,6 +10,7 @@ import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
 import { ScreenHeader } from '../../../src/components/ui';
+import ArtistImage from '../../../src/components/ArtistImage';
 import { useTranslation } from 'react-i18next';
 
 interface ArtistWithStats {
@@ -56,17 +49,22 @@ export default function ArtistsScreen() {
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'center',
+          gap: 12,
           marginBottom: 5,
         },
         artistInfo: {
           flex: 1,
-          marginRight: 15,
         },
         artistName: {
           fontSize: 18,
           fontWeight: 'bold',
           color: colors.textPrimary,
           marginBottom: 3,
+        },
+        artistDisambiguation: {
+          fontSize: 14,
+          color: colors.textSecondary,
+          fontStyle: 'italic',
         },
         concertCountBadge: {
           backgroundColor: colors.primary,
@@ -207,8 +205,12 @@ export default function ArtistsScreen() {
       testID={`artist-${artist.mbid}`}
       activeOpacity={0.7}
       onPress={() => handleViewConcerts(artist)}
+      accessibilityRole="button"
+      accessibilityLabel={`${artist.name}, ${t('common.show', { count: artist.concertCount })}`}
+      accessibilityHint={t('artists.viewConcertsHint')}
     >
       <View style={styles.artistHeader}>
+        <ArtistImage mbid={artist.mbid} size={44} name={artist.name} />
         <View style={styles.artistInfo}>
           <Text style={styles.artistName}>{artist.name}</Text>
         </View>
@@ -269,7 +271,11 @@ export default function ArtistsScreen() {
             <Text style={styles.emptyStateText}>
               {searchQuery.trim() ? t('artists.noMatch') : t('artists.empty')}
             </Text>
-            <TouchableOpacity style={styles.refreshButton} onPress={loadArtists}>
+            <TouchableOpacity
+              style={styles.refreshButton}
+              onPress={loadArtists}
+              accessibilityRole="button"
+            >
               <Text style={styles.refreshButtonText}>{t('common.refresh')}</Text>
             </TouchableOpacity>
           </View>

@@ -108,6 +108,8 @@ export default function CityList({ cities, onCityPress, emptyMessage }: CityList
       style={styles.cityCard}
       onPress={() => onCityPress(city)}
       activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={`${city.name}, ${city.countryName}`}
     >
       <View style={styles.cityHeader}>
         <View style={styles.cityInfo}>

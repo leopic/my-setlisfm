@@ -181,6 +181,8 @@ export default function CityDetailScreen() {
       style={styles.venueCard}
       onPress={() => handleVenuePress(venue)}
       activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={`${venue.name}, ${venue.concertCount} ${t('venues.visits')}`}
     >
       <View style={styles.venueHeader}>
         <View style={styles.venueInfo}>

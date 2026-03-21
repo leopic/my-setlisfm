@@ -108,6 +108,8 @@ export default function CountryList({ countries, onCountryPress, emptyMessage }:
       style={styles.countryCard}
       onPress={() => onCountryPress(country)}
       activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={country.name}
     >
       <View style={styles.countryHeader}>
         <View style={styles.countryInfo}>

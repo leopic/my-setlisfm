@@ -34,7 +34,7 @@ export default function EmptyState({ title, subtitle }: EmptyStateProps) {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityRole="alert">
       <Text style={styles.title}>{title}</Text>
       {subtitle != null && <Text style={styles.subtitle}>{subtitle}</Text>}
     </View>

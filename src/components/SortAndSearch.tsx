@@ -94,6 +94,9 @@ export default function SortAndSearch({
           <TouchableOpacity
             style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]}
             onPress={() => onSortChange('recent')}
+            accessibilityRole="button"
+            accessibilityState={{ selected: sortOption === 'recent' }}
+            accessibilityLabel={sortOptions?.recent ?? t('sort.mostRecent')}
           >
             <Text
               style={[
@@ -107,6 +110,9 @@ export default function SortAndSearch({
           <TouchableOpacity
             style={[styles.sortButton, sortOption === 'top' && styles.sortButtonActive]}
             onPress={() => onSortChange('top')}
+            accessibilityRole="button"
+            accessibilityState={{ selected: sortOption === 'top' }}
+            accessibilityLabel={sortOptions?.top ?? t('sort.top')}
           >
             <Text
               style={[styles.sortButtonText, sortOption === 'top' && styles.sortButtonTextActive]}
@@ -117,6 +123,9 @@ export default function SortAndSearch({
           <TouchableOpacity
             style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]}
             onPress={() => onSortChange('alphabetical')}
+            accessibilityRole="button"
+            accessibilityState={{ selected: sortOption === 'alphabetical' }}
+            accessibilityLabel={sortOptions?.alphabetical ?? t('sort.byName')}
           >
             <Text
               style={[
@@ -137,6 +146,7 @@ export default function SortAndSearch({
           value={searchQuery}
           onChangeText={onSearchChange}
           placeholderTextColor={colors.textMuted}
+          accessibilityLabel={searchPlaceholder}
         />
       )}
     </View>
