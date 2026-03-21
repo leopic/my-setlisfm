@@ -1,17 +1,29 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import Constants from 'expo-constants';
+import { Directory, Paths } from 'expo-file-system';
 import { dbOperations } from '../../../src/database/operations';
-import { syncConcertData } from '../../../src/services/syncService';
+import { clearArtistImageCache } from '../../../src/services/artistImageService';
 import { useColors } from '../../../src/utils/colors';
-import { ScreenHeader, StatBox } from '../../../src/components/ui';
+import { ScreenHeader, StatBox, TabScrollView } from '../../../src/components/ui';
 
 interface Stats {
   totalSetlists: number;
   totalArtists: number;
   totalVenues: number;
   totalSongs: number;
+}
+
+function getImageCacheSize(): string {
+  try {
+    const dir = new Directory(Paths.document, 'artist-images');
+    if (!dir.exists) return '0 files';
+    const files = dir.list();
+    return `${files.length} files`;
+  } catch {
+    return 'unknown';
+  }
 }
 
 export default function DebugScreen() {
@@ -43,12 +55,11 @@ export default function DebugScreen() {
           marginBottom: 20,
         },
         button: {
-          backgroundColor: colors.primary,
           paddingVertical: 15,
           paddingHorizontal: 20,
           borderRadius: 10,
           borderCurve: 'continuous' as const,
-          marginBottom: 15,
+          marginBottom: 12,
           alignItems: 'center',
         },
         buttonText: {
@@ -56,86 +67,46 @@ export default function DebugScreen() {
           fontSize: 16,
           fontWeight: '600',
         },
-        buttonSecondary: {
-          backgroundColor: colors.background,
-          paddingVertical: 15,
-          paddingHorizontal: 20,
-          borderRadius: 10,
-          borderCurve: 'continuous' as const,
-          marginBottom: 15,
-          alignItems: 'center',
-          borderWidth: 1,
-          borderColor: colors.borderMedium,
-        },
-        buttonTextSecondary: {
-          color: colors.textPrimary,
-          fontSize: 16,
-          fontWeight: '600',
-        },
         infoContainer: {
           paddingHorizontal: 20,
           paddingBottom: 20,
         },
-        infoTitle: {
-          fontSize: 18,
-          fontWeight: 'bold',
-          color: colors.textPrimary,
-          marginBottom: 10,
-        },
-        infoText: {
-          fontSize: 14,
-          color: colors.textSecondary,
-          lineHeight: 20,
-          marginBottom: 10,
-        },
-        routeTestingContainer: {
-          paddingHorizontal: 20,
-          marginBottom: 20,
-        },
         sectionTitle: {
-          fontSize: 18,
-          fontWeight: 'bold',
-          color: colors.textPrimary,
-          marginBottom: 5,
+          fontSize: 13,
+          fontWeight: '600',
+          color: colors.textMuted,
+          textTransform: 'uppercase',
+          letterSpacing: 0.5,
+          marginBottom: 10,
         },
-        sectionSubtitle: {
-          fontSize: 14,
-          color: colors.textSecondary,
-          marginBottom: 15,
-        },
-        routeButtonsRow: {
+        infoRow: {
           flexDirection: 'row',
           justifyContent: 'space-between',
-          marginBottom: 15,
+          paddingVertical: 8,
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: colors.border,
         },
-        routeButton: {
-          flex: 1,
-          backgroundColor: colors.primary,
-          paddingVertical: 12,
-          paddingHorizontal: 15,
-          borderRadius: 8,
-          borderCurve: 'continuous' as const,
-          marginHorizontal: 5,
-          alignItems: 'center',
+        infoLabel: {
+          fontSize: 15,
+          color: colors.textSecondary,
         },
-        routeButtonText: {
-          color: colors.textInverse,
-          fontSize: 14,
-          fontWeight: '600',
+        infoValue: {
+          fontSize: 15,
+          color: colors.textPrimary,
+          fontWeight: '500',
         },
       }),
     [colors],
   );
 
-  const router = useRouter();
   const [stats, setStats] = useState<Stats>({
     totalSetlists: 0,
     totalArtists: 0,
     totalVenues: 0,
     totalSongs: 0,
   });
-  const [loading, setLoading] = useState(false);
   const [lastFetched, setLastFetched] = useState<string | null>(null);
+  const [imageCacheSize, setImageCacheSize] = useState('');
 
   useEffect(() => {
     loadStats();
@@ -147,28 +118,14 @@ export default function DebugScreen() {
       setStats(newStats);
       const fetchedAt = await dbOperations.getLastFetchedAt();
       setLastFetched(fetchedAt ? fetchedAt.toLocaleString() : null);
+      setImageCacheSize(getImageCacheSize());
     } catch (error) {
       console.error('Failed to load stats:', error);
     }
   };
 
-  const handleFetchData = async () => {
-    setLoading(true);
-    const result = await syncConcertData();
-    if (result.success) {
-      await loadStats();
-      Alert.alert(
-        'Success',
-        `Processed ${result.pagesProcessed} pages, ${result.newConcerts} new concerts.`,
-      );
-    } else {
-      Alert.alert('Error', `Failed to fetch data: ${result.error}`);
-    }
-    setLoading(false);
-  };
-
   const handleClearDatabase = async () => {
-    Alert.alert('Clear Database', 'This will delete ALL data. Are you sure?', [
+    Alert.alert('Clear Database', 'This will delete ALL concert data. Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Clear All',
@@ -187,189 +144,90 @@ export default function DebugScreen() {
     ]);
   };
 
-  const handleDebugArtists = async () => {
+  const handleClearImageCache = async () => {
     try {
-      const debugInfo = await dbOperations.debugArtistData();
-      Alert.alert(
-        'Artist Data Debug',
-        `Total Artists: ${debugInfo.totalArtists}\n` +
-          `Artists with Concerts: ${debugInfo.artistsWithConcerts}\n` +
-          `Artists without Concerts: ${debugInfo.orphanedArtists}\n\n` +
-          `Orphaned Artists:\n${debugInfo.orphanedArtists.slice(0, 10).join('\n')}${debugInfo.orphanedArtists.length > 10 ? '\n...and more' : ''}`,
-      );
+      clearArtistImageCache();
+      setImageCacheSize(getImageCacheSize());
+      Alert.alert('Success', 'Artist image cache cleared');
     } catch (error) {
-      console.error('Failed to get debug info:', error);
-      Alert.alert('Error', 'Failed to get debug info');
+      console.error('Failed to clear image cache:', error);
+      Alert.alert('Error', 'Failed to clear image cache');
     }
   };
 
-  // Route testing functions
-  const testRoute = (route: string, params?: Record<string, string>) => {
-    try {
-      router.push({
-        pathname: route as never,
-        params: params || {},
-      });
-    } catch (error) {
-      console.error(`Failed to navigate to ${route}:`, error);
-      Alert.alert('Navigation Error', `Failed to navigate to ${route}: ${error}`);
-    }
-  };
-
-  const showAvailableRoutes = () => {
-    const routes = [
-      '/(artists)',
-      '/(venues)',
-      '/(artists)/concerts?artist=test',
-      '/(venues)/concerts?venue=test',
-      '/(artists)/[id]?id=test',
-      '/(venues)/[id]?id=test',
-      '/(concerts)/[id]?id=test',
-    ];
-
-    Alert.alert(
-      'Available Routes',
-      `Current app routes:\n\n${routes.join('\n')}\n\nTap a route to test it:`,
-      routes.map((route) => ({
-        text: route,
-        onPress: () => testRoute(route),
-      })),
-    );
-  };
-
-  const logCurrentRoute = () => {
-    Alert.alert('Current Route', `Router object logged to console. Check Metro bundler logs.`);
-  };
-
-  const showRouteStructure = () => {
-    Alert.alert('Route Structure', 'Route structure logged to console. Check Metro bundler logs.');
-  };
+  const appVersion = Constants.expoConfig?.version ?? 'unknown';
+  const sdkVersion = Constants.expoConfig?.sdkVersion ?? 'unknown';
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <ScreenHeader title="Debug & Admin" subtitle="Database management and testing tools" />
+      <TabScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScreenHeader title="Debug" subtitle="Diagnostics & data management" />
 
         {/* Stats Cards */}
         <View style={styles.statsContainer}>
           <StatBox value={stats.totalSetlists} label="Concerts" />
           <StatBox value={stats.totalArtists} label="Artists" />
+        </View>
+        <View style={styles.statsContainer}>
           <StatBox value={stats.totalVenues} label="Venues" />
           <StatBox value={stats.totalSongs} label="Songs" />
         </View>
 
         {lastFetched && <Text style={styles.lastFetched}>Last synced: {lastFetched}</Text>}
 
-        {/* Action Buttons */}
+        {/* Actions */}
         <View style={styles.actionsContainer}>
           <TouchableOpacity
             style={[styles.button, { backgroundColor: colors.primary }]}
-            onPress={handleFetchData}
-            disabled={loading}
-          >
-            <Text style={styles.buttonText}>
-              {loading ? 'Fetching All Data...' : 'Fetch All Concert Data'}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.buttonSecondary, { backgroundColor: colors.purple }]}
-            onPress={handleDebugArtists}
-          >
-            <Text style={styles.buttonTextSecondary}>Debug Artists</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.buttonSecondary, { backgroundColor: colors.danger }]}
-            onPress={handleClearDatabase}
-          >
-            <Text style={[styles.buttonTextSecondary, { color: colors.textInverse }]}>
-              Clear Database
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.buttonSecondary, { backgroundColor: colors.success }]}
             onPress={loadStats}
+            accessibilityRole="button"
+            accessibilityLabel="Refresh stats"
           >
-            <Text style={styles.buttonTextSecondary}>Refresh Stats</Text>
+            <Text style={styles.buttonText}>Refresh Stats</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: colors.orange }]}
+            onPress={handleClearImageCache}
+            accessibilityRole="button"
+            accessibilityLabel="Clear image cache"
+          >
+            <Text style={styles.buttonText}>Clear Image Cache ({imageCacheSize})</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: colors.danger }]}
+            onPress={handleClearDatabase}
+            accessibilityRole="button"
+            accessibilityLabel="Clear database"
+          >
+            <Text style={styles.buttonText}>Clear Database</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Route Testing Section */}
-        <View style={styles.routeTestingContainer}>
-          <Text style={styles.sectionTitle}>Route Testing</Text>
-          <Text style={styles.sectionSubtitle}>Test navigation to different screens</Text>
-
-          <TouchableOpacity
-            style={[styles.buttonSecondary, { backgroundColor: colors.teal }]}
-            onPress={showAvailableRoutes}
-          >
-            <Text style={styles.buttonTextSecondary}>Show All Routes</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.buttonSecondary, { backgroundColor: colors.gray }]}
-            onPress={logCurrentRoute}
-          >
-            <Text style={styles.buttonTextSecondary}>Log Current Route</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.buttonSecondary, { backgroundColor: colors.mint }]}
-            onPress={showRouteStructure}
-          >
-            <Text style={styles.buttonTextSecondary}>Show Route Structure</Text>
-          </TouchableOpacity>
-
-          <View style={styles.routeButtonsRow}>
-            <TouchableOpacity
-              style={[styles.routeButton, { backgroundColor: colors.primary }]}
-              onPress={() => testRoute('/(artists)')}
-            >
-              <Text style={styles.routeButtonText}>Artists Tab</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.routeButton, { backgroundColor: colors.success }]}
-              onPress={() => testRoute('/(venues)')}
-            >
-              <Text style={styles.routeButtonText}>Venues Tab</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.routeButtonsRow}>
-            <TouchableOpacity
-              style={[styles.routeButton, { backgroundColor: colors.purple }]}
-              onPress={() => testRoute('/(artists)/concerts', { artist: 'test' })}
-            >
-              <Text style={styles.routeButtonText}>Artist Concerts</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.routeButton, { backgroundColor: colors.orange }]}
-              onPress={() => testRoute('/(venues)/concerts', { venue: 'test' })}
-            >
-              <Text style={styles.routeButtonText}>Venue Concerts</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Info Section */}
+        {/* App Info */}
         <View style={styles.infoContainer}>
-          <Text style={styles.infoTitle}>About This App</Text>
-          <Text style={styles.infoText}>
-            This is a Setlist.fm client app that fetches and stores concert data locally. Use the
-            buttons above to manage your data and test functionality.
-          </Text>
-          <Text style={styles.infoText}>
-            • Fetch Data: Downloads concerts from Setlist.fm API{'\n'}• Debug Artists: Shows data
-            integrity information{'\n'}• Clear Database: Removes all stored data{'\n'}• Refresh
-            Stats: Updates the statistics display
-          </Text>
+          <Text style={styles.sectionTitle}>App Info</Text>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Version</Text>
+            <Text style={styles.infoValue}>{appVersion}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Expo SDK</Text>
+            <Text style={styles.infoValue}>{sdkVersion}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Image cache</Text>
+            <Text style={styles.infoValue}>{imageCacheSize}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>DB path</Text>
+            <Text style={styles.infoValue} numberOfLines={1}>
+              {Paths.document.uri}
+            </Text>
+          </View>
         </View>
-      </ScrollView>
+      </TabScrollView>
     </SafeAreaView>
   );
 }
