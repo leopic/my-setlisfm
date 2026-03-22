@@ -217,4 +217,25 @@ export default {
     venueConcerts: 'Venue Concerts',
     aboutTitle: 'About This App',
   },
+
+  // Onboarding
+  onboarding: {
+    title: 'Welcome to Setlist FM',
+    subtitle: 'Track every concert you attend',
+    usernamePlaceholder: 'Your setlist.fm username',
+    getStarted: 'Get Started',
+    fetchingConcerts: 'Fetching your concerts...',
+    fetchingPage: 'Page {{current}} of {{total}}',
+    concertsFound: '{{count}} concert found so far',
+    concertsFound_other: '{{count}} concerts found so far',
+    totalConcerts: '{{count}} concert on your profile',
+    totalConcerts_other: '{{count}} concerts on your profile',
+    syncComplete: 'All set!',
+    syncCompleteMessage: 'Found {{count}} concert. Let\u2019s explore!',
+    syncCompleteMessage_other: 'Found {{count}} concerts. Let\u2019s explore!',
+    letsGo: 'Let\u2019s Go',
+    error: 'Something went wrong',
+    retry: 'Try Again',
+    usernameRequired: 'Please enter your setlist.fm username',
+  },
 };
