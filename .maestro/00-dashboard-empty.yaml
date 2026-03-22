@@ -1,7 +1,0 @@
-appId: com.setlistfm.tracker
-name: Dashboard shows empty state
----
-- launchApp
-- tapOn:
-    text: "Dashboard, tab.*"
-- assertVisible: "No concert data yet"

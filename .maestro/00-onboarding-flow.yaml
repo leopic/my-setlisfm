@@ -1,0 +1,31 @@
+appId: com.setlistfm.tracker
+name: Onboarding → sync → dashboard
+---
+# Reset via debug tab to trigger onboarding
+- launchApp
+- tapOn:
+    text: "Debug"
+    optional: true
+- tapOn:
+    text: "Reset Onboarding"
+    optional: true
+- tapOn:
+    text: "Reset"
+    optional: true
+
+# Wait for onboarding screen (app may need time to reload after reset)
+- extendedWaitUntil:
+    visible: "Welcome to Setlist FM"
+    timeout: 10000
+
+# Onboarding flow
+- assertVisible: "Track every concert you attend"
+- tapOn: "Your setlist.fm username"
+- inputText: "leopic"
+- tapOn: "Get Started"
+- extendedWaitUntil:
+    visible: "All set!"
+    timeout: 120000
+- tapOn: "Let's Go"
+- assertVisible:
+    id: "dashboard-screen"
