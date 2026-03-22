@@ -1,13 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  RefreshControl,
-  TouchableOpacity,
-  TextInput,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, RefreshControl, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +11,7 @@ import {
 } from '../../../src/services/syncService';
 import { formatDate } from '../../../src/utils/date';
 import { useColors } from '../../../src/utils/colors';
+import { useSyncContext } from '../../../src/contexts/SyncContext';
 import DashboardSkeleton from '../../../src/components/skeletons/DashboardSkeleton';
 import { ScreenHeader, StatBox, Card, TabScrollView } from '../../../src/components/ui';
 
@@ -140,57 +133,11 @@ export default function DashboardScreen() {
           textAlign: 'center',
           paddingVertical: 16,
         },
-        emptyState: {
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: 40,
-        },
-        emptyTitle: {
-          fontSize: 20,
-          fontWeight: '600',
-          color: colors.textPrimary,
-          marginBottom: 8,
-        },
-        emptySubtitle: {
-          fontSize: 15,
-          color: colors.textSecondary,
-          textAlign: 'center',
-          marginBottom: 24,
-          lineHeight: 22,
-        },
-        usernameInput: {
-          backgroundColor: colors.backgroundCard,
-          borderRadius: 12,
-          borderCurve: 'continuous' as const,
-          paddingHorizontal: 16,
-          paddingVertical: 14,
-          fontSize: 16,
-          color: colors.textPrimary,
-          width: '100%',
-          marginBottom: 16,
-          borderWidth: 1,
-          borderColor: colors.border,
-        },
-        syncButton: {
-          backgroundColor: colors.primary,
-          paddingHorizontal: 28,
-          paddingVertical: 14,
-          borderRadius: 12,
-          borderCurve: 'continuous' as const,
-        },
-        syncButtonDisabled: {
-          opacity: 0.6,
-        },
-        syncButtonText: {
-          color: colors.textInverse,
-          fontSize: 16,
-          fontWeight: '600',
-        },
       }),
     [colors],
   );
 
+  const { lastSyncTimestamp, notifySyncComplete } = useSyncContext();
   const [stats, setStats] = useState<DashboardStats>(emptyStats);
   const [onThisDay, setOnThisDay] = useState<{
     setlistId: string;
@@ -202,7 +149,6 @@ export default function DashboardScreen() {
   const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [syncing, setSyncing] = useState(false);
   const [username, setUsername] = useState('');
 
   useEffect(() => {
@@ -212,7 +158,7 @@ export default function DashboardScreen() {
       await loadDashboard();
     };
     init();
-  }, []);
+  }, [lastSyncTimestamp]);
 
   const loadDashboard = async () => {
     try {
@@ -237,10 +183,10 @@ export default function DashboardScreen() {
       Alert.alert(t('dashboard.usernameRequired'), t('dashboard.usernameRequiredMessage'));
       return;
     }
-    setSyncing(true);
     await setStoredUsername(trimmed);
     const result = await syncConcertData(trimmed);
     if (result.success) {
+      notifySyncComplete();
       await loadDashboard();
       if (result.newConcerts > 0) {
         Alert.alert(
@@ -253,7 +199,6 @@ export default function DashboardScreen() {
     } else {
       Alert.alert(t('dashboard.syncFailed'), result.error ?? 'Unknown error');
     }
-    setSyncing(false);
   };
 
   const onRefresh = async () => {
@@ -264,42 +209,6 @@ export default function DashboardScreen() {
 
   if (loading) {
     return <DashboardSkeleton />;
-  }
-
-  if (stats.totalConcerts === 0) {
-    return (
-      <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-        <ScreenHeader title={t('dashboard.title')} />
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>{t('dashboard.emptyTitle')}</Text>
-          <Text style={styles.emptySubtitle}>{t('dashboard.emptySubtitle')}</Text>
-          <TextInput
-            style={styles.usernameInput}
-            placeholder={t('dashboard.usernamePlaceholder')}
-            placeholderTextColor={colors.textMuted}
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-            autoCorrect={false}
-            returnKeyType="go"
-            onSubmitEditing={handleSync}
-            accessibilityLabel={t('dashboard.usernamePlaceholder')}
-          />
-          <TouchableOpacity
-            style={[styles.syncButton, (syncing || !username.trim()) && styles.syncButtonDisabled]}
-            onPress={handleSync}
-            disabled={syncing || !username.trim()}
-            accessibilityRole="button"
-            accessibilityLabel={syncing ? t('dashboard.syncing') : t('dashboard.fetchData')}
-            accessibilityState={{ disabled: syncing || !username.trim() }}
-          >
-            <Text style={styles.syncButtonText}>
-              {syncing ? t('dashboard.syncing') : t('dashboard.fetchData')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
   }
 
   const maxYearCount = Math.max(...stats.concertsByYear.map((y) => y.count), 1);

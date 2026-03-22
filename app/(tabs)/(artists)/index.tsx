@@ -9,6 +9,7 @@ import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
+import { useSyncContext } from '../../../src/contexts/SyncContext';
 import { ScreenHeader, TabScrollView } from '../../../src/components/ui';
 import ArtistImage from '../../../src/components/ArtistImage';
 import { useTranslation } from 'react-i18next';
@@ -125,6 +126,7 @@ export default function ArtistsScreen() {
     [colors],
   );
 
+  const { lastSyncTimestamp } = useSyncContext();
   const router = useRouter();
   const [artists, setArtists] = useState<ArtistWithStats[]>([]);
   const [filteredArtists, setFilteredArtists] = useState<ArtistWithStats[]>([]);
@@ -135,7 +137,7 @@ export default function ArtistsScreen() {
 
   useEffect(() => {
     loadArtists();
-  }, []);
+  }, [lastSyncTimestamp]);
 
   useEffect(() => {
     filterArtists();

@@ -17,6 +17,7 @@ import { parseSetlistDate, formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
+import { useSyncContext } from '../../../src/contexts/SyncContext';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
 import { ScreenHeader, EmptyState, TabScrollView } from '../../../src/components/ui';
 
@@ -257,6 +258,7 @@ export default function ConcertsScreen() {
     [colors],
   );
 
+  const { lastSyncTimestamp } = useSyncContext();
   const router = useRouter();
   const [concerts, setConcerts] = useState<ConcertWithDetails[]>([]);
   const [yearGroups, setYearGroups] = useState<YearGroup[]>([]);
@@ -268,7 +270,7 @@ export default function ConcertsScreen() {
 
   useEffect(() => {
     loadConcerts();
-  }, []);
+  }, [lastSyncTimestamp]);
 
   const loadConcerts = async () => {
     try {

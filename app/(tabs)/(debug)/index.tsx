@@ -3,9 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { Directory, Paths } from 'expo-file-system';
+import { useRouter } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import { clearArtistImageCache } from '../../../src/services/artistImageService';
+import { setStoredUsername } from '../../../src/services/syncService';
 import { useColors } from '../../../src/utils/colors';
+import { useSyncContext } from '../../../src/contexts/SyncContext';
 import { ScreenHeader, StatBox, TabScrollView } from '../../../src/components/ui';
 
 interface Stats {
@@ -99,6 +102,8 @@ export default function DebugScreen() {
     [colors],
   );
 
+  const router = useRouter();
+  const { lastSyncTimestamp } = useSyncContext();
   const [stats, setStats] = useState<Stats>({
     totalSetlists: 0,
     totalArtists: 0,
@@ -110,7 +115,7 @@ export default function DebugScreen() {
 
   useEffect(() => {
     loadStats();
-  }, []);
+  }, [lastSyncTimestamp]);
 
   const loadStats = async () => {
     try {
@@ -138,6 +143,26 @@ export default function DebugScreen() {
           } catch (error) {
             console.error('Failed to clear database:', error);
             Alert.alert('Error', 'Failed to clear database');
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleResetOnboarding = async () => {
+    Alert.alert('Reset Onboarding', 'This will clear your username and restart the app.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Reset',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await dbOperations.clearAllData();
+            await setStoredUsername('');
+            router.replace('/onboarding');
+          } catch (error) {
+            console.error('Failed to reset onboarding:', error);
+            Alert.alert('Error', 'Failed to reset onboarding');
           }
         },
       },
@@ -202,6 +227,15 @@ export default function DebugScreen() {
             accessibilityLabel="Clear database"
           >
             <Text style={styles.buttonText}>Clear Database</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: colors.purple }]}
+            onPress={handleResetOnboarding}
+            accessibilityRole="button"
+            accessibilityLabel="Reset onboarding"
+          >
+            <Text style={styles.buttonText}>Reset Onboarding</Text>
           </TouchableOpacity>
         </View>
 

@@ -9,6 +9,7 @@ import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
 import { useColors } from '../../../src/utils/colors';
+import { useSyncContext } from '../../../src/contexts/SyncContext';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
 import { ScreenHeader, TabScrollView } from '../../../src/components/ui';
 
@@ -176,6 +177,7 @@ export default function VenuesScreen() {
     [colors],
   );
 
+  const { lastSyncTimestamp } = useSyncContext();
   const router = useRouter();
   const [venues, setVenues] = useState<VenueWithStats[]>([]);
   const [filteredVenues, setFilteredVenues] = useState<VenueWithStats[]>([]);
@@ -187,7 +189,7 @@ export default function VenuesScreen() {
 
   useEffect(() => {
     loadVenues();
-  }, []);
+  }, [lastSyncTimestamp]);
 
   useEffect(() => {
     filterVenues();
