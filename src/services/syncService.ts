@@ -12,6 +12,16 @@ export interface SyncResult {
   error?: string;
 }
 
+export interface SyncProgress {
+  phase: 'fetching' | 'processing' | 'done';
+  currentPage: number;
+  totalPages: number;
+  totalConcerts: number;
+  newConcertsFound: number;
+}
+
+export type SyncProgressCallback = (progress: SyncProgress) => void;
+
 /**
  * Returns the stored username, or null if not configured.
  */
@@ -31,7 +41,10 @@ export async function setStoredUsername(username: string): Promise<void> {
  * Fetches page by page, stops early when an entire page contains
  * only setlists that already exist locally (i.e. we've caught up).
  */
-export async function syncConcertData(usernameOverride?: string): Promise<SyncResult> {
+export async function syncConcertData(
+  usernameOverride?: string,
+  onProgress?: SyncProgressCallback,
+): Promise<SyncResult> {
   try {
     const username = usernameOverride ?? (await getStoredUsername());
 
@@ -43,6 +56,8 @@ export async function syncConcertData(usernameOverride?: string): Promise<SyncRe
     let hasMorePages = true;
     let totalPagesProcessed = 0;
     let totalNewConcerts = 0;
+    let totalPages = 0;
+    let totalConcerts = 0;
 
     while (hasMorePages) {
       const pageData = await setlistApi.getUserAttendedConcerts(username, currentPage);
@@ -50,6 +65,17 @@ export async function syncConcertData(usernameOverride?: string): Promise<SyncRe
       if (!pageData.setlist || pageData.setlist.length === 0) {
         break;
       }
+
+      totalPages = Math.ceil(pageData.total / pageData.itemsPerPage);
+      totalConcerts = pageData.total;
+
+      onProgress?.({
+        phase: 'fetching',
+        currentPage,
+        totalPages,
+        totalConcerts,
+        newConcertsFound: totalNewConcerts,
+      });
 
       const newOnThisPage = await dataProcessor.importSetlistsFromResponse(pageData);
       totalPagesProcessed++;
@@ -60,7 +86,6 @@ export async function syncConcertData(usernameOverride?: string): Promise<SyncRe
         break;
       }
 
-      const totalPages = Math.ceil(pageData.total / pageData.itemsPerPage);
       if (currentPage >= totalPages) {
         hasMorePages = false;
       } else {
@@ -74,6 +99,14 @@ export async function syncConcertData(usernameOverride?: string): Promise<SyncRe
     }
 
     await dbOperations.updateLastFetchedAt();
+
+    onProgress?.({
+      phase: 'done',
+      currentPage: totalPagesProcessed,
+      totalPages,
+      totalConcerts,
+      newConcertsFound: totalNewConcerts,
+    });
 
     return { success: true, pagesProcessed: totalPagesProcessed, newConcerts: totalNewConcerts };
   } catch (error) {
