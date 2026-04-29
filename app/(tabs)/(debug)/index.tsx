@@ -4,12 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { Directory, Paths } from 'expo-file-system';
 import { useRouter } from 'expo-router';
-import { dbOperations } from '../../../src/database/operations';
-import { clearArtistImageCache } from '../../../src/services/artistImageService';
-import { setStoredUsername } from '../../../src/services/syncService';
-import { useColors } from '../../../src/utils/colors';
-import { useSyncContext } from '../../../src/contexts/SyncContext';
-import { ScreenHeader, StatBox, TabScrollView } from '../../../src/components/ui';
+import { dbOperations } from '@/database/operations';
+import { clearArtistImageCache } from '@/services/artistImageService';
+import { setStoredUsername } from '@/services/syncService';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
+import { useSyncContext } from '@/contexts/SyncContext';
+import { TabScrollView } from '@/components/ui';
 
 interface Stats {
   totalSetlists: number;
@@ -30,7 +31,7 @@ function getImageCacheSize(): string {
 }
 
 export default function DebugScreen() {
-  const colors = useColors();
+  const colors = useChronicleColors();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -41,62 +42,104 @@ export default function DebugScreen() {
         scrollView: {
           flex: 1,
         },
-        lastFetched: {
-          fontSize: 13,
-          color: colors.textSecondary,
-          textAlign: 'center',
-          marginBottom: 12,
-        },
-        statsContainer: {
-          flexDirection: 'row',
+        // ── Header ──────────────────────────────────────────────────────────
+        header: {
           paddingHorizontal: 16,
-          marginBottom: 20,
-          gap: 8,
-        },
-        actionsContainer: {
-          paddingHorizontal: 20,
-          marginBottom: 20,
-        },
-        button: {
-          paddingVertical: 15,
-          paddingHorizontal: 20,
-          borderRadius: 10,
-          borderCurve: 'continuous' as const,
-          marginBottom: 12,
-          alignItems: 'center',
-        },
-        buttonText: {
-          color: colors.textInverse,
-          fontSize: 16,
-          fontWeight: '600',
-        },
-        infoContainer: {
-          paddingHorizontal: 20,
-          paddingBottom: 20,
-        },
-        sectionTitle: {
-          fontSize: 13,
-          fontWeight: '600',
-          color: colors.textMuted,
-          textTransform: 'uppercase',
-          letterSpacing: 0.5,
-          marginBottom: 10,
-        },
-        infoRow: {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          paddingVertical: 8,
-          borderBottomWidth: StyleSheet.hairlineWidth,
+          paddingVertical: 12,
+          borderBottomWidth: 1,
           borderBottomColor: colors.border,
         },
+        headerTitle: {
+          ...Type.heading,
+          color: colors.textPrimary,
+        },
+        headerSubtitle: {
+          ...Type.body,
+          color: colors.textSecondary,
+          marginTop: 2,
+        },
+        // ── Stats strip ─────────────────────────────────────────────────────
+        statsStrip: {
+          flexDirection: 'row',
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        statItem: {
+          flex: 1,
+          alignItems: 'center',
+          borderRightWidth: 1,
+          borderRightColor: colors.border,
+        },
+        statItemLast: {
+          flex: 1,
+          alignItems: 'center',
+        },
+        statValue: {
+          ...Type.count,
+          color: colors.accent,
+        },
+        statLabel: {
+          ...Type.label,
+          color: colors.textMuted,
+          marginTop: 2,
+        },
+        // ── Last synced ─────────────────────────────────────────────────────
+        lastSynced: {
+          ...Type.body,
+          color: colors.textMuted,
+          textAlign: 'center',
+          paddingVertical: 12,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        // ── Section label ────────────────────────────────────────────────────
+        sectionLabel: {
+          ...Type.label,
+          color: colors.textMuted,
+          textTransform: 'uppercase',
+          paddingHorizontal: 16,
+          paddingVertical: 10,
+        },
+        // ── Action row ───────────────────────────────────────────────────────
+        actionRow: {
+          paddingVertical: 14,
+          paddingHorizontal: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        },
+        actionText: {
+          ...Type.title,
+          color: colors.textPrimary,
+        },
+        actionTextDestructive: {
+          ...Type.title,
+          color: colors.accent,
+        },
+        actionArrow: {
+          ...Type.body,
+          color: colors.textDisabled,
+        },
+        // ── App info ─────────────────────────────────────────────────────────
+        infoRow: {
+          paddingVertical: 12,
+          paddingHorizontal: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        },
         infoLabel: {
-          fontSize: 15,
+          ...Type.body,
           color: colors.textSecondary,
         },
         infoValue: {
-          fontSize: 15,
+          ...Type.body,
           color: colors.textPrimary,
-          fontWeight: '500',
         },
       }),
     [colors],
@@ -186,80 +229,97 @@ export default function DebugScreen() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <TabScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <ScreenHeader title="Debug" subtitle="Diagnostics & data management" />
-
-        {/* Stats Cards */}
-        <View style={styles.statsContainer}>
-          <StatBox value={stats.totalSetlists} label="Concerts" />
-          <StatBox value={stats.totalArtists} label="Artists" />
-        </View>
-        <View style={styles.statsContainer}>
-          <StatBox value={stats.totalVenues} label="Venues" />
-          <StatBox value={stats.totalSongs} label="Songs" />
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Debug</Text>
+          <Text style={styles.headerSubtitle}>Diagnostics &amp; data management</Text>
         </View>
 
-        {lastFetched && <Text style={styles.lastFetched}>Last synced: {lastFetched}</Text>}
+        {/* Stats strip */}
+        <View style={styles.statsStrip}>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{stats.totalSetlists}</Text>
+            <Text style={styles.statLabel}>Setlists</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{stats.totalArtists}</Text>
+            <Text style={styles.statLabel}>Artists</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{stats.totalVenues}</Text>
+            <Text style={styles.statLabel}>Venues</Text>
+          </View>
+          <View style={styles.statItemLast}>
+            <Text style={styles.statValue}>{stats.totalSongs}</Text>
+            <Text style={styles.statLabel}>Songs</Text>
+          </View>
+        </View>
+
+        {lastFetched && <Text style={styles.lastSynced}>Last synced: {lastFetched}</Text>}
 
         {/* Actions */}
-        <View style={styles.actionsContainer}>
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }]}
-            onPress={loadStats}
-            accessibilityRole="button"
-            accessibilityLabel="Refresh stats"
-          >
-            <Text style={styles.buttonText}>Refresh Stats</Text>
-          </TouchableOpacity>
+        <Text style={styles.sectionLabel}>Actions</Text>
 
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.orange }]}
-            onPress={handleClearImageCache}
-            accessibilityRole="button"
-            accessibilityLabel="Clear image cache"
-          >
-            <Text style={styles.buttonText}>Clear Image Cache ({imageCacheSize})</Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.actionRow}
+          onPress={loadStats}
+          accessibilityRole="button"
+          accessibilityLabel="Refresh stats"
+        >
+          <Text style={styles.actionText}>Refresh Stats</Text>
+          <Text style={styles.actionArrow}>›</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.danger }]}
-            onPress={handleClearDatabase}
-            accessibilityRole="button"
-            accessibilityLabel="Clear database"
-          >
-            <Text style={styles.buttonText}>Clear Database</Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.actionRow}
+          onPress={handleClearImageCache}
+          accessibilityRole="button"
+          accessibilityLabel="Clear image cache"
+        >
+          <Text style={styles.actionText}>Clear Image Cache ({imageCacheSize})</Text>
+          <Text style={styles.actionArrow}>›</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.purple }]}
-            onPress={handleResetOnboarding}
-            accessibilityRole="button"
-            accessibilityLabel="Reset onboarding"
-          >
-            <Text style={styles.buttonText}>Reset Onboarding</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          style={styles.actionRow}
+          onPress={handleClearDatabase}
+          accessibilityRole="button"
+          accessibilityLabel="Clear database"
+        >
+          <Text style={styles.actionTextDestructive}>Clear Database</Text>
+          <Text style={styles.actionArrow}>›</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.actionRow}
+          onPress={handleResetOnboarding}
+          accessibilityRole="button"
+          accessibilityLabel="Reset onboarding"
+        >
+          <Text style={styles.actionTextDestructive}>Reset Onboarding</Text>
+          <Text style={styles.actionArrow}>›</Text>
+        </TouchableOpacity>
 
         {/* App Info */}
-        <View style={styles.infoContainer}>
-          <Text style={styles.sectionTitle}>App Info</Text>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Version</Text>
-            <Text style={styles.infoValue}>{appVersion}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Expo SDK</Text>
-            <Text style={styles.infoValue}>{sdkVersion}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Image cache</Text>
-            <Text style={styles.infoValue}>{imageCacheSize}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>DB path</Text>
-            <Text style={styles.infoValue} numberOfLines={1}>
-              {Paths.document.uri}
-            </Text>
-          </View>
+        <Text style={styles.sectionLabel}>App Info</Text>
+
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Version</Text>
+          <Text style={styles.infoValue}>{appVersion}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Expo SDK</Text>
+          <Text style={styles.infoValue}>{sdkVersion}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Image cache</Text>
+          <Text style={styles.infoValue}>{imageCacheSize}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>DB path</Text>
+          <Text style={styles.infoValue} numberOfLines={1}>
+            {Paths.document.uri}
+          </Text>
         </View>
       </TabScrollView>
     </SafeAreaView>

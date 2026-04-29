@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { formatDate } from '../utils/date';
-import { useColors } from '../utils/colors';
+import { formatDate } from '@/utils/date';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
 
 interface CityWithStats {
   name: string;
@@ -20,81 +21,59 @@ interface CityListProps {
 
 export default function CityList({ cities, onCityPress, emptyMessage }: CityListProps) {
   const { t } = useTranslation();
-  const colors = useColors();
+  const colors = useChronicleColors();
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        citiesList: {
+        list: {
           flex: 1,
-          padding: 20,
         },
-        cityCard: {
-          backgroundColor: colors.backgroundPill,
-          borderRadius: 10,
-          borderCurve: 'continuous' as const,
-          padding: 15,
-          marginBottom: 10,
-        },
-        cityHeader: {
+        row: {
           flexDirection: 'row',
-          justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 5,
+          paddingVertical: 12,
+          paddingHorizontal: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
         },
-        cityInfo: {
+        leftContent: {
           flex: 1,
-          marginRight: 15,
+          marginRight: 12,
         },
-        cityName: {
-          fontSize: 18,
-          fontWeight: 'bold',
+        name: {
+          ...Type.title,
           color: colors.textPrimary,
-          marginBottom: 5,
         },
-        cityLocation: {
-          fontSize: 14,
+        subtitle: {
+          ...Type.body,
           color: colors.textSecondary,
+          marginTop: 2,
         },
-        venueCountBadge: {
-          backgroundColor: colors.success,
-          paddingHorizontal: 12,
-          paddingVertical: 8,
-          borderRadius: 20,
-          borderCurve: 'continuous' as const,
+        meta: {
+          ...Type.body,
+          color: colors.textMuted,
+          marginTop: 2,
+        },
+        rightContent: {
           alignItems: 'center',
-          minWidth: 60,
+          minWidth: 44,
         },
-        venueCountText: {
-          fontSize: 18,
-          fontWeight: 'bold',
-          color: colors.textInverse,
-          fontVariant: ['tabular-nums'] as const,
+        countNumber: {
+          ...Type.count,
+          color: colors.accent,
         },
-        venueCountLabel: {
-          fontSize: 10,
-          color: colors.textInverse,
-          opacity: 0.9,
-        },
-        cityStats: {
-          marginTop: 5,
-        },
-        lastConcertText: {
-          fontSize: 14,
-          color: colors.success,
-          fontWeight: '500',
-          marginBottom: 5,
-        },
-        venuesText: {
-          fontSize: 13,
-          color: colors.textSecondary,
-          marginBottom: 5,
+        countLabel: {
+          ...Type.label,
+          color: colors.textMuted,
+          marginTop: 1,
         },
         emptyState: {
           alignItems: 'center',
           paddingVertical: 60,
+          paddingHorizontal: 16,
         },
         emptyStateText: {
-          fontSize: 16,
+          ...Type.body,
           color: colors.textSecondary,
           textAlign: 'center',
         },
@@ -102,51 +81,50 @@ export default function CityList({ cities, onCityPress, emptyMessage }: CityList
     [colors],
   );
 
-  const getCityCard = (city: CityWithStats) => (
+  const getCityRow = (city: CityWithStats) => (
     <TouchableOpacity
       key={`${city.name}-${city.countryName}`}
-      style={styles.cityCard}
+      style={styles.row}
       onPress={() => onCityPress(city)}
       activeOpacity={0.7}
       accessibilityRole="button"
       accessibilityLabel={`${city.name}, ${city.countryName}`}
     >
-      <View style={styles.cityHeader}>
-        <View style={styles.cityInfo}>
-          <Text style={styles.cityName}>{city.name}</Text>
-          <Text style={styles.cityLocation}>{city.countryName}</Text>
-        </View>
-        <View style={styles.venueCountBadge}>
-          <Text style={styles.venueCountText}>{city.venueCount}</Text>
-          <Text style={styles.venueCountLabel}>venues</Text>
-        </View>
-      </View>
-
-      <View style={styles.cityStats}>
+      <View style={styles.leftContent}>
+        <Text style={styles.name}>{city.name}</Text>
+        <Text style={styles.subtitle}>{city.countryName}</Text>
         {city.lastConcertDate && (
-          <Text style={styles.lastConcertText}>
+          <Text style={styles.meta}>
             {t('common.lastShow', { date: formatDate(city.lastConcertDate) })}
           </Text>
         )}
         {city.venues.length > 0 && (
-          <Text style={styles.venuesText}>
-            Venues: {city.venues.slice(0, 3).join(', ')}
+          <Text style={styles.meta}>
+            {city.venues.slice(0, 3).join(', ')}
             {city.venues.length > 3 &&
               ` ${t('common.moreCount', { count: city.venues.length - 3 })}`}
           </Text>
         )}
       </View>
+      <View style={styles.rightContent}>
+        <Text style={styles.countNumber}>{city.venueCount}</Text>
+        <Text style={styles.countLabel}>venues</Text>
+      </View>
     </TouchableOpacity>
   );
 
   return (
-    <ScrollView style={styles.citiesList} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.list}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: 100 }}
+    >
       {cities.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateText}>{emptyMessage ?? t('geo.noCitiesFound')}</Text>
         </View>
       ) : (
-        cities.map(getCityCard)
+        cities.map(getCityRow)
       )}
     </ScrollView>
   );

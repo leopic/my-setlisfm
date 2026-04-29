@@ -1,6 +1,6 @@
 // SQLite database initialization and management
 import * as SQLite from 'expo-sqlite';
-import { CREATE_TABLES_SQL } from './schema';
+import { CREATE_TABLES_SQL } from '@/database/schema';
 
 export class DatabaseManager {
   private db: SQLite.SQLiteDatabase | null = null;

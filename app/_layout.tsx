@@ -1,18 +1,33 @@
 import { useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import { ThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native';
-import { databaseManager } from '../src/database/database';
-import { getStoredUsername } from '../src/services/syncService';
-import { SyncProvider } from '../src/contexts/SyncContext';
+import {
+  useFonts,
+  SpaceGrotesk_300Light,
+  SpaceGrotesk_400Regular,
+  SpaceGrotesk_500Medium,
+  SpaceGrotesk_600SemiBold,
+  SpaceGrotesk_700Bold,
+} from '@expo-google-fonts/space-grotesk';
+import { databaseManager } from '@/database/database';
+import { getStoredUsername } from '@/services/syncService';
+import { SyncProvider } from '@/contexts/SyncContext';
 import { Stack } from 'expo-router';
-import '../src/i18n';
+import '@/i18n';
 
-export { ErrorBoundary } from '../src/components/ErrorBoundary';
+export { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function Layout() {
   const colorScheme = useColorScheme();
   const [dbReady, setDbReady] = useState(false);
   const [hasUsername, setHasUsername] = useState<boolean | null>(null);
+  const [fontsLoaded, fontError] = useFonts({
+    SpaceGrotesk_300Light,
+    SpaceGrotesk_400Regular,
+    SpaceGrotesk_500Medium,
+    SpaceGrotesk_600SemiBold,
+    SpaceGrotesk_700Bold,
+  });
 
   useEffect(() => {
     const init = async () => {
@@ -29,7 +44,8 @@ export default function Layout() {
     init();
   }, []);
 
-  if (!dbReady || hasUsername === null) {
+  // fontError means the font CDN was unreachable — fall back to system font gracefully.
+  if (!dbReady || hasUsername === null || (!fontsLoaded && !fontError)) {
     return null;
   }
 

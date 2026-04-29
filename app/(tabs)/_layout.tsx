@@ -1,7 +1,7 @@
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { useTranslation } from 'react-i18next';
 
-export { ErrorBoundary } from '../../src/components/ErrorBoundary';
+export { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function TabLayout() {
   const { t } = useTranslation();

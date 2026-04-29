@@ -3,17 +3,14 @@ import { View, Text, StyleSheet, RefreshControl, TouchableOpacity, Alert } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { dbOperations } from '../../../src/database/operations';
-import {
-  syncConcertData,
-  getStoredUsername,
-  setStoredUsername,
-} from '../../../src/services/syncService';
-import { formatDate } from '../../../src/utils/date';
-import { useColors } from '../../../src/utils/colors';
-import { useSyncContext } from '../../../src/contexts/SyncContext';
-import DashboardSkeleton from '../../../src/components/skeletons/DashboardSkeleton';
-import { ScreenHeader, StatBox, Card, TabScrollView } from '../../../src/components/ui';
+import { dbOperations } from '@/database/operations';
+import { syncConcertData, getStoredUsername, setStoredUsername } from '@/services/syncService';
+import { formatDate } from '@/utils/date';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
+import { useSyncContext } from '@/contexts/SyncContext';
+import DashboardSkeleton from '@/components/skeletons/DashboardSkeleton';
+import { TabScrollView, Icon } from '@/components/ui';
 
 type DashboardStats = Awaited<ReturnType<typeof dbOperations.getDashboardStats>>;
 
@@ -31,7 +28,7 @@ const emptyStats: DashboardStats = {
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const colors = useColors();
+  const colors = useChronicleColors();
   const { t } = useTranslation();
   const styles = useMemo(
     () =>
@@ -40,98 +37,155 @@ export default function DashboardScreen() {
           flex: 1,
           backgroundColor: colors.background,
         },
-        statsRow: {
-          flexDirection: 'row',
-          paddingHorizontal: 16,
-          marginBottom: 20,
-          gap: 8,
-        },
-        section: {
-          marginHorizontal: 20,
-          marginBottom: 16,
-        },
-        sectionTitle: {
-          fontSize: 13,
-          fontWeight: '600',
-          color: colors.textMuted,
-          textTransform: 'uppercase',
-          letterSpacing: 0.5,
-          marginBottom: 10,
-        },
-        highlightRow: {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingVertical: 8,
-          borderBottomWidth: StyleSheet.hairlineWidth,
+        // ── Top bar ──────────────────────────────────────────────────────────
+        topBar: {
+          paddingHorizontal: 20,
+          paddingTop: 12,
+          paddingBottom: 14,
+          borderBottomWidth: 1,
           borderBottomColor: colors.border,
         },
-        highlightRowLast: {
-          borderBottomWidth: 0,
-        },
-        highlightName: {
-          fontSize: 16,
-          fontWeight: '600',
-          color: colors.textPrimary,
-          flex: 1,
-        },
-        highlightDetail: {
-          fontSize: 14,
-          color: colors.textSecondary,
-          fontVariant: ['tabular-nums'] as const,
-        },
-        highlightSub: {
-          fontSize: 13,
-          color: colors.textSecondary,
-          marginTop: 1,
-        },
-        timelineDate: {
-          fontSize: 15,
-          fontWeight: '600',
-          color: colors.textPrimary,
-        },
-        timelineArtist: {
-          fontSize: 13,
-          color: colors.textSecondary,
-          marginTop: 1,
-        },
-        yearRow: {
+        topBarRow: {
           flexDirection: 'row',
           alignItems: 'center',
-          paddingVertical: 6,
+          justifyContent: 'space-between',
+          marginBottom: 6,
         },
-        yearLabel: {
-          fontSize: 14,
-          fontWeight: '600',
+        appTitle: {
+          ...Type.display,
           color: colors.textPrimary,
-          width: 44,
-          fontVariant: ['tabular-nums'] as const,
         },
-        yearBarContainer: {
-          flex: 1,
-          marginHorizontal: 10,
-          height: 20,
-          backgroundColor: colors.backgroundPill,
-          borderRadius: 4,
-          overflow: 'hidden',
+        topBarActions: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 14,
         },
-        yearBar: {
-          height: '100%',
-          backgroundColor: colors.primary,
-          borderRadius: 4,
+        topBarIcon: {
+          ...Type.body,
+          color: colors.textMuted,
+          fontSize: 18,
         },
-        yearCount: {
-          fontSize: 13,
+        statsLine: {
+          ...Type.body,
           color: colors.textSecondary,
-          width: 24,
-          textAlign: 'right',
-          fontVariant: ['tabular-nums'] as const,
         },
+        // ── Year chapter ─────────────────────────────────────────────────────
+        yearChapter: {
+          marginTop: 28,
+          marginHorizontal: 20,
+          marginBottom: 8,
+        },
+        yearGhost: {
+          ...Type.display,
+          fontSize: 64,
+          lineHeight: 68,
+          color: colors.textPrimary,
+          opacity: 0.07,
+        },
+        yearMeta: {
+          ...Type.label,
+          color: colors.textMuted,
+          marginTop: 2,
+        },
+        // ── Timeline spine + entries ─────────────────────────────────────────
+        spineContainer: {
+          borderLeftWidth: 1.5,
+          borderLeftColor: colors.spineColor,
+          marginLeft: 36,
+          paddingLeft: 20,
+          marginBottom: 4,
+        },
+        concertEntry: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingVertical: 10,
+        },
+        dotWrapper: {
+          position: 'absolute',
+          left: -25,
+          top: 14,
+        },
+        dotActive: {
+          width: 9,
+          height: 9,
+          borderRadius: 4.5,
+          backgroundColor: colors.dotActive,
+          borderWidth: 2,
+          borderColor: colors.background,
+        },
+        dotInactive: {
+          width: 9,
+          height: 9,
+          borderRadius: 4.5,
+          backgroundColor: colors.dotInactive,
+          borderWidth: 2,
+          borderColor: colors.background,
+        },
+        entryContent: {
+          flex: 1,
+        },
+        entryDate: {
+          ...Type.label,
+          color: colors.accent,
+          letterSpacing: 0.8,
+          marginBottom: 2,
+        },
+        entryArtist: {
+          ...Type.title,
+          color: colors.textPrimary,
+        },
+        entryVenue: {
+          ...Type.body,
+          color: colors.textSecondary,
+          marginTop: 1,
+        },
+        entryChevron: {
+          ...Type.body,
+          color: colors.textDisabled,
+          marginLeft: 8,
+        },
+        // ── Monthly dot grid (inside each year chapter) ──────────────────────
+        monthGrid: {
+          flexDirection: 'row',
+          marginTop: 6,
+          marginBottom: 4,
+          gap: 4,
+        },
+        monthCell: {
+          alignItems: 'center',
+          flex: 1,
+        },
+        monthLabel: {
+          ...Type.label,
+          fontSize: 8,
+          color: colors.textDisabled,
+          marginBottom: 3,
+        },
+        monthDotEmpty: {
+          width: 7,
+          height: 7,
+          borderRadius: 3.5,
+          backgroundColor: colors.border,
+        },
+        monthDotFull: {
+          width: 7,
+          height: 7,
+          borderRadius: 3.5,
+          backgroundColor: colors.accent,
+          opacity: 0.45,
+        },
+        monthDotPeak: {
+          width: 8,
+          height: 8,
+          borderRadius: 4,
+          backgroundColor: colors.accent,
+        },
+        // ── Last synced ───────────────────────────────────────────────────────
         lastSynced: {
-          fontSize: 12,
+          ...Type.body,
           color: colors.textMuted,
           textAlign: 'center',
-          paddingVertical: 16,
+          paddingVertical: 20,
         },
       }),
     [colors],
@@ -139,6 +193,9 @@ export default function DashboardScreen() {
 
   const { lastSyncTimestamp, notifySyncComplete } = useSyncContext();
   const [stats, setStats] = useState<DashboardStats>(emptyStats);
+  const [monthlyData, setMonthlyData] = useState<{ year: string; month: number; count: number }[]>(
+    [],
+  );
   const [onThisDay, setOnThisDay] = useState<{
     setlistId: string;
     artistName: string;
@@ -162,12 +219,14 @@ export default function DashboardScreen() {
 
   const loadDashboard = async () => {
     try {
-      const [dashStats, fetchedAt, onThisDayResult] = await Promise.all([
+      const [dashStats, fetchedAt, onThisDayResult, monthly] = await Promise.all([
         dbOperations.getDashboardStats(),
         dbOperations.getLastFetchedAt(),
         dbOperations.getOnThisDayConcert(),
+        dbOperations.getConcertsByYearMonth(),
       ]);
       setStats(dashStats);
+      setMonthlyData(monthly);
       setOnThisDay(onThisDayResult);
       setLastSynced(fetchedAt ? fetchedAt.toLocaleString() : null);
     } catch (error) {
@@ -211,7 +270,22 @@ export default function DashboardScreen() {
     return <DashboardSkeleton />;
   }
 
-  const maxYearCount = Math.max(...stats.concertsByYear.map((y) => y.count), 1);
+  const MONTH_ABBR = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+
+  // Build a lookup: year -> { month -> count }
+  const monthlyByYear = monthlyData.reduce<Record<string, Record<number, number>>>((acc, row) => {
+    if (!acc[row.year]) acc[row.year] = {};
+    acc[row.year][row.month] = row.count;
+    return acc;
+  }, {});
+
+  // Determine which years each bookmark concert belongs to.
+  const lastConcertYear = stats.lastConcert ? stats.lastConcert.eventDate.split('-')[2] : null;
+  const firstConcertYear = stats.firstConcert ? stats.firstConcert.eventDate.split('-')[2] : null;
+  const onThisDayYear = onThisDay ? onThisDay.eventDate.split('-')[2] : null;
+
+  // Sort years descending (most recent first) for the river display.
+  const yearsSorted = [...stats.concertsByYear].sort((a, b) => Number(b.year) - Number(a.year));
 
   return (
     <SafeAreaView
@@ -219,157 +293,158 @@ export default function DashboardScreen() {
       style={styles.container}
       testID="dashboard-screen"
     >
+      {/* ── Top bar ─────────────────────────────────────────────────────── */}
+      <View style={styles.topBar}>
+        <View style={styles.topBarRow}>
+          <Text style={styles.appTitle}>Chronicles</Text>
+          <TouchableOpacity
+            onPress={handleSync}
+            accessibilityRole="button"
+            accessibilityLabel="Sync concert data"
+          >
+            <Icon sf="arrow.clockwise" md="refresh-outline" size={20} color={colors.textMuted} />
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.statsLine}>
+          {`${stats.totalConcerts} shows · ${stats.totalArtists} artists · ${stats.totalCountries} countries`}
+        </Text>
+      </View>
+
       <TabScrollView
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        <ScreenHeader title={t('dashboard.title')} />
+        {/* ── Timeline river ──────────────────────────────────────────────── */}
+        {yearsSorted.map((yearItem, yearIndex) => {
+          const yearStr = String(yearItem.year);
+          const showsInYear = yearItem.count;
 
-        {/* Hero stats */}
-        <View style={styles.statsRow}>
-          <StatBox value={stats.totalConcerts} label={t('dashboard.concerts')} />
-          <StatBox value={stats.totalArtists} label={t('dashboard.artists')} />
-        </View>
-        <View style={styles.statsRow}>
-          <StatBox value={stats.totalVenues} label={t('dashboard.venues')} />
-          <StatBox value={stats.totalCountries} label={t('dashboard.countries')} />
-        </View>
+          // Collect bookmark concerts that belong to this year
+          const isLastConcertYear = lastConcertYear === yearStr;
+          const isFirstConcertYear = firstConcertYear === yearStr;
+          const isOnThisDayYear = onThisDayYear === yearStr;
 
-        {/* Highlights */}
-        <Card style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('dashboard.highlights')}</Text>
-          {stats.topArtist && (
-            <TouchableOpacity
-              style={styles.highlightRow}
-              onPress={() =>
-                router.push({
-                  pathname: '/(home)/artist-concerts',
-                  params: { artist: stats.topArtist?.mbid },
-                })
-              }
-              accessibilityRole="button"
-              accessibilityLabel={`${stats.topArtist.name}, ${t('dashboard.mostSeenArtist')}, ${t('common.show', { count: stats.topArtist.count })}`}
-            >
-              <View style={{ flex: 1 }}>
-                <Text style={styles.highlightName}>{stats.topArtist.name}</Text>
-                <Text style={styles.highlightSub}>{t('dashboard.mostSeenArtist')}</Text>
-              </View>
-              <Text style={styles.highlightDetail}>
-                {t('common.show', { count: stats.topArtist.count })}
-              </Text>
-            </TouchableOpacity>
-          )}
-          {stats.topVenue && (
-            <TouchableOpacity
-              style={[styles.highlightRow, styles.highlightRowLast]}
-              onPress={() =>
-                router.push({
-                  pathname: '/(home)/venue-concerts',
-                  params: { venue: stats.topVenue?.id },
-                })
-              }
-              accessibilityRole="button"
-              accessibilityLabel={`${stats.topVenue.name}, ${stats.topVenue.cityName}, ${t('common.show', { count: stats.topVenue.count })}`}
-            >
-              <View style={{ flex: 1 }}>
-                <Text style={styles.highlightName}>{stats.topVenue.name}</Text>
-                <Text style={styles.highlightSub}>
-                  {t('dashboard.mostVisitedVenue', { city: stats.topVenue.cityName })}
+          return (
+            <View key={yearStr}>
+              {/* Year ghost chapter heading + monthly dot grid */}
+              <View style={styles.yearChapter}>
+                <Text style={styles.yearGhost}>{yearStr}</Text>
+                <Text style={styles.yearMeta}>
+                  {`${showsInYear} show${showsInYear !== 1 ? 's' : ''}`}
                 </Text>
+                {monthlyByYear[yearStr] && (
+                  <View style={styles.monthGrid}>
+                    {MONTH_ABBR.map((abbr, idx) => {
+                      const month = idx + 1;
+                      const count = monthlyByYear[yearStr]?.[month] ?? 0;
+                      const yearMonths = monthlyByYear[yearStr] ?? {};
+                      const peak = Math.max(...Object.values(yearMonths), 0);
+                      const isPeak = count > 0 && count === peak;
+                      return (
+                        <View key={month} style={styles.monthCell}>
+                          <Text style={styles.monthLabel}>{abbr}</Text>
+                          <View
+                            style={
+                              count === 0
+                                ? styles.monthDotEmpty
+                                : isPeak
+                                  ? styles.monthDotPeak
+                                  : styles.monthDotFull
+                            }
+                          />
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
               </View>
-              <Text style={styles.highlightDetail}>
-                {t('common.show', { count: stats.topVenue.count })}
-              </Text>
-            </TouchableOpacity>
-          )}
-        </Card>
 
-        {/* Timeline */}
-        <Card style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('dashboard.timeline')}</Text>
-          {stats.lastConcert && (
-            <TouchableOpacity
-              style={[styles.highlightRow, !onThisDay && styles.highlightRowLast]}
-              onPress={() =>
-                router.push({
-                  pathname: '/(home)/concert/[id]',
-                  params: { id: stats.lastConcert?.setlistId },
-                })
-              }
-              accessibilityRole="button"
-              accessibilityLabel={`${t('dashboard.mostRecent')}, ${stats.lastConcert.artistName}, ${formatDate(stats.lastConcert.eventDate)}`}
-              accessibilityHint={t('Opens concert details')}
-            >
-              <View>
-                <Text style={styles.timelineDate}>{formatDate(stats.lastConcert.eventDate)}</Text>
-                <Text style={styles.timelineArtist}>{stats.lastConcert.artistName}</Text>
-              </View>
-              <Text style={styles.highlightDetail}>{t('dashboard.mostRecent')}</Text>
-            </TouchableOpacity>
-          )}
-          {onThisDay && (
-            <TouchableOpacity
-              style={[styles.highlightRow, styles.highlightRowLast]}
-              onPress={() =>
-                router.push({
-                  pathname: '/(home)/concert/[id]',
-                  params: { id: onThisDay.setlistId },
-                })
-              }
-              accessibilityRole="button"
-              accessibilityLabel={`${t('dashboard.yearsAgo', { count: onThisDay.yearsAgo })}, ${onThisDay.artistName}, ${formatDate(onThisDay.eventDate)}`}
-              accessibilityHint={t('Opens concert details')}
-            >
-              <View>
-                <Text style={styles.timelineDate}>{formatDate(onThisDay.eventDate)}</Text>
-                <Text style={styles.timelineArtist}>
-                  {onThisDay.artistName} @ {onThisDay.venueName}
-                </Text>
-              </View>
-              <Text style={styles.highlightDetail}>
-                {t('dashboard.yearsAgo', { count: onThisDay.yearsAgo })}
-              </Text>
-            </TouchableOpacity>
-          )}
-          {stats.firstConcert && (
-            <TouchableOpacity
-              style={styles.highlightRow}
-              onPress={() =>
-                router.push({
-                  pathname: '/(home)/concert/[id]',
-                  params: { id: stats.firstConcert?.setlistId },
-                })
-              }
-              accessibilityRole="button"
-              accessibilityLabel={`${t('dashboard.firstConcert')}, ${stats.firstConcert.artistName}, ${formatDate(stats.firstConcert.eventDate)}`}
-              accessibilityHint={t('Opens concert details')}
-            >
-              <View>
-                <Text style={styles.timelineDate}>{formatDate(stats.firstConcert.eventDate)}</Text>
-                <Text style={styles.timelineArtist}>{stats.firstConcert.artistName}</Text>
-              </View>
-              <Text style={styles.highlightDetail}>{t('dashboard.firstConcert')}</Text>
-            </TouchableOpacity>
-          )}
-        </Card>
+              {/* Spine with bookmark concert entries for this year */}
+              {(isLastConcertYear || isOnThisDayYear || isFirstConcertYear) && (
+                <View style={styles.spineContainer}>
+                  {isLastConcertYear && stats.lastConcert && (
+                    <TouchableOpacity
+                      style={styles.concertEntry}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/(home)/concert/[id]',
+                          params: { id: stats.lastConcert?.setlistId },
+                        })
+                      }
+                      accessibilityRole="button"
+                      accessibilityLabel={`${t('dashboard.mostRecent')}, ${stats.lastConcert.artistName}, ${formatDate(stats.lastConcert.eventDate)}`}
+                      accessibilityHint={t('Opens concert details')}
+                    >
+                      <View style={styles.dotWrapper}>
+                        {/* First entry in the most-recent year gets the glowing active dot */}
+                        <View style={yearIndex === 0 ? styles.dotActive : styles.dotInactive} />
+                      </View>
+                      <View style={styles.entryContent}>
+                        <Text style={styles.entryDate}>
+                          {formatDate(stats.lastConcert.eventDate)}
+                        </Text>
+                        <Text style={styles.entryArtist}>{stats.lastConcert.artistName}</Text>
+                      </View>
+                      <Text style={styles.entryChevron}>›</Text>
+                    </TouchableOpacity>
+                  )}
 
-        {/* Concerts by year */}
-        {stats.concertsByYear.length > 0 && (
-          <Card style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('dashboard.concertsPerYear')}</Text>
-            {stats.concertsByYear.map((item) => (
-              <View key={item.year} style={styles.yearRow}>
-                <Text style={styles.yearLabel}>{item.year}</Text>
-                <View style={styles.yearBarContainer}>
-                  <View
-                    style={[styles.yearBar, { width: `${(item.count / maxYearCount) * 100}%` }]}
-                  />
+                  {isOnThisDayYear && onThisDay && (
+                    <TouchableOpacity
+                      style={styles.concertEntry}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/(home)/concert/[id]',
+                          params: { id: onThisDay.setlistId },
+                        })
+                      }
+                      accessibilityRole="button"
+                      accessibilityLabel={`${t('dashboard.yearsAgo', { count: onThisDay.yearsAgo })}, ${onThisDay.artistName}, ${formatDate(onThisDay.eventDate)}`}
+                      accessibilityHint={t('Opens concert details')}
+                    >
+                      <View style={styles.dotWrapper}>
+                        <View style={styles.dotInactive} />
+                      </View>
+                      <View style={styles.entryContent}>
+                        <Text style={styles.entryDate}>{formatDate(onThisDay.eventDate)}</Text>
+                        <Text style={styles.entryArtist}>{onThisDay.artistName}</Text>
+                        <Text style={styles.entryVenue}>{onThisDay.venueName}</Text>
+                      </View>
+                      <Text style={styles.entryChevron}>›</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  {isFirstConcertYear && stats.firstConcert && (
+                    <TouchableOpacity
+                      style={styles.concertEntry}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/(home)/concert/[id]',
+                          params: { id: stats.firstConcert?.setlistId },
+                        })
+                      }
+                      accessibilityRole="button"
+                      accessibilityLabel={`${t('dashboard.firstConcert')}, ${stats.firstConcert.artistName}, ${formatDate(stats.firstConcert.eventDate)}`}
+                      accessibilityHint={t('Opens concert details')}
+                    >
+                      <View style={styles.dotWrapper}>
+                        <View style={styles.dotInactive} />
+                      </View>
+                      <View style={styles.entryContent}>
+                        <Text style={styles.entryDate}>
+                          {formatDate(stats.firstConcert.eventDate)}
+                        </Text>
+                        <Text style={styles.entryArtist}>{stats.firstConcert.artistName}</Text>
+                      </View>
+                      <Text style={styles.entryChevron}>›</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
-                <Text style={styles.yearCount}>{item.count}</Text>
-              </View>
-            ))}
-          </Card>
-        )}
+              )}
+            </View>
+          );
+        })}
 
+        {/* ── Last synced ─────────────────────────────────────────────────── */}
         {lastSynced && (
           <Text style={styles.lastSynced}>{t('dashboard.lastSynced', { date: lastSynced })}</Text>
         )}

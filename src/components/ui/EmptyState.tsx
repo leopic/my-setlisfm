@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useColors } from '../../utils/colors';
+import { useColors } from '@/utils/colors';
 
 interface EmptyStateProps {
   title: string;

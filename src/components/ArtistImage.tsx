@@ -2,8 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { getArtistImageUri } from '../services/artistImageService';
-import { useColors } from '../utils/colors';
+import { getArtistImageUri } from '@/services/artistImageService';
+import { useColors } from '@/utils/colors';
 
 interface ArtistImageProps {
   mbid: string;

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { dbOperations } from '../../../src/database/operations';
-import CityList from '../../../src/components/CityList';
-import { useColors } from '../../../src/utils/colors';
-import DetailSkeleton from '../../../src/components/skeletons/DetailSkeleton';
-import { ScreenHeader } from '../../../src/components/ui';
+import { dbOperations } from '@/database/operations';
+import CityList from '@/components/CityList';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
+import DetailSkeleton from '@/components/skeletons/DetailSkeleton';
 
 interface CityWithStats {
   name: string;
@@ -18,7 +18,7 @@ interface CityWithStats {
 }
 
 export default function CountryDetailScreen() {
-  const colors = useColors();
+  const colors = useChronicleColors();
   const { t } = useTranslation();
   const styles = useMemo(
     () =>
@@ -26,6 +26,26 @@ export default function CountryDetailScreen() {
         container: {
           flex: 1,
           backgroundColor: colors.background,
+        },
+        header: {
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        backBtn: {
+          ...Type.body,
+          color: colors.accent,
+          marginBottom: 6,
+        },
+        title: {
+          ...Type.heading,
+          color: colors.textPrimary,
+        },
+        subtitle: {
+          ...Type.body,
+          color: colors.textSecondary,
+          marginTop: 2,
         },
       }),
     [colors],
@@ -74,13 +94,17 @@ export default function CountryDetailScreen() {
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      {/* Header */}
-      <ScreenHeader
-        title={country as string}
-        subtitle={t('common.city', { count: cities.length })}
-        showBack
-        onBackPress={() => router.back()}
-      />
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+        >
+          <Text style={styles.backBtn}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>{country as string}</Text>
+        <Text style={styles.subtitle}>{t('common.city', { count: cities.length })}</Text>
+      </View>
 
       <CityList
         cities={cities}

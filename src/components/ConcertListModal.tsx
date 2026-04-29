@@ -2,9 +2,9 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { SetlistWithDetails } from '../types/database';
-import { formatDate } from '../utils/date';
-import { useColors } from '../utils/colors';
+import type { SetlistWithDetails } from '@/types/database';
+import { formatDate } from '@/utils/date';
+import { useColors } from '@/utils/colors';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;

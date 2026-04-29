@@ -1,5 +1,5 @@
 // Database CRUD operations for all entities
-import { databaseManager } from './database';
+import { databaseManager } from '@/database/database';
 import type {
   DBArtist,
   DBCity,
@@ -11,7 +11,7 @@ import type {
   DBSong,
   SetlistWithDetails,
   SetWithSongs,
-} from '../types/database';
+} from '@/types/database';
 
 // Row types for SQL query results
 interface SetlistJoinRow {
@@ -719,6 +719,19 @@ export class DatabaseOperations {
         : null,
       concertsByYear: byYear.map((row) => ({ year: row.year, count: row.count })),
     };
+  }
+
+  async getConcertsByYearMonth(): Promise<{ year: string; month: number; count: number }[]> {
+    const rows = await this.db.getAllAsync(`
+      SELECT
+        substr(eventDate, 7, 4)              AS year,
+        CAST(substr(eventDate, 4, 2) AS INTEGER) AS month,
+        COUNT(*)                             AS count
+      FROM setlists
+      GROUP BY year, month
+      ORDER BY year ASC, month ASC
+    `);
+    return rows as { year: string; month: number; count: number }[];
   }
 
   // Find a past concert that happened around this date in a previous year

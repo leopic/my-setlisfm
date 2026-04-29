@@ -2,14 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { dbOperations } from '../../../src/database/operations';
-import type { SetlistWithDetails, SetWithSongs } from '../../../src/types/database';
-import Setlist from '../../../src/components/Setlist';
-import { useColors } from '../../../src/utils/colors';
-import SetlistSkeleton from '../../../src/components/skeletons/SetlistSkeleton';
+import { dbOperations } from '@/database/operations';
+import type { SetlistWithDetails, SetWithSongs } from '@/types/database';
+import Setlist from '@/components/Setlist';
+import { useChronicleColors } from '@/utils/colors';
+import SetlistSkeleton from '@/components/skeletons/SetlistSkeleton';
 
 export default function SetlistDetailScreen() {
-  const colors = useColors();
+  const colors = useChronicleColors();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -22,7 +22,7 @@ export default function SetlistDetailScreen() {
         },
         errorText: {
           fontSize: 18,
-          color: colors.danger,
+          color: colors.accent,
           textAlign: 'center',
           marginTop: 100,
         },

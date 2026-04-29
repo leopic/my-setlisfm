@@ -28,7 +28,12 @@ module.exports = {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#ffffff"
       },
-      package: "com.setlistfm.tracker"
+      package: "com.setlistfm.tracker",
+      config: {
+        googleMaps: {
+          apiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY
+        }
+      }
     },
     plugins: [
       "expo-router",
@@ -36,7 +41,8 @@ module.exports = {
     ],
     extra: {
       setlistfmApiKey: process.env.SETLISTFM_API_KEY,
-      setlistfmTestUsername: process.env.SETLISTFM_TEST_USERNAME
+      setlistfmTestUsername: process.env.SETLISTFM_TEST_USERNAME,
+      googleMapsAndroidApiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY
     }
   }
 };

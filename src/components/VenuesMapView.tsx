@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import type { Region } from 'react-native-maps';
+import { useState, useEffect, useMemo } from 'react';
+import { View, Text, StyleSheet, Alert, ActivityIndicator, Platform } from 'react-native';
+import { WebView } from 'react-native-webview';
 import MapView, { Marker } from 'react-native-maps';
-import { dbOperations } from '../database/operations';
-import { formatDate } from '../utils/date';
-import { useColors } from '../utils/colors';
+import { useTranslation } from 'react-i18next';
+import { dbOperations } from '@/database/operations';
+import { formatDate } from '@/utils/date';
+import { useColors } from '@/utils/colors';
 
 interface VenueWithCoords {
   id: string;
@@ -18,27 +18,68 @@ interface VenueWithCoords {
   lastConcertDate?: string;
 }
 
+function buildHtml(venues: VenueWithCoords[], centerLat: number, centerLng: number): string {
+  const markers = venues
+    .map((v) => {
+      const color =
+        v.concertCount >= 5
+          ? '#FF6B6B'
+          : v.concertCount >= 3
+            ? '#4ECDC4'
+            : v.concertCount >= 2
+              ? '#45B7D1'
+              : '#96CEB4';
+      const popup = [
+        `<b>${v.name}</b>`,
+        v.cityName && v.countryName ? `${v.cityName}, ${v.countryName}` : (v.cityName ?? ''),
+        `${v.concertCount} visit${v.concertCount !== 1 ? 's' : ''}`,
+        v.lastConcertDate ? `Last: ${formatDate(v.lastConcertDate)}` : '',
+      ]
+        .filter(Boolean)
+        .join('<br/>');
+      return `L.circleMarker([${v.coordsLat},${v.coordsLong}],{radius:${Math.min(6 + v.concertCount * 2, 18)},color:'${color}',fillColor:'${color}',fillOpacity:0.8,weight:2}).bindPopup('${popup.replace(/'/g, "\\'")}').addTo(map);`;
+    })
+    .join('\n');
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  html,body,#map{margin:0;padding:0;width:100%;height:100%;background:#1a1a2e}
+  .leaflet-popup-content-wrapper{border-radius:8px;font-size:13px}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+var map=L.map('map',{zoomControl:true}).setView([${centerLat},${centerLng}],3);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  maxZoom:19,
+  attribution:'© OpenStreetMap'
+}).addTo(map);
+${markers}
+</script>
+</body>
+</html>`;
+}
+
 export default function VenuesMapView() {
   const { t } = useTranslation();
   const colors = useColors();
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        container: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
+        container: { flex: 1, backgroundColor: colors.background },
         loadingContainer: {
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
           backgroundColor: colors.background,
         },
-        loadingText: {
-          marginTop: 10,
-          fontSize: 16,
-          color: colors.textSecondary,
-        },
+        loadingText: { marginTop: 10, fontSize: 16, color: colors.textSecondary },
         emptyContainer: {
           flex: 1,
           justifyContent: 'center',
@@ -59,9 +100,6 @@ export default function VenuesMapView() {
           textAlign: 'center',
           lineHeight: 20,
         },
-        map: {
-          flex: 1,
-        },
         venueCount: {
           backgroundColor: colors.backgroundCard,
           padding: 15,
@@ -69,11 +107,7 @@ export default function VenuesMapView() {
           borderTopColor: colors.border,
           alignItems: 'center',
         },
-        venueCountText: {
-          fontSize: 14,
-          color: colors.textSecondary,
-          fontWeight: '500',
-        },
+        venueCountText: { fontSize: 14, color: colors.textSecondary, fontWeight: '500' },
         legend: {
           backgroundColor: colors.backgroundCard,
           padding: 15,
@@ -86,36 +120,17 @@ export default function VenuesMapView() {
           color: colors.textPrimary,
           marginBottom: 10,
         },
-        legendItems: {
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-        },
-        legendItem: {
-          flexDirection: 'row',
-          alignItems: 'center',
-        },
-        legendDot: {
-          width: 12,
-          height: 12,
-          borderRadius: 6,
-          marginRight: 5,
-        },
-        legendText: {
-          fontSize: 12,
-          color: colors.textSecondary,
-        },
+        legendItems: { flexDirection: 'row', justifyContent: 'space-around' },
+        legendItem: { flexDirection: 'row', alignItems: 'center' },
+        legendDot: { width: 12, height: 12, borderRadius: 6, marginRight: 5 },
+        legendText: { fontSize: 12, color: colors.textSecondary },
       }),
     [colors],
   );
 
   const [venues, setVenues] = useState<VenueWithCoords[]>([]);
   const [loading, setLoading] = useState(true);
-  const [region, setRegion] = useState<Region>({
-    latitude: 40.7128, // Default to NYC
-    longitude: -74.006,
-    latitudeDelta: 50, // Wide view to show multiple countries
-    longitudeDelta: 50,
-  });
+  const [center, setCenter] = useState({ lat: 51.0, lng: 10.0 });
 
   useEffect(() => {
     loadVenuesWithCoordinates();
@@ -125,35 +140,15 @@ export default function VenuesMapView() {
     try {
       setLoading(true);
       const allVenues = await dbOperations.getVenuesWithStats();
-
-      // Filter venues that have coordinates
-      const venuesWithCoords = allVenues.filter(
-        (venue) => venue.coordsLat != null && venue.coordsLong != null,
-      );
-
+      const venuesWithCoords = allVenues.filter((v) => v.coordsLat != null && v.coordsLong != null);
       setVenues(venuesWithCoords);
 
-      // Calculate center point of all venues for better initial view
       if (venuesWithCoords.length > 0) {
         const avgLat =
-          venuesWithCoords.reduce((sum, venue) => sum + (venue.coordsLat || 0), 0) /
-          venuesWithCoords.length;
+          venuesWithCoords.reduce((s, v) => s + (v.coordsLat ?? 0), 0) / venuesWithCoords.length;
         const avgLng =
-          venuesWithCoords.reduce((sum, venue) => sum + (venue.coordsLong || 0), 0) /
-          venuesWithCoords.length;
-
-        // Calculate bounds for appropriate zoom level
-        const latitudes = venuesWithCoords.map((v) => v.coordsLat || 0);
-        const longitudes = venuesWithCoords.map((v) => v.coordsLong || 0);
-        const latDelta = Math.max(...latitudes) - Math.min(...latitudes);
-        const lngDelta = Math.max(...longitudes) - Math.min(...longitudes);
-
-        setRegion({
-          latitude: avgLat,
-          longitude: avgLng,
-          latitudeDelta: Math.max(latDelta * 1.5, 1), // Add padding and minimum zoom
-          longitudeDelta: Math.max(lngDelta * 1.5, 1),
-        });
+          venuesWithCoords.reduce((s, v) => s + (v.coordsLong ?? 0), 0) / venuesWithCoords.length;
+        setCenter({ lat: avgLat, lng: avgLng });
       }
     } catch (error) {
       console.error('Failed to load venues for map:', error);
@@ -161,14 +156,6 @@ export default function VenuesMapView() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const getMarkerColor = (concertCount: number): string => {
-    // Color code markers based on visit count
-    if (concertCount >= 5) return colors.mapFrequent; // Red for frequent venues
-    if (concertCount >= 3) return colors.mapModerate; // Teal for moderate
-    if (concertCount >= 2) return colors.mapOccasional; // Blue for occasional
-    return colors.mapSingleVisit; // Green for single visits
   };
 
   if (loading) {
@@ -189,30 +176,58 @@ export default function VenuesMapView() {
     );
   }
 
-  return (
-    <View style={styles.container}>
+  const mapContent =
+    Platform.OS === 'ios' ? (
       <MapView
-        style={styles.map}
-        region={region}
-        onRegionChangeComplete={setRegion}
+        style={{ flex: 1 }}
+        region={{
+          latitude: center.lat,
+          longitude: center.lng,
+          latitudeDelta: 50,
+          longitudeDelta: 50,
+        }}
         showsUserLocation={false}
         showsMyLocationButton={false}
-        showsCompass={true}
-        showsScale={true}
+        showsCompass
+        showsScale
       >
         {venues.map((venue) => (
           <Marker
             key={venue.id}
-            coordinate={{
-              latitude: venue.coordsLat ?? 0,
-              longitude: venue.coordsLong ?? 0,
-            }}
-            pinColor={getMarkerColor(venue.concertCount)}
+            coordinate={{ latitude: venue.coordsLat ?? 0, longitude: venue.coordsLong ?? 0 }}
+            pinColor={
+              venue.concertCount >= 5
+                ? '#FF6B6B'
+                : venue.concertCount >= 3
+                  ? '#4ECDC4'
+                  : venue.concertCount >= 2
+                    ? '#45B7D1'
+                    : '#96CEB4'
+            }
             title={venue.name}
-            description={`${venue.cityName}${venue.countryName ? `, ${venue.countryName}` : ''}\n${t('common.visit', { count: venue.concertCount })}${venue.lastConcertDate ? `\nLast: ${formatDate(venue.lastConcertDate)}` : ''}`}
+            description={`${venue.cityName ?? ''}${venue.countryName ? ', ' + venue.countryName : ''} · ${venue.concertCount} visit${venue.concertCount !== 1 ? 's' : ''}`}
           />
         ))}
       </MapView>
+    ) : (
+      <WebView
+        style={{ flex: 1 }}
+        source={{ html: buildHtml(venues, center.lat, center.lng) }}
+        originWhitelist={['*']}
+        javaScriptEnabled
+        domStorageEnabled
+        startInLoadingState
+        renderLoading={() => (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        )}
+      />
+    );
+
+  return (
+    <View style={styles.container}>
+      {mapContent}
 
       <View style={styles.venueCount}>
         <Text style={styles.venueCountText}>
@@ -223,22 +238,17 @@ export default function VenuesMapView() {
       <View style={styles.legend}>
         <Text style={styles.legendTitle}>{t('map.legendTitle')}</Text>
         <View style={styles.legendItems}>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: colors.mapSingleVisit }]} />
-            <Text style={styles.legendText}>{t('map.legend1')}</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: colors.mapOccasional }]} />
-            <Text style={styles.legendText}>{t('map.legend2')}</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: colors.mapModerate }]} />
-            <Text style={styles.legendText}>{t('map.legend3')}</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: colors.mapFrequent }]} />
-            <Text style={styles.legendText}>{t('map.legend5')}</Text>
-          </View>
+          {[
+            { color: '#96CEB4', label: t('map.legend1') },
+            { color: '#45B7D1', label: t('map.legend2') },
+            { color: '#4ECDC4', label: t('map.legend3') },
+            { color: '#FF6B6B', label: t('map.legend5') },
+          ].map(({ color, label }) => (
+            <View key={color} style={styles.legendItem}>
+              <View style={[styles.legendDot, { backgroundColor: color }]} />
+              <Text style={styles.legendText}>{label}</Text>
+            </View>
+          ))}
         </View>
       </View>
     </View>

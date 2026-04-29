@@ -3,11 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { dbOperations } from '../../../src/database/operations';
-import { formatDate } from '../../../src/utils/date';
-import { useColors } from '../../../src/utils/colors';
-import DetailSkeleton from '../../../src/components/skeletons/DetailSkeleton';
-import { ScreenHeader, TabScrollView } from '../../../src/components/ui';
+import { dbOperations } from '@/database/operations';
+import { formatDate } from '@/utils/date';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
+import DetailSkeleton from '@/components/skeletons/DetailSkeleton';
+import { TabScrollView } from '@/components/ui';
 
 interface VenueWithStats {
   id: string;
@@ -27,7 +28,7 @@ interface VenueWithStats {
 }
 
 export default function CityDetailScreen() {
-  const colors = useColors();
+  const colors = useChronicleColors();
   const { t } = useTranslation();
   const styles = useMemo(
     () =>
@@ -36,82 +37,79 @@ export default function CityDetailScreen() {
           flex: 1,
           backgroundColor: colors.background,
         },
+        header: {
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        backBtn: {
+          ...Type.body,
+          color: colors.accent,
+          marginBottom: 6,
+        },
+        title: {
+          ...Type.heading,
+          color: colors.textPrimary,
+        },
+        subtitle: {
+          ...Type.body,
+          color: colors.textSecondary,
+          marginTop: 2,
+        },
         venuesList: {
           flex: 1,
-          padding: 20,
         },
-        venueCard: {
-          backgroundColor: colors.backgroundPill,
-          borderRadius: 10,
-          borderCurve: 'continuous' as const,
-          padding: 15,
-          marginBottom: 10,
-        },
-        venueHeader: {
+        venueRow: {
+          paddingVertical: 12,
+          paddingHorizontal: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
           flexDirection: 'row',
-          justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 5,
         },
         venueInfo: {
           flex: 1,
-          marginRight: 15,
+          marginRight: 12,
         },
         venueName: {
-          fontSize: 18,
-          fontWeight: 'bold',
+          ...Type.title,
           color: colors.textPrimary,
-          marginBottom: 5,
         },
         venueLocation: {
-          fontSize: 14,
+          ...Type.body,
           color: colors.textSecondary,
-        },
-        concertCountBadge: {
-          backgroundColor: colors.success,
-          paddingHorizontal: 12,
-          paddingVertical: 8,
-          borderRadius: 20,
-          borderCurve: 'continuous' as const,
-          alignItems: 'center',
-          minWidth: 60,
-        },
-        concertCountText: {
-          fontSize: 18,
-          fontWeight: 'bold',
-          color: colors.textInverse,
-          fontVariant: ['tabular-nums'] as const,
-        },
-        concertCountLabel: {
-          fontSize: 10,
-          color: colors.textInverse,
-          opacity: 0.9,
-        },
-        venueStats: {
-          marginTop: 5,
+          marginTop: 2,
         },
         lastConcertText: {
-          fontSize: 14,
-          color: colors.success,
-          fontWeight: '500',
-          marginBottom: 5,
+          ...Type.body,
+          color: colors.textMuted,
+          marginTop: 2,
         },
         artistsText: {
-          fontSize: 13,
-          color: colors.textSecondary,
-          marginBottom: 5,
-        },
-        coordsText: {
-          fontSize: 12,
+          ...Type.body,
           color: colors.textMuted,
-          fontFamily: 'monospace',
+          marginTop: 2,
+        },
+        concertCountContainer: {
+          alignItems: 'center',
+          minWidth: 44,
+        },
+        concertCountText: {
+          ...Type.count,
+          color: colors.accent,
+        },
+        concertCountLabel: {
+          ...Type.label,
+          color: colors.textMuted,
+          marginTop: 1,
         },
         emptyState: {
           alignItems: 'center',
           paddingVertical: 60,
         },
         emptyStateText: {
-          fontSize: 16,
+          ...Type.body,
           color: colors.textSecondary,
           textAlign: 'center',
         },
@@ -170,28 +168,19 @@ export default function CityDetailScreen() {
   const getVenueCard = (venue: VenueWithStats) => (
     <TouchableOpacity
       key={venue.id}
-      style={styles.venueCard}
+      style={styles.venueRow}
       onPress={() => handleVenuePress(venue)}
       activeOpacity={0.7}
       accessibilityRole="button"
       accessibilityLabel={`${venue.name}, ${venue.concertCount} ${t('venues.visits')}`}
     >
-      <View style={styles.venueHeader}>
-        <View style={styles.venueInfo}>
-          <Text style={styles.venueName}>{venue.name}</Text>
-          <Text style={styles.venueLocation}>
-            {venue.cityName || 'Unknown City'}
-            {venue.state && `, ${venue.state}`}
-            {venue.countryName && `, ${venue.countryName}`}
-          </Text>
-        </View>
-        <View style={styles.concertCountBadge}>
-          <Text style={styles.concertCountText}>{venue.concertCount}</Text>
-          <Text style={styles.concertCountLabel}>{t('venues.visits')}</Text>
-        </View>
-      </View>
-
-      <View style={styles.venueStats}>
+      <View style={styles.venueInfo}>
+        <Text style={styles.venueName}>{venue.name}</Text>
+        <Text style={styles.venueLocation}>
+          {venue.cityName || 'Unknown City'}
+          {venue.state && `, ${venue.state}`}
+          {venue.countryName && `, ${venue.countryName}`}
+        </Text>
         {venue.lastConcertDate && (
           <Text style={styles.lastConcertText}>
             {t('common.lastShow', { date: formatDate(venue.lastConcertDate) })}
@@ -204,11 +193,11 @@ export default function CityDetailScreen() {
               ` ${t('common.moreCount', { count: venue.artists.length - 3 })}`}
           </Text>
         )}
-        {venue.coordsLat && venue.coordsLong && (
-          <Text style={styles.coordsText}>
-            {venue.coordsLat.toFixed(4)}, {venue.coordsLong.toFixed(4)}
-          </Text>
-        )}
+      </View>
+
+      <View style={styles.concertCountContainer}>
+        <Text style={styles.concertCountText}>{venue.concertCount}</Text>
+        <Text style={styles.concertCountLabel}>{t('venues.visits')}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -219,13 +208,19 @@ export default function CityDetailScreen() {
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      {/* Header */}
-      <ScreenHeader
-        title={city as string}
-        subtitle={`${country} • ${t('common.venue', { count: venues.length })}`}
-        showBack
-        onBackPress={() => router.back()}
-      />
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+        >
+          <Text style={styles.backBtn}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>{city as string}</Text>
+        <Text style={styles.subtitle}>
+          {`${country} · ${t('common.venue', { count: venues.length })}`}
+        </Text>
+      </View>
 
       <TabScrollView
         style={styles.venuesList}

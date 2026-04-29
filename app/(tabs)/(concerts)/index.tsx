@@ -11,15 +11,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { dbOperations } from '../../../src/database/operations';
-import type { SetlistWithDetails } from '../../../src/types/database';
-import { parseSetlistDate, formatDate } from '../../../src/utils/date';
-import type { SortOption } from '../../../src/utils/sort';
-import { sortByOption } from '../../../src/utils/sort';
-import { useColors } from '../../../src/utils/colors';
-import { useSyncContext } from '../../../src/contexts/SyncContext';
-import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
-import { ScreenHeader, EmptyState, TabScrollView } from '../../../src/components/ui';
+import { dbOperations } from '@/database/operations';
+import type { SetlistWithDetails } from '@/types/database';
+import { parseSetlistDate, formatDate } from '@/utils/date';
+import type { SortOption } from '@/utils/sort';
+import { sortByOption } from '@/utils/sort';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
+import { useSyncContext } from '@/contexts/SyncContext';
+import ListSkeleton from '@/components/skeletons/ListSkeleton';
+import { EmptyState, Icon, TabScrollView } from '@/components/ui';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -38,7 +39,7 @@ interface YearGroup {
 
 export default function ConcertsScreen() {
   const { t } = useTranslation();
-  const colors = useColors();
+  const colors = useChronicleColors();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -49,210 +50,166 @@ export default function ConcertsScreen() {
         scrollView: {
           flex: 1,
         },
-        sortContainer: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginTop: 20,
-          marginBottom: 15,
-          paddingHorizontal: 20,
-          backgroundColor: colors.backgroundCard,
-          paddingVertical: 20,
+        // ── Header ──────────────────────────────────────────────────────────
+        header: {
+          paddingHorizontal: 16,
+          paddingTop: 12,
+          paddingBottom: 8,
         },
-        sortLabel: {
-          fontSize: 14,
-          color: colors.textSecondary,
-          marginRight: 10,
-        },
-        sortButtons: {
-          flexDirection: 'row',
-          backgroundColor: colors.backgroundPill,
-          borderRadius: 20,
-          borderCurve: 'continuous' as const,
-          padding: 5,
-        },
-        sortButton: {
-          paddingVertical: 8,
-          paddingHorizontal: 15,
-          borderRadius: 15,
-          borderCurve: 'continuous' as const,
-        },
-        sortButtonActive: {
-          backgroundColor: colors.primary,
-        },
-        sortButtonText: {
-          fontSize: 14,
+        headerTitle: {
+          ...Type.heading,
           color: colors.textPrimary,
-          fontWeight: '600',
         },
-        sortButtonTextActive: {
-          color: colors.textInverse,
+        headerSubtitle: {
+          ...Type.body,
+          color: colors.textSecondary,
+          marginTop: 2,
         },
+        // ── Search bar ──────────────────────────────────────────────────────
         searchContainer: {
-          paddingHorizontal: 20,
+          paddingHorizontal: 16,
           paddingBottom: 10,
         },
-        searchInput: {
-          backgroundColor: colors.backgroundCard,
+        searchInputWrapper: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: colors.surface,
           borderRadius: 10,
-          borderCurve: 'continuous' as const,
-          paddingHorizontal: 14,
-          paddingVertical: 10,
-          fontSize: 15,
-          color: colors.textPrimary,
           borderWidth: 1,
           borderColor: colors.border,
+          paddingHorizontal: 10,
+          paddingVertical: 12,
         },
-        alphabeticalContainer: {
-          backgroundColor: colors.backgroundCard,
-          borderRadius: 12,
-          borderCurve: 'continuous' as const,
-          padding: 20,
-          marginBottom: 15,
-          shadowColor: colors.shadow,
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-          elevation: 3,
+        searchPrefix: {
+          ...Type.body,
+          color: colors.textMuted,
+          marginRight: 6,
         },
-        yearGroup: {
-          backgroundColor: colors.backgroundCard,
-          borderRadius: 12,
-          borderCurve: 'continuous' as const,
-          padding: 20,
-          marginBottom: 15,
-          shadowColor: colors.shadow,
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-          elevation: 3,
-        },
-        yearHeader: {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 15,
-        },
-        yearTitle: {
-          fontSize: 24,
-          fontWeight: 'bold',
-          color: colors.textPrimary,
-          fontVariant: ['tabular-nums'] as const,
-        },
-        yearStats: {
-          fontSize: 14,
-          color: colors.textSecondary,
-          fontVariant: ['tabular-nums'] as const,
-        },
-        monthlyStats: {
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          justifyContent: 'space-around',
-          marginBottom: 15,
-        },
-        monthStat: {
-          alignItems: 'center',
-          marginHorizontal: 10,
-          marginBottom: 10,
-        },
-        monthName: {
-          fontSize: 14,
-          color: colors.textTertiary,
-          marginBottom: 5,
-        },
-        monthCount: {
-          fontSize: 18,
-          fontWeight: 'bold',
-          color: colors.primary,
-          fontVariant: ['tabular-nums'] as const,
-        },
-        concertItem: {
-          backgroundColor: colors.backgroundPill,
-          borderRadius: 10,
-          borderCurve: 'continuous' as const,
-          padding: 15,
-          marginBottom: 10,
-        },
-        concertHeader: {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: 5,
-        },
-        concertMainInfo: {
+        searchInput: {
           flex: 1,
-          marginRight: 10,
-        },
-        artistName: {
-          fontSize: 18,
-          fontWeight: 'bold',
+          ...Type.body,
           color: colors.textPrimary,
-          flexWrap: 'wrap',
+          padding: 0,
+          margin: 0,
         },
-        concertDate: {
-          fontSize: 14,
-          color: colors.textSecondary,
-          fontWeight: '500',
-        },
-        concertDetails: {
-          marginTop: 5,
-        },
-        venueName: {
-          fontSize: 15,
-          fontWeight: '600',
-          color: colors.textTertiary,
-        },
-        locationText: {
-          fontSize: 13,
-          color: colors.textSecondary,
-        },
-        tourName: {
-          fontSize: 14,
-          color: colors.primary,
-          fontWeight: '500',
-          marginTop: 5,
-        },
-        filterContainer: {
+        // ── Sort pills ──────────────────────────────────────────────────────
+        sortContainer: {
           flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: colors.backgroundDisabled,
+          paddingHorizontal: 16,
+          paddingBottom: 8,
+          gap: 8,
+        },
+        sortPill: {
+          paddingVertical: 6,
+          paddingHorizontal: 14,
           borderRadius: 20,
-          borderCurve: 'continuous' as const,
-          paddingVertical: 5,
-          paddingHorizontal: 10,
-          marginTop: 10,
-          marginBottom: 15,
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: 'transparent',
         },
-        filterBadge: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: colors.primary,
-          borderRadius: 15,
-          borderCurve: 'continuous' as const,
-          paddingVertical: 5,
-          paddingHorizontal: 10,
-          marginRight: 10,
+        sortPillActive: {
+          backgroundColor: colors.accentSoft,
+          borderColor: colors.accent,
         },
-        filterLabel: {
-          fontSize: 12,
-          color: colors.textInverse,
-          fontWeight: 'bold',
+        sortPillText: {
+          ...Type.label,
+          color: colors.textMuted,
         },
-        filterValue: {
-          fontSize: 12,
-          color: colors.textInverse,
-          fontWeight: 'bold',
+        sortPillTextActive: {
+          color: colors.accent,
         },
-        clearFilterButton: {
-          paddingVertical: 5,
-          paddingHorizontal: 10,
-          borderRadius: 15,
-          borderCurve: 'continuous' as const,
-          backgroundColor: colors.backgroundPill,
+        // ── Timeline river ──────────────────────────────────────────────────
+        yearSection: {
+          paddingHorizontal: 16,
+          paddingTop: 12,
         },
-        clearFilterText: {
-          fontSize: 12,
+        yearGhost: {
+          ...Type.display,
+          fontSize: 56,
+          opacity: 0.07,
           color: colors.textPrimary,
-          fontWeight: '600',
+          letterSpacing: -2,
+          lineHeight: 56,
+          marginTop: -4,
+        },
+        yearSubLabel: {
+          ...Type.label,
+          color: colors.textMuted,
+          marginBottom: 8,
+        },
+        spineContainer: {
+          borderLeftWidth: 1.5,
+          borderLeftColor: colors.spineColor,
+          marginLeft: 28,
+          paddingLeft: 20,
+        },
+        // ── Concert entry (river) ────────────────────────────────────────────
+        riverEntry: {
+          paddingVertical: 10,
+          position: 'relative',
+        },
+        dot: {
+          position: 'absolute',
+          left: -25.5,
+          top: 16,
+          width: 9,
+          height: 9,
+          borderRadius: 4.5,
+          backgroundColor: colors.dotInactive,
+          borderWidth: 2,
+          borderColor: colors.background,
+        },
+        dotActive: {
+          backgroundColor: colors.dotActive,
+        },
+        entryRow: {
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+        },
+        entryContent: {
+          flex: 1,
+          marginRight: 8,
+        },
+        entryDate: {
+          ...Type.label,
+          color: colors.accent,
+          letterSpacing: 0.8,
+          marginBottom: 2,
+        },
+        entryArtist: {
+          ...Type.title,
+          color: colors.textPrimary,
+        },
+        entryVenue: {
+          ...Type.body,
+          color: colors.textSecondary,
+        },
+        entryTour: {
+          ...Type.body,
+          color: colors.accent,
+          marginTop: 2,
+        },
+        entryChevron: {
+          ...Type.body,
+          color: colors.textDisabled,
+          alignSelf: 'center',
+        },
+        // ── Alphabetical list ────────────────────────────────────────────────
+        alphabeticalEntry: {
+          paddingVertical: 10,
+          paddingHorizontal: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        alphabeticalEntryRow: {
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+        },
+        alphabeticalEntryContent: {
+          flex: 1,
+          marginRight: 8,
         },
       }),
     [colors],
@@ -403,70 +360,71 @@ export default function ConcertsScreen() {
       testID="concerts-screen"
     >
       {/* Header */}
-      <ScreenHeader
-        title={t('concerts.title')}
-        subtitle={
-          sortOption === 'alphabetical'
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>{t('concerts.title')}</Text>
+        <Text style={styles.headerSubtitle}>
+          {sortOption === 'alphabetical'
             ? t('concerts.subtitleAlphabetical', { count: totalConcerts })
-            : t('concerts.subtitleByYear', { count: totalConcerts })
-        }
-      />
+            : t('concerts.subtitleByYear', { count: totalConcerts })}
+        </Text>
+      </View>
 
-      {/* Sorting Options */}
-      <View style={styles.sortContainer}>
-        <Text style={styles.sortLabel}>{t('concerts.sortBy')}</Text>
-        <View style={styles.sortButtons}>
-          <TouchableOpacity
-            style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]}
-            onPress={() => handleSortChange('recent')}
-            accessibilityRole="button"
-            accessibilityState={{ selected: sortOption === 'recent' }}
-            accessibilityLabel={t('concerts.sortByMostRecent')}
-          >
-            <Text
-              style={[
-                styles.sortButtonText,
-                sortOption === 'recent' && styles.sortButtonTextActive,
-              ]}
-            >
-              {t('concerts.mostRecent')}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]}
-            onPress={() => handleSortChange('alphabetical')}
-            accessibilityRole="button"
-            accessibilityState={{ selected: sortOption === 'alphabetical' }}
-            accessibilityLabel={t('concerts.sortByAlphabetical')}
-          >
-            <Text
-              style={[
-                styles.sortButtonText,
-                sortOption === 'alphabetical' && styles.sortButtonTextActive,
-              ]}
-            >
-              {t('concerts.alphabetical')}
-            </Text>
-          </TouchableOpacity>
+      {/* Search bar */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchInputWrapper}>
+          <Icon
+            sf="magnifyingglass"
+            md="search-outline"
+            size={15}
+            color={colors.textMuted}
+            style={{ marginRight: 6 }}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder={t('concerts.searchPlaceholder')}
+            placeholderTextColor={colors.textMuted}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            autoCapitalize="none"
+            autoCorrect={false}
+            clearButtonMode="while-editing"
+            accessibilityLabel={t('concerts.searchPlaceholder')}
+          />
         </View>
       </View>
 
-      {/* Search */}
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder={t('concerts.searchPlaceholder')}
-          placeholderTextColor={colors.textMuted}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          autoCapitalize="none"
-          autoCorrect={false}
-          clearButtonMode="while-editing"
-          accessibilityLabel={t('concerts.searchPlaceholder')}
-        />
+      {/* Sort pills */}
+      <View style={styles.sortContainer}>
+        <TouchableOpacity
+          style={[styles.sortPill, sortOption === 'recent' && styles.sortPillActive]}
+          onPress={() => handleSortChange('recent')}
+          accessibilityRole="button"
+          accessibilityState={{ selected: sortOption === 'recent' }}
+          accessibilityLabel={t('concerts.sortByMostRecent')}
+        >
+          <Text style={[styles.sortPillText, sortOption === 'recent' && styles.sortPillTextActive]}>
+            {t('concerts.mostRecent')}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.sortPill, sortOption === 'alphabetical' && styles.sortPillActive]}
+          onPress={() => handleSortChange('alphabetical')}
+          accessibilityRole="button"
+          accessibilityState={{ selected: sortOption === 'alphabetical' }}
+          accessibilityLabel={t('concerts.sortByAlphabetical')}
+        >
+          <Text
+            style={[
+              styles.sortPillText,
+              sortOption === 'alphabetical' && styles.sortPillTextActive,
+            ]}
+          >
+            {t('concerts.alphabetical')}
+          </Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Concerts List */}
+      {/* Concerts list */}
       <TabScrollView
         style={styles.scrollView}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -478,15 +436,15 @@ export default function ConcertsScreen() {
             subtitle={searchQuery.trim() ? t('common.tryDifferentSearch') : undefined}
           />
         ) : sortOption === 'alphabetical' ? (
-          // Flat list for alphabetical sorting with proper container spacing
-          <View style={styles.alphabeticalContainer}>
+          // Flat alphabetical list
+          <View>
             {filteredYearGroups
               .flatMap((yearGroup) => yearGroup.concerts)
               .sort((a, b) => a.artistName.localeCompare(b.artistName))
               .map((concert) => (
                 <TouchableOpacity
                   key={concert.id}
-                  style={styles.concertItem}
+                  style={styles.alphabeticalEntry}
                   testID={`concert-${concert.id}`}
                   onPress={() => {
                     router.push({
@@ -498,105 +456,75 @@ export default function ConcertsScreen() {
                   accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
                   accessibilityHint={t('concerts.viewConcertDetails')}
                 >
-                  <View style={styles.concertHeader}>
-                    <View style={styles.concertMainInfo}>
-                      <Text style={styles.artistName}>{concert.artistName}</Text>
-                    </View>
-                    <Text style={styles.concertDate}>{formatDate(concert.eventDate ?? '')}</Text>
-                  </View>
-
-                  <View style={styles.concertDetails}>
-                    <Text style={styles.venueName}>{concert.venueName}</Text>
-                    {concert.cityName && (
-                      <Text style={styles.locationText}>
-                        {concert.cityName}
-                        {concert.stateName && `, ${concert.stateName}`}
-                        {concert.countryName && `, ${concert.countryName}`}
+                  <View style={styles.alphabeticalEntryRow}>
+                    <View style={styles.alphabeticalEntryContent}>
+                      <Text style={styles.entryDate}>{formatDate(concert.eventDate ?? '')}</Text>
+                      <Text style={styles.entryArtist}>{concert.artistName}</Text>
+                      <Text style={styles.entryVenue}>
+                        {concert.venueName}
+                        {concert.cityName ? ` · ${concert.cityName}` : ''}
                       </Text>
-                    )}
+                      {concert.tour?.name && (
+                        <Text style={styles.entryTour}>{concert.tour.name}</Text>
+                      )}
+                    </View>
+                    <Text style={styles.entryChevron}>›</Text>
                   </View>
-
-                  {concert.tour?.name && <Text style={styles.tourName}>{concert.tour.name}</Text>}
                 </TouchableOpacity>
               ))}
           </View>
         ) : (
-          // Year grouping for recent sorting
-          filteredYearGroups.map((yearGroup) => (
-            <View key={yearGroup.year} style={styles.yearGroup}>
-              {/* Year Header with Stats */}
-              <View style={styles.yearHeader}>
-                <Text style={styles.yearTitle}>{yearGroup.year}</Text>
-                <Text style={styles.yearStats}>
-                  {t('common.concert', { count: yearGroup.totalConcerts })}
-                </Text>
+          // Timeline river grouped by year
+          filteredYearGroups.map((yearGroup, yearIndex) => (
+            <View key={yearGroup.year} style={styles.yearSection}>
+              {/* Year ghost + sub-label */}
+              <Text style={styles.yearGhost}>{yearGroup.year}</Text>
+              <Text style={styles.yearSubLabel}>
+                {t('common.concert', { count: yearGroup.totalConcerts })}
+              </Text>
+
+              {/* Spine + concert entries */}
+              <View style={styles.spineContainer}>
+                {yearGroup.concerts.map((concert, concertIndex) => {
+                  const isFirstOfMostRecentYear = yearIndex === 0 && concertIndex === 0;
+                  return (
+                    <TouchableOpacity
+                      key={concert.id}
+                      style={styles.riverEntry}
+                      testID={`concert-${concert.id}`}
+                      onPress={() => {
+                        router.push({
+                          pathname: '/(concerts)/[id]',
+                          params: { id: concert.id },
+                        });
+                      }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
+                      accessibilityHint={t('concerts.viewConcertDetails')}
+                    >
+                      {/* Timeline dot */}
+                      <View style={[styles.dot, isFirstOfMostRecentYear && styles.dotActive]} />
+
+                      <View style={styles.entryRow}>
+                        <View style={styles.entryContent}>
+                          <Text style={styles.entryDate}>
+                            {formatDate(concert.eventDate ?? '')}
+                          </Text>
+                          <Text style={styles.entryArtist}>{concert.artistName}</Text>
+                          <Text style={styles.entryVenue}>
+                            {concert.venueName}
+                            {concert.cityName ? ` · ${concert.cityName}` : ''}
+                          </Text>
+                          {concert.tour?.name && (
+                            <Text style={styles.entryTour}>{concert.tour.name}</Text>
+                          )}
+                        </View>
+                        <Text style={styles.entryChevron}>›</Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
-
-              {/* Monthly Breakdown */}
-              <View style={styles.monthlyStats}>
-                {Object.entries(yearGroup.monthStats)
-                  .sort((a, b) => {
-                    const months = [
-                      'January',
-                      'February',
-                      'March',
-                      'April',
-                      'May',
-                      'June',
-                      'July',
-                      'August',
-                      'September',
-                      'October',
-                      'November',
-                      'December',
-                    ];
-                    return months.indexOf(a[0]) - months.indexOf(b[0]);
-                  })
-                  .map(([month, count]) => (
-                    <View key={month} style={styles.monthStat}>
-                      <Text style={styles.monthName}>{month}</Text>
-                      <Text style={styles.monthCount}>{count}</Text>
-                    </View>
-                  ))}
-              </View>
-
-              {/* Concerts in this year */}
-              {yearGroup.concerts.map((concert) => (
-                <TouchableOpacity
-                  key={concert.id}
-                  style={styles.concertItem}
-                  testID={`concert-${concert.id}`}
-                  onPress={() => {
-                    router.push({
-                      pathname: '/(concerts)/[id]',
-                      params: { id: concert.id },
-                    });
-                  }}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
-                  accessibilityHint={t('concerts.viewConcertDetails')}
-                >
-                  <View style={styles.concertHeader}>
-                    <View style={styles.concertMainInfo}>
-                      <Text style={styles.artistName}>{concert.artistName}</Text>
-                    </View>
-                    <Text style={styles.concertDate}>{formatDate(concert.eventDate ?? '')}</Text>
-                  </View>
-
-                  <View style={styles.concertDetails}>
-                    <Text style={styles.venueName}>{concert.venueName}</Text>
-                    {concert.cityName && (
-                      <Text style={styles.locationText}>
-                        {concert.cityName}
-                        {concert.stateName && `, ${concert.stateName}`}
-                        {concert.countryName && `, ${concert.countryName}`}
-                      </Text>
-                    )}
-                  </View>
-
-                  {concert.tour?.name && <Text style={styles.tourName}>{concert.tour.name}</Text>}
-                </TouchableOpacity>
-              ))}
             </View>
           ))
         )}

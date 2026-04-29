@@ -1,6 +1,6 @@
-import { SetlistApiService } from './setlistApi';
-import { DataProcessor } from './dataProcessor';
-import { dbOperations } from '../database/operations';
+import { SetlistApiService } from '@/services/setlistApi';
+import { DataProcessor } from '@/services/dataProcessor';
+import { dbOperations } from '@/database/operations';
 
 const setlistApi = new SetlistApiService();
 const dataProcessor = new DataProcessor();

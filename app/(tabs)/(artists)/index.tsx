@@ -1,17 +1,24 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+  RefreshControl,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { dbOperations } from '../../../src/database/operations';
-import SortAndSearch from '../../../src/components/SortAndSearch';
-import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
-import { formatDate } from '../../../src/utils/date';
-import type { SortOption } from '../../../src/utils/sort';
-import { sortByOption } from '../../../src/utils/sort';
-import { useColors } from '../../../src/utils/colors';
-import { useSyncContext } from '../../../src/contexts/SyncContext';
-import { ScreenHeader, TabScrollView } from '../../../src/components/ui';
-import ArtistImage from '../../../src/components/ArtistImage';
+import { dbOperations } from '@/database/operations';
+import ListSkeleton from '@/components/skeletons/ListSkeleton';
+import { formatDate } from '@/utils/date';
+import type { SortOption } from '@/utils/sort';
+import { sortByOption } from '@/utils/sort';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
+import { useSyncContext } from '@/contexts/SyncContext';
+import { TabScrollView, Icon } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 
 interface ArtistWithStats {
@@ -27,7 +34,7 @@ interface ArtistWithStats {
 
 export default function ArtistsScreen() {
   const { t } = useTranslation();
-  const colors = useColors();
+  const colors = useChronicleColors();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -35,92 +42,159 @@ export default function ArtistsScreen() {
           flex: 1,
           backgroundColor: colors.background,
         },
+        header: {
+          paddingHorizontal: 20,
+          paddingTop: 16,
+          paddingBottom: 14,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        headerTitle: {
+          ...Type.heading,
+          color: colors.textPrimary,
+        },
+        headerSubtitle: {
+          ...Type.body,
+          color: colors.textSecondary,
+          marginTop: 2,
+        },
+        searchRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: colors.surface,
+          borderWidth: 1,
+          borderColor: colors.border,
+          borderRadius: 10,
+          paddingHorizontal: 14,
+          paddingVertical: 10,
+          marginHorizontal: 20,
+          marginTop: 14,
+        },
+        searchIcon: {
+          ...Type.body,
+          color: colors.textMuted,
+          marginRight: 8,
+        },
+        searchInput: {
+          flex: 1,
+          ...Type.body,
+          color: colors.textPrimary,
+          padding: 0,
+        },
+        sortStrip: {
+          flexDirection: 'row',
+          gap: 8,
+          paddingHorizontal: 20,
+          marginTop: 12,
+          marginBottom: 4,
+        },
+        sortPill: {
+          borderRadius: 16,
+          paddingHorizontal: 12,
+          paddingVertical: 5,
+          borderWidth: 1,
+        },
+        sortPillActive: {
+          backgroundColor: colors.accentSoft,
+          borderColor: colors.accent,
+        },
+        sortPillInactive: {
+          backgroundColor: 'transparent',
+          borderColor: colors.border,
+        },
+        sortPillText: {
+          ...Type.label,
+        },
+        sortPillTextActive: {
+          color: colors.accent,
+        },
+        sortPillTextInactive: {
+          color: colors.textMuted,
+        },
         artistsList: {
           flex: 1,
-          padding: 20,
         },
-        artistCard: {
-          backgroundColor: colors.backgroundPill,
-          borderRadius: 10,
-          borderCurve: 'continuous' as const,
-          padding: 15,
-          marginBottom: 10,
-        },
-        artistHeader: {
+        artistRow: {
           flexDirection: 'row',
-          justifyContent: 'space-between',
           alignItems: 'center',
-          gap: 12,
-          marginBottom: 5,
+          paddingVertical: 12,
+          paddingRight: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
         },
-        artistInfo: {
+        artistRowAccent: {
+          borderLeftWidth: 2.5,
+          borderLeftColor: colors.accent,
+          paddingLeft: 13.5,
+        },
+        artistRowNoAccent: {
+          paddingLeft: 16,
+        },
+        rankContainer: {
+          width: 30,
+          alignItems: 'flex-start',
+        },
+        rankText: {
+          ...Type.label,
+        },
+        rankTextTop: {
+          color: colors.accent,
+        },
+        rankTextDefault: {
+          color: colors.textMuted,
+        },
+        artistCenter: {
           flex: 1,
+          paddingRight: 12,
         },
         artistName: {
-          fontSize: 18,
-          fontWeight: 'bold',
+          ...Type.title,
           color: colors.textPrimary,
-          marginBottom: 3,
         },
-        artistDisambiguation: {
-          fontSize: 14,
+        lastSeenText: {
+          ...Type.body,
           color: colors.textSecondary,
-          fontStyle: 'italic',
-        },
-        concertCountBadge: {
-          backgroundColor: colors.primary,
-          paddingHorizontal: 12,
-          paddingVertical: 8,
-          borderRadius: 20,
-          borderCurve: 'continuous' as const,
-          alignItems: 'center',
-          minWidth: 60,
-        },
-        concertCountText: {
-          fontSize: 18,
-          fontWeight: 'bold',
-          color: colors.textInverse,
-          fontVariant: ['tabular-nums'] as const,
-        },
-        concertCountLabel: {
-          fontSize: 10,
-          color: colors.textInverse,
-          opacity: 0.9,
-        },
-        artistStats: {
-          marginTop: 5,
-        },
-        lastConcertText: {
-          fontSize: 14,
-          color: colors.primary,
-          fontWeight: '500',
-          marginBottom: 5,
+          marginTop: 2,
         },
         venuesText: {
-          fontSize: 13,
-          color: colors.textSecondary,
+          ...Type.body,
+          color: colors.textMuted,
+          marginTop: 1,
+        },
+        countText: {
+          ...Type.count,
+        },
+        countTextTop: {
+          color: colors.accent,
+        },
+        countTextDefault: {
+          color: colors.textMuted,
+        },
+        chevron: {
+          ...Type.body,
+          color: colors.textDisabled,
+          marginLeft: 8,
         },
         emptyState: {
           alignItems: 'center',
           paddingVertical: 60,
+          paddingHorizontal: 20,
         },
         emptyStateText: {
-          fontSize: 16,
+          ...Type.body,
           color: colors.textSecondary,
           textAlign: 'center',
           marginBottom: 20,
         },
         refreshButton: {
-          backgroundColor: colors.primary,
+          backgroundColor: colors.accent,
           paddingHorizontal: 20,
           paddingVertical: 12,
           borderRadius: 20,
-          borderCurve: 'continuous' as const,
         },
         refreshButtonText: {
-          color: colors.textInverse,
-          fontSize: 16,
-          fontWeight: '600',
+          ...Type.label,
+          color: '#ffffff',
         },
       }),
     [colors],
@@ -200,43 +274,50 @@ export default function ArtistsScreen() {
     setRefreshing(false);
   };
 
-  const getArtistCard = (artist: ArtistWithStats) => (
-    <TouchableOpacity
-      key={artist.mbid}
-      style={styles.artistCard}
-      testID={`artist-${artist.mbid}`}
-      activeOpacity={0.7}
-      onPress={() => handleViewConcerts(artist)}
-      accessibilityRole="button"
-      accessibilityLabel={`${artist.name}, ${t('common.show', { count: artist.concertCount })}`}
-      accessibilityHint={t('artists.viewConcertsHint')}
-    >
-      <View style={styles.artistHeader}>
-        <ArtistImage mbid={artist.mbid} size={44} name={artist.name} />
-        <View style={styles.artistInfo}>
-          <Text style={styles.artistName}>{artist.name}</Text>
-        </View>
-        <View style={styles.concertCountBadge}>
-          <Text style={styles.concertCountText}>{artist.concertCount}</Text>
-          <Text style={styles.concertCountLabel}>{t('artists.shows')}</Text>
-        </View>
-      </View>
+  const getArtistCard = (artist: ArtistWithStats, index: number) => {
+    const rank = index + 1;
+    const isTop3 = rank <= 3;
+    const hasAccentBar = rank <= 2;
 
-      <View style={styles.artistStats}>
-        {artist.lastConcertDate && (
-          <Text style={styles.lastConcertText}>
-            {t('common.lastSeen', { date: formatDate(artist.lastConcertDate) })}
+    return (
+      <TouchableOpacity
+        key={artist.mbid}
+        style={[styles.artistRow, hasAccentBar ? styles.artistRowAccent : styles.artistRowNoAccent]}
+        testID={`artist-${artist.mbid}`}
+        activeOpacity={0.7}
+        onPress={() => handleViewConcerts(artist)}
+        accessibilityRole="button"
+        accessibilityLabel={`${artist.name}, ${t('common.show', { count: artist.concertCount })}`}
+        accessibilityHint={t('artists.viewConcertsHint')}
+      >
+        <View style={styles.rankContainer}>
+          <Text style={[styles.rankText, isTop3 ? styles.rankTextTop : styles.rankTextDefault]}>
+            #{rank}
           </Text>
-        )}
-        {artist.venues.length > 0 && (
-          <Text style={styles.venuesText}>
-            Venues: {artist.venues.slice(0, 3).join(', ')}
-            {artist.venues.length > 3 && ` +${artist.venues.length - 3} more`}
-          </Text>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
+        </View>
+
+        <View style={styles.artistCenter}>
+          <Text style={styles.artistName}>{artist.name}</Text>
+          {artist.lastConcertDate && (
+            <Text style={styles.lastSeenText}>
+              {t('common.lastSeen', { date: formatDate(artist.lastConcertDate) })}
+            </Text>
+          )}
+          {artist.venues.length > 0 && (
+            <Text style={styles.venuesText} numberOfLines={1}>
+              {artist.venues.slice(0, 3).join(', ')}
+              {artist.venues.length > 3 && ` +${artist.venues.length - 3} more`}
+            </Text>
+          )}
+        </View>
+
+        <Text style={[styles.countText, isTop3 ? styles.countTextTop : styles.countTextDefault]}>
+          {artist.concertCount}
+        </Text>
+        <Text style={styles.chevron}>›</Text>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return <ListSkeleton showSortBar />;
@@ -245,23 +326,99 @@ export default function ArtistsScreen() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="artists-screen">
       {/* Header */}
-      <ScreenHeader
-        title={t('artists.title')}
-        subtitle={
-          sortOption === 'top'
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>{t('artists.title')}</Text>
+        <Text style={styles.headerSubtitle}>
+          {sortOption === 'top'
             ? t('artists.subtitleSorted', { count: artists.length })
-            : t('artists.subtitle', { count: artists.length })
-        }
-      />
+            : t('artists.subtitle', { count: artists.length })}
+        </Text>
+      </View>
 
-      {/* Sorting Controls */}
-      <SortAndSearch
-        sortOption={sortOption}
-        searchQuery={searchQuery}
-        onSortChange={handleSortChange}
-        onSearchChange={setSearchQuery}
-        searchPlaceholder={t('artists.searchPlaceholder')}
-      />
+      {/* Search bar */}
+      <View style={styles.searchRow}>
+        <Icon
+          sf="magnifyingglass"
+          md="search-outline"
+          size={15}
+          color={colors.textMuted}
+          style={{ marginRight: 6 }}
+        />
+        <TextInput
+          style={styles.searchInput}
+          placeholder={t('artists.searchPlaceholder')}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          autoCapitalize="none"
+          placeholderTextColor={colors.textMuted}
+          accessibilityLabel={t('artists.searchPlaceholder')}
+        />
+      </View>
+
+      {/* Sort strip */}
+      <View style={styles.sortStrip}>
+        <TouchableOpacity
+          style={[
+            styles.sortPill,
+            sortOption === 'recent' ? styles.sortPillActive : styles.sortPillInactive,
+          ]}
+          onPress={() => handleSortChange('recent')}
+          accessibilityRole="button"
+          accessibilityState={{ selected: sortOption === 'recent' }}
+          accessibilityLabel={t('sort.mostRecent')}
+        >
+          <Text
+            style={[
+              styles.sortPillText,
+              sortOption === 'recent' ? styles.sortPillTextActive : styles.sortPillTextInactive,
+            ]}
+          >
+            {t('sort.mostRecent')}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.sortPill,
+            sortOption === 'top' ? styles.sortPillActive : styles.sortPillInactive,
+          ]}
+          onPress={() => handleSortChange('top')}
+          accessibilityRole="button"
+          accessibilityState={{ selected: sortOption === 'top' }}
+          accessibilityLabel={t('sort.top')}
+        >
+          <Text
+            style={[
+              styles.sortPillText,
+              sortOption === 'top' ? styles.sortPillTextActive : styles.sortPillTextInactive,
+            ]}
+          >
+            {t('sort.top')}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.sortPill,
+            sortOption === 'alphabetical' ? styles.sortPillActive : styles.sortPillInactive,
+          ]}
+          onPress={() => handleSortChange('alphabetical')}
+          accessibilityRole="button"
+          accessibilityState={{ selected: sortOption === 'alphabetical' }}
+          accessibilityLabel={t('sort.byName')}
+        >
+          <Text
+            style={[
+              styles.sortPillText,
+              sortOption === 'alphabetical'
+                ? styles.sortPillTextActive
+                : styles.sortPillTextInactive,
+            ]}
+          >
+            {t('sort.byName')}
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       <TabScrollView
         style={styles.artistsList}
@@ -282,7 +439,7 @@ export default function ArtistsScreen() {
             </TouchableOpacity>
           </View>
         ) : (
-          filteredArtists.map(getArtistCard)
+          filteredArtists.map((artist, index) => getArtistCard(artist, index))
         )}
       </TabScrollView>
     </SafeAreaView>
