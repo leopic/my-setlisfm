@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Alert, ActivityIndicator, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
+import MapView, { Marker } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
 import { dbOperations } from '@/database/operations';
 import { formatDate } from '@/utils/date';
@@ -139,9 +140,7 @@ export default function VenuesMapView() {
     try {
       setLoading(true);
       const allVenues = await dbOperations.getVenuesWithStats();
-      const venuesWithCoords = allVenues.filter(
-        (v) => v.coordsLat != null && v.coordsLong != null,
-      );
+      const venuesWithCoords = allVenues.filter((v) => v.coordsLat != null && v.coordsLong != null);
       setVenues(venuesWithCoords);
 
       if (venuesWithCoords.length > 0) {
@@ -177,8 +176,40 @@ export default function VenuesMapView() {
     );
   }
 
-  return (
-    <View style={styles.container}>
+  const mapContent =
+    Platform.OS === 'ios' ? (
+      <MapView
+        style={{ flex: 1 }}
+        region={{
+          latitude: center.lat,
+          longitude: center.lng,
+          latitudeDelta: 50,
+          longitudeDelta: 50,
+        }}
+        showsUserLocation={false}
+        showsMyLocationButton={false}
+        showsCompass
+        showsScale
+      >
+        {venues.map((venue) => (
+          <Marker
+            key={venue.id}
+            coordinate={{ latitude: venue.coordsLat ?? 0, longitude: venue.coordsLong ?? 0 }}
+            pinColor={
+              venue.concertCount >= 5
+                ? '#FF6B6B'
+                : venue.concertCount >= 3
+                  ? '#4ECDC4'
+                  : venue.concertCount >= 2
+                    ? '#45B7D1'
+                    : '#96CEB4'
+            }
+            title={venue.name}
+            description={`${venue.cityName ?? ''}${venue.countryName ? ', ' + venue.countryName : ''} · ${venue.concertCount} visit${venue.concertCount !== 1 ? 's' : ''}`}
+          />
+        ))}
+      </MapView>
+    ) : (
       <WebView
         style={{ flex: 1 }}
         source={{ html: buildHtml(venues, center.lat, center.lng) }}
@@ -192,6 +223,11 @@ export default function VenuesMapView() {
           </View>
         )}
       />
+    );
+
+  return (
+    <View style={styles.container}>
+      {mapContent}
 
       <View style={styles.venueCount}>
         <Text style={styles.venueCountText}>
