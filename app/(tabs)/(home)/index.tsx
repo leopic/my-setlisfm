@@ -4,11 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { dbOperations } from '@/database/operations';
-import {
-  syncConcertData,
-  getStoredUsername,
-  setStoredUsername,
-} from '@/services/syncService';
+import { syncConcertData, getStoredUsername, setStoredUsername } from '@/services/syncService';
 import { formatDate } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
