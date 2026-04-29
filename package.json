@@ -16,6 +16,7 @@
     "test:e2e:clear": ".maestro/scripts/seed-db.sh --clear"
   },
   "dependencies": {
+    "@expo-google-fonts/space-grotesk": "^0.4.1",
     "expo": "^55.0.0",
     "expo-constants": "~55.0.9",
     "expo-dev-client": "~55.0.18",
