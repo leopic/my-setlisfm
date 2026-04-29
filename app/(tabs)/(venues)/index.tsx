@@ -413,10 +413,10 @@ export default function VenuesScreen() {
           const isActive = sortOption === option;
           const label =
             option === 'recent'
-              ? t('sort.mostRecent')
+              ? t('venues.mostRecent')
               : option === 'top'
-                ? t('sort.top')
-                : t('sort.byName');
+                ? t('venues.top')
+                : t('venues.byName');
           return (
             <TouchableOpacity
               key={option}

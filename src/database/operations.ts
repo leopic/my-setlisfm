@@ -721,6 +721,19 @@ export class DatabaseOperations {
     };
   }
 
+  async getConcertsByYearMonth(): Promise<{ year: string; month: number; count: number }[]> {
+    const rows = await this.db.getAllAsync(`
+      SELECT
+        substr(eventDate, 7, 4)              AS year,
+        CAST(substr(eventDate, 4, 2) AS INTEGER) AS month,
+        COUNT(*)                             AS count
+      FROM setlists
+      GROUP BY year, month
+      ORDER BY year ASC, month ASC
+    `);
+    return rows as { year: string; month: number; count: number }[];
+  }
+
   // Find a past concert that happened around this date in a previous year
   async getOnThisDayConcert(): Promise<{
     setlistId: string;

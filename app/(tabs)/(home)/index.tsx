@@ -148,46 +148,41 @@ export default function DashboardScreen() {
           color: colors.textDisabled,
           marginLeft: 8,
         },
-        // ── Per-year mini-chart ───────────────────────────────────────────────
-        chartSection: {
-          marginTop: 32,
-          marginHorizontal: 20,
-          marginBottom: 8,
-        },
-        chartSectionLabel: {
-          ...Type.label,
-          color: colors.textMuted,
-          textTransform: 'uppercase',
-          marginBottom: 10,
-        },
-        chartRow: {
+        // ── Monthly dot grid (inside each year chapter) ──────────────────────
+        monthGrid: {
           flexDirection: 'row',
+          marginTop: 6,
+          marginBottom: 4,
+          gap: 4,
+        },
+        monthCell: {
           alignItems: 'center',
-          marginBottom: 7,
-          gap: 8,
-        },
-        chartYearLabel: {
-          ...Type.label,
-          color: colors.textSecondary,
-          width: 40,
-        },
-        chartBarTrack: {
           flex: 1,
-          height: 3,
-          backgroundColor: colors.border,
-          borderRadius: 2,
-          overflow: 'hidden',
         },
-        chartBarFill: {
-          height: 3,
-          borderRadius: 2,
-          // width set inline; backgroundColor set inline
-        },
-        chartCount: {
+        monthLabel: {
           ...Type.label,
-          color: colors.textSecondary,
-          width: 24,
-          textAlign: 'right',
+          fontSize: 8,
+          color: colors.textDisabled,
+          marginBottom: 3,
+        },
+        monthDotEmpty: {
+          width: 7,
+          height: 7,
+          borderRadius: 3.5,
+          backgroundColor: colors.border,
+        },
+        monthDotFull: {
+          width: 7,
+          height: 7,
+          borderRadius: 3.5,
+          backgroundColor: colors.accent,
+          opacity: 0.45,
+        },
+        monthDotPeak: {
+          width: 8,
+          height: 8,
+          borderRadius: 4,
+          backgroundColor: colors.accent,
         },
         // ── Last synced ───────────────────────────────────────────────────────
         lastSynced: {
@@ -202,6 +197,9 @@ export default function DashboardScreen() {
 
   const { lastSyncTimestamp, notifySyncComplete } = useSyncContext();
   const [stats, setStats] = useState<DashboardStats>(emptyStats);
+  const [monthlyData, setMonthlyData] = useState<{ year: string; month: number; count: number }[]>(
+    [],
+  );
   const [onThisDay, setOnThisDay] = useState<{
     setlistId: string;
     artistName: string;
@@ -225,12 +223,14 @@ export default function DashboardScreen() {
 
   const loadDashboard = async () => {
     try {
-      const [dashStats, fetchedAt, onThisDayResult] = await Promise.all([
+      const [dashStats, fetchedAt, onThisDayResult, monthly] = await Promise.all([
         dbOperations.getDashboardStats(),
         dbOperations.getLastFetchedAt(),
         dbOperations.getOnThisDayConcert(),
+        dbOperations.getConcertsByYearMonth(),
       ]);
       setStats(dashStats);
+      setMonthlyData(monthly);
       setOnThisDay(onThisDayResult);
       setLastSynced(fetchedAt ? fetchedAt.toLocaleString() : null);
     } catch (error) {
@@ -274,10 +274,16 @@ export default function DashboardScreen() {
     return <DashboardSkeleton />;
   }
 
-  const maxYearCount = Math.max(...stats.concertsByYear.map((y) => y.count), 1);
+  const MONTH_ABBR = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
 
-  // Determine which years each bookmark concert belongs to, so they appear
-  // inside the correct year chapter in the river.
+  // Build a lookup: year -> { month -> count }
+  const monthlyByYear = monthlyData.reduce<Record<string, Record<number, number>>>((acc, row) => {
+    if (!acc[row.year]) acc[row.year] = {};
+    acc[row.year][row.month] = row.count;
+    return acc;
+  }, {});
+
+  // Determine which years each bookmark concert belongs to.
   const lastConcertYear = stats.lastConcert ? stats.lastConcert.eventDate.split('-')[2] : null;
   const firstConcertYear = stats.firstConcert ? stats.firstConcert.eventDate.split('-')[2] : null;
   const onThisDayYear = onThisDay ? onThisDay.eventDate.split('-')[2] : null;
@@ -332,12 +338,37 @@ export default function DashboardScreen() {
 
           return (
             <View key={yearStr}>
-              {/* Year ghost chapter heading */}
+              {/* Year ghost chapter heading + monthly dot grid */}
               <View style={styles.yearChapter}>
                 <Text style={styles.yearGhost}>{yearStr}</Text>
                 <Text style={styles.yearMeta}>
                   {`${showsInYear} show${showsInYear !== 1 ? 's' : ''}`}
                 </Text>
+                {monthlyByYear[yearStr] && (
+                  <View style={styles.monthGrid}>
+                    {MONTH_ABBR.map((abbr, idx) => {
+                      const month = idx + 1;
+                      const count = monthlyByYear[yearStr]?.[month] ?? 0;
+                      const yearMonths = monthlyByYear[yearStr] ?? {};
+                      const peak = Math.max(...Object.values(yearMonths), 0);
+                      const isPeak = count > 0 && count === peak;
+                      return (
+                        <View key={month} style={styles.monthCell}>
+                          <Text style={styles.monthLabel}>{abbr}</Text>
+                          <View
+                            style={
+                              count === 0
+                                ? styles.monthDotEmpty
+                                : isPeak
+                                  ? styles.monthDotPeak
+                                  : styles.monthDotFull
+                            }
+                          />
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
               </View>
 
               {/* Spine with bookmark concert entries for this year */}
@@ -425,31 +456,6 @@ export default function DashboardScreen() {
             </View>
           );
         })}
-
-        {/* ── Per-year mini-chart ─────────────────────────────────────────── */}
-        {stats.concertsByYear.length > 0 && (
-          <View style={styles.chartSection}>
-            <Text style={styles.chartSectionLabel}>PER YEAR</Text>
-            {yearsSorted.map((item) => (
-              <View key={item.year} style={styles.chartRow}>
-                <Text style={styles.chartYearLabel}>{item.year}</Text>
-                <View style={styles.chartBarTrack}>
-                  <View
-                    style={[
-                      styles.chartBarFill,
-                      {
-                        width: `${(item.count / maxYearCount) * 100}%`,
-                        backgroundColor: colors.accent,
-                        opacity: 0.4,
-                      },
-                    ]}
-                  />
-                </View>
-                <Text style={styles.chartCount}>{item.count}</Text>
-              </View>
-            ))}
-          </View>
-        )}
 
         {/* ── Last synced ─────────────────────────────────────────────────── */}
         {lastSynced && (
