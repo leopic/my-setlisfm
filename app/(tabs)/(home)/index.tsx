@@ -80,7 +80,7 @@ export default function DashboardScreen() {
           fontSize: 64,
           lineHeight: 68,
           color: colors.textPrimary,
-          opacity: 0.07,
+          opacity: 0.18,
         },
         yearMeta: {
           ...Type.label,

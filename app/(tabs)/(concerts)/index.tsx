@@ -126,7 +126,7 @@ export default function ConcertsScreen() {
         yearGhost: {
           ...Type.display,
           fontSize: 56,
-          opacity: 0.07,
+          opacity: 0.18,
           color: colors.textPrimary,
           letterSpacing: -2,
           lineHeight: 56,
