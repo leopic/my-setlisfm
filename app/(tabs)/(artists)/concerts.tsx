@@ -4,10 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails } from '../../../src/types/database';
-import { formatDate } from '../../../src/utils/date';
-import { useColors } from '../../../src/utils/colors';
+import { parseSetlistDate, formatDate } from '../../../src/utils/date';
+import { useChronicleColors } from '../../../src/utils/colors';
+import { Type } from '../../../src/utils/typography';
 import ConcertListSkeleton from '../../../src/components/skeletons/ConcertListSkeleton';
-import { ScreenHeader, TabScrollView } from '../../../src/components/ui';
+import { TabScrollView } from '../../../src/components/ui';
 import { useTranslation } from 'react-i18next';
 
 interface ConcertWithDetails extends SetlistWithDetails {
@@ -18,9 +19,14 @@ interface ConcertWithDetails extends SetlistWithDetails {
   countryName?: string;
 }
 
+interface YearGroup {
+  year: string;
+  concerts: ConcertWithDetails[];
+}
+
 export default function ArtistConcertsListScreen() {
   const { t } = useTranslation();
-  const colors = useColors();
+  const colors = useChronicleColors();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -28,56 +34,126 @@ export default function ArtistConcertsListScreen() {
           flex: 1,
           backgroundColor: colors.background,
         },
-        concertsList: {
-          flex: 1,
-          padding: 20,
+        // ── Inline header ──────────────────────────────────────────────────
+        inlineHeader: {
+          paddingHorizontal: 16,
+          paddingTop: 12,
+          paddingBottom: 12,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
         },
-        concertItem: {
-          backgroundColor: colors.backgroundPill,
-          borderRadius: 10,
-          borderCurve: 'continuous' as const,
-          padding: 15,
-          marginBottom: 10,
-        },
-        concertHeader: {
+        backRow: {
           flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: 10,
+          alignItems: 'center',
+          marginBottom: 6,
         },
-        concertMainInfo: {
-          flex: 1,
-          marginRight: 10,
+        backButton: {
+          // TouchableOpacity wrapper — no extra styles needed
         },
-        concertMainName: {
-          fontSize: 18,
-          fontWeight: 'bold',
+        backText: {
+          ...Type.body,
+          color: colors.accent,
+        },
+        headerTitle: {
+          ...Type.heading,
           color: colors.textPrimary,
-          flexWrap: 'wrap',
         },
-        concertDate: {
-          fontSize: 14,
+        headerSubtitle: {
+          ...Type.body,
+          color: colors.textSecondary,
+          marginTop: 2,
+        },
+        // ── Timeline river ──────────────────────────────────────────────────
+        scrollView: {
+          flex: 1,
+        },
+        yearSection: {
+          paddingHorizontal: 0,
+          marginTop: 16,
+        },
+        yearGhost: {
+          ...Type.display,
+          fontSize: 56,
+          opacity: 0.07,
+          color: colors.textPrimary,
+          letterSpacing: -2,
+          lineHeight: 56,
+          paddingHorizontal: 16,
+          marginTop: 0,
+        },
+        yearSubLabel: {
+          ...Type.label,
+          color: colors.textMuted,
+          paddingHorizontal: 16,
+          marginBottom: 4,
+        },
+        spineContainer: {
+          borderLeftWidth: 1.5,
+          borderLeftColor: colors.spineColor,
+          marginLeft: 28,
+          paddingLeft: 20,
+        },
+        // ── Concert entry (river) ────────────────────────────────────────────
+        riverEntry: {
+          paddingVertical: 10,
+          position: 'relative',
+        },
+        dot: {
+          position: 'absolute',
+          left: -26,
+          top: 14,
+          width: 9,
+          height: 9,
+          borderRadius: 4.5,
+          backgroundColor: colors.dotInactive,
+          borderWidth: 2,
+          borderColor: colors.background,
+        },
+        dotActive: {
+          backgroundColor: colors.dotActive,
+        },
+        entryRow: {
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+        },
+        entryContent: {
+          flex: 1,
+          marginRight: 8,
+        },
+        entryDate: {
+          ...Type.label,
+          color: colors.accent,
+          letterSpacing: 0.8,
+          marginBottom: 2,
+        },
+        entryPrimary: {
+          ...Type.title,
+          color: colors.textPrimary,
+        },
+        entrySecondary: {
+          ...Type.body,
           color: colors.textSecondary,
         },
-        concertDetails: {
-          marginTop: 5,
+        entryTour: {
+          ...Type.body,
+          color: colors.accent,
+          marginTop: 2,
         },
-        concertLocation: {
-          fontSize: 13,
-          color: colors.textSecondary,
+        entryChevron: {
+          ...Type.body,
+          color: colors.textDisabled,
+          alignSelf: 'center',
+          marginLeft: 'auto',
         },
-        tourName: {
-          fontSize: 14,
-          color: colors.primary,
-          fontStyle: 'italic',
-          marginTop: 5,
-        },
+        // ── Empty state ──────────────────────────────────────────────────────
         emptyState: {
           alignItems: 'center',
+          justifyContent: 'center',
           paddingVertical: 60,
         },
         emptyStateText: {
-          fontSize: 16,
+          ...Type.body,
           color: colors.textSecondary,
           textAlign: 'center',
         },
@@ -148,6 +224,23 @@ export default function ArtistConcertsListScreen() {
     });
   };
 
+  const yearGroups = useMemo((): YearGroup[] => {
+    const groups: { [year: string]: ConcertWithDetails[] } = {};
+
+    concerts.forEach((concert) => {
+      if (!concert.eventDate) return;
+      const year = parseSetlistDate(concert.eventDate).getFullYear().toString();
+      if (!groups[year]) {
+        groups[year] = [];
+      }
+      groups[year].push(concert);
+    });
+
+    return Object.entries(groups)
+      .map(([year, groupConcerts]) => ({ year, concerts: groupConcerts }))
+      .sort((a, b) => parseInt(b.year) - parseInt(a.year));
+  }, [concerts]);
+
   if (loading) {
     return <ConcertListSkeleton />;
   }
@@ -166,17 +259,24 @@ export default function ArtistConcertsListScreen() {
       style={styles.container}
       testID="artist-concerts-screen"
     >
-      {/* Header */}
-      <ScreenHeader
-        title={artistName}
-        subtitle={subtitleParts.join(' · ')}
-        showBack
-        onBackPress={() => router.back()}
-      />
+      {/* Inline header */}
+      <View style={styles.inlineHeader}>
+        <View style={styles.backRow}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+            accessibilityRole="button"
+          >
+            <Text style={styles.backText}>← Back</Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.headerTitle}>{artistName}</Text>
+        <Text style={styles.headerSubtitle}>{subtitleParts.join(' · ')}</Text>
+      </View>
 
-      {/* Concerts List */}
+      {/* Concerts list */}
       <TabScrollView
-        style={styles.concertsList}
+        style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
@@ -185,32 +285,54 @@ export default function ArtistConcertsListScreen() {
             <Text style={styles.emptyStateText}>{t('artists.noConcertsFound')}</Text>
           </View>
         ) : (
-          concerts.map((concert) => (
-            <TouchableOpacity
-              key={concert.id}
-              style={styles.concertItem}
-              testID={`artist-concert-${concert.id}`}
-              onPress={() => handleConcertPress(concert)}
-              accessibilityRole="button"
-              accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
-            >
-              <View style={styles.concertHeader}>
-                <View style={styles.concertMainInfo}>
-                  <Text style={styles.concertMainName}>{concert.venueName}</Text>
-                </View>
-                <Text style={styles.concertDate}>{formatDate(concert.eventDate ?? '')}</Text>
-              </View>
+          yearGroups.map((yearGroup, yearIndex) => (
+            <View key={yearGroup.year} style={styles.yearSection}>
+              {/* Year ghost + count */}
+              <Text style={styles.yearGhost}>{yearGroup.year}</Text>
+              <Text style={styles.yearSubLabel}>
+                {t('common.concert', { count: yearGroup.concerts.length })}
+              </Text>
 
-              <View style={styles.concertDetails}>
-                <Text style={styles.concertLocation}>
-                  {concert.cityName}
-                  {concert.stateName && `, ${concert.stateName}`}
-                  {concert.countryName && `, ${concert.countryName}`}
-                </Text>
-              </View>
+              {/* Spine + concert entries */}
+              <View style={styles.spineContainer}>
+                {yearGroup.concerts.map((concert, concertIndex) => {
+                  const isFirstOfMostRecentYear = yearIndex === 0 && concertIndex === 0;
+                  const location = [concert.cityName, concert.stateName, concert.countryName]
+                    .filter(Boolean)
+                    .join(', ');
 
-              {concert.tour?.name && <Text style={styles.tourName}>{concert.tour.name}</Text>}
-            </TouchableOpacity>
+                  return (
+                    <TouchableOpacity
+                      key={concert.id}
+                      style={styles.riverEntry}
+                      testID={`artist-concert-${concert.id}`}
+                      onPress={() => handleConcertPress(concert)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
+                    >
+                      {/* Timeline dot */}
+                      <View style={[styles.dot, isFirstOfMostRecentYear && styles.dotActive]} />
+
+                      <View style={styles.entryRow}>
+                        <View style={styles.entryContent}>
+                          <Text style={styles.entryDate}>
+                            {formatDate(concert.eventDate ?? '')}
+                          </Text>
+                          {/* Primary: venue name */}
+                          <Text style={styles.entryPrimary}>{concert.venueName}</Text>
+                          {/* Secondary: location */}
+                          {location ? <Text style={styles.entrySecondary}>{location}</Text> : null}
+                          {concert.tour?.name && (
+                            <Text style={styles.entryTour}>{concert.tour.name}</Text>
+                          )}
+                        </View>
+                        <Text style={styles.entryChevron}>›</Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
           ))
         )}
       </TabScrollView>

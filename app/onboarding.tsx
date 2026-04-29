@@ -15,14 +15,15 @@ import { useTranslation } from 'react-i18next';
 import { syncConcertData, setStoredUsername } from '../src/services/syncService';
 import type { SyncProgress } from '../src/services/syncService';
 import { useSyncContext } from '../src/contexts/SyncContext';
-import { useColors } from '../src/utils/colors';
+import { useChronicleColors } from '../src/utils/colors';
+import { Type } from '../src/utils/typography';
 
 type Phase = 'input' | 'syncing' | 'done' | 'error';
 
 export default function OnboardingScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const colors = useColors();
+  const colors = useChronicleColors();
   const { notifySyncComplete } = useSyncContext();
 
   const [username, setUsername] = useState('');
@@ -43,104 +44,123 @@ export default function OnboardingScreen() {
           justifyContent: 'center',
           paddingHorizontal: 32,
         },
+        appName: {
+          ...Type.label,
+          color: colors.accent,
+          textAlign: 'center',
+          letterSpacing: 2,
+          marginBottom: 12,
+        },
         title: {
-          fontSize: 32,
-          fontWeight: '700',
+          ...Type.display,
           color: colors.textPrimary,
           textAlign: 'center',
           marginBottom: 8,
         },
         subtitle: {
-          fontSize: 17,
+          ...Type.body,
           color: colors.textSecondary,
           textAlign: 'center',
-          marginBottom: 48,
+          marginBottom: 40,
+          lineHeight: 20,
         },
         input: {
-          backgroundColor: colors.backgroundCard,
-          borderRadius: 12,
-          borderCurve: 'continuous' as const,
-          paddingHorizontal: 16,
-          paddingVertical: 16,
-          fontSize: 17,
+          ...Type.body,
           color: colors.textPrimary,
+          backgroundColor: colors.surface,
           borderWidth: 1,
           borderColor: colors.border,
+          borderRadius: 12,
+          paddingHorizontal: 16,
+          paddingVertical: 14,
           marginBottom: 16,
           textAlign: 'center',
         },
         button: {
-          backgroundColor: colors.primary,
+          backgroundColor: colors.accent,
           borderRadius: 12,
-          borderCurve: 'continuous' as const,
           paddingVertical: 16,
           alignItems: 'center',
         },
         buttonDisabled: {
-          opacity: 0.5,
+          opacity: 0.4,
         },
         buttonText: {
-          color: colors.textInverse,
-          fontSize: 17,
-          fontWeight: '600',
+          ...Type.title,
+          color: '#fff',
         },
         progressContainer: {
           alignItems: 'center',
         },
         progressTitle: {
-          fontSize: 20,
-          fontWeight: '600',
+          ...Type.heading,
           color: colors.textPrimary,
-          marginBottom: 24,
           textAlign: 'center',
+          marginBottom: 24,
         },
         progressDetail: {
-          fontSize: 15,
+          ...Type.body,
           color: colors.textSecondary,
-          marginTop: 16,
           textAlign: 'center',
+          marginTop: 16,
         },
         progressCount: {
-          fontSize: 15,
-          color: colors.primary,
-          fontWeight: '600',
-          marginTop: 8,
+          ...Type.title,
+          color: colors.accent,
           textAlign: 'center',
+          marginTop: 8,
         },
         doneContainer: {
           alignItems: 'center',
         },
         doneTitle: {
-          fontSize: 28,
-          fontWeight: '700',
-          color: colors.primary,
-          marginBottom: 8,
+          ...Type.display,
+          color: colors.accent,
           textAlign: 'center',
+          marginBottom: 8,
         },
         doneMessage: {
-          fontSize: 17,
+          ...Type.body,
           color: colors.textSecondary,
-          marginBottom: 40,
           textAlign: 'center',
+          marginBottom: 40,
+        },
+        errorTitle: {
+          ...Type.heading,
+          color: colors.textPrimary,
+          textAlign: 'center',
+          marginBottom: 8,
         },
         errorText: {
-          fontSize: 15,
-          color: colors.danger,
+          ...Type.body,
+          color: '#ff6b6b',
           textAlign: 'center',
           marginBottom: 16,
         },
+        errorButton: {
+          backgroundColor: 'rgba(255,107,107,0.15)',
+          borderWidth: 1,
+          borderColor: '#ff6b6b',
+          borderRadius: 12,
+          paddingVertical: 16,
+          alignItems: 'center',
+        },
+        errorButtonText: {
+          ...Type.title,
+          color: '#ff6b6b',
+        },
         progressBar: {
           width: '100%',
-          height: 6,
-          backgroundColor: colors.backgroundPill,
-          borderRadius: 3,
+          height: 3,
+          backgroundColor: colors.border,
+          borderRadius: 2,
           overflow: 'hidden',
           marginTop: 24,
         },
         progressBarFill: {
           height: '100%',
-          backgroundColor: colors.primary,
-          borderRadius: 3,
+          backgroundColor: colors.accent,
+          borderRadius: 2,
         },
       }),
     [colors],
@@ -194,6 +214,7 @@ export default function OnboardingScreen() {
       >
         {phase === 'input' && (
           <View>
+            <Text style={styles.appName}>Chronicles</Text>
             <Text style={styles.title}>{t('onboarding.title')}</Text>
             <Text style={styles.subtitle}>{t('onboarding.subtitle')}</Text>
             <TextInput
@@ -223,7 +244,7 @@ export default function OnboardingScreen() {
         {phase === 'syncing' && (
           <View style={styles.progressContainer}>
             <Text style={styles.progressTitle}>{t('onboarding.fetchingConcerts')}</Text>
-            <ActivityIndicator size="large" color={colors.primary} />
+            <ActivityIndicator size="large" color={colors.accent} />
             {progress && (
               <>
                 <Text style={styles.progressDetail}>
@@ -264,15 +285,15 @@ export default function OnboardingScreen() {
 
         {phase === 'error' && (
           <View style={styles.doneContainer}>
-            <Text style={styles.progressTitle}>{t('onboarding.error')}</Text>
+            <Text style={styles.errorTitle}>{t('onboarding.error')}</Text>
             <Text style={styles.errorText}>{errorMessage}</Text>
             <TouchableOpacity
-              style={styles.button}
+              style={styles.errorButton}
               onPress={handleRetry}
               accessibilityRole="button"
               accessibilityLabel={t('onboarding.retry')}
             >
-              <Text style={styles.buttonText}>{t('onboarding.retry')}</Text>
+              <Text style={styles.errorButtonText}>{t('onboarding.retry')}</Text>
             </TouchableOpacity>
           </View>
         )}

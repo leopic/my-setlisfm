@@ -5,11 +5,11 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '../../../src/database/operations';
 import type { SetlistWithDetails, SetWithSongs } from '../../../src/types/database';
 import Setlist from '../../../src/components/Setlist';
-import { useColors } from '../../../src/utils/colors';
+import { useChronicleColors } from '../../../src/utils/colors';
 import SetlistSkeleton from '../../../src/components/skeletons/SetlistSkeleton';
 
 export default function SetlistDetailScreen() {
-  const colors = useColors();
+  const colors = useChronicleColors();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -22,7 +22,7 @@ export default function SetlistDetailScreen() {
         },
         errorText: {
           fontSize: 18,
-          color: colors.danger,
+          color: colors.accent,
           textAlign: 'center',
           marginTop: 100,
         },

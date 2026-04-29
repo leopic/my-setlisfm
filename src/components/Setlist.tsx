@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { SetlistWithDetails, SetWithSongs } from '../types/database';
 import { formatDate } from '../utils/date';
-import { useColors } from '../utils/colors';
-import { ScreenHeader, Card } from './ui';
+import { useChronicleColors } from '../utils/colors';
+import { Type } from '../utils/typography';
 
 interface SetlistProps {
   setlist: SetlistWithDetails;
@@ -14,75 +14,120 @@ interface SetlistProps {
 
 export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   const { t } = useTranslation();
-  const colors = useColors();
+  const colors = useChronicleColors();
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        headerExtra: {
-          paddingHorizontal: 20,
+        backBar: {
+          paddingHorizontal: 16,
+          paddingTop: 12,
           paddingBottom: 10,
-        },
-        venueText: {
-          fontSize: 18,
-          fontWeight: '600',
-          color: colors.textPrimary,
-          marginBottom: 4,
-        },
-        locationText: {
-          fontSize: 14,
-          color: colors.textSecondary,
-          marginBottom: 6,
-        },
-        dateText: {
-          fontSize: 16,
-          color: colors.textSecondary,
-          marginBottom: 6,
-        },
-        tourText: {
-          fontSize: 16,
-          color: colors.primary,
-          fontWeight: '600',
-        },
-        content: {
-          flex: 1,
-          padding: 20,
-        },
-        setContainer: {
-          marginBottom: 20,
-        },
-        setTitle: {
-          fontSize: 20,
-          fontWeight: 'bold',
-          color: colors.textPrimary,
-          marginBottom: 15,
-          textAlign: 'center',
-        },
-        songItem: {
-          paddingVertical: 8,
           borderBottomWidth: 1,
-          borderBottomColor: colors.backgroundPill,
+          borderBottomColor: colors.border,
+        },
+        backBarRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 10,
+        },
+        backButton: {
+          ...Type.body,
+          color: colors.accent,
+        },
+        artistName: {
+          ...Type.heading,
+          color: colors.textPrimary,
+          flex: 1,
+        },
+        hero: {
+          paddingHorizontal: 16,
+          paddingTop: 10,
+          paddingBottom: 14,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        venueName: {
+          ...Type.title,
+          color: colors.textPrimary,
+        },
+        locationLine: {
+          ...Type.body,
+          color: colors.textSecondary,
+          marginTop: 2,
+        },
+        dateLine: {
+          ...Type.body,
+          color: colors.textMuted,
+          marginTop: 2,
+        },
+        tourName: {
+          ...Type.label,
+          color: colors.accent,
+          letterSpacing: 0.8,
+          marginTop: 6,
+          textTransform: 'uppercase',
+        },
+        scrollView: {
+          flex: 1,
+        },
+        sectionHeader: {
+          paddingHorizontal: 16,
+          paddingTop: 20,
+          paddingBottom: 6,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 10,
+        },
+        sectionLine: {
+          flex: 1,
+          height: 1,
+          backgroundColor: colors.border,
+        },
+        sectionTitle: {
+          ...Type.label,
+          color: colors.textMuted,
+          textTransform: 'uppercase',
+        },
+        songRow: {
+          paddingVertical: 10,
+          paddingHorizontal: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          gap: 10,
+        },
+        songNumber: {
+          ...Type.label,
+          color: colors.textDisabled,
+          width: 24,
+          paddingTop: 1,
+        },
+        songInfo: {
+          flex: 1,
         },
         songName: {
-          fontSize: 16,
+          ...Type.body,
           color: colors.textPrimary,
-          marginBottom: 4,
         },
         withArtistText: {
-          fontSize: 14,
+          ...Type.body,
           color: colors.textSecondary,
           fontStyle: 'italic',
+          marginTop: 2,
         },
         coverArtistText: {
-          fontSize: 14,
+          ...Type.body,
           color: colors.textSecondary,
           fontStyle: 'italic',
+          marginTop: 2,
         },
         emptyState: {
           alignItems: 'center',
           paddingVertical: 60,
         },
         emptyStateText: {
-          fontSize: 16,
+          ...Type.body,
           color: colors.textSecondary,
           textAlign: 'center',
         },
@@ -110,36 +155,51 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
     return index === 0 ? t('setlist.mainSet') : t('setlist.setNumber', { number: index + 1 });
   };
 
+  const activeSets = sets.filter((set) => set.songs && set.songs.length > 0);
+
+  const locationParts = [setlist.city?.name, setlist.city?.state, setlist.country?.name].filter(
+    Boolean,
+  );
+
   return (
     <>
-      {/* Header */}
-      <ScreenHeader
-        title={setlist.artist?.name || 'Unknown Artist'}
-        showBack
-        onBackPress={onBackPress}
-      />
-      <View style={styles.headerExtra}>
-        <Text style={styles.venueText}>{setlist.venue?.name || 'Unknown Venue'}</Text>
-        <Text style={styles.locationText}>
-          {setlist.city?.name}
-          {setlist.city?.state && `, ${setlist.city.state}`}
-          {setlist.country?.name && `, ${setlist.country.name}`}
-        </Text>
-        <Text style={styles.dateText}>{formatDate(setlist.eventDate ?? '', 'long')}</Text>
-        {setlist.tour?.name && <Text style={styles.tourText}>{setlist.tour.name}</Text>}
+      {/* Back bar */}
+      <View style={styles.backBar}>
+        <View style={styles.backBarRow}>
+          <Pressable onPress={onBackPress} accessibilityRole="button" accessibilityLabel="Go back">
+            <Text style={styles.backButton}>{'← Back'}</Text>
+          </Pressable>
+          <Text style={styles.artistName} numberOfLines={1}>
+            {setlist.artist?.name || 'Unknown Artist'}
+          </Text>
+        </View>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Sets */}
-        {sets
-          .filter((set) => set.songs && set.songs.length > 0)
-          .map((set, index) => (
-            <Card key={set.id} style={styles.setContainer}>
-              <Text style={styles.setTitle}>{getSetTitle(set, index)}</Text>
-              {set.songs?.map((song, songIndex) => (
-                <View key={songIndex} style={styles.songItem}>
+      {/* Hero block */}
+      <View style={styles.hero}>
+        <Text style={styles.venueName}>{setlist.venue?.name || 'Unknown Venue'}</Text>
+        {locationParts.length > 0 && (
+          <Text style={styles.locationLine}>{locationParts.join(', ')}</Text>
+        )}
+        <Text style={styles.dateLine}>{formatDate(setlist.eventDate ?? '', 'long')}</Text>
+        {setlist.tour?.name && <Text style={styles.tourName}>{setlist.tour.name}</Text>}
+      </View>
+
+      {/* Sets */}
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {activeSets.map((set, index) => (
+          <View key={set.id}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionLine} />
+              <Text style={styles.sectionTitle}>{getSetTitle(set, index)}</Text>
+              <View style={styles.sectionLine} />
+            </View>
+            {set.songs?.map((song, songIndex) => (
+              <View key={songIndex} style={styles.songRow}>
+                <Text style={styles.songNumber}>{String(songIndex + 1).padStart(2, '0')}</Text>
+                <View style={styles.songInfo}>
                   <Text style={styles.songName}>
-                    {song.tape && 'tape '}
+                    {song.tape && '📼 '}
                     {song.name}
                     {song.info && ` (${song.info})`}
                   </Text>
@@ -154,12 +214,13 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
                     </Text>
                   )}
                 </View>
-              ))}
-            </Card>
-          ))}
+              </View>
+            ))}
+          </View>
+        ))}
 
-        {/* Empty state if no sets */}
-        {sets.filter((set) => set.songs && set.songs.length > 0).length === 0 && (
+        {/* Empty state */}
+        {activeSets.length === 0 && (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>{t('setlist.noInfo')}</Text>
           </View>

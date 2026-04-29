@@ -7,9 +7,10 @@ import { dbOperations } from '../../../src/database/operations';
 import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
-import { useColors } from '../../../src/utils/colors';
+import { useChronicleColors } from '../../../src/utils/colors';
+import { Type } from '../../../src/utils/typography';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
-import { ScreenHeader, SortBar, TabScrollView } from '../../../src/components/ui';
+import { TabScrollView } from '../../../src/components/ui';
 
 interface ContinentWithStats {
   name: string;
@@ -21,7 +22,7 @@ interface ContinentWithStats {
 }
 
 export default function ContinentsScreen() {
-  const colors = useColors();
+  const colors = useChronicleColors();
   const { t } = useTranslation();
   const styles = useMemo(
     () =>
@@ -30,92 +31,121 @@ export default function ContinentsScreen() {
           flex: 1,
           backgroundColor: colors.background,
         },
-        continentsList: {
-          flex: 1,
-          padding: 20,
+        inlineHeader: {
+          paddingHorizontal: 16,
+          paddingTop: 12,
+          paddingBottom: 12,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
         },
-        continentCard: {
-          backgroundColor: colors.backgroundPill,
-          borderRadius: 10,
-          borderCurve: 'continuous' as const,
-          padding: 15,
-          marginBottom: 10,
-        },
-        continentHeader: {
+        backRow: {
           flexDirection: 'row',
-          justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 5,
+          marginBottom: 6,
         },
-        continentInfo: {
-          flex: 1,
-          marginRight: 15,
+        backButton: {
+          ...Type.body,
+          color: colors.accent,
         },
-        continentName: {
-          fontSize: 18,
-          fontWeight: 'bold',
+        headerTitle: {
+          ...Type.heading,
           color: colors.textPrimary,
-          marginBottom: 5,
         },
-        continentLocation: {
-          fontSize: 14,
+        headerSubtitle: {
+          ...Type.body,
           color: colors.textSecondary,
+          marginTop: 2,
         },
-        venueCountBadge: {
-          backgroundColor: colors.success,
-          paddingHorizontal: 12,
-          paddingVertical: 8,
+        sortPills: {
+          flexDirection: 'row',
+          gap: 8,
+          paddingHorizontal: 16,
+          paddingBottom: 10,
+          paddingTop: 10,
+        },
+        pill: {
           borderRadius: 20,
-          borderCurve: 'continuous' as const,
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+          borderWidth: 1,
+        },
+        pillActive: {
+          backgroundColor: colors.accentSoft,
+          borderColor: colors.accent,
+        },
+        pillInactive: {
+          backgroundColor: 'transparent',
+          borderColor: colors.border,
+        },
+        pillTextActive: {
+          ...Type.label,
+          color: colors.accent,
+        },
+        pillTextInactive: {
+          ...Type.label,
+          color: colors.textMuted,
+        },
+        row: {
+          flexDirection: 'row',
           alignItems: 'center',
-          minWidth: 60,
+          paddingVertical: 12,
+          paddingHorizontal: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
         },
-        venueCountText: {
-          fontSize: 18,
-          fontWeight: 'bold',
-          color: colors.textInverse,
-          fontVariant: ['tabular-nums'] as const,
+        leftContent: {
+          flex: 1,
+          marginRight: 12,
         },
-        venueCountLabel: {
-          fontSize: 10,
-          color: colors.textInverse,
-          opacity: 0.9,
+        name: {
+          ...Type.title,
+          color: colors.textPrimary,
         },
-        continentStats: {
-          marginTop: 5,
-        },
-        lastConcertText: {
-          fontSize: 14,
-          color: colors.success,
-          fontWeight: '500',
-          marginBottom: 5,
-        },
-        countriesText: {
-          fontSize: 13,
+        subtitle: {
+          ...Type.body,
           color: colors.textSecondary,
-          marginBottom: 5,
+          marginTop: 2,
+        },
+        meta: {
+          ...Type.body,
+          color: colors.textMuted,
+          marginTop: 2,
+        },
+        rightContent: {
+          alignItems: 'center',
+          minWidth: 44,
+        },
+        countNumber: {
+          ...Type.count,
+          color: colors.accent,
+        },
+        countLabel: {
+          ...Type.label,
+          color: colors.textMuted,
+          marginTop: 1,
         },
         emptyState: {
           alignItems: 'center',
           paddingVertical: 60,
+          paddingHorizontal: 16,
         },
         emptyStateText: {
-          fontSize: 16,
+          ...Type.body,
           color: colors.textSecondary,
           textAlign: 'center',
           marginBottom: 20,
         },
         refreshButton: {
-          backgroundColor: colors.success,
+          borderRadius: 20,
           paddingHorizontal: 20,
           paddingVertical: 12,
-          borderRadius: 20,
-          borderCurve: 'continuous' as const,
+          backgroundColor: colors.accentSoft,
+          borderWidth: 1,
+          borderColor: colors.accent,
         },
         refreshButtonText: {
-          color: colors.textInverse,
-          fontSize: 16,
-          fontWeight: '600',
+          ...Type.label,
+          color: colors.accent,
         },
       }),
     [colors],
@@ -124,7 +154,7 @@ export default function ContinentsScreen() {
   const router = useRouter();
   const [continents, setContinents] = useState<ContinentWithStats[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortOption, setSortOption] = useState<SortOption>('alphabetical');
+  const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -176,43 +206,44 @@ export default function ContinentsScreen() {
     setRefreshing(false);
   };
 
-  const getContinentCard = (continent: ContinentWithStats) => (
+  const sortOptions: { value: SortOption; label: string }[] = [
+    { value: 'recent', label: 'Most Recent' },
+    { value: 'top', label: 'Top' },
+  ];
+
+  const getContinentRow = (continent: ContinentWithStats) => (
     <TouchableOpacity
       key={continent.name}
-      style={styles.continentCard}
+      style={styles.row}
       testID={`continent-${continent.name}`}
       onPress={() => handleContinentPress(continent)}
       activeOpacity={0.7}
       accessibilityRole="button"
       accessibilityLabel={`${continent.name}, ${t('common.country', { count: continent.countryCount })}, ${t('common.city', { count: continent.cityCount })}, ${continent.venueCount} ${t('venues.visits')}`}
     >
-      <View style={styles.continentHeader}>
-        <View style={styles.continentInfo}>
-          <Text style={styles.continentName}>{continent.name}</Text>
-          <Text style={styles.continentLocation}>
-            {t('common.country', { count: continent.countryCount })} •{' '}
-            {t('common.city', { count: continent.cityCount })}
-          </Text>
-        </View>
-        <View style={styles.venueCountBadge}>
-          <Text style={styles.venueCountText}>{continent.venueCount}</Text>
-          <Text style={styles.venueCountLabel}>{t('venues.visits')}</Text>
-        </View>
-      </View>
-
-      <View style={styles.continentStats}>
+      <View style={styles.leftContent}>
+        <Text style={styles.name}>{continent.name}</Text>
+        <Text style={styles.subtitle}>
+          {t('common.country', { count: continent.countryCount })}
+          {' · '}
+          {t('common.city', { count: continent.cityCount })}
+        </Text>
         {continent.lastConcertDate && (
-          <Text style={styles.lastConcertText}>
+          <Text style={styles.meta}>
             {t('common.lastShow', { date: formatDate(continent.lastConcertDate) })}
           </Text>
         )}
         {continent.countries.length > 0 && (
-          <Text style={styles.countriesText}>
-            Countries: {continent.countries.slice(0, 3).join(', ')}
+          <Text style={styles.meta}>
+            {continent.countries.slice(0, 3).join(', ')}
             {continent.countries.length > 3 &&
               ` ${t('common.moreCount', { count: continent.countries.length - 3 })}`}
           </Text>
         )}
+      </View>
+      <View style={styles.rightContent}>
+        <Text style={styles.countNumber}>{continent.venueCount}</Text>
+        <Text style={styles.countLabel}>venues</Text>
       </View>
     </TouchableOpacity>
   );
@@ -227,23 +258,46 @@ export default function ContinentsScreen() {
       style={styles.container}
       testID="continents-screen"
     >
-      {/* Header */}
-      <ScreenHeader
-        title={t('geo.continentsTitle')}
-        subtitle={
-          sortOption === 'top'
+      {/* Inline header */}
+      <View style={styles.inlineHeader}>
+        <View style={styles.backRow}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
+            <Text style={styles.backButton}>← Back</Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.headerTitle}>{t('geo.continentsTitle')}</Text>
+        <Text style={styles.headerSubtitle}>
+          {sortOption === 'top'
             ? t('geo.continentsSubtitleSorted', { count: continents.length })
-            : t('geo.continentsSubtitle', { count: continents.length })
-        }
-        showBack
-        onBackPress={() => router.back()}
-      />
+            : t('geo.continentsSubtitle', { count: continents.length })}
+        </Text>
+      </View>
 
-      {/* Sorting Controls */}
-      <SortBar value={sortOption} onChange={handleSortChange} />
+      {/* Sort pills */}
+      <View style={styles.sortPills}>
+        {sortOptions.map((option) => (
+          <TouchableOpacity
+            key={option.value}
+            style={[
+              styles.pill,
+              sortOption === option.value ? styles.pillActive : styles.pillInactive,
+            ]}
+            onPress={() => handleSortChange(option.value)}
+          >
+            <Text
+              style={sortOption === option.value ? styles.pillTextActive : styles.pillTextInactive}
+            >
+              {option.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
       <TabScrollView
-        style={styles.continentsList}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
@@ -259,7 +313,7 @@ export default function ContinentsScreen() {
             </TouchableOpacity>
           </View>
         ) : (
-          continents.map(getContinentCard)
+          continents.map(getContinentRow)
         )}
       </TabScrollView>
     </SafeAreaView>

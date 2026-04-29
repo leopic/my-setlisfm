@@ -2,7 +2,8 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../utils/date';
-import { useColors } from '../utils/colors';
+import { useChronicleColors } from '../utils/colors';
+import { Type } from '../utils/typography';
 
 interface CountryWithStats {
   name: string;
@@ -20,81 +21,59 @@ interface CountryListProps {
 
 export default function CountryList({ countries, onCountryPress, emptyMessage }: CountryListProps) {
   const { t } = useTranslation();
-  const colors = useColors();
+  const colors = useChronicleColors();
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        countriesList: {
+        list: {
           flex: 1,
-          padding: 20,
         },
-        countryCard: {
-          backgroundColor: colors.backgroundPill,
-          borderRadius: 10,
-          borderCurve: 'continuous' as const,
-          padding: 15,
-          marginBottom: 10,
-        },
-        countryHeader: {
+        row: {
           flexDirection: 'row',
-          justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 5,
+          paddingVertical: 12,
+          paddingHorizontal: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
         },
-        countryInfo: {
+        leftContent: {
           flex: 1,
-          marginRight: 15,
+          marginRight: 12,
         },
-        countryName: {
-          fontSize: 18,
-          fontWeight: 'bold',
+        name: {
+          ...Type.title,
           color: colors.textPrimary,
-          marginBottom: 5,
         },
-        countryLocation: {
-          fontSize: 14,
+        subtitle: {
+          ...Type.body,
           color: colors.textSecondary,
+          marginTop: 2,
         },
-        venueCountBadge: {
-          backgroundColor: colors.success,
-          paddingHorizontal: 12,
-          paddingVertical: 8,
-          borderRadius: 20,
-          borderCurve: 'continuous' as const,
+        meta: {
+          ...Type.body,
+          color: colors.textMuted,
+          marginTop: 2,
+        },
+        rightContent: {
           alignItems: 'center',
-          minWidth: 60,
+          minWidth: 44,
         },
-        venueCountText: {
-          fontSize: 18,
-          fontWeight: 'bold',
-          color: colors.textInverse,
-          fontVariant: ['tabular-nums'] as const,
+        countNumber: {
+          ...Type.count,
+          color: colors.accent,
         },
-        venueCountLabel: {
-          fontSize: 10,
-          color: colors.textInverse,
-          opacity: 0.9,
-        },
-        countryStats: {
-          marginTop: 5,
-        },
-        lastConcertText: {
-          fontSize: 14,
-          color: colors.success,
-          fontWeight: '500',
-          marginBottom: 5,
-        },
-        citiesText: {
-          fontSize: 13,
-          color: colors.textSecondary,
-          marginBottom: 5,
+        countLabel: {
+          ...Type.label,
+          color: colors.textMuted,
+          marginTop: 1,
         },
         emptyState: {
           alignItems: 'center',
           paddingVertical: 60,
+          paddingHorizontal: 16,
         },
         emptyStateText: {
-          fontSize: 16,
+          ...Type.body,
           color: colors.textSecondary,
           textAlign: 'center',
         },
@@ -102,53 +81,46 @@ export default function CountryList({ countries, onCountryPress, emptyMessage }:
     [colors],
   );
 
-  const getCountryCard = (country: CountryWithStats) => (
+  const getCountryRow = (country: CountryWithStats) => (
     <TouchableOpacity
       key={country.name}
-      style={styles.countryCard}
+      style={styles.row}
       onPress={() => onCountryPress(country)}
       activeOpacity={0.7}
       accessibilityRole="button"
       accessibilityLabel={country.name}
     >
-      <View style={styles.countryHeader}>
-        <View style={styles.countryInfo}>
-          <Text style={styles.countryName}>{country.name}</Text>
-          <Text style={styles.countryLocation}>
-            {t('common.city', { count: country.cityCount })}
-          </Text>
-        </View>
-        <View style={styles.venueCountBadge}>
-          <Text style={styles.venueCountText}>{country.venueCount}</Text>
-          <Text style={styles.venueCountLabel}>venues</Text>
-        </View>
-      </View>
-
-      <View style={styles.countryStats}>
+      <View style={styles.leftContent}>
+        <Text style={styles.name}>{country.name}</Text>
+        <Text style={styles.subtitle}>{t('common.city', { count: country.cityCount })}</Text>
         {country.lastConcertDate && (
-          <Text style={styles.lastConcertText}>
+          <Text style={styles.meta}>
             {t('common.lastShow', { date: formatDate(country.lastConcertDate) })}
           </Text>
         )}
         {country.cities.length > 0 && (
-          <Text style={styles.citiesText}>
-            Cities: {country.cities.slice(0, 3).join(', ')}
+          <Text style={styles.meta}>
+            {country.cities.slice(0, 3).join(', ')}
             {country.cities.length > 3 &&
               ` ${t('common.moreCount', { count: country.cities.length - 3 })}`}
           </Text>
         )}
       </View>
+      <View style={styles.rightContent}>
+        <Text style={styles.countNumber}>{country.venueCount}</Text>
+        <Text style={styles.countLabel}>venues</Text>
+      </View>
     </TouchableOpacity>
   );
 
   return (
-    <ScrollView style={styles.countriesList} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
       {countries.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateText}>{emptyMessage ?? t('geo.noCountriesFound')}</Text>
         </View>
       ) : (
-        countries.map(getCountryCard)
+        countries.map(getCountryRow)
       )}
     </ScrollView>
   );

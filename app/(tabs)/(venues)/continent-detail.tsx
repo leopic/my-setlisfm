@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { dbOperations } from '../../../src/database/operations';
 import CountryList from '../../../src/components/CountryList';
-import { useColors } from '../../../src/utils/colors';
+import { useChronicleColors } from '../../../src/utils/colors';
+import { Type } from '../../../src/utils/typography';
 import DetailSkeleton from '../../../src/components/skeletons/DetailSkeleton';
-import { ScreenHeader } from '../../../src/components/ui';
 
 interface CountryWithStats {
   name: string;
@@ -18,7 +18,7 @@ interface CountryWithStats {
 }
 
 export default function ContinentDetailScreen() {
-  const colors = useColors();
+  const colors = useChronicleColors();
   const { t } = useTranslation();
   const styles = useMemo(
     () =>
@@ -26,6 +26,26 @@ export default function ContinentDetailScreen() {
         container: {
           flex: 1,
           backgroundColor: colors.background,
+        },
+        header: {
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        backBtn: {
+          ...Type.body,
+          color: colors.accent,
+          marginBottom: 6,
+        },
+        title: {
+          ...Type.heading,
+          color: colors.textPrimary,
+        },
+        subtitle: {
+          ...Type.body,
+          color: colors.textSecondary,
+          marginTop: 2,
         },
       }),
     [colors],
@@ -77,13 +97,17 @@ export default function ContinentDetailScreen() {
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-      {/* Header */}
-      <ScreenHeader
-        title={continentName as string}
-        subtitle={t('common.country', { count: countries.length })}
-        showBack
-        onBackPress={() => router.back()}
-      />
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+        >
+          <Text style={styles.backBtn}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>{continentName as string}</Text>
+        <Text style={styles.subtitle}>{t('common.country', { count: countries.length })}</Text>
+      </View>
 
       <CountryList
         countries={countries}
