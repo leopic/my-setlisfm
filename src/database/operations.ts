@@ -721,6 +721,69 @@ export class DatabaseOperations {
     };
   }
 
+  // Per-year summary: shows, unique countries, unique cities, peak month
+  async getYearSummaries(): Promise<
+    {
+      year: string;
+      shows: number;
+      countries: number;
+      cities: number;
+      peakMonth: number;
+      peakMonthCount: number;
+    }[]
+  > {
+    const rows = (await this.db.getAllAsync(`
+      SELECT
+        substr(sl.eventDate, 7, 4)  AS year,
+        COUNT(*)                    AS shows,
+        COUNT(DISTINCT co.code)     AS countries,
+        COUNT(DISTINCT c.id)        AS cities
+      FROM setlists sl
+      INNER JOIN venues v  ON sl.venueId  = v.id
+      INNER JOIN cities c  ON v.cityId    = c.id
+      INNER JOIN countries co ON c.countryCode = co.code
+      GROUP BY year
+      ORDER BY year DESC
+    `)) as { year: string; shows: number; countries: number; cities: number }[];
+
+    const monthly = (await this.db.getAllAsync(`
+      SELECT
+        substr(eventDate, 7, 4)              AS year,
+        CAST(substr(eventDate, 4, 2) AS INTEGER) AS month,
+        COUNT(*)                             AS cnt
+      FROM setlists
+      GROUP BY year, month
+    `)) as { year: string; month: number; cnt: number }[];
+
+    // Find peak month per year
+    const peakByYear: Record<string, { month: number; cnt: number }> = {};
+    for (const row of monthly) {
+      const cur = peakByYear[row.year];
+      if (!cur || row.cnt > cur.cnt) peakByYear[row.year] = { month: row.month, cnt: row.cnt };
+    }
+
+    return rows.map((r) => ({
+      year: r.year,
+      shows: r.shows,
+      countries: r.countries,
+      cities: r.cities,
+      peakMonth: peakByYear[r.year]?.month ?? 0,
+      peakMonthCount: peakByYear[r.year]?.cnt ?? 0,
+    }));
+  }
+
+  // Year with most shows — the "longest streak" headline stat
+  async getBusiestYear(): Promise<{ year: string; count: number } | null> {
+    const row = (await this.db.getFirstAsync(`
+      SELECT substr(eventDate, 7, 4) AS year, COUNT(*) AS count
+      FROM setlists
+      GROUP BY year
+      ORDER BY count DESC
+      LIMIT 1
+    `)) as { year: string; count: number } | null;
+    return row ?? null;
+  }
+
   async getConcertsByYearMonth(): Promise<{ year: string; month: number; count: number }[]> {
     const rows = await this.db.getAllAsync(`
       SELECT

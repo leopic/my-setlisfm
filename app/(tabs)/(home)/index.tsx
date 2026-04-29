@@ -180,6 +180,64 @@ export default function DashboardScreen() {
           borderRadius: 4,
           backgroundColor: colors.accent,
         },
+        // ── On this day card ─────────────────────────────────────────────────
+        onThisDayCard: {
+          marginHorizontal: 20,
+          marginTop: 16,
+          marginBottom: 4,
+          backgroundColor: colors.accentSoft,
+          borderWidth: 1,
+          borderColor: colors.accent,
+          borderRadius: 12,
+          padding: 14,
+        },
+        onThisDayLabel: {
+          ...Type.label,
+          color: colors.accent,
+          letterSpacing: 0.8,
+          marginBottom: 6,
+        },
+        onThisDayRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        },
+        onThisDayArtist: {
+          ...Type.title,
+          color: colors.textPrimary,
+          flex: 1,
+        },
+        onThisDayMeta: {
+          ...Type.body,
+          color: colors.textSecondary,
+          marginTop: 3,
+        },
+        onThisDayChevron: {
+          ...Type.body,
+          color: colors.accent,
+          marginLeft: 8,
+        },
+        // ── Richer year stats ─────────────────────────────────────────────────
+        yearStatRow: {
+          flexDirection: 'row',
+          gap: 10,
+          marginTop: 4,
+          flexWrap: 'wrap',
+        },
+        yearStatChip: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 4,
+        },
+        yearStatValue: {
+          ...Type.label,
+          color: colors.textSecondary,
+          fontWeight: '600',
+        },
+        yearStatLabel: {
+          ...Type.label,
+          color: colors.textMuted,
+        },
         // ── Last synced ───────────────────────────────────────────────────────
         lastSynced: {
           ...Type.body,
@@ -196,6 +254,17 @@ export default function DashboardScreen() {
   const [monthlyData, setMonthlyData] = useState<{ year: string; month: number; count: number }[]>(
     [],
   );
+  const [yearSummaries, setYearSummaries] = useState<
+    {
+      year: string;
+      shows: number;
+      countries: number;
+      cities: number;
+      peakMonth: number;
+      peakMonthCount: number;
+    }[]
+  >([]);
+  const [busiestYear, setBusiestYear] = useState<{ year: string; count: number } | null>(null);
   const [onThisDay, setOnThisDay] = useState<{
     setlistId: string;
     artistName: string;
@@ -219,14 +288,19 @@ export default function DashboardScreen() {
 
   const loadDashboard = async () => {
     try {
-      const [dashStats, fetchedAt, onThisDayResult, monthly] = await Promise.all([
-        dbOperations.getDashboardStats(),
-        dbOperations.getLastFetchedAt(),
-        dbOperations.getOnThisDayConcert(),
-        dbOperations.getConcertsByYearMonth(),
-      ]);
+      const [dashStats, fetchedAt, onThisDayResult, monthly, summaries, busiest] =
+        await Promise.all([
+          dbOperations.getDashboardStats(),
+          dbOperations.getLastFetchedAt(),
+          dbOperations.getOnThisDayConcert(),
+          dbOperations.getConcertsByYearMonth(),
+          dbOperations.getYearSummaries(),
+          dbOperations.getBusiestYear(),
+        ]);
       setStats(dashStats);
       setMonthlyData(monthly);
+      setYearSummaries(summaries);
+      setBusiestYear(busiest);
       setOnThisDay(onThisDayResult);
       setLastSynced(fetchedAt ? fetchedAt.toLocaleString() : null);
     } catch (error) {
@@ -271,13 +345,37 @@ export default function DashboardScreen() {
   }
 
   const MONTH_ABBR = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+  const MONTH_NAMES = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
 
-  // Build a lookup: year -> { month -> count }
+  // Build lookups
   const monthlyByYear = monthlyData.reduce<Record<string, Record<number, number>>>((acc, row) => {
     if (!acc[row.year]) acc[row.year] = {};
     acc[row.year][row.month] = row.count;
     return acc;
   }, {});
+
+  const summaryByYear = yearSummaries.reduce<Record<string, (typeof yearSummaries)[0]>>(
+    (acc, s) => {
+      acc[s.year] = s;
+      return acc;
+    },
+    {},
+  );
+
+  const currentYear = String(new Date().getFullYear());
 
   // Determine which years each bookmark concert belongs to.
   const lastConcertYear = stats.lastConcert ? stats.lastConcert.eventDate.split('-')[2] : null;
@@ -306,17 +404,52 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         </View>
         <Text style={styles.statsLine}>
-          {`${stats.totalConcerts} shows · ${stats.totalArtists} artists · ${stats.totalCountries} countries`}
+          {[
+            `${stats.totalConcerts} shows`,
+            `${stats.totalArtists} artists`,
+            `${stats.totalCountries} countries`,
+            busiestYear ? `best: ${busiestYear.year} (${busiestYear.count})` : null,
+          ]
+            .filter(Boolean)
+            .join(' · ')}
         </Text>
       </View>
 
       <TabScrollView
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
+        {/* ── On this day ─────────────────────────────────────────────────── */}
+        {onThisDay && (
+          <TouchableOpacity
+            style={styles.onThisDayCard}
+            onPress={() =>
+              router.push({ pathname: '/(home)/concert/[id]', params: { id: onThisDay.setlistId } })
+            }
+            accessibilityRole="button"
+            accessibilityLabel={`On this day ${onThisDay.yearsAgo} years ago: ${onThisDay.artistName}`}
+            accessibilityHint={t('Opens concert details')}
+          >
+            <Text style={styles.onThisDayLabel}>
+              {`ON THIS DAY · ${onThisDay.yearsAgo} YEAR${onThisDay.yearsAgo !== 1 ? 'S' : ''} AGO`}
+            </Text>
+            <View style={styles.onThisDayRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.onThisDayArtist}>{onThisDay.artistName}</Text>
+                <Text style={styles.onThisDayMeta}>
+                  {onThisDay.venueName} · {formatDate(onThisDay.eventDate)}
+                </Text>
+              </View>
+              <Text style={styles.onThisDayChevron}>›</Text>
+            </View>
+          </TouchableOpacity>
+        )}
+
         {/* ── Timeline river ──────────────────────────────────────────────── */}
         {yearsSorted.map((yearItem, yearIndex) => {
           const yearStr = String(yearItem.year);
           const showsInYear = yearItem.count;
+          const summary = summaryByYear[yearStr];
+          const isPastYear = yearStr !== currentYear;
 
           // Collect bookmark concerts that belong to this year
           const isLastConcertYear = lastConcertYear === yearStr;
@@ -325,12 +458,42 @@ export default function DashboardScreen() {
 
           return (
             <View key={yearStr}>
-              {/* Year ghost chapter heading + monthly dot grid */}
+              {/* Year ghost chapter heading + stats + monthly dot grid */}
               <View style={styles.yearChapter}>
                 <Text style={styles.yearGhost}>{yearStr}</Text>
                 <Text style={styles.yearMeta}>
                   {`${showsInYear} show${showsInYear !== 1 ? 's' : ''}`}
                 </Text>
+                {/* Richer stats for completed years */}
+                {isPastYear && summary && (summary.countries > 1 || summary.cities > 1) && (
+                  <View style={styles.yearStatRow}>
+                    {summary.countries > 1 && (
+                      <View style={styles.yearStatChip}>
+                        <Text style={styles.yearStatValue}>{summary.countries}</Text>
+                        <Text style={styles.yearStatLabel}>
+                          {summary.countries === 1 ? 'country' : 'countries'}
+                        </Text>
+                      </View>
+                    )}
+                    {summary.cities > 1 && (
+                      <View style={styles.yearStatChip}>
+                        <Text style={styles.yearStatValue}>{summary.cities}</Text>
+                        <Text style={styles.yearStatLabel}>
+                          {summary.cities === 1 ? 'city' : 'cities'}
+                        </Text>
+                      </View>
+                    )}
+                    {summary.peakMonth > 0 && summary.peakMonthCount > 1 && (
+                      <View style={styles.yearStatChip}>
+                        <Text style={styles.yearStatLabel}>peak</Text>
+                        <Text style={styles.yearStatValue}>
+                          {MONTH_NAMES[summary.peakMonth - 1]}
+                        </Text>
+                        <Text style={styles.yearStatLabel}>({summary.peakMonthCount})</Text>
+                      </View>
+                    )}
+                  </View>
+                )}
                 {monthlyByYear[yearStr] && (
                   <View style={styles.monthGrid}>
                     {MONTH_ABBR.map((abbr, idx) => {
