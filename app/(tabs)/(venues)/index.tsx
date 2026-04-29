@@ -7,7 +7,6 @@ import {
   Alert,
   RefreshControl,
   TextInput,
-  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -404,19 +403,15 @@ export default function VenuesScreen() {
       </View>
 
       {/* Sort pills */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.sortRow}
-      >
+      <View style={styles.sortRow}>
         {(['recent', 'top', 'alphabetical'] as SortOption[]).map((option) => {
           const isActive = sortOption === option;
           const label =
             option === 'recent'
-              ? t('venues.mostRecent')
+              ? t('sort.mostRecent')
               : option === 'top'
-                ? t('venues.top')
-                : t('venues.byName');
+                ? t('sort.top')
+                : t('sort.byName');
           return (
             <TouchableOpacity
               key={option}
@@ -431,7 +426,7 @@ export default function VenuesScreen() {
             </TouchableOpacity>
           );
         })}
-      </ScrollView>
+      </View>
 
       {/* Search bar */}
       <View style={styles.searchContainer}>
