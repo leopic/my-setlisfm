@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { TabScrollView } from './ui';
+import { TabScrollView, Icon } from './ui';
 import { useTranslation } from 'react-i18next';
 import type { SetlistWithDetails, SetWithSongs } from '../types/database';
 import { formatDate } from '../utils/date';
@@ -107,6 +107,12 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
         songInfo: {
           flex: 1,
         },
+        songNameRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 5,
+          flexWrap: 'wrap',
+        },
         songName: {
           ...Type.body,
           color: colors.textPrimary,
@@ -199,11 +205,20 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
               <View key={songIndex} style={styles.songRow}>
                 <Text style={styles.songNumber}>{String(songIndex + 1).padStart(2, '0')}</Text>
                 <View style={styles.songInfo}>
-                  <Text style={styles.songName}>
-                    {song.tape && 'tape '}
-                    {song.name}
-                    {song.info && ` (${song.info})`}
-                  </Text>
+                  <View style={styles.songNameRow}>
+                    {song.tape && (
+                      <Icon
+                        sf="recordingtape"
+                        md="radio-outline"
+                        size={13}
+                        color={colors.textMuted}
+                      />
+                    )}
+                    <Text style={styles.songName}>
+                      {song.name}
+                      {song.info && ` (${song.info})`}
+                    </Text>
+                  </View>
                   {song.withArtist?.name && (
                     <Text style={styles.withArtistText}>
                       {t('setlist.withArtist', { name: song.withArtist.name })}

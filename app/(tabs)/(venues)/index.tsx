@@ -19,7 +19,7 @@ import { useChronicleColors } from '../../../src/utils/colors';
 import { Type } from '../../../src/utils/typography';
 import { useSyncContext } from '../../../src/contexts/SyncContext';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
-import { TabScrollView } from '../../../src/components/ui';
+import { TabScrollView, Icon } from '../../../src/components/ui';
 
 interface VenueWithStats {
   id: string;
@@ -430,7 +430,13 @@ export default function VenuesScreen() {
 
       {/* Search bar */}
       <View style={styles.searchContainer}>
-        <Text style={styles.searchIcon}>⌕</Text>
+        <Icon
+          sf="magnifyingglass"
+          md="search-outline"
+          size={15}
+          color={colors.textMuted}
+          style={{ marginRight: 6 }}
+        />
         <TextInput
           style={styles.searchInput}
           value={searchQuery}

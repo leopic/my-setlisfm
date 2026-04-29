@@ -14,7 +14,7 @@ import { useChronicleColors } from '../../../src/utils/colors';
 import { Type } from '../../../src/utils/typography';
 import { useSyncContext } from '../../../src/contexts/SyncContext';
 import DashboardSkeleton from '../../../src/components/skeletons/DashboardSkeleton';
-import { TabScrollView } from '../../../src/components/ui';
+import { TabScrollView, Icon } from '../../../src/components/ui';
 
 type DashboardStats = Awaited<ReturnType<typeof dbOperations.getDashboardStats>>;
 
@@ -301,22 +301,13 @@ export default function DashboardScreen() {
       <View style={styles.topBar}>
         <View style={styles.topBarRow}>
           <Text style={styles.appTitle}>Chronicles</Text>
-          <View style={styles.topBarActions}>
-            <TouchableOpacity
-              onPress={handleSync}
-              accessibilityRole="button"
-              accessibilityLabel="Sync concert data"
-            >
-              <Text style={styles.topBarIcon}>↻</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleSync}
-              accessibilityRole="button"
-              accessibilityLabel="Settings"
-            >
-              <Text style={styles.topBarIcon}>⚙</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            onPress={handleSync}
+            accessibilityRole="button"
+            accessibilityLabel="Sync concert data"
+          >
+            <Icon sf="arrow.clockwise" md="refresh-outline" size={20} color={colors.textMuted} />
+          </TouchableOpacity>
         </View>
         <Text style={styles.statsLine}>
           {`${stats.totalConcerts} shows · ${stats.totalArtists} artists · ${stats.totalCountries} countries`}

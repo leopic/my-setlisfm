@@ -18,7 +18,7 @@ import { sortByOption } from '../../../src/utils/sort';
 import { useChronicleColors } from '../../../src/utils/colors';
 import { Type } from '../../../src/utils/typography';
 import { useSyncContext } from '../../../src/contexts/SyncContext';
-import { TabScrollView } from '../../../src/components/ui';
+import { TabScrollView, Icon } from '../../../src/components/ui';
 import { useTranslation } from 'react-i18next';
 
 interface ArtistWithStats {
@@ -337,7 +337,13 @@ export default function ArtistsScreen() {
 
       {/* Search bar */}
       <View style={styles.searchRow}>
-        <Text style={styles.searchIcon}>⌕</Text>
+        <Icon
+          sf="magnifyingglass"
+          md="search-outline"
+          size={15}
+          color={colors.textMuted}
+          style={{ marginRight: 6 }}
+        />
         <TextInput
           style={styles.searchInput}
           placeholder={t('artists.searchPlaceholder')}

@@ -20,7 +20,7 @@ import { useChronicleColors } from '../../../src/utils/colors';
 import { Type } from '../../../src/utils/typography';
 import { useSyncContext } from '../../../src/contexts/SyncContext';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
-import { EmptyState, TabScrollView } from '../../../src/components/ui';
+import { EmptyState, Icon, TabScrollView } from '../../../src/components/ui';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -372,7 +372,13 @@ export default function ConcertsScreen() {
       {/* Search bar */}
       <View style={styles.searchContainer}>
         <View style={styles.searchInputWrapper}>
-          <Text style={styles.searchPrefix}>⌕</Text>
+          <Icon
+            sf="magnifyingglass"
+            md="search-outline"
+            size={15}
+            color={colors.textMuted}
+            style={{ marginRight: 6 }}
+          />
           <TextInput
             style={styles.searchInput}
             placeholder={t('concerts.searchPlaceholder')}
