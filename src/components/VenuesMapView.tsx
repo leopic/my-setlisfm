@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { Region } from 'react-native-maps';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, UrlTile } from 'react-native-maps';
 import { dbOperations } from '@/database/operations';
 import { formatDate } from '@/utils/date';
 import { useColors } from '@/utils/colors';
@@ -199,7 +199,13 @@ export default function VenuesMapView() {
         showsMyLocationButton={false}
         showsCompass={true}
         showsScale={true}
+        mapType="none"
       >
+        <UrlTile
+          urlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          maximumZ={19}
+          flipY={false}
+        />
         {venues.map((venue) => (
           <Marker
             key={venue.id}
