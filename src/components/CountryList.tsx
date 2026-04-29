@@ -114,7 +114,11 @@ export default function CountryList({ countries, onCountryPress, emptyMessage }:
   );
 
   return (
-    <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.list}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: 100 }}
+    >
       {countries.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateText}>{emptyMessage ?? t('geo.noCountriesFound')}</Text>

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '../SkeletonBox';
-import { useColors } from '../../utils/colors';
+import { useChronicleColors } from '../../utils/colors';
 
 interface Props {
   cardCount?: number;
@@ -15,7 +15,7 @@ export default function ListSkeleton({
   showHeader = true,
   showSortBar = false,
 }: Props) {
-  const colors = useColors();
+  const colors = useChronicleColors();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -25,7 +25,7 @@ export default function ListSkeleton({
         },
         header: {
           padding: 20,
-          backgroundColor: colors.backgroundCard,
+          backgroundColor: colors.surface,
           borderBottomWidth: 1,
           borderBottomColor: colors.border,
         },
@@ -34,14 +34,14 @@ export default function ListSkeleton({
           gap: 8,
           paddingHorizontal: 20,
           paddingVertical: 12,
-          backgroundColor: colors.backgroundCard,
+          backgroundColor: colors.surface,
         },
         cardList: {
           flex: 1,
           padding: 20,
         },
         card: {
-          backgroundColor: colors.backgroundCard,
+          backgroundColor: colors.surface,
           borderRadius: 12,
           borderCurve: 'continuous',
           padding: 16,

@@ -114,7 +114,11 @@ export default function CityList({ cities, onCityPress, emptyMessage }: CityList
   );
 
   return (
-    <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.list}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: 100 }}
+    >
       {cities.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateText}>{emptyMessage ?? t('geo.noCitiesFound')}</Text>

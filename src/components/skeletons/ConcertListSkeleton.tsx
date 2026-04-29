@@ -2,14 +2,14 @@ import { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '../SkeletonBox';
-import { useColors } from '../../utils/colors';
+import { useChronicleColors } from '../../utils/colors';
 
 interface Props {
   showHeader?: boolean;
 }
 
 export default function ConcertListSkeleton({ showHeader = true }: Props) {
-  const colors = useColors();
+  const colors = useChronicleColors();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -19,9 +19,9 @@ export default function ConcertListSkeleton({ showHeader = true }: Props) {
         },
         header: {
           padding: 20,
-          backgroundColor: colors.backgroundCard,
+          backgroundColor: colors.surface,
           borderBottomWidth: 1,
-          borderBottomColor: colors.borderLight,
+          borderBottomColor: colors.border,
         },
         concertList: {
           flex: 1,

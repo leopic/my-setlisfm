@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '../SkeletonBox';
-import { useColors } from '../../utils/colors';
+import { useChronicleColors } from '../../utils/colors';
 
 export default function DashboardSkeleton() {
-  const colors = useColors();
+  const colors = useChronicleColors();
   const styles = useMemo(
     () =>
       StyleSheet.create({

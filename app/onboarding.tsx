@@ -81,6 +81,7 @@ export default function OnboardingScreen() {
           borderRadius: 12,
           paddingVertical: 16,
           alignItems: 'center',
+          alignSelf: 'stretch',
         },
         buttonDisabled: {
           opacity: 0.4,
@@ -198,7 +199,7 @@ export default function OnboardingScreen() {
   };
 
   const handleLetsGo = () => {
-    router.replace('/(tabs)');
+    router.replace('/(tabs)/(home)');
   };
 
   const progressPercent =

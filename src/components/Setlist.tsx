@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { TabScrollView } from './ui';
 import { useTranslation } from 'react-i18next';
 import type { SetlistWithDetails, SetWithSongs } from '../types/database';
 import { formatDate } from '../utils/date';
@@ -186,7 +187,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       </View>
 
       {/* Sets */}
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <TabScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {activeSets.map((set, index) => (
           <View key={set.id}>
             <View style={styles.sectionHeader}>
@@ -225,7 +226,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
             <Text style={styles.emptyStateText}>{t('setlist.noInfo')}</Text>
           </View>
         )}
-      </ScrollView>
+      </TabScrollView>
     </>
   );
 }
