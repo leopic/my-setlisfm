@@ -3,11 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { dbOperations } from '../../../src/database/operations';
-import CityList from '../../../src/components/CityList';
-import { useChronicleColors } from '../../../src/utils/colors';
-import { Type } from '../../../src/utils/typography';
-import DetailSkeleton from '../../../src/components/skeletons/DetailSkeleton';
+import { dbOperations } from '@/database/operations';
+import CityList from '@/components/CityList';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
+import DetailSkeleton from '@/components/skeletons/DetailSkeleton';
 
 interface CityWithStats {
   name: string;

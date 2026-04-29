@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import type { ViewStyle } from 'react-native';
-import { useColors } from '../../utils/colors';
+import { useColors } from '@/utils/colors';
 
 interface CardProps {
   children: React.ReactNode;

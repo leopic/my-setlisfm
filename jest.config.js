@@ -8,4 +8,7 @@ module.exports = {
   },
   transformIgnorePatterns: ['node_modules/(?!(expo-constants)/)'],
   setupFiles: ['./jest.setup.js'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
 };

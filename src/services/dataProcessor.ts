@@ -9,7 +9,7 @@ import type {
   Tour,
   Set,
   Song,
-} from '../types/api';
+} from '@/types/api';
 import type {
   DBArtist,
   DBCity,
@@ -19,8 +19,8 @@ import type {
   DBSetlist,
   DBSet,
   DBSong,
-} from '../types/database';
-import { dbOperations } from '../database/operations';
+} from '@/types/database';
+import { dbOperations } from '@/database/operations';
 
 export class DataProcessor {
   async importSetlistsFromResponse(response: SetlistsResponse): Promise<number> {

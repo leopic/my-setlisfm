@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import SkeletonBox from '../SkeletonBox';
-import { useChronicleColors } from '../../utils/colors';
+import SkeletonBox from '@/components/SkeletonBox';
+import { useChronicleColors } from '@/utils/colors';
 
 interface Props {
   cardCount?: number;

@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import type { SortOption } from '../utils/sort';
-import { useColors } from '../utils/colors';
+import type { SortOption } from '@/utils/sort';
+import { useColors } from '@/utils/colors';
 
 interface SortAndSearchProps {
   sortOption: SortOption;

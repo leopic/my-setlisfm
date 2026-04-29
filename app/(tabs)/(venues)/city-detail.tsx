@@ -3,12 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { dbOperations } from '../../../src/database/operations';
-import { formatDate } from '../../../src/utils/date';
-import { useChronicleColors } from '../../../src/utils/colors';
-import { Type } from '../../../src/utils/typography';
-import DetailSkeleton from '../../../src/components/skeletons/DetailSkeleton';
-import { TabScrollView } from '../../../src/components/ui';
+import { dbOperations } from '@/database/operations';
+import { formatDate } from '@/utils/date';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
+import DetailSkeleton from '@/components/skeletons/DetailSkeleton';
+import { TabScrollView } from '@/components/ui';
 
 interface VenueWithStats {
   id: string;

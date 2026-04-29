@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { Region } from 'react-native-maps';
 import MapView, { Marker } from 'react-native-maps';
-import { dbOperations } from '../database/operations';
-import { formatDate } from '../utils/date';
-import { useColors } from '../utils/colors';
+import { dbOperations } from '@/database/operations';
+import { formatDate } from '@/utils/date';
+import { useColors } from '@/utils/colors';
 
 interface VenueWithCoords {
   id: string;

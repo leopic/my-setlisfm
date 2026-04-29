@@ -1,5 +1,5 @@
 // Database CRUD operations for all entities
-import { databaseManager } from './database';
+import { databaseManager } from '@/database/database';
 import type {
   DBArtist,
   DBCity,
@@ -11,7 +11,7 @@ import type {
   DBSong,
   SetlistWithDetails,
   SetWithSongs,
-} from '../types/database';
+} from '@/types/database';
 
 // Row types for SQL query results
 interface SetlistJoinRow {

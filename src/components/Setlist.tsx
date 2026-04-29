@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { TabScrollView, Icon } from './ui';
+import { TabScrollView, Icon } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
-import type { SetlistWithDetails, SetWithSongs } from '../types/database';
-import { formatDate } from '../utils/date';
-import { useChronicleColors } from '../utils/colors';
-import { Type } from '../utils/typography';
+import type { SetlistWithDetails, SetWithSongs } from '@/types/database';
+import { formatDate } from '@/utils/date';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
 
 interface SetlistProps {
   setlist: SetlistWithDetails;

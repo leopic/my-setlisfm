@@ -3,13 +3,13 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { dbOperations } from '../../../src/database/operations';
-import type { SetlistWithDetails } from '../../../src/types/database';
-import { parseSetlistDate, formatDate } from '../../../src/utils/date';
-import { useChronicleColors } from '../../../src/utils/colors';
-import { Type } from '../../../src/utils/typography';
-import ConcertListSkeleton from '../../../src/components/skeletons/ConcertListSkeleton';
-import { TabScrollView } from '../../../src/components/ui';
+import { dbOperations } from '@/database/operations';
+import type { SetlistWithDetails } from '@/types/database';
+import { parseSetlistDate, formatDate } from '@/utils/date';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
+import ConcertListSkeleton from '@/components/skeletons/ConcertListSkeleton';
+import { TabScrollView } from '@/components/ui';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;

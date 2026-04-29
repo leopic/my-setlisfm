@@ -9,13 +9,13 @@ import {
   SpaceGrotesk_600SemiBold,
   SpaceGrotesk_700Bold,
 } from '@expo-google-fonts/space-grotesk';
-import { databaseManager } from '../src/database/database';
-import { getStoredUsername } from '../src/services/syncService';
-import { SyncProvider } from '../src/contexts/SyncContext';
+import { databaseManager } from '@/database/database';
+import { getStoredUsername } from '@/services/syncService';
+import { SyncProvider } from '@/contexts/SyncContext';
 import { Stack } from 'expo-router';
-import '../src/i18n';
+import '@/i18n';
 
-export { ErrorBoundary } from '../src/components/ErrorBoundary';
+export { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function Layout() {
   const colorScheme = useColorScheme();

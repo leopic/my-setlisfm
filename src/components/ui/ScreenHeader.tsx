@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useColors } from '../../utils/colors';
+import { useColors } from '@/utils/colors';
 
 interface ScreenHeaderProps {
   title: string;

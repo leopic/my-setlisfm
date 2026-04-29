@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { formatDate } from '../utils/date';
-import { useChronicleColors } from '../utils/colors';
-import { Type } from '../utils/typography';
+import { formatDate } from '@/utils/date';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
 
 interface CountryWithStats {
   name: string;

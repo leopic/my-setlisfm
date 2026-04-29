@@ -1,6 +1,6 @@
-import { DataProcessor } from '../services/dataProcessor';
-import type { SetlistsResponse, Setlist } from '../types/api';
-import type { SetlistWithDetails } from '../types/database';
+import { DataProcessor } from '@/services/dataProcessor';
+import type { SetlistsResponse, Setlist } from '@/types/api';
+import type { SetlistWithDetails } from '@/types/database';
 
 // Mock the dbOperations module
 jest.mock('../database/operations', () => ({
@@ -18,7 +18,7 @@ jest.mock('../database/operations', () => ({
   },
 }));
 
-import { dbOperations } from '../database/operations';
+import { dbOperations } from '@/database/operations';
 
 const mockDbOps = dbOperations as jest.Mocked<typeof dbOperations>;
 

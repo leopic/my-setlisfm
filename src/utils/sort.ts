@@ -1,4 +1,4 @@
-import { parseSetlistDate } from './date';
+import { parseSetlistDate } from '@/utils/date';
 
 export type SortOption = 'alphabetical' | 'recent' | 'top';
 

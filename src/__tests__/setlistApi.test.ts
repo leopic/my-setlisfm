@@ -1,4 +1,4 @@
-import { SetlistApiService } from '../services/setlistApi';
+import { SetlistApiService } from '@/services/setlistApi';
 
 // Mock global fetch
 const mockFetch = jest.fn();

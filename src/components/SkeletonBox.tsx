@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Animated, type ViewStyle } from 'react-native';
-import { useColors } from '../utils/colors';
+import { useColors } from '@/utils/colors';
 
 interface Props {
   width: ViewStyle['width'];

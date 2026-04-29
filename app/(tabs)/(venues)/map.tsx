@@ -3,9 +3,9 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import VenuesMapView from '../../../src/components/VenuesMapView';
-import { useChronicleColors } from '../../../src/utils/colors';
-import { Type } from '../../../src/utils/typography';
+import VenuesMapView from '@/components/VenuesMapView';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
 
 export default function VenuesMapScreen() {
   const colors = useChronicleColors();

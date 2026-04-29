@@ -10,15 +10,15 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { dbOperations } from '../../../src/database/operations';
-import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
-import { formatDate } from '../../../src/utils/date';
-import type { SortOption } from '../../../src/utils/sort';
-import { sortByOption } from '../../../src/utils/sort';
-import { useChronicleColors } from '../../../src/utils/colors';
-import { Type } from '../../../src/utils/typography';
-import { useSyncContext } from '../../../src/contexts/SyncContext';
-import { TabScrollView, Icon } from '../../../src/components/ui';
+import { dbOperations } from '@/database/operations';
+import ListSkeleton from '@/components/skeletons/ListSkeleton';
+import { formatDate } from '@/utils/date';
+import type { SortOption } from '@/utils/sort';
+import { sortByOption } from '@/utils/sort';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
+import { useSyncContext } from '@/contexts/SyncContext';
+import { TabScrollView, Icon } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 
 interface ArtistWithStats {

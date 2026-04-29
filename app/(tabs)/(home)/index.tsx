@@ -3,18 +3,18 @@ import { View, Text, StyleSheet, RefreshControl, TouchableOpacity, Alert } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { dbOperations } from '../../../src/database/operations';
+import { dbOperations } from '@/database/operations';
 import {
   syncConcertData,
   getStoredUsername,
   setStoredUsername,
-} from '../../../src/services/syncService';
-import { formatDate } from '../../../src/utils/date';
-import { useChronicleColors } from '../../../src/utils/colors';
-import { Type } from '../../../src/utils/typography';
-import { useSyncContext } from '../../../src/contexts/SyncContext';
-import DashboardSkeleton from '../../../src/components/skeletons/DashboardSkeleton';
-import { TabScrollView, Icon } from '../../../src/components/ui';
+} from '@/services/syncService';
+import { formatDate } from '@/utils/date';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
+import { useSyncContext } from '@/contexts/SyncContext';
+import DashboardSkeleton from '@/components/skeletons/DashboardSkeleton';
+import { TabScrollView, Icon } from '@/components/ui';
 
 type DashboardStats = Awaited<ReturnType<typeof dbOperations.getDashboardStats>>;
 

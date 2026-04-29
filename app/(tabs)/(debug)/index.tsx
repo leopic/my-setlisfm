@@ -4,13 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { Directory, Paths } from 'expo-file-system';
 import { useRouter } from 'expo-router';
-import { dbOperations } from '../../../src/database/operations';
-import { clearArtistImageCache } from '../../../src/services/artistImageService';
-import { setStoredUsername } from '../../../src/services/syncService';
-import { useChronicleColors } from '../../../src/utils/colors';
-import { Type } from '../../../src/utils/typography';
-import { useSyncContext } from '../../../src/contexts/SyncContext';
-import { TabScrollView } from '../../../src/components/ui';
+import { dbOperations } from '@/database/operations';
+import { clearArtistImageCache } from '@/services/artistImageService';
+import { setStoredUsername } from '@/services/syncService';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
+import { useSyncContext } from '@/contexts/SyncContext';
+import { TabScrollView } from '@/components/ui';
 
 interface Stats {
   totalSetlists: number;

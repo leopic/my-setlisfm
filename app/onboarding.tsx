@@ -12,11 +12,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { syncConcertData, setStoredUsername } from '../src/services/syncService';
-import type { SyncProgress } from '../src/services/syncService';
-import { useSyncContext } from '../src/contexts/SyncContext';
-import { useChronicleColors } from '../src/utils/colors';
-import { Type } from '../src/utils/typography';
+import { syncConcertData, setStoredUsername } from '@/services/syncService';
+import type { SyncProgress } from '@/services/syncService';
+import { useSyncContext } from '@/contexts/SyncContext';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
 
 type Phase = 'input' | 'syncing' | 'done' | 'error';
 
