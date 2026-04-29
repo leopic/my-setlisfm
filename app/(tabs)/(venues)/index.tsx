@@ -1,17 +1,26 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  RefreshControl,
+  TextInput,
+  ScrollView,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { dbOperations } from '../../../src/database/operations';
-import SortAndSearch from '../../../src/components/SortAndSearch';
 import { formatDate } from '../../../src/utils/date';
 import type { SortOption } from '../../../src/utils/sort';
 import { sortByOption } from '../../../src/utils/sort';
-import { useColors } from '../../../src/utils/colors';
+import { useChronicleColors } from '../../../src/utils/colors';
+import { Type } from '../../../src/utils/typography';
 import { useSyncContext } from '../../../src/contexts/SyncContext';
 import ListSkeleton from '../../../src/components/skeletons/ListSkeleton';
-import { ScreenHeader, TabScrollView } from '../../../src/components/ui';
+import { TabScrollView } from '../../../src/components/ui';
 
 interface VenueWithStats {
   id: string;
@@ -40,7 +49,7 @@ interface GeoStats {
 }
 
 export default function VenuesScreen() {
-  const colors = useColors();
+  const colors = useChronicleColors();
   const { t } = useTranslation();
   const styles = useMemo(
     () =>
@@ -49,129 +58,164 @@ export default function VenuesScreen() {
           flex: 1,
           backgroundColor: colors.background,
         },
-        geoStatsContainer: {
-          marginTop: 15,
-          gap: 10,
-          paddingHorizontal: 20,
+
+        // ── Header ───────────────────────────────────────────────────────
+        header: {
+          paddingHorizontal: 16,
+          paddingTop: 12,
+          paddingBottom: 12,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
         },
-        geoStatsRow: {
+        headerTitle: {
+          ...Type.heading,
+          color: colors.textPrimary,
+        },
+        headerSubtitle: {
+          ...Type.body,
+          color: colors.textSecondary,
+          marginTop: 2,
+        },
+
+        // ── Geo navigation strip ─────────────────────────────────────────
+        geoStrip: {
           flexDirection: 'row',
-          justifyContent: 'space-between',
-          gap: 10,
+          flexWrap: 'wrap',
+          gap: 8,
+          paddingHorizontal: 16,
+          paddingVertical: 10,
         },
-        geoStatButton: {
-          flex: 1,
-          backgroundColor: colors.background,
-          borderRadius: 12,
-          borderCurve: 'continuous' as const,
-          padding: 12,
-          alignItems: 'center',
+        geoButton: {
+          paddingHorizontal: 14,
+          paddingVertical: 8,
+          borderRadius: 8,
+          backgroundColor: colors.accentSoft,
+          borderWidth: 1,
+          borderColor: colors.accent,
+        },
+        geoButtonLabel: {
+          ...Type.label,
+          color: colors.accent,
+        },
+
+        // ── Sort pills ───────────────────────────────────────────────────
+        sortRow: {
+          flexDirection: 'row',
+          gap: 8,
+          paddingHorizontal: 16,
+          paddingBottom: 8,
+        },
+        sortPill: {
+          paddingHorizontal: 14,
+          paddingVertical: 6,
+          borderRadius: 20,
           borderWidth: 1,
           borderColor: colors.border,
+          backgroundColor: 'transparent',
         },
-        geoStatEmoji: {
-          fontSize: 20,
-          marginBottom: 4,
+        sortPillActive: {
+          backgroundColor: colors.accentSoft,
+          borderColor: colors.accent,
         },
-        geoStatText: {
-          fontSize: 12,
-          color: colors.textPrimary,
-          fontWeight: '600',
-          textAlign: 'center',
+        sortPillText: {
+          ...Type.label,
+          color: colors.textMuted,
+        },
+        sortPillTextActive: {
+          color: colors.accent,
         },
 
-        venuesList: {
-          flex: 1,
-          padding: 20,
-        },
-        venueCard: {
-          backgroundColor: colors.backgroundPill,
-          borderRadius: 10,
-          borderCurve: 'continuous' as const,
-          padding: 15,
-          marginBottom: 10,
-        },
-        venueHeader: {
+        // ── Search bar ───────────────────────────────────────────────────
+        searchContainer: {
           flexDirection: 'row',
-          justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 5,
+          marginHorizontal: 16,
+          marginBottom: 8,
+          backgroundColor: colors.surface,
+          borderWidth: 1,
+          borderColor: colors.border,
+          borderRadius: 10,
+          paddingHorizontal: 10,
+          paddingVertical: 6,
         },
-        venueInfo: {
+        searchIcon: {
+          ...Type.body,
+          color: colors.textMuted,
+          marginRight: 6,
+        },
+        searchInput: {
           flex: 1,
-          marginRight: 15,
+          ...Type.body,
+          color: colors.textPrimary,
+          padding: 0,
+        },
+
+        // ── Venue rows ───────────────────────────────────────────────────
+        venueRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingVertical: 12,
+          paddingHorizontal: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        venueLeft: {
+          flex: 1,
+          marginRight: 12,
         },
         venueName: {
-          fontSize: 18,
-          fontWeight: 'bold',
+          ...Type.title,
           color: colors.textPrimary,
-          marginBottom: 5,
         },
         venueLocation: {
-          fontSize: 14,
+          ...Type.body,
           color: colors.textSecondary,
+          marginTop: 1,
         },
-        concertCountBadge: {
-          backgroundColor: colors.success,
-          paddingHorizontal: 12,
-          paddingVertical: 8,
-          borderRadius: 20,
-          borderCurve: 'continuous' as const,
-          alignItems: 'center',
-          minWidth: 60,
-        },
-        concertCountText: {
-          fontSize: 18,
-          fontWeight: 'bold',
-          color: colors.textInverse,
-          fontVariant: ['tabular-nums'] as const,
-        },
-        concertCountLabel: {
-          fontSize: 10,
-          color: colors.textInverse,
-          opacity: 0.9,
-        },
-        venueStats: {
-          marginTop: 5,
-        },
-        lastConcertText: {
-          fontSize: 14,
-          color: colors.success,
-          fontWeight: '500',
-          marginBottom: 5,
-        },
-        artistsText: {
-          fontSize: 13,
-          color: colors.textSecondary,
-          marginBottom: 5,
-        },
-        coordsText: {
-          fontSize: 12,
+        venueLastShow: {
+          ...Type.body,
           color: colors.textMuted,
-          fontFamily: 'monospace',
+          marginTop: 2,
+        },
+        venueArtists: {
+          ...Type.body,
+          color: colors.textMuted,
+          marginTop: 2,
+        },
+        venueRight: {
+          alignItems: 'center',
+          minWidth: 44,
+        },
+        visitCount: {
+          ...Type.count,
+          color: colors.accent,
+        },
+        visitLabel: {
+          ...Type.label,
+          color: colors.textMuted,
+          marginTop: 1,
         },
 
+        // ── Empty state ──────────────────────────────────────────────────
         emptyState: {
           alignItems: 'center',
           paddingVertical: 60,
         },
         emptyStateText: {
-          fontSize: 16,
+          ...Type.body,
           color: colors.textSecondary,
           textAlign: 'center',
           marginBottom: 20,
         },
         refreshButton: {
-          backgroundColor: colors.success,
+          backgroundColor: colors.accent,
           paddingHorizontal: 20,
-          paddingVertical: 12,
+          paddingVertical: 10,
           borderRadius: 20,
-          borderCurve: 'continuous' as const,
         },
         refreshButtonText: {
-          color: colors.textInverse,
-          fontSize: 16,
-          fontWeight: '600',
+          ...Type.label,
+          color: '#ffffff',
         },
       }),
     [colors],
@@ -257,138 +301,156 @@ export default function VenuesScreen() {
     setRefreshing(false);
   };
 
-  const getVenueCard = (venue: VenueWithStats) => (
-    <TouchableOpacity
-      key={venue.id}
-      style={styles.venueCard}
-      testID={`venue-${venue.id}`}
-      activeOpacity={0.7}
-      onPress={() => handleViewConcerts(venue)}
-      accessibilityRole="button"
-      accessibilityLabel={`${venue.name}, ${venue.concertCount} ${t('venues.visits')}`}
-    >
-      <View style={styles.venueHeader}>
-        <View style={styles.venueInfo}>
-          <Text style={styles.venueName}>{venue.name}</Text>
-          <Text style={styles.venueLocation}>
-            {venue.cityName || 'Unknown City'}
-            {venue.state && `, ${venue.state}`}
-            {venue.countryName && `, ${venue.countryName}`}
-          </Text>
-        </View>
-        <View style={styles.concertCountBadge}>
-          <Text style={styles.concertCountText}>{venue.concertCount}</Text>
-          <Text style={styles.concertCountLabel}>{t('venues.visits')}</Text>
-        </View>
-      </View>
+  const getVenueCard = (venue: VenueWithStats) => {
+    const locationParts = [venue.cityName, venue.state, venue.countryName].filter(Boolean);
+    const locationText = locationParts.length > 0 ? locationParts.join(', ') : 'Unknown location';
 
-      <View style={styles.venueStats}>
-        {venue.lastConcertDate && (
-          <Text style={styles.lastConcertText}>
-            {t('common.lastShow', { date: formatDate(venue.lastConcertDate) })}
-          </Text>
-        )}
-        {venue.artists.length > 0 && (
-          <Text style={styles.artistsText}>
-            Artists: {venue.artists.slice(0, 3).join(', ')}
-            {venue.artists.length > 3 &&
-              ` ${t('common.moreCount', { count: venue.artists.length - 3 })}`}
-          </Text>
-        )}
-        {venue.coordsLat && venue.coordsLong && (
-          <Text style={styles.coordsText}>
-            {venue.coordsLat.toFixed(4)}, {venue.coordsLong.toFixed(4)}
-          </Text>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
+    const topArtists = venue.artists.slice(0, 3).join(', ');
+    const extraArtists = venue.artists.length > 3 ? venue.artists.length - 3 : 0;
+    const artistsText =
+      venue.artists.length > 0
+        ? topArtists +
+          (extraArtists > 0 ? ` ${t('common.moreCount', { count: extraArtists })}` : '')
+        : null;
+
+    return (
+      <TouchableOpacity
+        key={venue.id}
+        style={styles.venueRow}
+        testID={`venue-${venue.id}`}
+        activeOpacity={0.7}
+        onPress={() => handleViewConcerts(venue)}
+        accessibilityRole="button"
+        accessibilityLabel={`${venue.name}, ${venue.concertCount} ${t('venues.visits')}`}
+      >
+        <View style={styles.venueLeft}>
+          <Text style={styles.venueName}>{venue.name}</Text>
+          <Text style={styles.venueLocation}>{locationText}</Text>
+          {venue.lastConcertDate && (
+            <Text style={styles.venueLastShow}>
+              {t('common.lastShow', { date: formatDate(venue.lastConcertDate) })}
+            </Text>
+          )}
+          {artistsText && <Text style={styles.venueArtists}>{artistsText}</Text>}
+        </View>
+        <View style={styles.venueRight}>
+          <Text style={styles.visitCount}>{venue.concertCount}</Text>
+          <Text style={styles.visitLabel}>{t('venues.visits')}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return <ListSkeleton showSortBar />;
   }
 
+  const venueCount = venues.length;
+  const subtitle =
+    sortOption === 'top'
+      ? t('venues.subtitleSorted', { count: venueCount })
+      : sortOption === 'recent'
+        ? t('venues.subtitleRecent', { count: venueCount })
+        : t('venues.subtitle', { count: venueCount });
+
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="venues-screen">
       {/* Header */}
-      <ScreenHeader
-        title={t('venues.title')}
-        subtitle={
-          sortOption === 'top'
-            ? t('venues.subtitleSorted', { count: venues.length })
-            : sortOption === 'recent'
-              ? t('venues.subtitleRecent', { count: venues.length })
-              : t('venues.subtitle', { count: venues.length })
-        }
-      />
-      {geoStats && (
-        <View style={styles.geoStatsContainer}>
-          <View style={styles.geoStatsRow}>
-            <TouchableOpacity
-              style={styles.geoStatButton}
-              onPress={() => router.push('/(venues)/map')}
-              accessibilityRole="button"
-              accessibilityLabel={t('venues.map')}
-            >
-              <Text style={styles.geoStatEmoji}>{t('venues.map')}</Text>
-              <Text style={styles.geoStatText}>{t('venues.map')}</Text>
-            </TouchableOpacity>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>{t('venues.title')}</Text>
+        <Text style={styles.headerSubtitle}>{subtitle}</Text>
+      </View>
 
+      {/* Geo navigation strip */}
+      <View style={styles.geoStrip}>
+        <TouchableOpacity
+          style={styles.geoButton}
+          onPress={() => router.push('/(venues)/map')}
+          accessibilityRole="button"
+          accessibilityLabel={t('venues.map')}
+        >
+          <Text style={styles.geoButtonLabel}>Map</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.geoButton}
+          testID="nav-continents"
+          onPress={() => router.push('/(venues)/continents')}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.continent', { count: geoStats?.totalContinents ?? 0 })}
+        >
+          <Text style={styles.geoButtonLabel}>Continents</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.geoButton}
+          testID="nav-countries"
+          onPress={() => router.push('/(venues)/countries')}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.country', { count: geoStats?.totalCountries ?? 0 })}
+        >
+          <Text style={styles.geoButtonLabel}>Countries</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.geoButton}
+          testID="nav-cities"
+          onPress={() => router.push('/(venues)/cities')}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.city', { count: geoStats?.totalCities ?? 0 })}
+        >
+          <Text style={styles.geoButtonLabel}>Cities</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Sort pills */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.sortRow}
+      >
+        {(['recent', 'top', 'alphabetical'] as SortOption[]).map((option) => {
+          const isActive = sortOption === option;
+          const label =
+            option === 'recent'
+              ? t('sort.mostRecent')
+              : option === 'top'
+                ? t('sort.top')
+                : t('sort.byName');
+          return (
             <TouchableOpacity
-              style={styles.geoStatButton}
-              testID="nav-continents"
-              onPress={() => router.push('/(venues)/continents')}
+              key={option}
+              style={[styles.sortPill, isActive && styles.sortPillActive]}
+              onPress={() => handleSortChange(option)}
               accessibilityRole="button"
-              accessibilityLabel={t('common.continent', { count: geoStats.totalContinents })}
+              accessibilityState={{ selected: isActive }}
             >
-              <Text style={styles.geoStatEmoji}>{t('venues.continents')}</Text>
-              <Text style={styles.geoStatText}>
-                {t('common.continent', { count: geoStats.totalContinents })}
+              <Text style={[styles.sortPillText, isActive && styles.sortPillTextActive]}>
+                {label}
               </Text>
             </TouchableOpacity>
-          </View>
+          );
+        })}
+      </ScrollView>
 
-          <View style={styles.geoStatsRow}>
-            <TouchableOpacity
-              style={styles.geoStatButton}
-              testID="nav-countries"
-              onPress={() => router.push('/(venues)/countries')}
-              accessibilityRole="button"
-              accessibilityLabel={t('common.country', { count: geoStats.totalCountries })}
-            >
-              <Text style={styles.geoStatEmoji}>{t('geo.countriesTitle')}</Text>
-              <Text style={styles.geoStatText}>
-                {t('common.country', { count: geoStats.totalCountries })}
-              </Text>
-            </TouchableOpacity>
+      {/* Search bar */}
+      <View style={styles.searchContainer}>
+        <Text style={styles.searchIcon}>⌕</Text>
+        <TextInput
+          style={styles.searchInput}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder={t('venues.searchPlaceholder')}
+          placeholderTextColor={colors.textMuted}
+          returnKeyType="search"
+          clearButtonMode="while-editing"
+          autoCorrect={false}
+          autoCapitalize="none"
+        />
+      </View>
 
-            <TouchableOpacity
-              style={styles.geoStatButton}
-              testID="nav-cities"
-              onPress={() => router.push('/(venues)/cities')}
-              accessibilityRole="button"
-              accessibilityLabel={t('common.city', { count: geoStats.totalCities })}
-            >
-              <Text style={styles.geoStatEmoji}>{t('venues.cities')}</Text>
-              <Text style={styles.geoStatText}>
-                {t('common.city', { count: geoStats.totalCities })}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-
-      {/* Sorting Controls */}
-      <SortAndSearch
-        sortOption={sortOption}
-        searchQuery={searchQuery}
-        onSortChange={handleSortChange}
-        onSearchChange={setSearchQuery}
-        searchPlaceholder={t('venues.searchPlaceholder')}
-      />
-
+      {/* Venue list */}
       <TabScrollView
-        style={styles.venuesList}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
