@@ -24,28 +24,48 @@ export default function ListSkeleton({
           backgroundColor: colors.background,
         },
         header: {
-          padding: 20,
-          backgroundColor: colors.surface,
+          paddingHorizontal: 16,
+          paddingVertical: 12,
           borderBottomWidth: 1,
           borderBottomColor: colors.border,
         },
-        sortBar: {
+        headerSubtitle: {
+          marginTop: 6,
+        },
+        searchBar: {
+          marginHorizontal: 16,
+          marginVertical: 10,
+          height: 38,
+          borderRadius: 10,
+          backgroundColor: colors.surface,
+          overflow: 'hidden',
+        },
+        sortPills: {
           flexDirection: 'row',
           gap: 8,
-          paddingHorizontal: 20,
+          paddingHorizontal: 16,
+          marginBottom: 8,
+        },
+        listRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
           paddingVertical: 12,
-          backgroundColor: colors.surface,
+          paddingHorizontal: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
         },
-        cardList: {
+        rowLeft: {
           flex: 1,
-          padding: 20,
         },
-        card: {
-          backgroundColor: colors.surface,
-          borderRadius: 12,
-          borderCurve: 'continuous',
-          padding: 16,
-          marginBottom: 12,
+        rowLeftSubtitle: {
+          marginTop: 5,
+        },
+        rowRight: {
+          width: 44,
+          alignItems: 'center',
+        },
+        rowRightLabel: {
+          marginTop: 3,
         },
       }),
     [colors],
@@ -59,28 +79,33 @@ export default function ListSkeleton({
     >
       {showHeader && (
         <View style={styles.header}>
-          <SkeletonBox width={180} height={28} style={{ marginBottom: 8 }} />
-          <SkeletonBox width={120} height={16} />
+          <SkeletonBox width={120} height={22} borderRadius={4} />
+          <SkeletonBox width={160} height={14} borderRadius={4} style={styles.headerSubtitle} />
         </View>
       )}
+
+      <SkeletonBox width="100%" height={38} borderRadius={10} style={styles.searchBar} />
 
       {showSortBar && (
-        <View style={styles.sortBar}>
-          <SkeletonBox width={80} height={32} borderRadius={16} />
-          <SkeletonBox width={80} height={32} borderRadius={16} />
-          <SkeletonBox width={80} height={32} borderRadius={16} />
+        <View style={styles.sortPills}>
+          <SkeletonBox width={80} height={28} borderRadius={20} />
+          <SkeletonBox width={80} height={28} borderRadius={20} />
+          <SkeletonBox width={80} height={28} borderRadius={20} />
         </View>
       )}
 
-      <View style={styles.cardList}>
-        {Array.from({ length: cardCount }).map((_, i) => (
-          <View key={i} style={styles.card}>
-            <SkeletonBox width="60%" height={18} style={{ marginBottom: 8 }} />
-            <SkeletonBox width="40%" height={14} style={{ marginBottom: 6 }} />
-            <SkeletonBox width="30%" height={14} />
+      {Array.from({ length: cardCount }).map((_, i) => (
+        <View key={i} style={styles.listRow}>
+          <View style={styles.rowLeft}>
+            <SkeletonBox width="60%" height={15} borderRadius={4} />
+            <SkeletonBox width="40%" height={12} borderRadius={4} style={styles.rowLeftSubtitle} />
           </View>
-        ))}
-      </View>
+          <View style={styles.rowRight}>
+            <SkeletonBox width={28} height={18} borderRadius={4} />
+            <SkeletonBox width={32} height={10} borderRadius={4} style={styles.rowRightLabel} />
+          </View>
+        </View>
+      ))}
     </SafeAreaView>
   );
 }

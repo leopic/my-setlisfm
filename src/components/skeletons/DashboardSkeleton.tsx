@@ -4,6 +4,70 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '../SkeletonBox';
 import { useChronicleColors } from '../../utils/colors';
 
+function EntryRow() {
+  return (
+    <View style={entryRowStyles.row}>
+      <SkeletonBox width={48} height={9} borderRadius={5} />
+      <SkeletonBox width={140} height={14} borderRadius={4} style={entryRowStyles.artist} />
+      <SkeletonBox width={100} height={11} borderRadius={4} style={entryRowStyles.venue} />
+    </View>
+  );
+}
+
+const entryRowStyles = StyleSheet.create({
+  row: {
+    paddingVertical: 10,
+  },
+  artist: {
+    marginTop: 4,
+  },
+  venue: {
+    marginTop: 3,
+  },
+});
+
+interface ChapterProps {
+  entryCount: number;
+  opacity: number;
+  colors: ReturnType<typeof useChronicleColors>;
+}
+
+function YearChapter({ entryCount, opacity, colors }: ChapterProps) {
+  return (
+    <View style={[chapterStyles.chapter, { opacity }]}>
+      <SkeletonBox width={100} height={48} borderRadius={4} style={chapterStyles.year} />
+      <SkeletonBox width={80} height={11} style={chapterStyles.sublabel} />
+      <SkeletonBox width="100%" height={1} borderRadius={0} style={chapterStyles.dotRow} />
+      <View style={[chapterStyles.spine, { borderLeftColor: colors.border }]}>
+        {Array.from({ length: entryCount }).map((_, i) => (
+          <EntryRow key={i} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+const chapterStyles = StyleSheet.create({
+  chapter: {
+    marginTop: 28,
+    marginHorizontal: 20,
+  },
+  year: {
+    // opacity applied via parent
+  },
+  sublabel: {
+    marginTop: 4,
+  },
+  dotRow: {
+    marginTop: 8,
+  },
+  spine: {
+    marginLeft: 36,
+    paddingLeft: 20,
+    borderLeftWidth: 1.5,
+  },
+});
+
 export default function DashboardSkeleton() {
   const colors = useChronicleColors();
   const styles = useMemo(
@@ -13,28 +77,22 @@ export default function DashboardSkeleton() {
           flex: 1,
           backgroundColor: colors.background,
         },
-        header: {
-          padding: 20,
-          paddingTop: 10,
+        scrollContent: {
+          paddingBottom: 100,
         },
-        statsRow: {
+        topBar: {
+          paddingHorizontal: 20,
+          paddingVertical: 12,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        topBarRow: {
           flexDirection: 'row',
-          paddingHorizontal: 16,
-          marginBottom: 20,
-          gap: 8,
-        },
-        section: {
-          marginHorizontal: 20,
-          marginBottom: 16,
-        },
-        yearRow: {
-          flexDirection: 'row',
+          justifyContent: 'space-between',
           alignItems: 'center',
-          paddingVertical: 6,
         },
-        yearBarContainer: {
-          flex: 1,
-          marginHorizontal: 10,
+        statsLine: {
+          marginTop: 6,
         },
       }),
     [colors],
@@ -46,36 +104,18 @@ export default function DashboardSkeleton() {
       style={styles.container}
       testID="loading-skeleton"
     >
-      <ScrollView>
-        <View style={styles.header}>
-          <SkeletonBox width={140} height={28} />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.topBar}>
+          <View style={styles.topBarRow}>
+            <SkeletonBox width={120} height={24} />
+            <SkeletonBox width={56} height={20} borderRadius={10} />
+          </View>
+          <SkeletonBox width={200} height={13} style={styles.statsLine} />
         </View>
 
-        <View style={styles.statsRow}>
-          {[0, 1, 2, 3].map((i) => (
-            <SkeletonBox key={i} width={0} height={70} borderRadius={12} style={{ flex: 1 }} />
-          ))}
-        </View>
-
-        <View style={styles.section}>
-          <SkeletonBox width="100%" height={120} borderRadius={12} />
-        </View>
-
-        <View style={styles.section}>
-          <SkeletonBox width="100%" height={80} borderRadius={12} />
-        </View>
-
-        <View style={styles.section}>
-          {[0, 1, 2, 3].map((i) => (
-            <View key={i} style={styles.yearRow}>
-              <SkeletonBox width={44} height={16} />
-              <View style={styles.yearBarContainer}>
-                <SkeletonBox width="100%" height={20} />
-              </View>
-              <SkeletonBox width={24} height={16} />
-            </View>
-          ))}
-        </View>
+        <YearChapter entryCount={3} opacity={1} colors={colors} />
+        <YearChapter entryCount={2} opacity={0.6} colors={colors} />
+        <YearChapter entryCount={1} opacity={0.35} colors={colors} />
       </ScrollView>
     </SafeAreaView>
   );

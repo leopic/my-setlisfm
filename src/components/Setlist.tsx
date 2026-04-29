@@ -200,7 +200,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
                 <Text style={styles.songNumber}>{String(songIndex + 1).padStart(2, '0')}</Text>
                 <View style={styles.songInfo}>
                   <Text style={styles.songName}>
-                    {song.tape && '📼 '}
+                    {song.tape && 'tape '}
                     {song.name}
                     {song.info && ` (${song.info})`}
                   </Text>

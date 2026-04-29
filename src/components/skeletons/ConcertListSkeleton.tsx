@@ -8,33 +8,83 @@ interface Props {
   showHeader?: boolean;
 }
 
+function buildStyles(colors: ReturnType<typeof useChronicleColors>) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    yearChapter: {
+      marginTop: 20,
+      marginHorizontal: 20,
+    },
+    spine: {
+      marginLeft: 28,
+      paddingLeft: 20,
+      borderLeftWidth: 1.5,
+      borderLeftColor: colors.border,
+    },
+    spineEntry: {
+      paddingVertical: 10,
+      flexDirection: 'row',
+      gap: 8,
+    },
+    spineEntryColumn: {
+      flex: 1,
+    },
+  });
+}
+
+function SpineEntry({ styles }: { styles: ReturnType<typeof buildStyles> }) {
+  return (
+    <View style={styles.spineEntry}>
+      <View style={styles.spineEntryColumn}>
+        <SkeletonBox width={52} height={10} borderRadius={4} />
+        <SkeletonBox width={130} height={15} borderRadius={4} style={{ marginTop: 4 }} />
+        <SkeletonBox width={100} height={12} borderRadius={4} style={{ marginTop: 3 }} />
+      </View>
+    </View>
+  );
+}
+
+function YearChapter({
+  styles,
+  entryCount,
+  dim,
+}: {
+  styles: ReturnType<typeof buildStyles>;
+  entryCount: number;
+  dim: boolean;
+}) {
+  return (
+    <>
+      <View style={styles.yearChapter}>
+        <SkeletonBox
+          width={90}
+          height={40}
+          borderRadius={4}
+          style={{ opacity: dim ? 0.25 : 0.4 }}
+        />
+        <SkeletonBox width={70} height={11} borderRadius={4} style={{ marginTop: 4 }} />
+      </View>
+      <View style={styles.spine}>
+        {Array.from({ length: entryCount }).map((_, i) => (
+          <SpineEntry key={i} styles={styles} />
+        ))}
+      </View>
+    </>
+  );
+}
+
 export default function ConcertListSkeleton({ showHeader = true }: Props) {
   const colors = useChronicleColors();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
-        container: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
-        header: {
-          padding: 20,
-          backgroundColor: colors.surface,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        concertList: {
-          flex: 1,
-          padding: 20,
-        },
-        concertItem: {
-          paddingVertical: 14,
-          borderBottomWidth: StyleSheet.hairlineWidth,
-          borderBottomColor: colors.border,
-        },
-      }),
-    [colors],
-  );
+  const styles = useMemo(() => buildStyles(colors), [colors]);
 
   return (
     <SafeAreaView
@@ -44,21 +94,14 @@ export default function ConcertListSkeleton({ showHeader = true }: Props) {
     >
       {showHeader && (
         <View style={styles.header}>
-          <SkeletonBox width={60} height={16} style={{ marginBottom: 12 }} />
-          <SkeletonBox width="70%" height={24} style={{ marginBottom: 8 }} />
-          <SkeletonBox width="40%" height={16} />
+          <SkeletonBox width={48} height={13} borderRadius={6} style={{ marginBottom: 6 }} />
+          <SkeletonBox width={180} height={22} borderRadius={4} />
+          <SkeletonBox width={140} height={13} borderRadius={4} style={{ marginTop: 5 }} />
         </View>
       )}
 
-      <View style={styles.concertList}>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <View key={i} style={styles.concertItem}>
-            <SkeletonBox width="50%" height={18} style={{ marginBottom: 8 }} />
-            <SkeletonBox width="35%" height={14} style={{ marginBottom: 6 }} />
-            <SkeletonBox width="60%" height={14} />
-          </View>
-        ))}
-      </View>
+      <YearChapter styles={styles} entryCount={3} dim={false} />
+      <YearChapter styles={styles} entryCount={2} dim={true} />
     </SafeAreaView>
   );
 }
