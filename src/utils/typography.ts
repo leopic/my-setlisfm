@@ -8,134 +8,52 @@ export const FontFamily = {
   bold: 'SpaceGrotesk_700Bold',
 } as const;
 
-// Reusable text style presets for Chronicle screens.
-// All sizes are in logical pixels (React Native points).
-// Avoid hardcoding fontFamily in StyleSheets — import from here instead.
 export const Type = {
-  // ── Display ────────────────────────────────────────────────────────────
   // App name, year-ghost chapter headings
-  displayHero: {
+  display: {
     fontFamily: FontFamily.bold,
-    fontSize: 32,
-    letterSpacing: -1.2,
-    lineHeight: 34,
+    fontSize: 24,
+    letterSpacing: -0.8,
+    lineHeight: 28,
   } satisfies TextStyle,
 
-  displayLG: {
-    fontFamily: FontFamily.bold,
-    fontSize: 22,
-    letterSpacing: -0.6,
-    lineHeight: 26,
-  } satisfies TextStyle,
-
-  // ── Headlines ──────────────────────────────────────────────────────────
-  headingXL: {
+  // Page titles ("Artists"), artist name on concert detail
+  heading: {
     fontFamily: FontFamily.bold,
     fontSize: 20,
     letterSpacing: -0.4,
     lineHeight: 24,
   } satisfies TextStyle,
 
-  headingLG: {
-    fontFamily: FontFamily.bold,
-    fontSize: 17,
-    letterSpacing: -0.3,
-    lineHeight: 22,
-  } satisfies TextStyle,
-
-  headingMD: {
+  // Artist names in the river, city names in venues
+  title: {
     fontFamily: FontFamily.semiBold,
     fontSize: 15,
     letterSpacing: -0.2,
     lineHeight: 20,
   } satisfies TextStyle,
 
-  // ── Body ───────────────────────────────────────────────────────────────
-  bodyLG: {
-    fontFamily: FontFamily.medium,
-    fontSize: 15,
-    lineHeight: 22,
-  } satisfies TextStyle,
-
-  bodyMD: {
+  // Venue names, meta lines, song titles
+  body: {
     fontFamily: FontFamily.regular,
     fontSize: 13,
-    lineHeight: 19,
+    letterSpacing: 0,
+    lineHeight: 18,
   } satisfies TextStyle,
 
-  bodySM: {
-    fontFamily: FontFamily.regular,
-    fontSize: 12,
-    lineHeight: 17,
-  } satisfies TextStyle,
-
-  // ── Labels ─────────────────────────────────────────────────────────────
-  // Small-caps section headers (HIGHLIGHTS, TIMELINE, etc.)
-  labelCaps: {
+  // Section caps (SET 1, HIGHLIGHTS), dates, tab labels, song numbers
+  label: {
     fontFamily: FontFamily.semiBold,
     fontSize: 10,
-    letterSpacing: 1.4,
-    textTransform: 'uppercase',
+    letterSpacing: 0.5,
     lineHeight: 14,
   } satisfies TextStyle,
 
-  labelSM: {
-    fontFamily: FontFamily.medium,
-    fontSize: 11,
-    letterSpacing: 0.2,
-    lineHeight: 15,
-  } satisfies TextStyle,
-
-  // Tab bar labels
-  tabLabel: {
-    fontFamily: FontFamily.semiBold,
-    fontSize: 10,
-    letterSpacing: 0.1,
-    lineHeight: 13,
-  } satisfies TextStyle,
-
-  // ── Stats / numbers ────────────────────────────────────────────────────
-  // Hero stat (270 concerts)
-  statHero: {
+  // Show counts in the almanac, stat numbers
+  count: {
     fontFamily: FontFamily.bold,
-    fontSize: 48,
-    letterSpacing: -2.5,
-    lineHeight: 48,
-  } satisfies TextStyle,
-
-  statXL: {
-    fontFamily: FontFamily.bold,
-    fontSize: 28,
-    letterSpacing: -1.0,
-    lineHeight: 30,
-  } satisfies TextStyle,
-
-  statLG: {
-    fontFamily: FontFamily.bold,
-    fontSize: 22,
-    letterSpacing: -0.6,
-    lineHeight: 24,
-  } satisfies TextStyle,
-
-  statMD: {
-    fontFamily: FontFamily.bold,
-    fontSize: 16,
-    letterSpacing: -0.3,
-    lineHeight: 20,
-  } satisfies TextStyle,
-
-  // Dates, song numbers, show counts — things that are fundamentally data
-  dateMD: {
-    fontFamily: FontFamily.semiBold,
-    fontSize: 12,
-    letterSpacing: 0.3,
-    lineHeight: 16,
-  } satisfies TextStyle,
-
-  dateSM: {
-    fontFamily: FontFamily.medium,
-    fontSize: 10,
-    letterSpacing: 0.4,
-    lineHeight: 14,
+    fontSize: 18,
+    letterSpacing: -0.4,
+    lineHeight: 22,
   } satisfies TextStyle,
 } as const;
