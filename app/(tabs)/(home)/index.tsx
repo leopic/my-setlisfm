@@ -404,14 +404,7 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         </View>
         <Text style={styles.statsLine}>
-          {[
-            `${stats.totalConcerts} shows`,
-            `${stats.totalArtists} artists`,
-            `${stats.totalCountries} countries`,
-            busiestYear ? `best: ${busiestYear.year} (${busiestYear.count})` : null,
-          ]
-            .filter(Boolean)
-            .join(' · ')}
+          {`${stats.totalConcerts} shows · ${stats.totalArtists} artists · ${stats.totalCountries} countries`}
         </Text>
       </View>
 
