@@ -235,6 +235,7 @@ export default {
     syncCompleteMessage_other: 'Found {{count}} concerts. Let\u2019s explore!',
     letsGo: 'Let\u2019s Go',
     error: 'Something went wrong',
+    userNotFound: 'Username not found on setlist.fm. Please check your username and try again.',
     retry: 'Try Again',
     usernameRequired: 'Please enter your setlist.fm username',
   },

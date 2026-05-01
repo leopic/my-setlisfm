@@ -34,7 +34,7 @@ export default function TabLayout() {
         <NativeTabs.Trigger.Label>{t('dashboard.venues')}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="(debug)" hidden={!__DEV__}>
+      <NativeTabs.Trigger name="(debug)">
         <NativeTabs.Trigger.Icon sf="gear" md="settings" />
         <NativeTabs.Trigger.Label>Debug</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>

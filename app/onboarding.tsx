@@ -172,7 +172,6 @@ export default function OnboardingScreen() {
     if (!trimmed) return;
 
     setPhase('syncing');
-    await setStoredUsername(trimmed);
 
     const result = await syncConcertData(trimmed, (p) => {
       setProgress(p);
@@ -182,11 +181,16 @@ export default function OnboardingScreen() {
     });
 
     if (result.success) {
+      await setStoredUsername(trimmed);
       setTotalFound(result.newConcerts);
       notifySyncComplete();
       setPhase('done');
     } else {
-      setErrorMessage(result.error ?? t('onboarding.error'));
+      const message =
+        result.error === 'User not found'
+          ? t('onboarding.userNotFound')
+          : t('onboarding.error');
+      setErrorMessage(message);
       setPhase('error');
     }
   };

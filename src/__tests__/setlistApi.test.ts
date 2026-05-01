@@ -85,15 +85,25 @@ describe('SetlistApiService', () => {
       );
     });
 
-    it('should throw on non-ok response', async () => {
+    it('should throw "User not found" on 404', async () => {
       mockFetch.mockResolvedValue({
         ok: false,
         status: 404,
         statusText: 'Not Found',
       });
 
+      await expect(api.getUserAttendedConcerts('testuser')).rejects.toThrow('User not found');
+    });
+
+    it('should throw a generic error on other 4xx responses', async () => {
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 403,
+        statusText: 'Forbidden',
+      });
+
       await expect(api.getUserAttendedConcerts('testuser')).rejects.toThrow(
-        'API request failed: 404 Not Found',
+        'API request failed: 403 Forbidden',
       );
     });
   });

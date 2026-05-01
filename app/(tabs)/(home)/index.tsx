@@ -240,10 +240,9 @@ export default function DashboardScreen() {
         },
         // ── Last synced ───────────────────────────────────────────────────────
         lastSynced: {
-          ...Type.body,
+          ...Type.label,
           color: colors.textMuted,
-          textAlign: 'center',
-          paddingVertical: 20,
+          marginTop: 4,
         },
       }),
     [colors],
@@ -406,6 +405,9 @@ export default function DashboardScreen() {
         <Text style={styles.statsLine}>
           {`${stats.totalConcerts} shows · ${stats.totalArtists} artists · ${stats.totalCountries} countries`}
         </Text>
+        {lastSynced && (
+          <Text style={styles.lastSynced}>{t('dashboard.lastSynced', { date: lastSynced })}</Text>
+        )}
       </View>
 
       <TabScrollView
@@ -600,10 +602,6 @@ export default function DashboardScreen() {
           );
         })}
 
-        {/* ── Last synced ─────────────────────────────────────────────────── */}
-        {lastSynced && (
-          <Text style={styles.lastSynced}>{t('dashboard.lastSynced', { date: lastSynced })}</Text>
-        )}
       </TabScrollView>
     </SafeAreaView>
   );

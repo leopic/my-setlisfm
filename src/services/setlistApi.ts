@@ -60,6 +60,9 @@ export class SetlistApiService {
         }
 
         // Other 4xx errors are client errors — don't retry
+        if (response.status === 404) {
+          throw new Error('User not found');
+        }
         if (response.status >= 400 && response.status < 500) {
           throw new Error(`API request failed: ${response.status} ${response.statusText}`);
         }
@@ -77,7 +80,10 @@ export class SetlistApiService {
         lastError = error instanceof Error ? error : new Error(String(error));
 
         // Don't retry client errors that were thrown above
-        if (lastError.message.startsWith('API request failed:')) {
+        if (
+          lastError.message.startsWith('API request failed:') ||
+          lastError.message === 'User not found'
+        ) {
           throw lastError;
         }
 
