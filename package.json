@@ -59,7 +59,9 @@
     "picomatch@^4.0.2": "4.0.4",
     "picomatch@^4.0.3": "4.0.4",
     "brace-expansion@^2.0.1": "2.0.3",
-    "brace-expansion@^5.0.2": "5.0.5"
+    "brace-expansion@^5.0.2": "5.0.5",
+    "postcss": "^8.5.10",
+    "@tootallnate/once": "^3.0.1"
   },
   "private": true,
   "packageManager": "yarn@4.9.2"
