@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { LegendList } from '@legendapp/list';
 import { dbOperations } from '@/database/operations';
 import { formatDate } from '@/utils/date';
 import type { SortOption } from '@/utils/sort';
@@ -19,7 +20,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
-import { TabScrollView, Icon } from '@/components/ui';
+import { Icon } from '@/components/ui';
 import PlacesInsightCards from '@/components/PlacesInsightCards';
 
 interface VenueWithStats {
@@ -47,6 +48,8 @@ interface GeoStats {
   countries: string[];
   cities: string[];
 }
+
+const CONTENT_PADDING_BOTTOM = 100;
 
 export default function VenuesScreen() {
   const colors = useChronicleColors();
@@ -98,14 +101,31 @@ export default function VenuesScreen() {
           color: colors.accent,
         },
 
-        // ── Sticky controls wrapper ──────────────────────────────────────
-        stickyControls: {
+        // ── Controls (pinned above list) ─────────────────────────────────
+        controls: {
           backgroundColor: colors.background,
           paddingTop: 10,
           borderBottomWidth: 1,
           borderBottomColor: colors.border,
         },
-        // ── Sort pills ───────────────────────────────────────────────────
+        searchContainer: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginHorizontal: 16,
+          marginBottom: 8,
+          backgroundColor: colors.surface,
+          borderWidth: 1,
+          borderColor: colors.border,
+          borderRadius: 10,
+          paddingHorizontal: 10,
+          paddingVertical: 8,
+        },
+        searchInput: {
+          flex: 1,
+          ...Type.body,
+          color: colors.textPrimary,
+          padding: 0,
+        },
         sortRow: {
           flexDirection: 'row',
           gap: 8,
@@ -130,31 +150,6 @@ export default function VenuesScreen() {
         },
         sortPillTextActive: {
           color: colors.accent,
-        },
-
-        // ── Search bar ───────────────────────────────────────────────────
-        searchContainer: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginHorizontal: 16,
-          marginBottom: 8,
-          backgroundColor: colors.surface,
-          borderWidth: 1,
-          borderColor: colors.border,
-          borderRadius: 10,
-          paddingHorizontal: 10,
-          paddingVertical: 8,
-        },
-        searchIcon: {
-          ...Type.body,
-          color: colors.textMuted,
-          marginRight: 6,
-        },
-        searchInput: {
-          flex: 1,
-          ...Type.body,
-          color: colors.textPrimary,
-          padding: 0,
         },
 
         // ── Venue rows ───────────────────────────────────────────────────
@@ -276,7 +271,6 @@ export default function VenuesScreen() {
   };
 
   const handleViewConcerts = (venue: VenueWithStats) => {
-    // Navigate to concerts list screen
     router.push({
       pathname: '/(venues)/concerts',
       params: { venue: venue.id },
@@ -313,7 +307,7 @@ export default function VenuesScreen() {
     setRefreshing(false);
   };
 
-  const getVenueCard = (venue: VenueWithStats) => {
+  const renderVenue = ({ item: venue }: { item: VenueWithStats }) => {
     const locationParts = [venue.cityName, venue.state, venue.countryName].filter(Boolean);
     const locationText = locationParts.length > 0 ? locationParts.join(', ') : 'Unknown location';
 
@@ -327,7 +321,6 @@ export default function VenuesScreen() {
 
     return (
       <TouchableOpacity
-        key={venue.id}
         style={styles.venueRow}
         testID={`venue-${venue.id}`}
         activeOpacity={0.7}
@@ -415,63 +408,66 @@ export default function VenuesScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Venue list */}
-      <TabScrollView
-        stickyHeaderIndices={[1]}
-        showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      >
-        {/* 0 — collapsible insight cards */}
-        <View>{placesInsights && <PlacesInsightCards insights={placesInsights} />}</View>
-
-        {/* 1 — sticky search + sort (search first, then sort) */}
-        <View style={styles.stickyControls}>
-          <View style={styles.searchContainer}>
-            <Icon
-              sf="magnifyingglass"
-              md="search-outline"
-              size={15}
-              color={colors.textMuted}
-              style={{ marginRight: 6 }}
-            />
-            <TextInput
-              style={styles.searchInput}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholder={t('venues.searchPlaceholder')}
-              placeholderTextColor={colors.textMuted}
-              returnKeyType="search"
-              clearButtonMode="while-editing"
-              autoCorrect={false}
-              autoCapitalize="none"
-            />
-          </View>
-          <View style={styles.sortRow}>
-            {(['recent', 'top', 'alphabetical'] as SortOption[]).map((option) => {
-              const isActive = sortOption === option;
-              const label =
-                option === 'recent'
-                  ? t('sort.mostRecent')
-                  : option === 'top'
-                    ? t('sort.top')
-                    : t('sort.byName');
-              return (
-                <TouchableOpacity
-                  key={option}
-                  style={[styles.sortPill, isActive && styles.sortPillActive]}
-                  onPress={() => handleSortChange(option)}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: isActive }}
-                >
-                  <Text style={[styles.sortPillText, isActive && styles.sortPillTextActive]}>
-                    {label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+      {/* Search + sort — pinned above the list */}
+      <View style={styles.controls}>
+        <View style={styles.searchContainer}>
+          <Icon
+            sf="magnifyingglass"
+            md="search-outline"
+            size={15}
+            color={colors.textMuted}
+            style={{ marginRight: 6 }}
+          />
+          <TextInput
+            style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder={t('venues.searchPlaceholder')}
+            placeholderTextColor={colors.textMuted}
+            returnKeyType="search"
+            clearButtonMode="while-editing"
+            autoCorrect={false}
+            autoCapitalize="none"
+          />
         </View>
-        {filteredVenues.length === 0 ? (
+        <View style={styles.sortRow}>
+          {(['recent', 'top', 'alphabetical'] as SortOption[]).map((option) => {
+            const isActive = sortOption === option;
+            const label =
+              option === 'recent'
+                ? t('sort.mostRecent')
+                : option === 'top'
+                  ? t('sort.top')
+                  : t('sort.byName');
+            return (
+              <TouchableOpacity
+                key={option}
+                style={[styles.sortPill, isActive && styles.sortPillActive]}
+                onPress={() => handleSortChange(option)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isActive }}
+              >
+                <Text style={[styles.sortPillText, isActive && styles.sortPillTextActive]}>
+                  {label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+
+      {/* Virtualized venue list — insight cards scroll away via ListHeaderComponent */}
+      <LegendList
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: CONTENT_PADDING_BOTTOM }}
+        data={filteredVenues}
+        keyExtractor={(item) => item.id}
+        renderItem={renderVenue}
+        estimatedItemSize={80}
+        ListHeaderComponent={
+          placesInsights ? <PlacesInsightCards insights={placesInsights} /> : null
+        }
+        ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>
               {searchQuery.trim() ? t('venues.noMatch') : t('venues.empty')}
@@ -484,10 +480,10 @@ export default function VenuesScreen() {
               <Text style={styles.refreshButtonText}>{t('common.refresh')}</Text>
             </TouchableOpacity>
           </View>
-        ) : (
-          filteredVenues.map(getVenueCard)
-        )}
-      </TabScrollView>
+        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        showsVerticalScrollIndicator={false}
+      />
     </SafeAreaView>
   );
 }

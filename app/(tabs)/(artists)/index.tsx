@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { LegendList } from '@legendapp/list';
 import { dbOperations } from '@/database/operations';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import { formatDate } from '@/utils/date';
@@ -18,7 +19,7 @@ import { sortByOption } from '@/utils/sort';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
-import { TabScrollView, Icon } from '@/components/ui';
+import { Icon } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import ArtistInsightCards from '@/components/ArtistInsightCards';
 import ArtistImage from '@/components/ArtistImage';
@@ -34,6 +35,8 @@ interface ArtistWithStats {
   lastConcertDate?: string;
   venues: string[];
 }
+
+const CONTENT_PADDING_BOTTOM = 100;
 
 export default function ArtistsScreen() {
   const { t } = useTranslation();
@@ -61,7 +64,7 @@ export default function ArtistsScreen() {
           color: colors.textSecondary,
           marginTop: 2,
         },
-        stickyControls: {
+        controls: {
           backgroundColor: colors.background,
           paddingTop: 12,
           borderBottomWidth: 1,
@@ -78,11 +81,6 @@ export default function ArtistsScreen() {
           paddingVertical: 10,
           marginHorizontal: 20,
           marginBottom: 8,
-        },
-        searchIcon: {
-          ...Type.body,
-          color: colors.textMuted,
-          marginRight: 8,
         },
         searchInput: {
           flex: 1,
@@ -118,9 +116,6 @@ export default function ArtistsScreen() {
         },
         sortPillTextInactive: {
           color: colors.textMuted,
-        },
-        artistsList: {
-          flex: 1,
         },
         artistRow: {
           flexDirection: 'row',
@@ -242,7 +237,6 @@ export default function ArtistsScreen() {
   };
 
   const handleViewConcerts = (artist: ArtistWithStats) => {
-    // Navigate to concerts list screen
     router.push({
       pathname: '/(artists)/concerts',
       params: { artist: artist.mbid },
@@ -278,12 +272,11 @@ export default function ArtistsScreen() {
     setRefreshing(false);
   };
 
-  const getArtistCard = (artist: ArtistWithStats, index: number) => {
+  const renderArtist = ({ item: artist, index }: { item: ArtistWithStats; index: number }) => {
     const hasAccentBar = index < 2;
 
     return (
       <TouchableOpacity
-        key={artist.mbid}
         style={[styles.artistRow, hasAccentBar ? styles.artistRowAccent : styles.artistRowNoAccent]}
         testID={`artist-${artist.mbid}`}
         activeOpacity={0.7}
@@ -335,98 +328,73 @@ export default function ArtistsScreen() {
         </Text>
       </View>
 
-      <TabScrollView
-        style={styles.artistsList}
-        stickyHeaderIndices={[1]}
-        showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      >
-        {/* 0 — collapsible insight cards */}
-        <View>{artistInsights && <ArtistInsightCards insights={artistInsights} />}</View>
-
-        {/* 1 — sticky search + sort */}
-        <View style={styles.stickyControls}>
-          <View style={styles.searchRow}>
-            <Icon
-              sf="magnifyingglass"
-              md="search-outline"
-              size={15}
-              color={colors.textMuted}
-              style={{ marginRight: 6 }}
-            />
-            <TextInput
-              style={styles.searchInput}
-              placeholder={t('artists.searchPlaceholder')}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              autoCapitalize="none"
-              placeholderTextColor={colors.textMuted}
-              accessibilityLabel={t('artists.searchPlaceholder')}
-            />
-          </View>
-          <View style={styles.sortStrip}>
-            <TouchableOpacity
-              style={[
-                styles.sortPill,
-                sortOption === 'recent' ? styles.sortPillActive : styles.sortPillInactive,
-              ]}
-              onPress={() => handleSortChange('recent')}
-              accessibilityRole="button"
-              accessibilityState={{ selected: sortOption === 'recent' }}
-              accessibilityLabel={t('sort.mostRecent')}
-            >
-              <Text
-                style={[
-                  styles.sortPillText,
-                  sortOption === 'recent' ? styles.sortPillTextActive : styles.sortPillTextInactive,
-                ]}
-              >
-                {t('sort.mostRecent')}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.sortPill,
-                sortOption === 'top' ? styles.sortPillActive : styles.sortPillInactive,
-              ]}
-              onPress={() => handleSortChange('top')}
-              accessibilityRole="button"
-              accessibilityState={{ selected: sortOption === 'top' }}
-              accessibilityLabel={t('sort.top')}
-            >
-              <Text
-                style={[
-                  styles.sortPillText,
-                  sortOption === 'top' ? styles.sortPillTextActive : styles.sortPillTextInactive,
-                ]}
-              >
-                {t('sort.top')}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.sortPill,
-                sortOption === 'alphabetical' ? styles.sortPillActive : styles.sortPillInactive,
-              ]}
-              onPress={() => handleSortChange('alphabetical')}
-              accessibilityRole="button"
-              accessibilityState={{ selected: sortOption === 'alphabetical' }}
-              accessibilityLabel={t('sort.byName')}
-            >
-              <Text
-                style={[
-                  styles.sortPillText,
-                  sortOption === 'alphabetical'
-                    ? styles.sortPillTextActive
-                    : styles.sortPillTextInactive,
-                ]}
-              >
-                {t('sort.byName')}
-              </Text>
-            </TouchableOpacity>
-          </View>
+      {/* Search + sort — pinned above the list */}
+      <View style={styles.controls}>
+        <View style={styles.searchRow}>
+          <Icon
+            sf="magnifyingglass"
+            md="search-outline"
+            size={15}
+            color={colors.textMuted}
+            style={{ marginRight: 6 }}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder={t('artists.searchPlaceholder')}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            autoCapitalize="none"
+            placeholderTextColor={colors.textMuted}
+            accessibilityLabel={t('artists.searchPlaceholder')}
+          />
         </View>
-        {filteredArtists.length === 0 ? (
+        <View style={styles.sortStrip}>
+          {(['recent', 'top', 'alphabetical'] as SortOption[]).map((option) => {
+            const isActive = sortOption === option;
+            const label =
+              option === 'recent'
+                ? t('sort.mostRecent')
+                : option === 'top'
+                  ? t('sort.top')
+                  : t('sort.byName');
+            return (
+              <TouchableOpacity
+                key={option}
+                style={[
+                  styles.sortPill,
+                  isActive ? styles.sortPillActive : styles.sortPillInactive,
+                ]}
+                onPress={() => handleSortChange(option)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isActive }}
+                accessibilityLabel={label}
+              >
+                <Text
+                  style={[
+                    styles.sortPillText,
+                    isActive ? styles.sortPillTextActive : styles.sortPillTextInactive,
+                  ]}
+                >
+                  {label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+
+      {/* Virtualized artist list — insight cards scroll away via ListHeaderComponent */}
+      <LegendList
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: CONTENT_PADDING_BOTTOM }}
+        data={filteredArtists}
+        keyExtractor={(item) => item.mbid}
+        renderItem={renderArtist}
+        estimatedItemSize={72}
+        ListHeaderComponent={
+          artistInsights ? <ArtistInsightCards insights={artistInsights} /> : null
+        }
+        ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>
               {searchQuery.trim() ? t('artists.noMatch') : t('artists.empty')}
@@ -439,10 +407,10 @@ export default function ArtistsScreen() {
               <Text style={styles.refreshButtonText}>{t('common.refresh')}</Text>
             </TouchableOpacity>
           </View>
-        ) : (
-          filteredArtists.map((artist, index) => getArtistCard(artist, index))
-        )}
-      </TabScrollView>
+        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        showsVerticalScrollIndicator={false}
+      />
     </SafeAreaView>
   );
 }

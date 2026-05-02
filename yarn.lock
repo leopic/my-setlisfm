@@ -2269,6 +2269,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@legendapp/list@npm:^2.0.19":
+  version: 2.0.19
+  resolution: "@legendapp/list@npm:2.0.19"
+  dependencies:
+    use-sync-external-store: "npm:^1.5.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/8201cd3ebf59bb885b8289e0e65df3134a3d59f9b7fce9b30884a50fab8b268ed601dec742bfa48beeb4fec45fdba8d69af56bf1e16e5afbdce0e1db7a1c56d8
+  languageName: node
+  linkType: hard
+
 "@npmcli/agent@npm:^3.0.0":
   version: 3.0.0
   resolution: "@npmcli/agent@npm:3.0.0"
@@ -9091,6 +9103,7 @@ __metadata:
   dependencies:
     "@eslint/js": "npm:^10.0.1"
     "@expo-google-fonts/space-grotesk": "npm:^0.4.1"
+    "@legendapp/list": "npm:^2.0.19"
     "@types/jest": "npm:29.5.14"
     "@types/react": "npm:~19.2.10"
     "@types/react-dom": "npm:^19"
