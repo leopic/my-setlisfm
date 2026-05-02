@@ -50,6 +50,14 @@ export default function OnboardingScreen() {
     return () => loop.stop();
   }, [glowAnim]);
 
+  // Per-step crossfade — Animated.Values and display states.
+  // The useEffects that drive these are placed after step status derivations
+  // (they reference step1Status/step2Status which are declared later).
+  const step1Fade = useRef(new Animated.Value(1)).current;
+  const step2Fade = useRef(new Animated.Value(1)).current;
+  const [step1Display, setStep1Display] = useState<StepStatus>('waiting');
+  const [step2Display, setStep2Display] = useState<StepStatus>('waiting');
+
   // Quip fade animation — same as before
   const quipOpacity = useRef(new Animated.Value(0)).current;
   const [displayedQuip, setDisplayedQuip] = useState<string | undefined>(undefined);
@@ -251,51 +259,76 @@ export default function OnboardingScreen() {
             ? 'done'
             : 'waiting';
 
+  // Crossfade: when a step's real status changes, fade out → swap display → fade in.
+  // step2 waits 320 ms so it wakes up after step1 has settled.
+  useEffect(() => {
+    if (step1Status === step1Display) return;
+    Animated.timing(step1Fade, { toValue: 0, duration: 160, useNativeDriver: true }).start(() => {
+      setStep1Display(step1Status);
+      Animated.timing(step1Fade, { toValue: 1, duration: 260, useNativeDriver: true }).start();
+    });
+  }, [step1Status]); // intentionally omits step1Display/step1Fade — they're stable refs/state setters
+
+  useEffect(() => {
+    if (step2Status === step2Display) return;
+    const timer = setTimeout(() => {
+      Animated.timing(step2Fade, { toValue: 0, duration: 160, useNativeDriver: true }).start(() => {
+        setStep2Display(step2Status);
+        Animated.timing(step2Fade, { toValue: 1, duration: 260, useNativeDriver: true }).start();
+      });
+    }, 320);
+    return () => clearTimeout(timer);
+  }, [step2Status]); // intentionally omits step2Display/step2Fade — they're stable refs/state setters
+
+  // Content derived from DISPLAY states so the crossfade carries the right text.
+  // Live progress values (page numbers, counts) still read from `progress` directly
+  // since those only matter when the display status is 'active' anyway.
+
   // Step 1: Concerts
   const step1Title =
-    step1Status === 'waiting'
+    step1Display === 'waiting'
       ? 'Your concerts'
-      : step1Status === 'error'
+      : step1Display === 'error'
         ? 'Something went wrong'
-        : step1Status === 'done'
+        : step1Display === 'done'
           ? `${progress?.totalConcerts ?? totalFound} concerts`
           : 'Finding concerts…';
 
   const step1Detail =
-    step1Status === 'waiting'
+    step1Display === 'waiting'
       ? 'Synced from setlist.fm'
-      : step1Status === 'active' && progress
+      : step1Display === 'active' && progress
         ? `Page ${progress.currentPage} of ${progress.totalPages}${progress.totalConcerts > 0 ? `  ·  ${progress.totalConcerts} total` : ''}`
-        : step1Status === 'done'
+        : step1Display === 'done'
           ? 'All saved ✓'
-          : step1Status === 'error'
+          : step1Display === 'error'
             ? errorMessage
             : undefined;
 
   const step1Progress =
-    step1Status === 'active' && progress && progress.totalPages > 0
+    step1Display === 'active' && progress && progress.totalPages > 0
       ? Math.round((progress.currentPage / progress.totalPages) * 100)
       : undefined;
 
   // Step 2: Photos
   const step2Title =
-    step2Status === 'waiting'
+    step2Display === 'waiting'
       ? 'Artist photos'
-      : step2Status === 'active'
+      : step2Display === 'active'
         ? 'Fetching photos…'
         : 'Photos ready';
 
   const step2Detail =
-    step2Status === 'waiting'
+    step2Display === 'waiting'
       ? "A face for every act you've seen"
-      : step2Status === 'active' && progress?.imagesTotal
+      : step2Display === 'active' && progress?.imagesTotal
         ? `${progress.imagesDone ?? 0} of ${progress.imagesTotal} artists`
-        : step2Status === 'done'
+        : step2Display === 'done'
           ? 'All matched ✓'
           : undefined;
 
   const step2Progress =
-    step2Status === 'active' && progress?.imagesTotal
+    step2Display === 'active' && progress?.imagesTotal
       ? Math.round(((progress.imagesDone ?? 0) / progress.imagesTotal) * 100)
       : undefined;
 
@@ -340,6 +373,7 @@ export default function OnboardingScreen() {
     progressPct: number | undefined,
     showQuip: boolean,
     isLast: boolean,
+    fadeAnim: Animated.Value,
   ) => {
     const isActive = status === 'active';
     const isDone = status === 'done';
@@ -364,7 +398,9 @@ export default function OnboardingScreen() {
           : 'transparent';
 
     return (
-      <View style={[styles.stepEntry, isLast && styles.stepEntryLast]}>
+      <Animated.View
+        style={[styles.stepEntry, isLast && styles.stepEntryLast, { opacity: fadeAnim }]}
+      >
         {/* Glow halo (active only) */}
         {isActive && (
           <Animated.View
@@ -432,13 +468,13 @@ export default function OnboardingScreen() {
             </Animated.Text>
           ) : null}
         </View>
-      </View>
+      </Animated.View>
     );
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <SafeAreaView style={styles.outer} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.outer} edges={['top', 'left', 'right', 'bottom']}>
       {/* Wordmark */}
       <View style={styles.header}>
         <Text style={styles.wordmark}>CHRONICLES</Text>
@@ -447,8 +483,24 @@ export default function OnboardingScreen() {
       {/* Spine */}
       <View style={styles.spineArea}>
         <View style={styles.spineTrack}>
-          {renderStep(step1Status, step1Title, step1Detail, step1Progress, step1Status === 'active', false)}
-          {renderStep(step2Status, step2Title, step2Detail, step2Progress, step2Status === 'active', true)}
+          {renderStep(
+            step1Display,
+            step1Title,
+            step1Detail,
+            step1Progress,
+            step1Display === 'active',
+            false,
+            step1Fade,
+          )}
+          {renderStep(
+            step2Display,
+            step2Title,
+            step2Detail,
+            step2Progress,
+            step2Display === 'active',
+            true,
+            step2Fade,
+          )}
         </View>
       </View>
 

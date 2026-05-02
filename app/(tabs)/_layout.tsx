@@ -3,6 +3,11 @@ import { useTranslation } from 'react-i18next';
 
 export { ErrorBoundary } from '@/components/ErrorBoundary';
 
+// Always open the dashboard first, regardless of previously active tab.
+export const unstable_settings = {
+  initialRouteName: '(home)',
+};
+
 export default function TabLayout() {
   const { t } = useTranslation();
 
