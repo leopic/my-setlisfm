@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { TabScrollView, Icon } from '@/components/ui';
+import ArtistImage from '@/components/ArtistImage';
 import { useTranslation } from 'react-i18next';
 import type { SetlistWithDetails, SetWithSongs } from '@/types/database';
 import { formatDate } from '@/utils/date';
@@ -176,6 +177,9 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
           <Pressable onPress={onBackPress} accessibilityRole="button" accessibilityLabel="Go back">
             <Text style={styles.backButton}>{'← Back'}</Text>
           </Pressable>
+          {setlist.artist?.mbid && (
+            <ArtistImage mbid={setlist.artist.mbid} size={28} name={setlist.artist.name} />
+          )}
           <Text style={styles.artistName} numberOfLines={1}>
             {setlist.artist?.name || 'Unknown Artist'}
           </Text>

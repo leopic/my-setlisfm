@@ -8,6 +8,7 @@ import { parseSetlistDate, formatDate } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import ConcertListSkeleton from '@/components/skeletons/ConcertListSkeleton';
+import ArtistImage from '@/components/ArtistImage';
 import { TabScrollView } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 
@@ -53,6 +54,15 @@ export default function ArtistConcertsListScreen() {
         backText: {
           ...Type.body,
           color: colors.accent,
+        },
+        artistRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+          marginTop: 4,
+        },
+        artistTextBlock: {
+          flex: 1,
         },
         headerTitle: {
           ...Type.heading,
@@ -168,6 +178,7 @@ export default function ArtistConcertsListScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [artistName, setArtistName] = useState<string>('');
+  const [artistImageUrl, setArtistImageUrl] = useState<string | undefined>(undefined);
 
   // Get artist parameter from navigation
   const artistMbid = params.artist as string;
@@ -182,10 +193,11 @@ export default function ArtistConcertsListScreen() {
     try {
       setLoading(true);
 
-      // Fetch artist name
+      // Fetch artist name and image
       const artistData = await dbOperations.getArtistByMbid(mbid);
       if (artistData?.name) {
         setArtistName(artistData.name);
+        setArtistImageUrl(artistData.imageUrl ?? undefined);
       }
 
       // Fetch concerts
@@ -270,8 +282,13 @@ export default function ArtistConcertsListScreen() {
             <Text style={styles.backText}>← Back</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.headerTitle}>{artistName}</Text>
-        <Text style={styles.headerSubtitle}>{subtitleParts.join(' · ')}</Text>
+        <View style={styles.artistRow}>
+          <ArtistImage mbid={artistMbid} imageUrl={artistImageUrl} size={56} name={artistName} />
+          <View style={styles.artistTextBlock}>
+            <Text style={styles.headerTitle}>{artistName}</Text>
+            <Text style={styles.headerSubtitle}>{subtitleParts.join(' · ')}</Text>
+          </View>
+        </View>
       </View>
 
       {/* Concerts list */}
