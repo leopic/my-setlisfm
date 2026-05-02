@@ -116,6 +116,10 @@ const chronicleDark = {
   accent: '#00e8ff', // electric cyan — used for dates, active dots, counts
   accentSoft: 'rgba(0, 232, 255, 0.12)',
   accentGlow: 'rgba(0, 232, 255, 0.5)',
+  // Cyan is light (high luminance) — text ON it must be near-black, not white
+  textOnAccent: '#020d12',
+
+  danger: '#ff453a', // iOS dark mode red
 
   // Timeline-specific
   spineColor: '#16203a', // decorative — spine line
@@ -143,6 +147,10 @@ const chronicleLight = {
   accent: '#0077cc', // electric cobalt — same family, readable on light
   accentSoft: 'rgba(0, 119, 204, 0.1)',
   accentGlow: 'rgba(0, 119, 204, 0.4)',
+  // Cobalt is dark — white text is fine
+  textOnAccent: '#ffffff',
+
+  danger: '#c0392b', // readable red on light bg
 
   // Timeline-specific
   spineColor: '#d0dced', // decorative — spine line

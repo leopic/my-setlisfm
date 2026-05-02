@@ -220,7 +220,7 @@ export default {
 
   // Onboarding
   onboarding: {
-    title: 'Welcome to Setlist FM',
+    title: 'Welcome to Chronicles',
     subtitle: 'Track every concert you attend',
     usernamePlaceholder: 'Your setlist.fm username',
     getStarted: 'Get Started',

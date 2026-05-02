@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chronicles — Asset Preview</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0A0A0C;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      padding: 56px 32px 96px;
+    }
+
+    h1 { font-size: 28px; font-weight: 700; letter-spacing: -.5px; margin-bottom: 6px; }
+    .subtitle { font-size: 14px; color: #636366; margin-bottom: 56px; }
+
+    /* ── Section layout ─────────────────────────────────────────────────── */
+    .section { margin-bottom: 60px; }
+    .section-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: #0A84FF; margin-bottom: 24px;
+    }
+
+    .row { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+
+    /* ── Generic preview card ───────────────────────────────────────────── */
+    .preview { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .label { font-size: 11px; color: #636366; letter-spacing: .5px; }
+
+    /* ── iOS App Icon ───────────────────────────────────────────────────── */
+    .ios-icon img {
+      display: block;
+      border-radius: 22.5%;
+      box-shadow: 0 16px 48px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.06);
+    }
+
+    /* ── iOS home screen mockup ─────────────────────────────────────────── */
+    .homescreen {
+      background: #1A1A2E;
+      background-image:
+        radial-gradient(ellipse at 30% 20%, rgba(30,40,80,.8) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 80%, rgba(20,30,60,.8) 0%, transparent 60%);
+      border-radius: 48px;
+      width: 280px;
+      padding: 48px 24px 32px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.08);
+      position: relative;
+    }
+    .homescreen::before {
+      content: '';
+      position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+      width: 100px; height: 6px; background: rgba(255,255,255,.3); border-radius: 3px;
+    }
+    .hs-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    }
+    .hs-app { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .hs-app img { display: block; border-radius: 22.5%; box-shadow: 0 4px 12px rgba(0,0,0,.5); }
+    .hs-app-name { font-size: 9px; color: rgba(255,255,255,.85); text-align: center; }
+    .hs-dummy {
+      width: 52px; height: 52px; border-radius: 22.5%;
+      background: rgba(255,255,255,.07);
+    }
+
+    /* ── Android adaptive icon masks ───────────────────────────────────── */
+    .android-circle img  { border-radius: 50%; display: block; }
+    .android-squircle img {
+      border-radius: 36%;
+      display: block;
+    }
+    .android-rounded img { border-radius: 20%; display: block; }
+    .android-square img  { border-radius: 4%;  display: block; }
+
+    .mask-wrap {
+      background: #1C1C1E;
+      padding: 16px; border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.5);
+    }
+
+    /* ── Splash screen ──────────────────────────────────────────────────── */
+    .splash-phone {
+      background: #0D0D1A;
+      width: 220px;
+      height: 476px;
+      border-radius: 36px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 24px 64px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .splash-phone::before {
+      content: '';
+      position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+      width: 80px; height: 5px; background: rgba(255,255,255,.2); border-radius: 3px;
+    }
+    .splash-phone img {
+      width: 96px; height: 96px; display: block;
+    }
+
+    /* ── App Store tile ─────────────────────────────────────────────────── */
+    .store-tile {
+      background: #1C1C1E;
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      width: 340px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.5);
+    }
+    .store-tile img { display: block; border-radius: 22.5%; flex-shrink: 0; }
+    .store-text h3 { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+    .store-text p  { font-size: 12px; color: #636366; }
+    .store-btn {
+      margin-top: 10px; background: #0A84FF; color: #fff;
+      border: none; border-radius: 14px; padding: 5px 14px;
+      font-size: 13px; font-weight: 600; cursor: default;
+    }
+
+    .divider { width: 100%; height: 1px; background: #2C2C2E; margin: 48px 0; }
+  </style>
+</head>
+<body>
+
+<h1>Chronicles</h1>
+<p class="subtitle">Asset preview — icon.png · adaptive-icon.png · splash-icon.png</p>
+
+<!-- ── iOS Icon sizes ──────────────────────────────────────────────────────── -->
+<div class="section">
+  <div class="section-title">iOS — Icon sizes</div>
+  <div class="row">
+
+    <div class="preview ios-icon">
+      <img src="assets/icon.png" width="180" height="180">
+      <span class="label">1024 pt · App Store</span>
+    </div>
+
+    <div class="preview ios-icon">
+      <img src="assets/icon.png" width="120" height="120">
+      <span class="label">60 pt · Home screen</span>
+    </div>
+
+    <div class="preview ios-icon">
+      <img src="assets/icon.png" width="80" height="80">
+      <span class="label">40 pt · Spotlight</span>
+    </div>
+
+    <div class="preview ios-icon">
+      <img src="assets/icon.png" width="58" height="58">
+      <span class="label">29 pt · Settings</span>
+    </div>
+
+    <div class="preview ios-icon">
+      <img src="assets/icon.png" width="40" height="40">
+      <span class="label">20 pt · Notification</span>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── iOS Home screen ────────────────────────────────────────────────────── -->
+<div class="section">
+  <div class="section-title">iOS — Home screen context</div>
+  <div class="row">
+    <div class="preview">
+      <div class="homescreen">
+        <div class="hs-grid">
+          <!-- Row 1 -->
+          <div class="hs-app"><div class="hs-dummy"></div></div>
+          <div class="hs-app"><div class="hs-dummy"></div></div>
+          <div class="hs-app"><div class="hs-dummy"></div></div>
+          <div class="hs-app"><div class="hs-dummy"></div></div>
+          <!-- Row 2 -->
+          <div class="hs-app"><div class="hs-dummy"></div></div>
+          <div class="hs-app">
+            <img src="assets/icon.png" width="52" height="52">
+            <span class="hs-app-name">Chronicles</span>
+          </div>
+          <div class="hs-app"><div class="hs-dummy"></div></div>
+          <div class="hs-app"><div class="hs-dummy"></div></div>
+          <!-- Row 3 -->
+          <div class="hs-app"><div class="hs-dummy"></div></div>
+          <div class="hs-app"><div class="hs-dummy"></div></div>
+          <div class="hs-app"><div class="hs-dummy"></div></div>
+          <div class="hs-app"><div class="hs-dummy"></div></div>
+        </div>
+      </div>
+      <span class="label">iOS home screen</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── Android adaptive icon masks ───────────────────────────────────────── -->
+<div class="section">
+  <div class="section-title">Android — Adaptive icon masks</div>
+  <div class="row">
+
+    <div class="preview android-circle">
+      <div class="mask-wrap">
+        <img src="assets/adaptive-icon.png" width="108" height="108">
+      </div>
+      <span class="label">Circle</span>
+    </div>
+
+    <div class="preview android-squircle">
+      <div class="mask-wrap">
+        <img src="assets/adaptive-icon.png" width="108" height="108">
+      </div>
+      <span class="label">Squircle</span>
+    </div>
+
+    <div class="preview android-rounded">
+      <div class="mask-wrap">
+        <img src="assets/adaptive-icon.png" width="108" height="108">
+      </div>
+      <span class="label">Rounded rect</span>
+    </div>
+
+    <div class="preview android-square">
+      <div class="mask-wrap">
+        <img src="assets/adaptive-icon.png" width="108" height="108">
+      </div>
+      <span class="label">Square</span>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── Splash screen ──────────────────────────────────────────────────────── -->
+<div class="section">
+  <div class="section-title">Splash screen</div>
+  <div class="row">
+    <div class="preview">
+      <div class="splash-phone">
+        <img src="assets/splash-icon.png">
+      </div>
+      <span class="label">Launch screen · #0D0D1A bg</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── App Store listing ──────────────────────────────────────────────────── -->
+<div class="section">
+  <div class="section-title">App Store listing</div>
+  <div class="row">
+    <div class="store-tile">
+      <img src="assets/icon.png" width="64" height="64">
+      <div class="store-text">
+        <h3>Chronicles</h3>
+        <p>Your concert history</p>
+        <button class="store-btn">GET</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

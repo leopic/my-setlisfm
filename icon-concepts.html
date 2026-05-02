@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chronicles — Icon Concepts</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0A0A0C;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      padding: 56px 24px 96px;
+    }
+
+    .page-header { text-align: center; margin-bottom: 60px; }
+    .page-header h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.6px; margin-bottom: 8px; }
+    .page-header p  { font-size: 15px; color: #636366; }
+
+    .grid {
+      display: flex; flex-wrap: wrap; gap: 28px;
+      justify-content: center; max-width: 1600px; margin: 0 auto;
+    }
+
+    .card {
+      background: #1C1C1E; border: 1.5px solid #2C2C2E; border-radius: 24px;
+      padding: 28px 24px 26px; width: 276px;
+      display: flex; flex-direction: column; align-items: center;
+      transition: border-color .15s, transform .15s;
+    }
+    .card:hover { border-color: #0A84FF; transform: translateY(-2px); }
+
+    .tag {
+      align-self: flex-start; font-size: 10px; font-weight: 700;
+      letter-spacing: 2.5px; text-transform: uppercase; color: #0A84FF;
+      margin-bottom: 20px;
+    }
+
+    .icon-lg {
+      width: 192px; height: 192px; border-radius: 43px; overflow: hidden;
+      box-shadow: 0 20px 56px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.06);
+      margin-bottom: 22px; flex-shrink: 0;
+    }
+    .icon-lg svg { display: block; }
+
+    .sizes {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+      align-self: stretch; padding: 10px 14px; background: #141416;
+      border-radius: 12px; justify-content: center;
+    }
+    .sz { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .sz svg { display: block; border-radius: 22%; overflow: hidden; }
+    .sz-lbl { font-size: 9px; color: #48484A; letter-spacing: .5px; }
+
+    .splash {
+      width: 100%; height: 152px; border-radius: 14px; overflow: hidden;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 10px; margin-bottom: 22px; border: 1px solid #2C2C2E;
+    }
+    .splash-icon { width: 60px; height: 60px; border-radius: 14px; overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,.7); }
+    .splash-icon svg { display: block; }
+    .splash-name { font-size: 12px; font-weight: 600; letter-spacing: .2px; }
+
+    .option-name { align-self: flex-start; font-size: 18px; font-weight: 700; letter-spacing: -.3px; margin-bottom: 6px; }
+    .option-desc { align-self: flex-start; font-size: 12.5px; color: #8E8E93; line-height: 1.6; }
+    .section-lbl { align-self: flex-start; font-size: 9.5px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #48484A; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1>Chronicles</h1>
+  <p>5 icon concepts &mdash; pick your direction</p>
+</header>
+
+<main class="grid">
+
+  <!-- ── CARD 1 ── -->
+  <div class="card">
+    <div class="tag">Concept 01</div>
+    <div class="icon-lg"    data-icon="1" data-w="192" data-h="192"></div>
+    <div class="section-lbl">At size</div>
+    <div class="sizes">
+      <div class="sz" data-icon="1" data-w="60" data-h="60"><span class="sz-lbl">60 pt</span></div>
+      <div class="sz" data-icon="1" data-w="40" data-h="40"><span class="sz-lbl">40 pt</span></div>
+      <div class="sz" data-icon="1" data-w="20" data-h="20"><span class="sz-lbl">20 pt</span></div>
+    </div>
+    <div class="section-lbl">Splash screen</div>
+    <div class="splash" style="background:#0D0D1A">
+      <div class="splash-icon" data-icon="1" data-w="60" data-h="60"></div>
+      <span class="splash-name" style="color:rgba(255,255,255,.7)">Chronicles</span>
+    </div>
+    <div class="option-name">The Spine</div>
+    <div class="option-desc">The app's own visual language — a timeline spine with a glowing "now" moment. Minimal, modern, completely unique to the product.</div>
+  </div>
+
+  <!-- ── CARD 2 ── -->
+  <div class="card">
+    <div class="tag">Concept 02</div>
+    <div class="icon-lg"    data-icon="2" data-w="192" data-h="192"></div>
+    <div class="section-lbl">At size</div>
+    <div class="sizes">
+      <div class="sz" data-icon="2" data-w="60" data-h="60"><span class="sz-lbl">60 pt</span></div>
+      <div class="sz" data-icon="2" data-w="40" data-h="40"><span class="sz-lbl">40 pt</span></div>
+      <div class="sz" data-icon="2" data-w="20" data-h="20"><span class="sz-lbl">20 pt</span></div>
+    </div>
+    <div class="section-lbl">Splash screen</div>
+    <div class="splash" style="background:#04020A">
+      <div class="splash-icon" data-icon="2" data-w="60" data-h="60"></div>
+      <span class="splash-name" style="color:rgba(255,255,255,.65)">Chronicles</span>
+    </div>
+    <div class="option-name">Stage Lights</div>
+    <div class="option-desc">Three coloured stage lights — amber, white, blue — merging above a faint crowd silhouette. Pure concert atmosphere.</div>
+  </div>
+
+  <!-- ── CARD 3 ── -->
+  <div class="card">
+    <div class="tag">Concept 03</div>
+    <div class="icon-lg"    data-icon="3" data-w="192" data-h="192"></div>
+    <div class="section-lbl">At size</div>
+    <div class="sizes">
+      <div class="sz" data-icon="3" data-w="60" data-h="60"><span class="sz-lbl">60 pt</span></div>
+      <div class="sz" data-icon="3" data-w="40" data-h="40"><span class="sz-lbl">40 pt</span></div>
+      <div class="sz" data-icon="3" data-w="20" data-h="20"><span class="sz-lbl">20 pt</span></div>
+    </div>
+    <div class="section-lbl">Splash screen</div>
+    <div class="splash" style="background:#06010F">
+      <div class="splash-icon" data-icon="3" data-w="60" data-h="60"></div>
+      <span class="splash-name" style="color:rgba(255,255,255,.65)">Chronicles</span>
+    </div>
+    <div class="option-name">Stub</div>
+    <div class="option-desc">A golden concert ticket stub — perforated tear line, hole punches, and a music-note badge. Immediately legible as "live show."</div>
+  </div>
+
+  <!-- ── CARD 4 ── -->
+  <div class="card">
+    <div class="tag">Concept 04</div>
+    <div class="icon-lg"    data-icon="4" data-w="192" data-h="192"></div>
+    <div class="section-lbl">At size</div>
+    <div class="sizes">
+      <div class="sz" data-icon="4" data-w="60" data-h="60"><span class="sz-lbl">60 pt</span></div>
+      <div class="sz" data-icon="4" data-w="40" data-h="40"><span class="sz-lbl">40 pt</span></div>
+      <div class="sz" data-icon="4" data-w="20" data-h="20"><span class="sz-lbl">20 pt</span></div>
+    </div>
+    <div class="section-lbl">Splash screen</div>
+    <div class="splash" style="background:#080808">
+      <div class="splash-icon" data-icon="4" data-w="60" data-h="60"></div>
+      <span class="splash-name" style="color:rgba(255,255,255,.7)">Chronicles</span>
+    </div>
+    <div class="option-name">Band</div>
+    <div class="option-desc">A tyvek concert wristband with diagonal rainbow stripes and snap clasp. Energetic, fun, and unmistakably festival.</div>
+  </div>
+
+  <!-- ── CARD 5 ── -->
+  <div class="card">
+    <div class="tag">Concept 05</div>
+    <div class="icon-lg"    data-icon="5" data-w="192" data-h="192"></div>
+    <div class="section-lbl">At size</div>
+    <div class="sizes">
+      <div class="sz" data-icon="5" data-w="60" data-h="60"><span class="sz-lbl">60 pt</span></div>
+      <div class="sz" data-icon="5" data-w="40" data-h="40"><span class="sz-lbl">40 pt</span></div>
+      <div class="sz" data-icon="5" data-w="20" data-h="20"><span class="sz-lbl">20 pt</span></div>
+    </div>
+    <div class="section-lbl">Splash screen</div>
+    <div class="splash" style="background:#0F0F0F">
+      <div class="splash-icon" data-icon="5" data-w="60" data-h="60"></div>
+      <span class="splash-name" style="color:rgba(255,255,255,.65)">Chronicles</span>
+    </div>
+    <div class="option-name">Grooves</div>
+    <div class="option-desc">A vinyl record with etched groove rings and a warm amber label. Timeless music-lover aesthetic — classic and sophisticated.</div>
+  </div>
+
+</main>
+
+<script>
+// Each icon is a function that takes a unique prefix `p` so every gradient/clipPath
+// ID is scoped to that specific <svg> instance — no cross-SVG ID conflicts.
+const ic = {
+
+  1: (p) => `
+    <defs>
+      <radialGradient id="${p}a" cx="50%" cy="53%" r="50%">
+        <stop offset="0%"   stop-color="#0A84FF" stop-opacity=".55"/>
+        <stop offset="100%" stop-color="#0A84FF" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="${p}b" cx="40%" cy="38%" r="60%">
+        <stop offset="0%"   stop-color="#fff"/>
+        <stop offset="55%"  stop-color="#60AAFF"/>
+        <stop offset="100%" stop-color="#0A84FF"/>
+      </radialGradient>
+    </defs>
+    <rect width="1024" height="1024" fill="#0D0D1A"/>
+    <line x1="512" y1="150" x2="512" y2="874" stroke="#fff" stroke-width="2.5" stroke-opacity=".1"/>
+    <circle cx="512" cy="228" r="6"  fill="#1E1E32"/>
+    <circle cx="512" cy="308" r="6"  fill="#222236"/>
+    <circle cx="512" cy="398" r="8"  fill="#282840"/>
+    <circle cx="512" cy="482" r="10" fill="#30304C"/>
+    <circle cx="512" cy="590" r="160" fill="url(#${p}a)"/>
+    <circle cx="512" cy="590" r="70"  fill="#0A84FF" fill-opacity=".14"/>
+    <circle cx="512" cy="590" r="26"  fill="#0A84FF"/>
+    <circle cx="512" cy="590" r="13"  fill="url(#${p}b)"/>
+    <circle cx="512" cy="726" r="9"  fill="none" stroke="#252540" stroke-width="2"/>
+    <circle cx="512" cy="820" r="7"  fill="none" stroke="#1C1C30" stroke-width="1.5"/>
+    <line x1="492" y1="482" x2="506" y2="482" stroke="#30304C" stroke-width="1.5"/>
+    <line x1="492" y1="398" x2="506" y2="398" stroke="#28284A" stroke-width="1.5"/>
+  `,
+
+  2: (p) => `
+    <defs>
+      <radialGradient id="${p}a" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="#FFB347" stop-opacity=".75"/>
+        <stop offset="100%" stop-color="#FF8C00" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="${p}b" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="#FFFFFF" stop-opacity=".65"/>
+        <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="${p}c" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="#0A84FF" stop-opacity=".75"/>
+        <stop offset="100%" stop-color="#0A84FF" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="${p}d" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="#FFE0A0"/>
+        <stop offset="100%" stop-color="#FFB347"/>
+      </radialGradient>
+      <radialGradient id="${p}e" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="#FFFFFF"/>
+        <stop offset="100%" stop-color="#E0E8FF"/>
+      </radialGradient>
+      <radialGradient id="${p}f" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="#A0D4FF"/>
+        <stop offset="100%" stop-color="#0A84FF"/>
+      </radialGradient>
+    </defs>
+    <rect width="1024" height="1024" fill="#04020A"/>
+    <circle cx="294" cy="530" r="300" fill="url(#${p}a)"/>
+    <circle cx="512" cy="460" r="280" fill="url(#${p}b)"/>
+    <circle cx="730" cy="530" r="300" fill="url(#${p}c)"/>
+    <line x1="80" y1="810" x2="944" y2="810" stroke="#fff" stroke-width="2" stroke-opacity=".08"/>
+    <ellipse cx="180" cy="810" rx="50" ry="22" fill="#fff" fill-opacity=".04"/>
+    <ellipse cx="310" cy="810" rx="44" ry="18" fill="#fff" fill-opacity=".04"/>
+    <ellipse cx="440" cy="810" rx="55" ry="24" fill="#fff" fill-opacity=".04"/>
+    <ellipse cx="585" cy="810" rx="48" ry="20" fill="#fff" fill-opacity=".04"/>
+    <ellipse cx="715" cy="810" rx="52" ry="22" fill="#fff" fill-opacity=".04"/>
+    <ellipse cx="850" cy="810" rx="44" ry="18" fill="#fff" fill-opacity=".04"/>
+    <circle cx="280" cy="195" r="28" fill="url(#${p}d)"/>
+    <circle cx="280" cy="195" r="14" fill="#FFE9B0"/>
+    <circle cx="512" cy="152" r="34" fill="url(#${p}e)"/>
+    <circle cx="512" cy="152" r="17" fill="#fff"/>
+    <circle cx="744" cy="195" r="28" fill="url(#${p}f)"/>
+    <circle cx="744" cy="195" r="14" fill="#C0E8FF"/>
+  `,
+
+  3: (p) => `
+    <defs>
+      <linearGradient id="${p}a" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"   stop-color="#D4970E"/>
+        <stop offset="100%" stop-color="#8B6310"/>
+      </linearGradient>
+      <linearGradient id="${p}b" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"   stop-color="#B87C0C"/>
+        <stop offset="100%" stop-color="#6B4C08"/>
+      </linearGradient>
+    </defs>
+    <rect width="1024" height="1024" fill="#06010F"/>
+    <g transform="rotate(-6,512,512)">
+      <path d="M 194,400 L 662,400 L 662,656 L 194,656 Q 172,656 172,634 L 172,422 Q 172,400 194,400 Z"
+            fill="#000" fill-opacity=".45" transform="translate(4,8)"/>
+      <path d="M 662,400 L 830,400 Q 852,400 852,422 L 852,634 Q 852,656 830,656 L 662,656 Z"
+            fill="#000" fill-opacity=".45" transform="translate(4,8)"/>
+      <path d="M 194,400 L 662,400 L 662,656 L 194,656 Q 172,656 172,634 L 172,422 Q 172,400 194,400 Z"
+            fill="url(#${p}a)"/>
+      <path d="M 662,400 L 830,400 Q 852,400 852,422 L 852,634 Q 852,656 830,656 L 662,656 Z"
+            fill="url(#${p}b)"/>
+      <circle cx="662" cy="422" r="10" fill="#06010F"/>
+      <circle cx="662" cy="452" r="9"  fill="#06010F"/>
+      <circle cx="662" cy="482" r="9"  fill="#06010F"/>
+      <circle cx="662" cy="512" r="9"  fill="#06010F"/>
+      <circle cx="662" cy="542" r="9"  fill="#06010F"/>
+      <circle cx="662" cy="572" r="9"  fill="#06010F"/>
+      <circle cx="662" cy="602" r="9"  fill="#06010F"/>
+      <circle cx="662" cy="634" r="10" fill="#06010F"/>
+      <circle cx="376" cy="528" r="90" fill="none"              stroke="rgba(0,0,0,.2)"  stroke-width="2"/>
+      <circle cx="376" cy="528" r="64" fill="rgba(255,200,60,.12)"/>
+      <circle cx="376" cy="528" r="64" fill="none"              stroke="rgba(0,0,0,.18)" stroke-width="1.5"/>
+      <ellipse cx="372" cy="548" rx="24" ry="17" fill="rgba(0,0,0,.3)" transform="rotate(-20,372,548)"/>
+      <line x1="396" y1="540" x2="396" y2="482" stroke="rgba(0,0,0,.3)"  stroke-width="10" stroke-linecap="round"/>
+      <path d="M 396,482 Q 432,494 424,516" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="8" stroke-linecap="round"/>
+      <line x1="682" y1="450" x2="836" y2="450" stroke="rgba(0,0,0,.22)" stroke-width="2"   stroke-linecap="round"/>
+      <line x1="682" y1="472" x2="820" y2="472" stroke="rgba(0,0,0,.16)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="682" y1="578" x2="836" y2="578" stroke="rgba(0,0,0,.22)" stroke-width="2"   stroke-linecap="round"/>
+      <line x1="682" y1="600" x2="820" y2="600" stroke="rgba(0,0,0,.16)" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="195" cy="528" r="16" fill="#06010F"/>
+      <circle cx="836" cy="528" r="16" fill="#06010F"/>
+    </g>
+  `,
+
+  4: (p) => `
+    <defs>
+      <clipPath id="${p}a">
+        <rect x="50" y="404" width="924" height="216" rx="28"/>
+      </clipPath>
+    </defs>
+    <rect width="1024" height="1024" fill="#080808"/>
+    <rect x="50" y="404" width="924" height="216" rx="28" fill="#111"/>
+    <g clip-path="url(#${p}a)">
+      <polygon points="-55,404 55,404 110,620 0,620"    fill="#FF375F"/>
+      <polygon points="55,404 165,404 220,620 110,620"   fill="#FF6B2B"/>
+      <polygon points="165,404 275,404 330,620 220,620"  fill="#FFD60A"/>
+      <polygon points="275,404 385,404 440,620 330,620"  fill="#30D158"/>
+      <polygon points="385,404 495,404 550,620 440,620"  fill="#00C7BE"/>
+      <polygon points="495,404 605,404 660,620 550,620"  fill="#0A84FF"/>
+      <polygon points="605,404 715,404 770,620 660,620"  fill="#5E5CE6"/>
+      <polygon points="715,404 825,404 880,620 770,620"  fill="#BF5AF2"/>
+      <polygon points="825,404 935,404 990,620 880,620"  fill="#FF375F"/>
+      <polygon points="935,404 1074,404 1074,620 990,620" fill="#FF6B2B"/>
+    </g>
+    <rect x="50" y="404" width="924" height="16"  fill="rgba(0,0,0,.4)" clip-path="url(#${p}a)"/>
+    <rect x="50" y="604" width="924" height="16"  fill="rgba(0,0,0,.4)" clip-path="url(#${p}a)"/>
+    <rect x="50" y="404" width="924" height="216" rx="28" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="2"/>
+    <circle cx="946" cy="512" r="26" fill="#222" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+    <circle cx="946" cy="512" r="12" fill="#333" stroke="rgba(255,255,255,.1)"  stroke-width="1"/>
+    <circle cx="946" cy="512" r="5"  fill="#555"/>
+    <circle cx="78"  cy="512" r="20" fill="#1A1A1A" stroke="rgba(255,255,255,.12)" stroke-width="2"/>
+    <circle cx="78"  cy="512" r="9"  fill="#000"/>
+    <ellipse cx="512" cy="632" rx="430" ry="20" fill="rgba(0,0,0,.45)"/>
+  `,
+
+  5: (p) => `
+    <defs>
+      <radialGradient id="${p}a" cx="42%" cy="38%" r="60%">
+        <stop offset="0%"   stop-color="#2C2C2C"/>
+        <stop offset="70%"  stop-color="#141414"/>
+        <stop offset="100%" stop-color="#0C0C0C"/>
+      </radialGradient>
+      <radialGradient id="${p}b" cx="42%" cy="36%" r="62%">
+        <stop offset="0%"   stop-color="#F0C040"/>
+        <stop offset="60%"  stop-color="#C8960C"/>
+        <stop offset="100%" stop-color="#8A6408"/>
+      </radialGradient>
+      <radialGradient id="${p}c" cx="28%" cy="24%" r="55%">
+        <stop offset="0%"   stop-color="#fff" stop-opacity=".07"/>
+        <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect width="1024" height="1024" fill="#0F0F0F"/>
+    <circle cx="512" cy="512" r="450" fill="url(#${p}a)"/>
+    <circle cx="512" cy="512" r="200" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1.5"/>
+    <circle cx="512" cy="512" r="224" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1.5"/>
+    <circle cx="512" cy="512" r="248" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1.5"/>
+    <circle cx="512" cy="512" r="272" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1.5"/>
+    <circle cx="512" cy="512" r="296" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1.5"/>
+    <circle cx="512" cy="512" r="320" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1.5"/>
+    <circle cx="512" cy="512" r="344" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1.5"/>
+    <circle cx="512" cy="512" r="368" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1.5"/>
+    <circle cx="512" cy="512" r="392" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1.5"/>
+    <circle cx="512" cy="512" r="416" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1.5"/>
+    <circle cx="512" cy="512" r="440" fill="none" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+    <circle cx="512" cy="512" r="450" fill="url(#${p}c)"/>
+    <circle cx="512" cy="512" r="168" fill="none" stroke="rgba(0,0,0,.4)"  stroke-width="3"/>
+    <circle cx="512" cy="512" r="165" fill="url(#${p}b)"/>
+    <circle cx="512" cy="512" r="120" fill="none" stroke="rgba(0,0,0,.2)"  stroke-width="1.5"/>
+    <path d="M 557,458 A 70,70 0 1 0 557,566"
+          fill="none" stroke="rgba(0,0,0,.52)" stroke-width="30" stroke-linecap="round"/>
+    <circle cx="512" cy="512" r="18"  fill="#0F0F0F"/>
+    <circle cx="512" cy="512" r="450" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="2"/>
+  `
+
+};
+
+// Inject a self-contained <svg> into every [data-icon] placeholder.
+// Each instance gets a unique prefix so gradient/clipPath IDs never collide.
+let _seq = 0;
+document.querySelectorAll('[data-icon]').forEach(el => {
+  const n = +el.dataset.icon;
+  const w = +(el.dataset.w || 192);
+  const h = +(el.dataset.h || 192);
+  const p = `q${_seq++}`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" `
+            + `width="${w}" height="${h}" style="display:block">`
+            + ic[n](p)
+            + `</svg>`;
+  el.insertAdjacentHTML('afterbegin', svg);
+});
+</script>
+</body>
+</html>

@@ -16,7 +16,6 @@ import { dbOperations } from '@/database/operations';
 import type { SetlistWithDetails } from '@/types/database';
 import { parseSetlistDate, formatDate } from '@/utils/date';
 import type { SortOption } from '@/utils/sort';
-import { sortByOption } from '@/utils/sort';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
@@ -305,7 +304,10 @@ export default function ConcertsScreen() {
     if (sortBy === 'alphabetical') {
       return [...concertsToSort].sort((a, b) => a.artistName.localeCompare(b.artistName));
     }
-    return sortByOption(concertsToSort, sortBy, (c) => c.eventDate) as ConcertWithDetails[];
+    return [...concertsToSort].sort((a, b) => {
+      if (!a.eventDate || !b.eventDate) return 0;
+      return parseSetlistDate(b.eventDate).getTime() - parseSetlistDate(a.eventDate).getTime();
+    });
   };
 
   const handleSortChange = (newSortOption: SortOption) => {

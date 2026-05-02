@@ -217,7 +217,7 @@ export default function VenuesScreen() {
         },
         refreshButtonText: {
           ...Type.label,
-          color: '#ffffff',
+          color: colors.textOnAccent,
         },
       }),
     [colors],

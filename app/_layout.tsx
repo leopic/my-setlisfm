@@ -10,6 +10,7 @@ import {
   SpaceGrotesk_700Bold,
 } from '@expo-google-fonts/space-grotesk';
 import { Image } from 'expo-image';
+import { StatusBar } from 'expo-status-bar';
 import { databaseManager } from '@/database/database';
 import { getStoredUsername } from '@/services/syncService';
 import { backfillMissingArtistImages } from '@/services/artistImageService';
@@ -62,6 +63,7 @@ export default function Layout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
       <SyncProvider>
         <Stack screenOptions={{ headerShown: false }}>
           {hasUsername ? <Stack.Screen name="(tabs)" /> : <Stack.Screen name="onboarding" />}

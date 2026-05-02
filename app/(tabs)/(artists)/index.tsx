@@ -187,7 +187,7 @@ export default function ArtistsScreen() {
         },
         refreshButtonText: {
           ...Type.label,
-          color: '#ffffff',
+          color: colors.textOnAccent,
         },
       }),
     [colors],

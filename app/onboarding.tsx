@@ -114,7 +114,7 @@ export default function OnboardingScreen() {
         },
         buttonText: {
           ...Type.title,
-          color: '#fff',
+          color: colors.textOnAccent,
         },
         progressContainer: {
           alignItems: 'center',
@@ -186,21 +186,21 @@ export default function OnboardingScreen() {
         },
         errorText: {
           ...Type.body,
-          color: '#ff6b6b',
+          color: colors.danger,
           textAlign: 'center',
           marginBottom: 16,
         },
         errorButton: {
-          backgroundColor: 'rgba(255,107,107,0.15)',
+          backgroundColor: colors.accentSoft,
           borderWidth: 1,
-          borderColor: '#ff6b6b',
+          borderColor: colors.danger,
           borderRadius: 12,
           paddingVertical: 16,
           alignItems: 'center',
         },
         errorButtonText: {
           ...Type.title,
-          color: '#ff6b6b',
+          color: colors.danger,
         },
       }),
     [colors],

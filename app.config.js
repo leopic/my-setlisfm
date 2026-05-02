@@ -1,12 +1,12 @@
 module.exports = {
   expo: {
-    name: "Setlist.fm Tracker",
-    slug: "setlist-fm-tracker",
+    name: "Chronicles",
+    slug: "chronicles",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "automatic",
-    scheme: "setlist-fm-tracker",
+    scheme: "chronicles",
     platforms: [
       "ios",
       "android"
@@ -21,14 +21,14 @@ module.exports = {
     },
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.setlistfm.tracker"
+      bundleIdentifier: "com.chronicles.app"
     },
     android: {
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#0D0D1A"
       },
-      package: "com.setlistfm.tracker",
+      package: "com.chronicles.app",
       config: {
         googleMaps: {
           apiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY
