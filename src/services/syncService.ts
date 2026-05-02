@@ -140,9 +140,9 @@ export async function syncConcertData(
     }
 
     // Images cleanup phase — catch any artists that were missed or failed
-    const remainingMbids = await dbOperations.getArtistMbidsWithoutImages();
+    const remainingArtists = await dbOperations.getArtistsWithoutImages();
 
-    if (remainingMbids.length > 0) {
+    if (remainingArtists.length > 0) {
       onProgress?.({
         phase: 'images',
         currentPage: totalPagesProcessed,
@@ -150,11 +150,11 @@ export async function syncConcertData(
         totalConcerts,
         newConcertsFound: totalNewConcerts,
         quip: `got your concerts — now fetching artist photos...`,
-        imagesTotal: remainingMbids.length,
+        imagesTotal: remainingArtists.length,
         imagesDone: 0,
       });
 
-      await fetchAndStoreArtistImages(remainingMbids, (done, total) => {
+      await fetchAndStoreArtistImages(remainingArtists, (done, total) => {
         const nearlyDone = done >= total * 0.75;
         onProgress?.({
           phase: 'images',

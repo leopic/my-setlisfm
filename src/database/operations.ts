@@ -252,6 +252,14 @@ export class DatabaseOperations {
     return rows.map((r) => r.mbid);
   }
 
+  /** Returns artists whose image has never been fetched OR previously failed. */
+  async getArtistsWithoutImages(): Promise<{ mbid: string; name: string }[]> {
+    const rows = await this.db.getAllAsync<{ mbid: string; name: string }>(
+      `SELECT mbid, name FROM artists WHERE mbid != '' AND (imageUrl IS NULL OR imageUrl = '')`,
+    );
+    return rows.filter((r) => r.name);
+  }
+
   // Venue operations
   async insertVenue(venue: DBVenue): Promise<void> {
     await this.db.runAsync(
