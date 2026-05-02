@@ -9,12 +9,22 @@ interface ArtistImageProps {
   mbid: string;
   size?: number;
   name?: string;
+  /** Pre-loaded URL from a DB query — skips the async lookup entirely. */
+  imageUrl?: string | null;
 }
 
-export default function ArtistImage({ mbid, size = 48, name }: ArtistImageProps) {
+export default function ArtistImage({
+  mbid,
+  size = 48,
+  name,
+  imageUrl: preloaded,
+}: ArtistImageProps) {
   const colors = useColors();
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState(false);
+
+  // If a pre-loaded URL is provided (even empty string = no image), use it directly.
+  const hasPreloaded = preloaded !== undefined;
+  const [imageUri, setImageUri] = useState<string | null>(hasPreloaded ? preloaded || null : null);
+  const [loaded, setLoaded] = useState(hasPreloaded);
 
   const styles = useMemo(
     () =>
@@ -37,6 +47,7 @@ export default function ArtistImage({ mbid, size = 48, name }: ArtistImageProps)
   );
 
   useEffect(() => {
+    if (hasPreloaded) return; // already resolved
     let cancelled = false;
     getArtistImageUri(mbid).then((uri) => {
       if (!cancelled) {
@@ -47,13 +58,13 @@ export default function ArtistImage({ mbid, size = 48, name }: ArtistImageProps)
     return () => {
       cancelled = true;
     };
-  }, [mbid]);
+  }, [mbid, hasPreloaded]);
 
   return (
     <View
       style={styles.container}
       accessibilityRole={imageUri ? 'image' : undefined}
-      accessibilityLabel={name ? name : undefined}
+      accessibilityLabel={name ?? undefined}
     >
       {imageUri ? (
         <Image source={{ uri: imageUri }} style={styles.image} contentFit="cover" />

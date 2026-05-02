@@ -105,6 +105,8 @@ interface ConcertDateRow {
   setlistId: string;
   artistName: string;
   eventDate: string;
+  artistMbid?: string;
+  artistImageUrl?: string;
 }
 
 interface OnThisDayRow {
@@ -113,6 +115,8 @@ interface OnThisDayRow {
   eventDate: string;
   venueName: string;
   dayDiff: number;
+  artistMbid?: string;
+  artistImageUrl?: string;
 }
 
 interface YearCountRow {
@@ -126,6 +130,7 @@ interface ArtistStatsRow {
   sortName?: string;
   disambiguation?: string;
   url?: string;
+  imageUrl?: string;
   concertCount: number;
   venueNames?: string;
 }
@@ -645,8 +650,20 @@ export class DatabaseOperations {
     totalCountries: number;
     topArtist: { mbid: string; name: string; count: number } | null;
     topVenue: { id: string; name: string; cityName: string; count: number } | null;
-    firstConcert: { setlistId: string; artistName: string; eventDate: string } | null;
-    lastConcert: { setlistId: string; artistName: string; eventDate: string } | null;
+    firstConcert: {
+      setlistId: string;
+      artistName: string;
+      eventDate: string;
+      artistMbid: string | null;
+      artistImageUrl: string | null;
+    } | null;
+    lastConcert: {
+      setlistId: string;
+      artistName: string;
+      eventDate: string;
+      artistMbid: string | null;
+      artistImageUrl: string | null;
+    } | null;
     concertsByYear: { year: string; count: number }[];
   }> {
     const [counts, topArtist, topVenue, firstConcert, lastConcert, byYear] = await Promise.all([
@@ -678,14 +695,16 @@ export class DatabaseOperations {
         LIMIT 1
       `) as Promise<TopVenueRow | null>,
       this.db.getFirstAsync(`
-        SELECT sl.id as setlistId, a.name as artistName, sl.eventDate
+        SELECT sl.id as setlistId, a.name as artistName, sl.eventDate,
+               a.mbid as artistMbid, a.imageUrl as artistImageUrl
         FROM setlists sl
         LEFT JOIN artists a ON sl.artistMbid = a.mbid
         ORDER BY substr(sl.eventDate, 7, 4) || substr(sl.eventDate, 4, 2) || substr(sl.eventDate, 1, 2) ASC
         LIMIT 1
       `) as Promise<ConcertDateRow | null>,
       this.db.getFirstAsync(`
-        SELECT sl.id as setlistId, a.name as artistName, sl.eventDate
+        SELECT sl.id as setlistId, a.name as artistName, sl.eventDate,
+               a.mbid as artistMbid, a.imageUrl as artistImageUrl
         FROM setlists sl
         LEFT JOIN artists a ON sl.artistMbid = a.mbid
         ORDER BY substr(sl.eventDate, 7, 4) || substr(sl.eventDate, 4, 2) || substr(sl.eventDate, 1, 2) DESC
@@ -720,6 +739,8 @@ export class DatabaseOperations {
             setlistId: firstConcert.setlistId,
             artistName: firstConcert.artistName,
             eventDate: firstConcert.eventDate,
+            artistMbid: firstConcert.artistMbid ?? null,
+            artistImageUrl: firstConcert.artistImageUrl ?? null,
           }
         : null,
       lastConcert: lastConcert?.eventDate
@@ -727,6 +748,8 @@ export class DatabaseOperations {
             setlistId: lastConcert.setlistId,
             artistName: lastConcert.artistName,
             eventDate: lastConcert.eventDate,
+            artistMbid: lastConcert.artistMbid ?? null,
+            artistImageUrl: lastConcert.artistImageUrl ?? null,
           }
         : null,
       concertsByYear: byYear.map((row) => ({ year: row.year, count: row.count })),
@@ -816,6 +839,8 @@ export class DatabaseOperations {
     eventDate: string;
     venueName: string;
     yearsAgo: number;
+    artistMbid: string | null;
+    artistImageUrl: string | null;
   } | null> {
     const now = new Date();
     const currentYear = now.getFullYear();
@@ -831,12 +856,14 @@ export class DatabaseOperations {
     // 4. Pick the smallest diff, then most recent year
     const result = (await this.db.getFirstAsync(
       `
-      SELECT setlistId, artistName, eventDate, venueName, dayDiff FROM (
+      SELECT setlistId, artistName, eventDate, venueName, dayDiff, artistMbid, artistImageUrl FROM (
         SELECT
           sl.id as setlistId,
           a.name as artistName,
           sl.eventDate,
           v.name as venueName,
+          a.mbid as artistMbid,
+          a.imageUrl as artistImageUrl,
           ABS(
             julianday(
               substr(sl.eventDate, 7, 4) || '-' || substr(sl.eventDate, 4, 2) || '-' || substr(sl.eventDate, 1, 2)
@@ -865,6 +892,8 @@ export class DatabaseOperations {
       eventDate: result.eventDate,
       venueName: result.venueName,
       yearsAgo: currentYear - eventYear,
+      artistMbid: result.artistMbid ?? null,
+      artistImageUrl: result.artistImageUrl ?? null,
     };
   }
 
@@ -876,6 +905,7 @@ export class DatabaseOperations {
       sortName?: string;
       disambiguation?: string;
       url?: string;
+      imageUrl?: string;
       concertCount: number;
       lastConcertDate?: string;
       venues: string[];
@@ -883,18 +913,19 @@ export class DatabaseOperations {
   > {
     // First get basic artist stats
     const result = (await this.db.getAllAsync(`
-      SELECT 
+      SELECT
         a.mbid,
         a.name,
         a.sortName,
         a.disambiguation,
         a.url,
+        a.imageUrl,
         COUNT(DISTINCT sl.eventDate || '|' || sl.venueId) as concertCount,
         GROUP_CONCAT(DISTINCT v.name) as venueNames
       FROM artists a
       INNER JOIN setlists sl ON a.mbid = sl.artistMbid
       LEFT JOIN venues v ON sl.venueId = v.id
-      GROUP BY a.mbid, a.name, a.sortName, a.disambiguation, a.url
+      GROUP BY a.mbid, a.name, a.sortName, a.disambiguation, a.url, a.imageUrl
       HAVING COUNT(DISTINCT sl.eventDate || '|' || sl.venueId) > 0
       ORDER BY a.name COLLATE NOCASE
     `)) as ArtistStatsRow[];
@@ -920,6 +951,7 @@ export class DatabaseOperations {
       sortName: row.sortName,
       disambiguation: row.disambiguation,
       url: row.url,
+      imageUrl: row.imageUrl || undefined,
       concertCount: row.concertCount || 0,
       lastConcertDate: row.lastConcertDate,
       venues: row.venueNames ? row.venueNames.split(',') : [],

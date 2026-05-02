@@ -11,6 +11,7 @@ import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import DashboardSkeleton from '@/components/skeletons/DashboardSkeleton';
 import InsightCards from '@/components/InsightCards';
+import ArtistImage from '@/components/ArtistImage';
 import { TabScrollView, Icon } from '@/components/ui';
 
 type DashboardStats = Awaited<ReturnType<typeof dbOperations.getDashboardStats>>;
@@ -181,6 +182,10 @@ export default function DashboardScreen() {
           borderRadius: 4,
           backgroundColor: colors.accent,
         },
+        // ── Artist image in entries ───────────────────────────────────────────
+        entryImageWrapper: {
+          marginRight: 10,
+        },
         // ── On this day card ─────────────────────────────────────────────────
         onThisDayCard: {
           marginHorizontal: 20,
@@ -281,13 +286,8 @@ export default function DashboardScreen() {
   const [insightStats, setInsightStats] = useState<Awaited<
     ReturnType<typeof dbOperations.getInsightStats>
   > | null>(null);
-  const [onThisDay, setOnThisDay] = useState<{
-    setlistId: string;
-    artistName: string;
-    eventDate: string;
-    venueName: string;
-    yearsAgo: number;
-  } | null>(null);
+  const [onThisDay, setOnThisDay] =
+    useState<Awaited<ReturnType<(typeof dbOperations)['getOnThisDayConcert']>>>(null);
   const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -459,6 +459,16 @@ export default function DashboardScreen() {
               {`ON THIS DAY · ${onThisDay.yearsAgo} YEAR${onThisDay.yearsAgo !== 1 ? 'S' : ''} AGO`}
             </Text>
             <View style={styles.onThisDayRow}>
+              {onThisDay.artistMbid && (
+                <View style={styles.entryImageWrapper}>
+                  <ArtistImage
+                    mbid={onThisDay.artistMbid}
+                    imageUrl={onThisDay.artistImageUrl}
+                    size={44}
+                    name={onThisDay.artistName}
+                  />
+                </View>
+              )}
               <View style={{ flex: 1 }}>
                 <Text style={styles.onThisDayArtist}>{onThisDay.artistName}</Text>
                 <Text style={styles.onThisDayMeta}>
@@ -579,9 +589,18 @@ export default function DashboardScreen() {
                       accessibilityHint={t('Opens concert details')}
                     >
                       <View style={styles.dotWrapper}>
-                        {/* First entry in the most-recent year gets the glowing active dot */}
                         <View style={yearIndex === 0 ? styles.dotActive : styles.dotInactive} />
                       </View>
+                      {stats.lastConcert.artistMbid && (
+                        <View style={styles.entryImageWrapper}>
+                          <ArtistImage
+                            mbid={stats.lastConcert.artistMbid}
+                            imageUrl={stats.lastConcert.artistImageUrl}
+                            size={32}
+                            name={stats.lastConcert.artistName}
+                          />
+                        </View>
+                      )}
                       <View style={styles.entryContent}>
                         <Text style={styles.entryDate}>
                           {formatDate(stats.lastConcert.eventDate)}
@@ -645,6 +664,16 @@ export default function DashboardScreen() {
                       <View style={styles.dotWrapper}>
                         <View style={styles.dotInactive} />
                       </View>
+                      {onThisDay.artistMbid && (
+                        <View style={styles.entryImageWrapper}>
+                          <ArtistImage
+                            mbid={onThisDay.artistMbid}
+                            imageUrl={onThisDay.artistImageUrl}
+                            size={32}
+                            name={onThisDay.artistName}
+                          />
+                        </View>
+                      )}
                       <View style={styles.entryContent}>
                         <Text style={styles.entryDate}>{formatDate(onThisDay.eventDate)}</Text>
                         <Text style={styles.entryArtist}>{onThisDay.artistName}</Text>
@@ -670,6 +699,16 @@ export default function DashboardScreen() {
                       <View style={styles.dotWrapper}>
                         <View style={styles.dotInactive} />
                       </View>
+                      {stats.firstConcert.artistMbid && (
+                        <View style={styles.entryImageWrapper}>
+                          <ArtistImage
+                            mbid={stats.firstConcert.artistMbid}
+                            imageUrl={stats.firstConcert.artistImageUrl}
+                            size={32}
+                            name={stats.firstConcert.artistName}
+                          />
+                        </View>
+                      )}
                       <View style={styles.entryContent}>
                         <Text style={styles.entryDate}>
                           {formatDate(stats.firstConcert.eventDate)}

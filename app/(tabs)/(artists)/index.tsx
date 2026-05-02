@@ -21,6 +21,7 @@ import { useSyncContext } from '@/contexts/SyncContext';
 import { TabScrollView, Icon } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import ArtistInsightCards from '@/components/ArtistInsightCards';
+import ArtistImage from '@/components/ArtistImage';
 
 interface ArtistWithStats {
   mbid: string;
@@ -28,6 +29,7 @@ interface ArtistWithStats {
   sortName?: string;
   disambiguation?: string;
   url?: string;
+  imageUrl?: string;
   concertCount: number;
   lastConcertDate?: string;
   venues: string[];
@@ -136,18 +138,8 @@ export default function ArtistsScreen() {
         artistRowNoAccent: {
           paddingLeft: 16,
         },
-        rankContainer: {
-          width: 30,
-          alignItems: 'flex-start',
-        },
-        rankText: {
-          ...Type.label,
-        },
-        rankTextTop: {
-          color: colors.accent,
-        },
-        rankTextDefault: {
-          color: colors.textMuted,
+        artistImageWrapper: {
+          marginRight: 12,
         },
         artistCenter: {
           flex: 1,
@@ -287,9 +279,7 @@ export default function ArtistsScreen() {
   };
 
   const getArtistCard = (artist: ArtistWithStats, index: number) => {
-    const rank = index + 1;
-    const isTop3 = rank <= 3;
-    const hasAccentBar = rank <= 2;
+    const hasAccentBar = index < 2;
 
     return (
       <TouchableOpacity
@@ -302,10 +292,8 @@ export default function ArtistsScreen() {
         accessibilityLabel={`${artist.name}, ${t('common.show', { count: artist.concertCount })}`}
         accessibilityHint={t('artists.viewConcertsHint')}
       >
-        <View style={styles.rankContainer}>
-          <Text style={[styles.rankText, isTop3 ? styles.rankTextTop : styles.rankTextDefault]}>
-            #{rank}
-          </Text>
+        <View style={styles.artistImageWrapper}>
+          <ArtistImage mbid={artist.mbid} imageUrl={artist.imageUrl} size={40} name={artist.name} />
         </View>
 
         <View style={styles.artistCenter}>
@@ -323,7 +311,7 @@ export default function ArtistsScreen() {
           )}
         </View>
 
-        <Text style={[styles.countText, isTop3 ? styles.countTextTop : styles.countTextDefault]}>
+        <Text style={[styles.countText, index < 3 ? styles.countTextTop : styles.countTextDefault]}>
           {artist.concertCount}
         </Text>
         <Text style={styles.chevron}>›</Text>
