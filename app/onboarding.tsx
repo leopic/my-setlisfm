@@ -5,7 +5,6 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Animated,
@@ -20,6 +19,11 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 
 type Phase = 'input' | 'syncing' | 'done' | 'error';
+type StepStatus = 'waiting' | 'active' | 'done' | 'error';
+
+// Spine geometry constants
+const SPINE_MARGIN_LEFT = 24;
+const SPINE_PADDING_LEFT = 28;
 
 export default function OnboardingScreen() {
   const { t } = useTranslation();
@@ -33,62 +37,141 @@ export default function OnboardingScreen() {
   const [totalFound, setTotalFound] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Quip fade animation
+  // Pulsing glow for whichever dot is currently active
+  const glowAnim = useRef(new Animated.Value(0.35)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, { toValue: 1, duration: 1300, useNativeDriver: true }),
+        Animated.timing(glowAnim, { toValue: 0.25, duration: 1300, useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [glowAnim]);
+
+  // Quip fade animation — same as before
   const quipOpacity = useRef(new Animated.Value(0)).current;
   const [displayedQuip, setDisplayedQuip] = useState<string | undefined>(undefined);
   const latestQuipRef = useRef<string | undefined>(undefined);
-
   useEffect(() => {
     const incoming = progress?.quip;
     if (!incoming || incoming === latestQuipRef.current) return;
     latestQuipRef.current = incoming;
-
-    // Fade out → swap text → fade in
-    Animated.timing(quipOpacity, {
-      toValue: 0,
-      duration: 250,
-      useNativeDriver: true,
-    }).start(() => {
+    Animated.timing(quipOpacity, { toValue: 0, duration: 250, useNativeDriver: true }).start(() => {
       setDisplayedQuip(incoming);
-      Animated.timing(quipOpacity, {
-        toValue: 1,
-        duration: 350,
-        useNativeDriver: true,
-      }).start();
+      Animated.timing(quipOpacity, { toValue: 1, duration: 350, useNativeDriver: true }).start();
     });
   }, [progress?.quip, quipOpacity]);
 
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        container: {
+        outer: {
           flex: 1,
           backgroundColor: colors.background,
         },
-        content: {
-          flex: 1,
-          justifyContent: 'center',
-          paddingHorizontal: 32,
+        header: {
+          paddingTop: 28,
+          paddingBottom: 8,
+          alignItems: 'center',
         },
-        appName: {
+        wordmark: {
           ...Type.label,
           color: colors.accent,
-          textAlign: 'center',
-          letterSpacing: 2,
-          marginBottom: 12,
+          letterSpacing: 4,
         },
-        title: {
-          ...Type.display,
+
+        // ── Spine area ───────────────────────────────────────────────────
+        spineArea: {
+          flex: 1,
+          justifyContent: 'center',
+          paddingHorizontal: 36,
+        },
+        spineTrack: {
+          borderLeftWidth: 1.5,
+          borderLeftColor: colors.spineColor,
+          marginLeft: SPINE_MARGIN_LEFT,
+          paddingLeft: SPINE_PADDING_LEFT,
+        },
+
+        // ── Step entry ───────────────────────────────────────────────────
+        stepEntry: {
+          paddingTop: 2,
+          paddingBottom: 40,
+          position: 'relative',
+        },
+        stepEntryLast: {
+          paddingBottom: 8,
+        },
+
+        // Dot (base — position/size set inline)
+        dotBase: {
+          position: 'absolute',
+          top: 6,
+        },
+
+        // Glow halo behind active dot (size/position set inline)
+        glowHalo: {
+          position: 'absolute',
+          borderRadius: 25,
+          backgroundColor: colors.accent,
+        },
+
+        // Step text
+        stepTitle: {
+          ...Type.title,
           color: colors.textPrimary,
-          textAlign: 'center',
-          marginBottom: 8,
+          marginBottom: 3,
         },
-        subtitle: {
+        stepTitleWaiting: {
+          color: colors.textDisabled,
+          fontWeight: '400',
+        },
+        stepTitleDone: {
+          color: colors.textMuted,
+        },
+        stepTitleError: {
+          color: colors.danger,
+        },
+        stepDetail: {
           ...Type.body,
           color: colors.textSecondary,
-          textAlign: 'center',
-          marginBottom: 40,
+          marginTop: 1,
+        },
+        stepDetailWaiting: {
+          color: colors.textDisabled,
+        },
+
+        // Progress bar
+        progressBar: {
+          width: '100%',
+          height: 2,
+          backgroundColor: colors.border,
+          borderRadius: 1,
+          overflow: 'hidden',
+          marginTop: 10,
+        },
+        progressFill: {
+          height: '100%',
+          backgroundColor: colors.accent,
+          borderRadius: 1,
+        },
+
+        // Quip
+        quipText: {
+          ...Type.body,
+          color: colors.textMuted,
+          fontStyle: 'italic',
+          marginTop: 12,
           lineHeight: 20,
+        },
+
+        // ── Bottom section ───────────────────────────────────────────────
+        bottom: {
+          paddingHorizontal: 36,
+          paddingBottom: 36,
+          paddingTop: 8,
         },
         input: {
           ...Type.body,
@@ -99,7 +182,7 @@ export default function OnboardingScreen() {
           borderRadius: 12,
           paddingHorizontal: 16,
           paddingVertical: 14,
-          marginBottom: 16,
+          marginBottom: 14,
           textAlign: 'center',
         },
         button: {
@@ -107,88 +190,21 @@ export default function OnboardingScreen() {
           borderRadius: 12,
           paddingVertical: 16,
           alignItems: 'center',
-          alignSelf: 'stretch',
         },
-        buttonDisabled: {
-          opacity: 0.4,
-        },
+        buttonDisabled: { opacity: 0.35 },
         buttonText: {
           ...Type.title,
           color: colors.textOnAccent,
         },
-        progressContainer: {
-          alignItems: 'center',
-        },
-        progressTitle: {
+        doneTitle: {
           ...Type.heading,
           color: colors.textPrimary,
-          textAlign: 'center',
-          marginBottom: 24,
-        },
-        progressDetail: {
-          ...Type.body,
-          color: colors.textSecondary,
-          textAlign: 'center',
-          marginTop: 16,
-        },
-        progressCount: {
-          ...Type.title,
-          color: colors.accent,
-          textAlign: 'center',
-          marginTop: 8,
-        },
-        progressBar: {
-          width: '100%',
-          height: 3,
-          backgroundColor: colors.border,
-          borderRadius: 2,
-          overflow: 'hidden',
-          marginTop: 24,
-        },
-        progressBarFill: {
-          height: '100%',
-          backgroundColor: colors.accent,
-          borderRadius: 2,
-        },
-        quipContainer: {
-          marginTop: 28,
-          minHeight: 44,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        quipText: {
-          ...Type.body,
-          color: colors.textMuted,
-          textAlign: 'center',
-          fontStyle: 'italic',
-          lineHeight: 22,
-        },
-        doneContainer: {
-          alignItems: 'center',
-        },
-        doneTitle: {
-          ...Type.display,
-          color: colors.accent,
-          textAlign: 'center',
-          marginBottom: 8,
+          marginBottom: 4,
         },
         doneMessage: {
           ...Type.body,
           color: colors.textSecondary,
-          textAlign: 'center',
-          marginBottom: 40,
-        },
-        errorTitle: {
-          ...Type.heading,
-          color: colors.textPrimary,
-          textAlign: 'center',
-          marginBottom: 8,
-        },
-        errorText: {
-          ...Type.body,
-          color: colors.danger,
-          textAlign: 'center',
-          marginBottom: 16,
+          marginBottom: 24,
         },
         errorButton: {
           backgroundColor: colors.accentSoft,
@@ -206,28 +222,93 @@ export default function OnboardingScreen() {
     [colors],
   );
 
+  // ── Step status derivation ─────────────────────────────────────────────────
+  const step1Status: StepStatus =
+    phase === 'input'
+      ? 'waiting'
+      : phase === 'error'
+        ? 'error'
+        : phase === 'done'
+          ? 'done'
+          : progress?.phase === 'fetching'
+            ? 'active'
+            : 'done';
+
+  const step2Status: StepStatus =
+    phase === 'input' || phase === 'error'
+      ? 'waiting'
+      : phase === 'done'
+        ? 'done'
+        : progress?.phase === 'images'
+          ? 'active'
+          : 'waiting';
+
+  // Step 1: Concerts
+  const step1Title =
+    step1Status === 'waiting'
+      ? 'Your concerts'
+      : step1Status === 'error'
+        ? 'Something went wrong'
+        : step1Status === 'done'
+          ? `${progress?.totalConcerts ?? totalFound} concerts`
+          : 'Finding concerts…';
+
+  const step1Detail =
+    step1Status === 'waiting'
+      ? 'Synced from setlist.fm'
+      : step1Status === 'active' && progress
+        ? `Page ${progress.currentPage} of ${progress.totalPages}${progress.totalConcerts > 0 ? `  ·  ${progress.totalConcerts} total` : ''}`
+        : step1Status === 'done'
+          ? 'All saved ✓'
+          : step1Status === 'error'
+            ? errorMessage
+            : undefined;
+
+  const step1Progress =
+    step1Status === 'active' && progress && progress.totalPages > 0
+      ? Math.round((progress.currentPage / progress.totalPages) * 100)
+      : undefined;
+
+  // Step 2: Photos
+  const step2Title =
+    step2Status === 'waiting'
+      ? 'Artist photos'
+      : step2Status === 'active'
+        ? 'Fetching photos…'
+        : 'Photos ready';
+
+  const step2Detail =
+    step2Status === 'waiting'
+      ? "A face for every act you've seen"
+      : step2Status === 'active' && progress?.imagesTotal
+        ? `${progress.imagesDone ?? 0} of ${progress.imagesTotal} artists`
+        : step2Status === 'done'
+          ? 'All matched ✓'
+          : undefined;
+
+  const step2Progress =
+    step2Status === 'active' && progress?.imagesTotal
+      ? Math.round(((progress.imagesDone ?? 0) / progress.imagesTotal) * 100)
+      : undefined;
+
+  // ── Handlers (unchanged) ──────────────────────────────────────────────────
   const handleStart = async () => {
     const trimmed = username.trim();
     if (!trimmed) return;
-
     setPhase('syncing');
-
     const result = await syncConcertData(trimmed, (p) => {
       setProgress(p);
-      if (p.newConcertsFound > 0) {
-        setTotalFound(p.newConcertsFound);
-      }
+      if (p.newConcertsFound > 0) setTotalFound(p.newConcertsFound);
     });
-
     if (result.success) {
       await setStoredUsername(trimmed);
       setTotalFound(result.newConcerts);
       notifySyncComplete();
       setPhase('done');
     } else {
-      const message =
+      const msg =
         result.error === 'User not found' ? t('onboarding.userNotFound') : t('onboarding.error');
-      setErrorMessage(message);
+      setErrorMessage(msg);
       setPhase('error');
     }
   };
@@ -241,45 +322,130 @@ export default function OnboardingScreen() {
     setDisplayedQuip(undefined);
   };
 
-  const handleLetsGo = () => {
-    router.replace('/(tabs)/(home)');
+  const handleLetsGo = () => router.replace('/(tabs)/(home)');
+
+  // ── Spine step renderer ───────────────────────────────────────────────────
+  const renderStep = (
+    status: StepStatus,
+    title: string,
+    detail: string | undefined,
+    progressPct: number | undefined,
+    showQuip: boolean,
+    isLast: boolean,
+  ) => {
+    const isActive = status === 'active';
+    const isDone = status === 'done';
+    const isWaiting = status === 'waiting';
+    const isError = status === 'error';
+
+    // Dot geometry — active dot is bigger to anchor the glow
+    const dotSize = isActive ? 22 : 13;
+    const dotLeft = -(SPINE_PADDING_LEFT + dotSize / 2 + 1);
+
+    // Glow halo geometry — centred on the dot
+    const haloSize = 52;
+    const haloLeft = dotLeft - (haloSize - dotSize) / 2;
+    const haloTop = 6 - (haloSize - dotSize) / 2;
+
+    const dotBg = isError
+      ? colors.danger
+      : isActive
+        ? colors.dotActive
+        : isDone
+          ? colors.dotActive
+          : 'transparent';
+
+    return (
+      <View style={[styles.stepEntry, isLast && styles.stepEntryLast]}>
+        {/* Glow halo (active only) */}
+        {isActive && (
+          <Animated.View
+            style={[
+              styles.glowHalo,
+              {
+                width: haloSize,
+                height: haloSize,
+                left: haloLeft,
+                top: haloTop,
+                opacity: glowAnim,
+              },
+            ]}
+          />
+        )}
+
+        {/* Dot */}
+        <View
+          style={[
+            styles.dotBase,
+            {
+              width: dotSize,
+              height: dotSize,
+              borderRadius: dotSize / 2,
+              left: dotLeft,
+              backgroundColor: dotBg,
+              borderWidth: isWaiting ? 1.5 : 0,
+              borderColor: colors.dotInactive,
+              opacity: isDone ? 0.55 : 1,
+            },
+          ]}
+        />
+
+        {/* Text content */}
+        <Text
+          style={[
+            styles.stepTitle,
+            isWaiting && styles.stepTitleWaiting,
+            isDone && styles.stepTitleDone,
+            isError && styles.stepTitleError,
+          ]}
+        >
+          {title}
+        </Text>
+
+        {detail ? (
+          <Text style={[styles.stepDetail, isWaiting && styles.stepDetailWaiting]}>{detail}</Text>
+        ) : null}
+
+        {/* Progress bar */}
+        {progressPct !== undefined && (
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${progressPct}%` }]} />
+          </View>
+        )}
+
+        {/* Quip */}
+        {showQuip && displayedQuip ? (
+          <Animated.Text style={[styles.quipText, { opacity: quipOpacity }]}>
+            {displayedQuip}
+          </Animated.Text>
+        ) : null}
+      </View>
+    );
   };
 
-  const progressPercent = (() => {
-    if (!progress) return 0;
-    if (progress.phase === 'images' && progress.imagesTotal) {
-      return Math.round(((progress.imagesDone ?? 0) / progress.imagesTotal) * 100);
-    }
-    if (progress.totalPages > 0) {
-      return Math.round((progress.currentPage / progress.totalPages) * 100);
-    }
-    return 0;
-  })();
-
-  const progressLabel = (() => {
-    if (!progress) return '';
-    if (progress.phase === 'images') {
-      return progress.imagesTotal
-        ? `${progress.imagesDone ?? 0} / ${progress.imagesTotal} artists`
-        : '';
-    }
-    return t('onboarding.fetchingPage', {
-      current: progress.currentPage,
-      total: progress.totalPages,
-    });
-  })();
-
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.outer} edges={['top', 'left', 'right']}>
+      {/* Wordmark */}
+      <View style={styles.header}>
+        <Text style={styles.wordmark}>CHRONICLES</Text>
+      </View>
+
+      {/* Spine */}
+      <View style={styles.spineArea}>
+        <View style={styles.spineTrack}>
+          {renderStep(step1Status, step1Title, step1Detail, step1Progress, step1Status === 'active', false)}
+          {renderStep(step2Status, step2Title, step2Detail, step2Progress, step2Status === 'active', true)}
+        </View>
+      </View>
+
+      {/* Bottom: input / done / error / empty during sync */}
       <KeyboardAvoidingView
-        style={styles.content}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.bottom}
       >
         {phase === 'input' && (
           <View>
-            <Text style={styles.appName}>Chronicles</Text>
-            <Text style={styles.title}>{t('onboarding.title')}</Text>
-            <Text style={styles.subtitle}>{t('onboarding.subtitle')}</Text>
             <TextInput
               style={styles.input}
               placeholder={t('onboarding.usernamePlaceholder')}
@@ -304,35 +470,8 @@ export default function OnboardingScreen() {
           </View>
         )}
 
-        {phase === 'syncing' && (
-          <View style={styles.progressContainer}>
-            <Text style={styles.progressTitle}>{t('onboarding.fetchingConcerts')}</Text>
-            <ActivityIndicator size="large" color={colors.accent} />
-            {progress && (
-              <>
-                <Text style={styles.progressDetail}>{progressLabel}</Text>
-                {progress.totalConcerts > 0 && progress.phase === 'fetching' && (
-                  <Text style={styles.progressCount}>
-                    {t('onboarding.totalConcerts', { count: progress.totalConcerts })}
-                  </Text>
-                )}
-                <View style={styles.progressBar}>
-                  <View style={[styles.progressBarFill, { width: `${progressPercent}%` }]} />
-                </View>
-              </>
-            )}
-            <View style={styles.quipContainer}>
-              {displayedQuip ? (
-                <Animated.Text style={[styles.quipText, { opacity: quipOpacity }]}>
-                  {displayedQuip}
-                </Animated.Text>
-              ) : null}
-            </View>
-          </View>
-        )}
-
         {phase === 'done' && (
-          <View style={styles.doneContainer}>
+          <View>
             <Text style={styles.doneTitle}>{t('onboarding.syncComplete')}</Text>
             <Text style={styles.doneMessage}>
               {t('onboarding.syncCompleteMessage', { count: totalFound })}
@@ -349,18 +488,14 @@ export default function OnboardingScreen() {
         )}
 
         {phase === 'error' && (
-          <View style={styles.doneContainer}>
-            <Text style={styles.errorTitle}>{t('onboarding.error')}</Text>
-            <Text style={styles.errorText}>{errorMessage}</Text>
-            <TouchableOpacity
-              style={styles.errorButton}
-              onPress={handleRetry}
-              accessibilityRole="button"
-              accessibilityLabel={t('onboarding.retry')}
-            >
-              <Text style={styles.errorButtonText}>{t('onboarding.retry')}</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={styles.errorButton}
+            onPress={handleRetry}
+            accessibilityRole="button"
+            accessibilityLabel={t('onboarding.retry')}
+          >
+            <Text style={styles.errorButtonText}>{t('onboarding.retry')}</Text>
+          </TouchableOpacity>
         )}
       </KeyboardAvoidingView>
     </SafeAreaView>
