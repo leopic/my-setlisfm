@@ -1,82 +1,76 @@
-import { File, Directory, Paths } from 'expo-file-system';
+import { dbOperations } from '@/database/operations';
 
-const AUDIODB_BASE_URL = 'https://theaudiodb.com/api/v1/json/2';
-const CACHE_DIR_NAME = 'artist-images';
+const ARCHIVE_BASE = 'https://archive.org';
+const FETCH_TIMEOUT_MS = 5000;
+const BATCH_SIZE = 8;
 
-interface AudioDBArtistResponse {
-  artists: Array<{
-    strArtistThumb?: string;
-  }> | null;
-}
-
-function getCacheDir(): Directory {
-  return new Directory(Paths.document, CACHE_DIR_NAME);
-}
-
-function getCachedFile(mbid: string): File {
-  return new File(getCacheDir(), `${mbid}.jpg`);
-}
-
-/**
- * Fetches the artist thumbnail URL from TheAudioDB.
- * Returns null if the artist has no image.
- */
-async function fetchArtistImageUrl(mbid: string): Promise<string | null> {
+async function fetchImageUrlFromArchive(mbid: string): Promise<string | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
-    const response = await fetch(`${AUDIODB_BASE_URL}/artist-mb.php?i=${mbid}`);
-    if (!response.ok) return null;
-
-    const data: AudioDBArtistResponse = await response.json();
-    return data.artists?.[0]?.strArtistThumb || null;
+    const resp = await fetch(`${ARCHIVE_BASE}/metadata/mbid-${mbid}`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const files: Array<{ name: string }> = data.files ?? [];
+    const thumb = files.find((f) => f.name.endsWith('_thumb250.jpg'));
+    if (!thumb) return null;
+    return `${ARCHIVE_BASE}/download/mbid-${mbid}/${thumb.name}`;
   } catch {
+    clearTimeout(timer);
     return null;
   }
 }
 
 /**
- * Returns a local file URI for the artist's image.
- * Downloads and caches on first call; returns cached path on subsequent calls.
- * Returns null if no image is available.
+ * Returns the image URL for an artist, checking the SQLite cache first.
+ * On first access, fetches from archive.org and persists the result.
+ * Returns null if no image exists for this artist.
  */
 export async function getArtistImageUri(mbid: string): Promise<string | null> {
-  const cachedFile = getCachedFile(mbid);
+  const artist = await dbOperations.getArtistByMbid(mbid);
 
-  // Check cache first
-  if (cachedFile.exists) {
-    return cachedFile.uri;
+  if (artist?.imageUrl !== undefined && artist.imageUrl !== null) {
+    // Already resolved — either a real URL or empty string (no image found)
+    return artist.imageUrl || null;
   }
 
-  // Fetch remote URL
-  const remoteUrl = await fetchArtistImageUrl(mbid);
-  if (!remoteUrl) return null;
+  // First access — fetch and cache
+  const url = await fetchImageUrlFromArchive(mbid);
+  await dbOperations.updateArtistImageUrl(mbid, url ?? '');
+  return url;
+}
 
-  // Download and cache
-  try {
-    const dir = getCacheDir();
-    if (!dir.exists) {
-      dir.create({ intermediates: true });
+/**
+ * Batch-fetches and stores archive.org images for the given MBIDs.
+ * Calls onBatchDone with a running (done, total) count after each batch.
+ */
+export async function fetchAndStoreArtistImages(
+  mbids: string[],
+  onBatchDone?: (done: number, total: number) => void,
+): Promise<void> {
+  let done = 0;
+  for (let i = 0; i < mbids.length; i += BATCH_SIZE) {
+    const batch = mbids.slice(i, i + BATCH_SIZE);
+    await Promise.all(
+      batch.map(async (mbid) => {
+        const url = await fetchImageUrlFromArchive(mbid);
+        await dbOperations.updateArtistImageUrl(mbid, url ?? '');
+        done++;
+      }),
+    );
+    onBatchDone?.(done, mbids.length);
+    if (i + BATCH_SIZE < mbids.length) {
+      await new Promise((r) => setTimeout(r, 150));
     }
-    const downloaded = await File.downloadFileAsync(remoteUrl, dir);
-    // Rename to mbid-based filename
-    downloaded.move(cachedFile);
-    return cachedFile.uri;
-  } catch {
-    try {
-      cachedFile.delete();
-    } catch {
-      // ignore cleanup errors
-    }
-    return null;
   }
 }
 
 /**
- * Clears the entire artist image cache.
+ * Resets all stored image URLs so they will be re-fetched on next access.
  */
-export function clearArtistImageCache(): void {
-  try {
-    getCacheDir().delete();
-  } catch {
-    // directory may not exist
-  }
+export async function clearArtistImageCache(): Promise<void> {
+  await dbOperations.clearAllArtistImages();
 }

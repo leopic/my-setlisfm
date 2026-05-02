@@ -23,6 +23,7 @@ export interface DBArtist {
   sortName?: string;
   disambiguation?: string;
   url?: string;
+  imageUrl?: string;
 }
 
 export interface DBVenue {

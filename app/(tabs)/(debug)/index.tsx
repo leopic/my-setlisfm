@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
-import { Directory, Paths } from 'expo-file-system';
+import { Paths } from 'expo-file-system';
 import { useRouter } from 'expo-router';
 import { dbOperations } from '@/database/operations';
 import { clearArtistImageCache } from '@/services/artistImageService';
@@ -19,16 +19,7 @@ interface Stats {
   totalSongs: number;
 }
 
-function getImageCacheSize(): string {
-  try {
-    const dir = new Directory(Paths.document, 'artist-images');
-    if (!dir.exists) return '0 files';
-    const files = dir.list();
-    return `${files.length} files`;
-  } catch {
-    return 'unknown';
-  }
-}
+// Image URLs are now stored in SQLite — no local file cache needed
 
 export default function DebugScreen() {
   const colors = useChronicleColors();
@@ -154,7 +145,7 @@ export default function DebugScreen() {
     totalSongs: 0,
   });
   const [lastFetched, setLastFetched] = useState<string | null>(null);
-  const [imageCacheSize, setImageCacheSize] = useState('');
+  const [imagesWithUrl, setImagesWithUrl] = useState(0);
 
   useEffect(() => {
     loadStats();
@@ -166,7 +157,8 @@ export default function DebugScreen() {
       setStats(newStats);
       const fetchedAt = await dbOperations.getLastFetchedAt();
       setLastFetched(fetchedAt ? fetchedAt.toLocaleString() : null);
-      setImageCacheSize(getImageCacheSize());
+      const mbidsWithout = await dbOperations.getArtistMbidsWithoutImages();
+      setImagesWithUrl(newStats.totalArtists - mbidsWithout.length);
     } catch (error) {
       console.error('Failed to load stats:', error);
     }
@@ -214,8 +206,8 @@ export default function DebugScreen() {
 
   const handleClearImageCache = async () => {
     try {
-      clearArtistImageCache();
-      setImageCacheSize(getImageCacheSize());
+      await clearArtistImageCache();
+      setImagesWithUrl(0);
       Alert.alert('Success', 'Artist image cache cleared');
     } catch (error) {
       console.error('Failed to clear image cache:', error);
@@ -276,7 +268,7 @@ export default function DebugScreen() {
           accessibilityRole="button"
           accessibilityLabel="Clear image cache"
         >
-          <Text style={styles.actionText}>Clear Image Cache ({imageCacheSize})</Text>
+          <Text style={styles.actionText}>Clear Image Cache</Text>
           <Text style={styles.actionArrow}>›</Text>
         </TouchableOpacity>
 
@@ -312,8 +304,8 @@ export default function DebugScreen() {
           <Text style={styles.infoValue}>{sdkVersion}</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Image cache</Text>
-          <Text style={styles.infoValue}>{imageCacheSize}</Text>
+          <Text style={styles.infoLabel}>Artists with image</Text>
+          <Text style={styles.infoValue}>{imagesWithUrl}</Text>
         </View>
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>DB path</Text>

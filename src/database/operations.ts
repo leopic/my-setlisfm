@@ -221,9 +221,9 @@ export class DatabaseOperations {
   // Artist operations
   async insertArtist(artist: DBArtist): Promise<void> {
     await this.db.runAsync(
-      `INSERT OR REPLACE INTO artists 
-       (mbid, tmid, name, sortName, disambiguation, url) 
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT OR REPLACE INTO artists
+       (mbid, tmid, name, sortName, disambiguation, url, imageUrl)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         artist.mbid,
         artist.tmid || null,
@@ -231,8 +231,20 @@ export class DatabaseOperations {
         artist.sortName || null,
         artist.disambiguation || null,
         artist.url || null,
+        artist.imageUrl || null,
       ],
     );
+  }
+
+  async updateArtistImageUrl(mbid: string, imageUrl: string): Promise<void> {
+    await this.db.runAsync(`UPDATE artists SET imageUrl = ? WHERE mbid = ?`, [imageUrl, mbid]);
+  }
+
+  async getArtistMbidsWithoutImages(): Promise<string[]> {
+    const rows = await this.db.getAllAsync<{ mbid: string }>(
+      `SELECT mbid FROM artists WHERE mbid != '' AND imageUrl IS NULL`,
+    );
+    return rows.map((r) => r.mbid);
   }
 
   // Venue operations
@@ -1450,6 +1462,572 @@ export class DatabaseOperations {
     };
 
     return continentMap[country] || 'Other';
+  }
+
+  async clearAllArtistImages(): Promise<void> {
+    await this.db.runAsync(`UPDATE artists SET imageUrl = NULL`);
+  }
+
+  // ── Concert insights (for the Concerts tab) ──────────────────────────────
+
+  async getConcertInsights(): Promise<{
+    dryStreaks: Array<{
+      gap: number;
+      fromDate: string;
+      toDate: string;
+      fromArtist: string;
+      toArtist: string;
+    }>;
+    activeStreaks: Array<{ startDate: string; endDate: string; length: number }>;
+    busiestDays: Array<{ eventDate: string; concertCount: number; artistNames: string }>;
+  }> {
+    const ISO = `substr(eventDate,7,4)||'-'||substr(eventDate,4,2)||'-'||substr(eventDate,1,2)`;
+    const [dryRaw, activeRaw, busiestRaw] = await Promise.all([
+      this.db.getAllAsync(`
+        WITH ordered AS (SELECT DISTINCT ${ISO} AS iso FROM setlists ORDER BY iso),
+        gaps AS (
+          SELECT iso AS fromDate, LEAD(iso) OVER (ORDER BY iso) AS toDate,
+                 CAST(julianday(LEAD(iso) OVER (ORDER BY iso))-julianday(iso) AS INTEGER) AS gap
+          FROM ordered
+        )
+        SELECT g.fromDate, g.toDate, g.gap,
+               (SELECT a.name FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid WHERE ${ISO}=g.fromDate LIMIT 1) AS fromArtist,
+               (SELECT a.name FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid WHERE ${ISO}=g.toDate LIMIT 1) AS toArtist
+        FROM gaps g WHERE g.toDate IS NOT NULL ORDER BY g.gap DESC LIMIT 3
+      `),
+      this.db.getAllAsync(`
+        WITH dated AS (SELECT DISTINCT ${ISO} AS iso FROM setlists ORDER BY iso),
+        grouped AS (
+          SELECT iso, CAST(julianday(iso) AS INTEGER)-ROW_NUMBER() OVER (ORDER BY iso) AS grp FROM dated
+        ),
+        streaks AS (SELECT MIN(iso) AS startDate, MAX(iso) AS endDate, COUNT(*) AS length FROM grouped GROUP BY grp HAVING length >= 2)
+        SELECT startDate, endDate, length FROM streaks ORDER BY length DESC LIMIT 3
+      `),
+      this.db.getAllAsync(`
+        SELECT sl.eventDate, COUNT(*) AS concertCount, GROUP_CONCAT(a.name, ', ') AS artistNames
+        FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid
+        GROUP BY sl.eventDate ORDER BY concertCount DESC LIMIT 3
+      `),
+    ]);
+    return {
+      dryStreaks: dryRaw as Array<{
+        gap: number;
+        fromDate: string;
+        toDate: string;
+        fromArtist: string;
+        toArtist: string;
+      }>,
+      activeStreaks: activeRaw as Array<{ startDate: string; endDate: string; length: number }>,
+      busiestDays: busiestRaw as Array<{
+        eventDate: string;
+        concertCount: number;
+        artistNames: string;
+      }>,
+    };
+  }
+
+  // ── Artist insights (for the Artists tab) ────────────────────────────────
+
+  async getArtistInsights(): Promise<{
+    repeatDepth: {
+      totalArtists: number;
+      oneOff: number;
+      repeat: number;
+      seen2: number;
+      seen3: number;
+      seen4: number;
+      seen5plus: number;
+    };
+    artistReunions: {
+      fastest: Array<{ artistName: string; gap: number; fromDate: string; toDate: string }>;
+      slowest: Array<{ artistName: string; gap: number; fromDate: string; toDate: string }>;
+    };
+    artistCityReach: Array<{ artistName: string; cityCount: number; showCount: number }>;
+  }> {
+    const ISO = `substr(eventDate,7,4)||'-'||substr(eventDate,4,2)||'-'||substr(eventDate,1,2)`;
+    const [repeatRaw, fastRaw, slowRaw, cityRaw] = await Promise.all([
+      this.db.getFirstAsync(`
+        SELECT COUNT(*) AS totalArtists,
+               COUNT(CASE WHEN cnt = 1 THEN 1 END) AS oneOff,
+               COUNT(CASE WHEN cnt >= 2 THEN 1 END) AS repeat,
+               COUNT(CASE WHEN cnt = 2 THEN 1 END) AS seen2,
+               COUNT(CASE WHEN cnt = 3 THEN 1 END) AS seen3,
+               COUNT(CASE WHEN cnt = 4 THEN 1 END) AS seen4,
+               COUNT(CASE WHEN cnt >= 5 THEN 1 END) AS seen5plus
+        FROM (SELECT artistMbid, COUNT(*) AS cnt FROM setlists GROUP BY artistMbid)
+      `),
+      this.db.getAllAsync(`
+        WITH pa AS (SELECT a.name AS artistName, ${ISO} AS iso FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid),
+        wp AS (SELECT artistName, iso, LAG(iso) OVER (PARTITION BY artistName ORDER BY iso) AS prev FROM pa),
+        g AS (SELECT artistName, prev AS fromDate, iso AS toDate, CAST(julianday(iso)-julianday(prev) AS INTEGER) AS gap FROM wp WHERE prev IS NOT NULL)
+        SELECT artistName, fromDate, toDate, gap FROM g ORDER BY gap ASC, artistName ASC LIMIT 3
+      `),
+      this.db.getAllAsync(`
+        WITH pa AS (SELECT a.name AS artistName, ${ISO} AS iso FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid),
+        wp AS (SELECT artistName, iso, LAG(iso) OVER (PARTITION BY artistName ORDER BY iso) AS prev FROM pa),
+        g AS (SELECT artistName, prev AS fromDate, iso AS toDate, CAST(julianday(iso)-julianday(prev) AS INTEGER) AS gap FROM wp WHERE prev IS NOT NULL)
+        SELECT artistName, fromDate, toDate, gap FROM g ORDER BY gap DESC LIMIT 3
+      `),
+      this.db.getAllAsync(`
+        SELECT a.name AS artistName, COUNT(DISTINCT v.cityId) AS cityCount, COUNT(*) AS showCount
+        FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid JOIN venues v ON sl.venueId=v.id
+        GROUP BY sl.artistMbid ORDER BY cityCount DESC LIMIT 3
+      `),
+    ]);
+    const rd = repeatRaw as {
+      totalArtists: number;
+      oneOff: number;
+      repeat: number;
+      seen2: number;
+      seen3: number;
+      seen4: number;
+      seen5plus: number;
+    } | null;
+    return {
+      repeatDepth: rd ?? {
+        totalArtists: 0,
+        oneOff: 0,
+        repeat: 0,
+        seen2: 0,
+        seen3: 0,
+        seen4: 0,
+        seen5plus: 0,
+      },
+      artistReunions: {
+        fastest: fastRaw as Array<{
+          artistName: string;
+          gap: number;
+          fromDate: string;
+          toDate: string;
+        }>,
+        slowest: slowRaw as Array<{
+          artistName: string;
+          gap: number;
+          fromDate: string;
+          toDate: string;
+        }>,
+      },
+      artistCityReach: cityRaw as Array<{
+        artistName: string;
+        cityCount: number;
+        showCount: number;
+      }>,
+    };
+  }
+
+  // ── Places insights (for the Venues tab) ─────────────────────────────────
+
+  async getPlacesInsights(): Promise<{
+    countryTimeline: {
+      first: { countryName: string; firstVisit: string } | null;
+      latest: { countryName: string; firstVisit: string } | null;
+      total: number;
+    };
+    venueRelationships: Array<{
+      venueName: string;
+      cityName: string;
+      firstVisit: string;
+      lastVisit: string;
+      spanDays: number;
+      visits: number;
+    }>;
+    cityMonthCombos: Array<{ cityName: string; month: number; concertDays: number }>;
+  }> {
+    const ISO = `substr(eventDate,7,4)||'-'||substr(eventDate,4,2)||'-'||substr(eventDate,1,2)`;
+    const [countryRaw, venueRaw, cityMonthRaw] = await Promise.all([
+      this.db.getAllAsync(`
+        SELECT co.name AS countryName, MIN(${ISO}) AS firstVisit
+        FROM setlists sl JOIN venues v ON sl.venueId=v.id JOIN cities c ON v.cityId=c.id JOIN countries co ON c.countryCode=co.code
+        GROUP BY co.code ORDER BY firstVisit ASC
+      `),
+      this.db.getAllAsync(`
+        SELECT v.name AS venueName, c.name AS cityName,
+               MIN(${ISO}) AS firstVisit, MAX(${ISO}) AS lastVisit,
+               COUNT(*) AS visits,
+               CAST(julianday(MAX(${ISO}))-julianday(MIN(${ISO})) AS INTEGER) AS spanDays
+        FROM setlists sl JOIN venues v ON sl.venueId=v.id JOIN cities c ON v.cityId=c.id
+        GROUP BY v.id HAVING visits >= 2 ORDER BY spanDays DESC LIMIT 3
+      `),
+      this.db.getAllAsync(`
+        SELECT c.name AS cityName, CAST(substr(sl.eventDate,4,2) AS INTEGER) AS month,
+               COUNT(DISTINCT ${ISO}) AS concertDays
+        FROM setlists sl JOIN venues v ON sl.venueId=v.id JOIN cities c ON v.cityId=c.id
+        GROUP BY c.id, month ORDER BY concertDays DESC LIMIT 3
+      `),
+    ]);
+    const rows = countryRaw as Array<{ countryName: string; firstVisit: string }>;
+    return {
+      countryTimeline: {
+        first: rows[0] ?? null,
+        latest: rows.length > 1 ? rows[rows.length - 1] : null,
+        total: rows.length,
+      },
+      venueRelationships: venueRaw as Array<{
+        venueName: string;
+        cityName: string;
+        firstVisit: string;
+        lastVisit: string;
+        spanDays: number;
+        visits: number;
+      }>,
+      cityMonthCombos: cityMonthRaw as Array<{
+        cityName: string;
+        month: number;
+        concertDays: number;
+      }>,
+    };
+  }
+
+  // ── Insight stats ────────────────────────────────────────────────────────
+  // All queries use substr(eventDate,7,4)||'-'||substr(eventDate,4,2)||'-'||substr(eventDate,1,2)
+  // to convert the stored DD-MM-YYYY format into YYYY-MM-DD for sorting and julianday().
+
+  async getInsightStats(): Promise<{
+    milestones: Array<{
+      number: number;
+      setlistId: string;
+      artistName: string;
+      eventDate: string;
+      venueName: string;
+      cityName: string;
+    }>;
+    repeatDepth: {
+      totalArtists: number;
+      oneOff: number;
+      repeat: number;
+      seen2: number;
+      seen3: number;
+      seen4: number;
+      seen5plus: number;
+    };
+    dryStreaks: Array<{
+      gap: number;
+      fromDate: string;
+      toDate: string;
+      fromArtist: string;
+      toArtist: string;
+    }>;
+    artistReunions: {
+      fastest: Array<{ artistName: string; gap: number; fromDate: string; toDate: string }>;
+      slowest: Array<{ artistName: string; gap: number; fromDate: string; toDate: string }>;
+    };
+    activeStreaks: Array<{ startDate: string; endDate: string; length: number }>;
+    busiestDays: Array<{ eventDate: string; concertCount: number; artistNames: string }>;
+    weekdayDistribution: Array<{ weekday: string; dow: number; concertDays: number }>;
+    countryTimeline: {
+      first: { countryName: string; firstVisit: string } | null;
+      latest: { countryName: string; firstVisit: string } | null;
+      total: number;
+    };
+    venueRelationships: Array<{
+      venueName: string;
+      cityName: string;
+      firstVisit: string;
+      lastVisit: string;
+      spanDays: number;
+      visits: number;
+    }>;
+    busiest7Days: { windowStart: string; days: number } | null;
+    cityMonthCombos: Array<{ cityName: string; month: number; concertDays: number }>;
+    artistCityReach: Array<{ artistName: string; cityCount: number; showCount: number }>;
+  }> {
+    const ISO = `substr(eventDate,7,4)||'-'||substr(eventDate,4,2)||'-'||substr(eventDate,1,2)`;
+
+    const [
+      milestonesRaw,
+      repeatRaw,
+      dryRaw,
+      reunionFastRaw,
+      reunionSlowRaw,
+      activeRaw,
+      busiestDayRaw,
+      weekdayRaw,
+      countryRaw,
+      venueRaw,
+      busiest7Raw,
+      cityMonthRaw,
+      cityReachRaw,
+    ] = await Promise.all([
+      // Milestones: 1st, 50th, 100th, 200th concert day
+      this.db.getAllAsync(`
+        WITH ranked AS (
+          SELECT sl.id AS setlistId, a.name AS artistName, sl.eventDate,
+                 v.name AS venueName, c.name AS cityName,
+                 ROW_NUMBER() OVER (ORDER BY ${ISO}) AS rn
+          FROM setlists sl
+          LEFT JOIN artists a ON sl.artistMbid = a.mbid
+          LEFT JOIN venues v ON sl.venueId = v.id
+          LEFT JOIN cities c ON v.cityId = c.id
+        )
+        SELECT * FROM ranked WHERE rn = 1 OR rn % 50 = 0 ORDER BY rn
+      `),
+
+      // Repeat depth
+      this.db.getFirstAsync(`
+        SELECT COUNT(*) AS totalArtists,
+               COUNT(CASE WHEN cnt = 1 THEN 1 END) AS oneOff,
+               COUNT(CASE WHEN cnt >= 2 THEN 1 END) AS repeat,
+               COUNT(CASE WHEN cnt = 2 THEN 1 END) AS seen2,
+               COUNT(CASE WHEN cnt = 3 THEN 1 END) AS seen3,
+               COUNT(CASE WHEN cnt = 4 THEN 1 END) AS seen4,
+               COUNT(CASE WHEN cnt >= 5 THEN 1 END) AS seen5plus
+        FROM (SELECT artistMbid, COUNT(*) AS cnt FROM setlists GROUP BY artistMbid)
+      `),
+
+      // Dry streaks: top-3 longest gaps between consecutive concert days
+      this.db.getAllAsync(`
+        WITH ordered AS (
+          SELECT DISTINCT ${ISO} AS iso FROM setlists ORDER BY iso
+        ),
+        gaps AS (
+          SELECT iso AS fromDate,
+                 LEAD(iso) OVER (ORDER BY iso) AS toDate,
+                 CAST(julianday(LEAD(iso) OVER (ORDER BY iso)) - julianday(iso) AS INTEGER) AS gap
+          FROM ordered
+        )
+        SELECT g.fromDate, g.toDate, g.gap,
+               (SELECT a.name FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid
+                WHERE ${ISO}=g.fromDate LIMIT 1) AS fromArtist,
+               (SELECT a.name FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid
+                WHERE ${ISO}=g.toDate LIMIT 1) AS toArtist
+        FROM gaps g WHERE g.toDate IS NOT NULL ORDER BY g.gap DESC LIMIT 3
+      `),
+
+      // Artist reunion gaps — fastest
+      this.db.getAllAsync(`
+        WITH per_artist AS (
+          SELECT a.name AS artistName, ${ISO} AS iso
+          FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid
+        ),
+        with_prev AS (
+          SELECT artistName, iso,
+                 LAG(iso) OVER (PARTITION BY artistName ORDER BY iso) AS prevIso
+          FROM per_artist
+        ),
+        gaps AS (
+          SELECT artistName, prevIso AS fromDate, iso AS toDate,
+                 CAST(julianday(iso)-julianday(prevIso) AS INTEGER) AS gap
+          FROM with_prev WHERE prevIso IS NOT NULL
+        )
+        SELECT artistName, fromDate, toDate, gap FROM gaps ORDER BY gap ASC, artistName ASC LIMIT 3
+      `),
+
+      // Artist reunion gaps — slowest
+      this.db.getAllAsync(`
+        WITH per_artist AS (
+          SELECT a.name AS artistName, ${ISO} AS iso
+          FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid
+        ),
+        with_prev AS (
+          SELECT artistName, iso,
+                 LAG(iso) OVER (PARTITION BY artistName ORDER BY iso) AS prevIso
+          FROM per_artist
+        ),
+        gaps AS (
+          SELECT artistName, prevIso AS fromDate, iso AS toDate,
+                 CAST(julianday(iso)-julianday(prevIso) AS INTEGER) AS gap
+          FROM with_prev WHERE prevIso IS NOT NULL
+        )
+        SELECT artistName, fromDate, toDate, gap FROM gaps ORDER BY gap DESC LIMIT 3
+      `),
+
+      // Active streaks: consecutive calendar days with at least one concert
+      this.db.getAllAsync(`
+        WITH dated AS (
+          SELECT DISTINCT ${ISO} AS iso FROM setlists ORDER BY iso
+        ),
+        grouped AS (
+          SELECT iso,
+                 CAST(julianday(iso) AS INTEGER) - ROW_NUMBER() OVER (ORDER BY iso) AS grp
+          FROM dated
+        ),
+        streaks AS (
+          SELECT MIN(iso) AS startDate, MAX(iso) AS endDate, COUNT(*) AS length
+          FROM grouped GROUP BY grp HAVING length >= 2
+        )
+        SELECT startDate, endDate, length FROM streaks ORDER BY length DESC LIMIT 3
+      `),
+
+      // Busiest single concert day (most distinct artists/setlists on one date)
+      this.db.getAllAsync(`
+        SELECT sl.eventDate, COUNT(*) AS concertCount,
+               GROUP_CONCAT(a.name, ', ') AS artistNames
+        FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid
+        GROUP BY sl.eventDate ORDER BY concertCount DESC LIMIT 3
+      `),
+
+      // Weekday distribution
+      this.db.getAllAsync(`
+        WITH iso AS (SELECT DISTINCT ${ISO} AS d FROM setlists)
+        SELECT
+          CAST(strftime('%w', d) AS INTEGER) AS dow,
+          CASE CAST(strftime('%w', d) AS INTEGER)
+            WHEN 0 THEN 'Sunday' WHEN 1 THEN 'Monday' WHEN 2 THEN 'Tuesday'
+            WHEN 3 THEN 'Wednesday' WHEN 4 THEN 'Thursday' WHEN 5 THEN 'Friday'
+            WHEN 6 THEN 'Saturday'
+          END AS weekday,
+          COUNT(*) AS concertDays
+        FROM iso GROUP BY dow ORDER BY dow
+      `),
+
+      // Country timeline: first-ever + latest new country unlocked
+      this.db.getAllAsync(`
+        SELECT co.name AS countryName,
+               MIN(${ISO}) AS firstVisit
+        FROM setlists sl
+        JOIN venues v ON sl.venueId=v.id
+        JOIN cities c ON v.cityId=c.id
+        JOIN countries co ON c.countryCode=co.code
+        GROUP BY co.code ORDER BY firstVisit ASC
+      `),
+
+      // Longest venue relationships (venues visited on 2+ separate dates)
+      this.db.getAllAsync(`
+        SELECT v.name AS venueName, c.name AS cityName,
+               MIN(${ISO}) AS firstVisit, MAX(${ISO}) AS lastVisit,
+               COUNT(*) AS visits,
+               CAST(julianday(MAX(${ISO}))-julianday(MIN(${ISO})) AS INTEGER) AS spanDays
+        FROM setlists sl
+        JOIN venues v ON sl.venueId=v.id
+        JOIN cities c ON v.cityId=c.id
+        GROUP BY v.id HAVING visits >= 2
+        ORDER BY spanDays DESC LIMIT 3
+      `),
+
+      // Busiest 7-day window
+      this.db.getFirstAsync(`
+        WITH dates AS (
+          SELECT DISTINCT ${ISO} AS iso FROM setlists
+        )
+        SELECT d1.iso AS windowStart, COUNT(d2.iso) AS days
+        FROM dates d1 JOIN dates d2
+          ON d2.iso >= d1.iso AND julianday(d2.iso) < julianday(d1.iso)+7
+        GROUP BY d1.iso ORDER BY days DESC LIMIT 1
+      `),
+
+      // Favorite city-month combos
+      this.db.getAllAsync(`
+        SELECT c.name AS cityName,
+               CAST(substr(sl.eventDate,4,2) AS INTEGER) AS month,
+               COUNT(DISTINCT ${ISO}) AS concertDays
+        FROM setlists sl
+        JOIN venues v ON sl.venueId=v.id
+        JOIN cities c ON v.cityId=c.id
+        GROUP BY c.id, month ORDER BY concertDays DESC LIMIT 3
+      `),
+
+      // Artist city reach (most distinct cities per artist)
+      this.db.getAllAsync(`
+        SELECT a.name AS artistName,
+               COUNT(DISTINCT v.cityId) AS cityCount,
+               COUNT(*) AS showCount
+        FROM setlists sl
+        JOIN artists a ON sl.artistMbid=a.mbid
+        JOIN venues v ON sl.venueId=v.id
+        GROUP BY sl.artistMbid ORDER BY cityCount DESC LIMIT 3
+      `),
+    ]);
+
+    const milestonesTyped = (
+      milestonesRaw as Array<{
+        setlistId: string;
+        artistName: string;
+        eventDate: string;
+        venueName: string;
+        cityName: string;
+        rn: number;
+      }>
+    ).map((r) => ({
+      number: r.rn,
+      setlistId: r.setlistId,
+      artistName: r.artistName,
+      eventDate: r.eventDate,
+      venueName: r.venueName ?? '',
+      cityName: r.cityName ?? '',
+    }));
+
+    const rd = repeatRaw as {
+      totalArtists: number;
+      oneOff: number;
+      repeat: number;
+      seen2: number;
+      seen3: number;
+      seen4: number;
+      seen5plus: number;
+    } | null;
+
+    const countryRows = countryRaw as Array<{ countryName: string; firstVisit: string }>;
+
+    const b7 = busiest7Raw as { windowStart: string; days: number } | null;
+
+    return {
+      milestones: milestonesTyped,
+      repeatDepth: rd ?? {
+        totalArtists: 0,
+        oneOff: 0,
+        repeat: 0,
+        seen2: 0,
+        seen3: 0,
+        seen4: 0,
+        seen5plus: 0,
+      },
+      dryStreaks: dryRaw as Array<{
+        gap: number;
+        fromDate: string;
+        toDate: string;
+        fromArtist: string;
+        toArtist: string;
+      }>,
+      artistReunions: {
+        fastest: reunionFastRaw as Array<{
+          artistName: string;
+          gap: number;
+          fromDate: string;
+          toDate: string;
+        }>,
+        slowest: reunionSlowRaw as Array<{
+          artistName: string;
+          gap: number;
+          fromDate: string;
+          toDate: string;
+        }>,
+      },
+      activeStreaks: activeRaw as Array<{ startDate: string; endDate: string; length: number }>,
+      busiestDays: busiestDayRaw as Array<{
+        eventDate: string;
+        concertCount: number;
+        artistNames: string;
+      }>,
+      weekdayDistribution: weekdayRaw as Array<{
+        weekday: string;
+        dow: number;
+        concertDays: number;
+      }>,
+      countryTimeline: {
+        first: countryRows[0] ?? null,
+        latest: countryRows.length > 1 ? countryRows[countryRows.length - 1] : null,
+        total: countryRows.length,
+      },
+      venueRelationships: venueRaw as Array<{
+        venueName: string;
+        cityName: string;
+        firstVisit: string;
+        lastVisit: string;
+        spanDays: number;
+        visits: number;
+      }>,
+      busiest7Days: b7,
+      cityMonthCombos: cityMonthRaw as Array<{
+        cityName: string;
+        month: number;
+        concertDays: number;
+      }>,
+      artistCityReach: cityReachRaw as Array<{
+        artistName: string;
+        cityCount: number;
+        showCount: number;
+      }>,
+    };
   }
 
   // Clear all data for testing (use with caution!)

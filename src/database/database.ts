@@ -29,10 +29,21 @@ export class DatabaseManager {
 
     try {
       await this.db.execAsync(CREATE_TABLES_SQL);
+      await this.runMigrations();
       console.warn('Database tables created successfully');
     } catch (error) {
       console.error('Error creating tables:', error);
       throw error;
+    }
+  }
+
+  private async runMigrations(): Promise<void> {
+    if (!this.db) return;
+    // Add imageUrl to artists if missing (existing installs)
+    const cols = await this.db.getAllAsync<{ name: string }>(`PRAGMA table_info(artists)`);
+    const hasImageUrl = cols.some((c) => c.name === 'imageUrl');
+    if (!hasImageUrl) {
+      await this.db.execAsync(`ALTER TABLE artists ADD COLUMN imageUrl TEXT`);
     }
   }
 
