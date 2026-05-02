@@ -11,6 +11,7 @@ import {
 } from '@expo-google-fonts/space-grotesk';
 import { databaseManager } from '@/database/database';
 import { getStoredUsername } from '@/services/syncService';
+import { backfillMissingArtistImages } from '@/services/artistImageService';
 import { SyncProvider } from '@/contexts/SyncContext';
 import { Stack } from 'expo-router';
 import '@/i18n';
@@ -36,6 +37,10 @@ export default function Layout() {
         setDbReady(true);
         const username = await getStoredUsername();
         setHasUsername(!!username);
+        if (username) {
+          // Fire-and-forget: populate any missing artist images in the background.
+          backfillMissingArtistImages();
+        }
       } catch (error) {
         console.error('Failed to initialize:', error);
       }

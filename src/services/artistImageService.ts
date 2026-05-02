@@ -69,6 +69,21 @@ export async function fetchAndStoreArtistImages(
 }
 
 /**
+ * Fetches images for any artists that don't have one yet.
+ * Safe to fire-and-forget on app startup — runs silently in the background.
+ */
+export async function backfillMissingArtistImages(): Promise<void> {
+  try {
+    const mbids = await dbOperations.getArtistMbidsWithoutImages();
+    if (mbids.length > 0) {
+      await fetchAndStoreArtistImages(mbids);
+    }
+  } catch {
+    // silently ignore — this is a best-effort background task
+  }
+}
+
+/**
  * Resets all stored image URLs so they will be re-fetched on next access.
  */
 export async function clearArtistImageCache(): Promise<void> {

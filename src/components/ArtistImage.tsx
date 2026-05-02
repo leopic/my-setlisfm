@@ -21,8 +21,9 @@ export default function ArtistImage({
 }: ArtistImageProps) {
   const colors = useColors();
 
-  // If a pre-loaded URL is provided (even empty string = no image), use it directly.
-  const hasPreloaded = preloaded !== undefined;
+  // Only treat a string as pre-resolved: '' = tried, no image; 'https://...' = valid URL.
+  // undefined and null both mean "not yet fetched" — resolve lazily via getArtistImageUri.
+  const hasPreloaded = typeof preloaded === 'string';
   const [imageUri, setImageUri] = useState<string | null>(hasPreloaded ? preloaded || null : null);
   const [loaded, setLoaded] = useState(hasPreloaded);
 
