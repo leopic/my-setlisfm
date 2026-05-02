@@ -97,6 +97,44 @@ function genericQuip(setlists: Setlist[]): string {
 }
 
 /**
+ * Generates a quip for the artist-photo fetch phase.
+ * Features individual artist names for the first 65%, then switches to
+ * progress-aware messages for the tail.
+ */
+export function generatePhotoQuip(
+  artists: Array<{ name: string }>,
+  quipIndex: number,
+  done: number,
+  total: number,
+): string {
+  if (total === 0) return 'fetching artist photos...';
+  const pct = done / total;
+
+  if (pct >= 0.85) return `almost got them — ${total - done} left.`;
+  if (pct >= 0.65) return 'on the home stretch now...';
+  if (done === 0) return `tracking down ${total} artists...`;
+
+  // Artist-specific quip — pick deterministically so it doesn't flicker
+  const artistIndex = (quipIndex * 13 + done) % artists.length;
+  const artist = artists[artistIndex]?.name ?? artists[0]?.name;
+
+  if (!artist) return 'matching artists to photos...';
+
+  switch (quipIndex % 4) {
+    case 0:
+      return `tracking down ${artist}...`;
+    case 1:
+      return `looking for ${artist}...`;
+    case 2:
+      return `putting a face to ${artist}...`;
+    case 3:
+      return `found ${artist}.`;
+    default:
+      return `finding ${artist}...`;
+  }
+}
+
+/**
  * Generates a personalized quip based on setlists seen so far.
  * quipIndex cycles through four strategies: concert → loyalty → geography → history.
  */

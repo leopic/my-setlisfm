@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useColorScheme } from 'react-native';
 import { ThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native';
 import {
@@ -15,7 +15,7 @@ import { databaseManager } from '@/database/database';
 import { getStoredUsername } from '@/services/syncService';
 import { backfillMissingArtistImages } from '@/services/artistImageService';
 import { SyncProvider } from '@/contexts/SyncContext';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import '@/i18n';
 
 // Cap SDWebImage's in-memory cache before any images are loaded.
@@ -27,8 +27,10 @@ export { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function Layout() {
   const colorScheme = useColorScheme();
+  const router = useRouter();
   const [dbReady, setDbReady] = useState(false);
   const [hasUsername, setHasUsername] = useState<boolean | null>(null);
+  const didNavigateRef = useRef(false);
   const [fontsLoaded, fontError] = useFonts({
     SpaceGrotesk_300Light,
     SpaceGrotesk_400Regular,
@@ -55,6 +57,15 @@ export default function Layout() {
 
     init();
   }, []);
+
+  // Always open the dashboard on launch — unstable_settings doesn't override
+  // the native tab bar's state restoration on iOS, so we navigate explicitly.
+  useEffect(() => {
+    if (dbReady && hasUsername === true && !didNavigateRef.current) {
+      didNavigateRef.current = true;
+      router.replace('/(tabs)/(home)');
+    }
+  }, [dbReady, hasUsername, router]);
 
   // fontError means the font CDN was unreachable — fall back to system font gracefully.
   if (!dbReady || hasUsername === null || (!fontsLoaded && !fontError)) {

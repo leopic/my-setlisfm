@@ -2,7 +2,7 @@ import { SetlistApiService } from '@/services/setlistApi';
 import { DataProcessor } from '@/services/dataProcessor';
 import { dbOperations } from '@/database/operations';
 import { fetchAndStoreArtistImages } from '@/services/artistImageService';
-import { generateSyncQuip } from '@/utils/quipGenerator';
+import { generateSyncQuip, generatePhotoQuip } from '@/utils/quipGenerator';
 import type { Setlist } from '@/types/api';
 
 const setlistApi = new SetlistApiService();
@@ -143,28 +143,35 @@ export async function syncConcertData(
     const remainingArtists = await dbOperations.getArtistsWithoutImages();
 
     if (remainingArtists.length > 0) {
+      let photoQuipIndex = 0;
+      let photoQuipCheckpoint = -1;
+      let currentPhotoQuip = generatePhotoQuip(remainingArtists, 0, 0, remainingArtists.length);
+
       onProgress?.({
         phase: 'images',
         currentPage: totalPagesProcessed,
         totalPages,
         totalConcerts,
         newConcertsFound: totalNewConcerts,
-        quip: `got your concerts — now fetching artist photos...`,
+        quip: currentPhotoQuip,
         imagesTotal: remainingArtists.length,
         imagesDone: 0,
       });
 
       await fetchAndStoreArtistImages(remainingArtists, (done, total) => {
-        const nearlyDone = done >= total * 0.75;
+        // Rotate quip at every ~20 % interval (5 checkpoints total)
+        const checkpoint = Math.floor((done / total) * 5);
+        if (checkpoint !== photoQuipCheckpoint) {
+          photoQuipCheckpoint = checkpoint;
+          currentPhotoQuip = generatePhotoQuip(remainingArtists, photoQuipIndex++, done, total);
+        }
         onProgress?.({
           phase: 'images',
           currentPage: totalPagesProcessed,
           totalPages,
           totalConcerts,
           newConcertsFound: totalNewConcerts,
-          quip: nearlyDone
-            ? `almost done here...`
-            : `got your concerts — now fetching artist photos...`,
+          quip: currentPhotoQuip,
           imagesTotal: total,
           imagesDone: done,
         });
