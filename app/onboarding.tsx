@@ -158,12 +158,18 @@ export default function OnboardingScreen() {
           borderRadius: 1,
         },
 
-        // Quip
+        // Quip — fixed-height container prevents layout shift between
+        // 0, 1, and 2-line quips. Height = 2 lines × lineHeight 20 + buffer.
+        quipContainer: {
+          marginTop: 12,
+          height: 44,
+          overflow: 'hidden',
+          justifyContent: 'flex-start',
+        },
         quipText: {
           ...Type.body,
           color: colors.textMuted,
           fontStyle: 'italic',
-          marginTop: 12,
           lineHeight: 20,
         },
 
@@ -241,7 +247,9 @@ export default function OnboardingScreen() {
         ? 'done'
         : progress?.phase === 'images'
           ? 'active'
-          : 'waiting';
+          : progress?.phase === 'done'
+            ? 'done'
+            : 'waiting';
 
   // Step 1: Concerts
   const step1Title =
@@ -305,6 +313,8 @@ export default function OnboardingScreen() {
       setTotalFound(result.newConcerts);
       notifySyncComplete();
       setPhase('done');
+      // Both dots are now lit — give the user a moment to see them, then go.
+      setTimeout(() => router.replace('/(tabs)/(home)'), 1200);
     } else {
       const msg =
         result.error === 'User not found' ? t('onboarding.userNotFound') : t('onboarding.error');
@@ -321,8 +331,6 @@ export default function OnboardingScreen() {
     latestQuipRef.current = undefined;
     setDisplayedQuip(undefined);
   };
-
-  const handleLetsGo = () => router.replace('/(tabs)/(home)');
 
   // ── Spine step renderer ───────────────────────────────────────────────────
   const renderStep = (
@@ -403,22 +411,27 @@ export default function OnboardingScreen() {
         </Text>
 
         {detail ? (
-          <Text style={[styles.stepDetail, isWaiting && styles.stepDetailWaiting]}>{detail}</Text>
+          <Text
+            numberOfLines={1}
+            style={[styles.stepDetail, isWaiting && styles.stepDetailWaiting]}
+          >
+            {detail}
+          </Text>
         ) : null}
 
-        {/* Progress bar */}
-        {progressPct !== undefined && (
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${progressPct}%` }]} />
-          </View>
-        )}
+        {/* Progress bar — always rendered so height never shifts */}
+        <View style={[styles.progressBar, { opacity: progressPct !== undefined ? 1 : 0 }]}>
+          <View style={[styles.progressFill, { width: `${progressPct ?? 0}%` }]} />
+        </View>
 
-        {/* Quip */}
-        {showQuip && displayedQuip ? (
-          <Animated.Text style={[styles.quipText, { opacity: quipOpacity }]}>
-            {displayedQuip}
-          </Animated.Text>
-        ) : null}
+        {/* Quip container — fixed height to absorb 0 / 1 / 2-line variance */}
+        <View style={styles.quipContainer}>
+          {showQuip && displayedQuip ? (
+            <Animated.Text style={[styles.quipText, { opacity: quipOpacity }]}>
+              {displayedQuip}
+            </Animated.Text>
+          ) : null}
+        </View>
       </View>
     );
   };
@@ -466,23 +479,6 @@ export default function OnboardingScreen() {
               accessibilityLabel={t('onboarding.getStarted')}
             >
               <Text style={styles.buttonText}>{t('onboarding.getStarted')}</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {phase === 'done' && (
-          <View>
-            <Text style={styles.doneTitle}>{t('onboarding.syncComplete')}</Text>
-            <Text style={styles.doneMessage}>
-              {t('onboarding.syncCompleteMessage', { count: totalFound })}
-            </Text>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={handleLetsGo}
-              accessibilityRole="button"
-              accessibilityLabel={t('onboarding.letsGo')}
-            >
-              <Text style={styles.buttonText}>{t('onboarding.letsGo')}</Text>
             </TouchableOpacity>
           </View>
         )}
