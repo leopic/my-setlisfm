@@ -9,12 +9,18 @@ import {
   SpaceGrotesk_600SemiBold,
   SpaceGrotesk_700Bold,
 } from '@expo-google-fonts/space-grotesk';
+import { Image } from 'expo-image';
 import { databaseManager } from '@/database/database';
 import { getStoredUsername } from '@/services/syncService';
 import { backfillMissingArtistImages } from '@/services/artistImageService';
 import { SyncProvider } from '@/contexts/SyncContext';
 import { Stack } from 'expo-router';
 import '@/i18n';
+
+// Cap SDWebImage's in-memory cache before any images are loaded.
+// Default is 0 (unlimited) — with 200 decoded 250×250 ARGB images that's ~48 MB
+// that never gets evicted. 20 MB ≈ 80 images; 50-item count covers visible rows.
+Image.configureCache({ maxMemoryCost: 20 * 1024 * 1024, maxMemoryCount: 50 });
 
 export { ErrorBoundary } from '@/components/ErrorBoundary';
 

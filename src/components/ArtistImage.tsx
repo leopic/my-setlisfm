@@ -68,7 +68,12 @@ export default function ArtistImage({
       accessibilityLabel={name ?? undefined}
     >
       {imageUri ? (
-        <Image source={{ uri: imageUri }} style={styles.image} contentFit="cover" />
+        <Image
+          source={{ uri: imageUri }}
+          style={styles.image}
+          contentFit="cover"
+          cachePolicy="disk"
+        />
       ) : loaded ? (
         <Ionicons name="person" size={size * 0.5} color={colors.textMuted} />
       ) : null}
