@@ -10,6 +10,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import DashboardSkeleton from '@/components/skeletons/DashboardSkeleton';
+import InsightCards from '@/components/InsightCards';
 import { TabScrollView, Icon } from '@/components/ui';
 
 type DashboardStats = Awaited<ReturnType<typeof dbOperations.getDashboardStats>>;
@@ -238,6 +239,20 @@ export default function DashboardScreen() {
           ...Type.label,
           color: colors.textMuted,
         },
+        // ── Milestone spine entries ───────────────────────────────────────────
+        milestoneMarker: {
+          width: 9,
+          height: 9,
+          borderRadius: 2,
+          backgroundColor: colors.accent,
+          transform: [{ rotate: '45deg' }],
+        },
+        milestoneTag: {
+          ...Type.label,
+          color: colors.accent,
+          letterSpacing: 0.8,
+          marginBottom: 1,
+        },
         // ── Last synced ───────────────────────────────────────────────────────
         lastSynced: {
           ...Type.label,
@@ -263,7 +278,9 @@ export default function DashboardScreen() {
       peakMonthCount: number;
     }[]
   >([]);
-  const [busiestYear, setBusiestYear] = useState<{ year: string; count: number } | null>(null);
+  const [insightStats, setInsightStats] = useState<Awaited<
+    ReturnType<typeof dbOperations.getInsightStats>
+  > | null>(null);
   const [onThisDay, setOnThisDay] = useState<{
     setlistId: string;
     artistName: string;
@@ -287,20 +304,20 @@ export default function DashboardScreen() {
 
   const loadDashboard = async () => {
     try {
-      const [dashStats, fetchedAt, onThisDayResult, monthly, summaries, busiest] =
+      const [dashStats, fetchedAt, onThisDayResult, monthly, summaries, insights] =
         await Promise.all([
           dbOperations.getDashboardStats(),
           dbOperations.getLastFetchedAt(),
           dbOperations.getOnThisDayConcert(),
           dbOperations.getConcertsByYearMonth(),
           dbOperations.getYearSummaries(),
-          dbOperations.getBusiestYear(),
+          dbOperations.getInsightStats(),
         ]);
       setStats(dashStats);
       setMonthlyData(monthly);
       setYearSummaries(summaries);
-      setBusiestYear(busiest);
       setOnThisDay(onThisDayResult);
+      setInsightStats(insights);
       setLastSynced(fetchedAt ? fetchedAt.toLocaleString() : null);
     } catch (error) {
       console.error('Failed to load dashboard:', error);
@@ -381,6 +398,20 @@ export default function DashboardScreen() {
   const firstConcertYear = stats.firstConcert ? stats.firstConcert.eventDate.split('-')[2] : null;
   const onThisDayYear = onThisDay ? onThisDay.eventDate.split('-')[2] : null;
 
+  // Group milestones by year (eventDate is DD-MM-YYYY so year is index 2)
+  type Milestone = NonNullable<typeof insightStats>['milestones'][number];
+  const milestonesByYear = (insightStats?.milestones ?? []).reduce<Record<string, Milestone[]>>(
+    (acc, m) => {
+      const yr = m.eventDate.split('-')[2];
+      if (yr) {
+        if (!acc[yr]) acc[yr] = [];
+        acc[yr].push(m);
+      }
+      return acc;
+    },
+    {},
+  );
+
   // Sort years descending (most recent first) for the river display.
   const yearsSorted = [...stats.concertsByYear].sort((a, b) => Number(b.year) - Number(a.year));
 
@@ -439,6 +470,9 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         )}
 
+        {/* ── Insight cards ───────────────────────────────────────────────── */}
+        {insightStats && <InsightCards stats={insightStats} />}
+
         {/* ── Timeline river ──────────────────────────────────────────────── */}
         {yearsSorted.map((yearItem, yearIndex) => {
           const yearStr = String(yearItem.year);
@@ -450,6 +484,15 @@ export default function DashboardScreen() {
           const isLastConcertYear = lastConcertYear === yearStr;
           const isFirstConcertYear = firstConcertYear === yearStr;
           const isOnThisDayYear = onThisDayYear === yearStr;
+          // Deduplicate milestones against entries already shown in this year's spine
+          const alreadyShownIds = new Set([
+            isLastConcertYear ? stats.lastConcert?.setlistId : undefined,
+            isFirstConcertYear ? stats.firstConcert?.setlistId : undefined,
+            isOnThisDayYear ? onThisDay?.setlistId : undefined,
+          ]);
+          const milestonesInYear = (milestonesByYear[yearStr] ?? []).filter(
+            (m) => !alreadyShownIds.has(m.setlistId),
+          );
 
           return (
             <View key={yearStr}>
@@ -517,7 +560,10 @@ export default function DashboardScreen() {
               </View>
 
               {/* Spine with bookmark concert entries for this year */}
-              {(isLastConcertYear || isOnThisDayYear || isFirstConcertYear) && (
+              {(isLastConcertYear ||
+                isOnThisDayYear ||
+                isFirstConcertYear ||
+                milestonesInYear.length > 0) && (
                 <View style={styles.spineContainer}>
                   {isLastConcertYear && stats.lastConcert && (
                     <TouchableOpacity
@@ -545,6 +591,43 @@ export default function DashboardScreen() {
                       <Text style={styles.entryChevron}>›</Text>
                     </TouchableOpacity>
                   )}
+
+                  {milestonesInYear.map((m) => {
+                    const n = m.number;
+                    const suffix = n === 1 ? 'ST' : n === 2 ? 'ND' : n === 3 ? 'RD' : 'TH';
+                    const label = `${n}${suffix} SHOW`;
+                    return (
+                      <TouchableOpacity
+                        key={m.number}
+                        style={styles.concertEntry}
+                        onPress={() =>
+                          router.push({
+                            pathname: '/(home)/concert/[id]',
+                            params: { id: m.setlistId },
+                          })
+                        }
+                        accessibilityRole="button"
+                        accessibilityLabel={`${label}: ${m.artistName}, ${formatDate(m.eventDate)}`}
+                        accessibilityHint={t('Opens concert details')}
+                      >
+                        <View style={styles.dotWrapper}>
+                          <View style={styles.milestoneMarker} />
+                        </View>
+                        <View style={styles.entryContent}>
+                          <Text style={styles.milestoneTag}>{label}</Text>
+                          <Text style={styles.entryArtist}>{m.artistName}</Text>
+                          {m.cityName ? (
+                            <Text style={styles.entryVenue}>
+                              {m.cityName} · {formatDate(m.eventDate)}
+                            </Text>
+                          ) : (
+                            <Text style={styles.entryVenue}>{formatDate(m.eventDate)}</Text>
+                          )}
+                        </View>
+                        <Text style={styles.entryChevron}>›</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
 
                   {isOnThisDayYear && onThisDay && (
                     <TouchableOpacity
@@ -601,7 +684,6 @@ export default function DashboardScreen() {
             </View>
           );
         })}
-
       </TabScrollView>
     </SafeAreaView>
   );

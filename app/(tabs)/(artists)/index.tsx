@@ -20,6 +20,7 @@ import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import { TabScrollView, Icon } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
+import ArtistInsightCards from '@/components/ArtistInsightCards';
 
 interface ArtistWithStats {
   mbid: string;
@@ -58,6 +59,12 @@ export default function ArtistsScreen() {
           color: colors.textSecondary,
           marginTop: 2,
         },
+        stickyControls: {
+          backgroundColor: colors.background,
+          paddingTop: 12,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
         searchRow: {
           flexDirection: 'row',
           alignItems: 'center',
@@ -68,7 +75,7 @@ export default function ArtistsScreen() {
           paddingHorizontal: 14,
           paddingVertical: 10,
           marginHorizontal: 20,
-          marginTop: 14,
+          marginBottom: 8,
         },
         searchIcon: {
           ...Type.body,
@@ -85,8 +92,7 @@ export default function ArtistsScreen() {
           flexDirection: 'row',
           gap: 8,
           paddingHorizontal: 20,
-          marginTop: 12,
-          marginBottom: 4,
+          paddingBottom: 10,
         },
         sortPill: {
           borderRadius: 16,
@@ -204,6 +210,9 @@ export default function ArtistsScreen() {
   const router = useRouter();
   const [artists, setArtists] = useState<ArtistWithStats[]>([]);
   const [filteredArtists, setFilteredArtists] = useState<ArtistWithStats[]>([]);
+  const [artistInsights, setArtistInsights] = useState<Awaited<
+    ReturnType<(typeof dbOperations)['getArtistInsights']>
+  > | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('recent');
@@ -220,8 +229,10 @@ export default function ArtistsScreen() {
   const loadArtists = async () => {
     try {
       setLoading(true);
-      const artistsWithStats = await dbOperations.getArtistsWithStats();
-
+      const [artistsWithStats, insights] = await Promise.all([
+        dbOperations.getArtistsWithStats(),
+        dbOperations.getArtistInsights(),
+      ]);
       const sortedArtists = sortByOption(
         artistsWithStats,
         sortOption,
@@ -229,6 +240,7 @@ export default function ArtistsScreen() {
         (a) => a.concertCount,
       );
       setArtists(sortedArtists);
+      setArtistInsights(insights);
     } catch (error) {
       console.error('Failed to load artists:', error);
       Alert.alert(t('common.error'), t('artists.failedToLoad'));
@@ -335,96 +347,97 @@ export default function ArtistsScreen() {
         </Text>
       </View>
 
-      {/* Search bar */}
-      <View style={styles.searchRow}>
-        <Icon
-          sf="magnifyingglass"
-          md="search-outline"
-          size={15}
-          color={colors.textMuted}
-          style={{ marginRight: 6 }}
-        />
-        <TextInput
-          style={styles.searchInput}
-          placeholder={t('artists.searchPlaceholder')}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          autoCapitalize="none"
-          placeholderTextColor={colors.textMuted}
-          accessibilityLabel={t('artists.searchPlaceholder')}
-        />
-      </View>
-
-      {/* Sort strip */}
-      <View style={styles.sortStrip}>
-        <TouchableOpacity
-          style={[
-            styles.sortPill,
-            sortOption === 'recent' ? styles.sortPillActive : styles.sortPillInactive,
-          ]}
-          onPress={() => handleSortChange('recent')}
-          accessibilityRole="button"
-          accessibilityState={{ selected: sortOption === 'recent' }}
-          accessibilityLabel={t('sort.mostRecent')}
-        >
-          <Text
-            style={[
-              styles.sortPillText,
-              sortOption === 'recent' ? styles.sortPillTextActive : styles.sortPillTextInactive,
-            ]}
-          >
-            {t('sort.mostRecent')}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.sortPill,
-            sortOption === 'top' ? styles.sortPillActive : styles.sortPillInactive,
-          ]}
-          onPress={() => handleSortChange('top')}
-          accessibilityRole="button"
-          accessibilityState={{ selected: sortOption === 'top' }}
-          accessibilityLabel={t('sort.top')}
-        >
-          <Text
-            style={[
-              styles.sortPillText,
-              sortOption === 'top' ? styles.sortPillTextActive : styles.sortPillTextInactive,
-            ]}
-          >
-            {t('sort.top')}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.sortPill,
-            sortOption === 'alphabetical' ? styles.sortPillActive : styles.sortPillInactive,
-          ]}
-          onPress={() => handleSortChange('alphabetical')}
-          accessibilityRole="button"
-          accessibilityState={{ selected: sortOption === 'alphabetical' }}
-          accessibilityLabel={t('sort.byName')}
-        >
-          <Text
-            style={[
-              styles.sortPillText,
-              sortOption === 'alphabetical'
-                ? styles.sortPillTextActive
-                : styles.sortPillTextInactive,
-            ]}
-          >
-            {t('sort.byName')}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
       <TabScrollView
         style={styles.artistsList}
+        stickyHeaderIndices={[1]}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
+        {/* 0 — collapsible insight cards */}
+        <View>{artistInsights && <ArtistInsightCards insights={artistInsights} />}</View>
+
+        {/* 1 — sticky search + sort */}
+        <View style={styles.stickyControls}>
+          <View style={styles.searchRow}>
+            <Icon
+              sf="magnifyingglass"
+              md="search-outline"
+              size={15}
+              color={colors.textMuted}
+              style={{ marginRight: 6 }}
+            />
+            <TextInput
+              style={styles.searchInput}
+              placeholder={t('artists.searchPlaceholder')}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              autoCapitalize="none"
+              placeholderTextColor={colors.textMuted}
+              accessibilityLabel={t('artists.searchPlaceholder')}
+            />
+          </View>
+          <View style={styles.sortStrip}>
+            <TouchableOpacity
+              style={[
+                styles.sortPill,
+                sortOption === 'recent' ? styles.sortPillActive : styles.sortPillInactive,
+              ]}
+              onPress={() => handleSortChange('recent')}
+              accessibilityRole="button"
+              accessibilityState={{ selected: sortOption === 'recent' }}
+              accessibilityLabel={t('sort.mostRecent')}
+            >
+              <Text
+                style={[
+                  styles.sortPillText,
+                  sortOption === 'recent' ? styles.sortPillTextActive : styles.sortPillTextInactive,
+                ]}
+              >
+                {t('sort.mostRecent')}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.sortPill,
+                sortOption === 'top' ? styles.sortPillActive : styles.sortPillInactive,
+              ]}
+              onPress={() => handleSortChange('top')}
+              accessibilityRole="button"
+              accessibilityState={{ selected: sortOption === 'top' }}
+              accessibilityLabel={t('sort.top')}
+            >
+              <Text
+                style={[
+                  styles.sortPillText,
+                  sortOption === 'top' ? styles.sortPillTextActive : styles.sortPillTextInactive,
+                ]}
+              >
+                {t('sort.top')}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.sortPill,
+                sortOption === 'alphabetical' ? styles.sortPillActive : styles.sortPillInactive,
+              ]}
+              onPress={() => handleSortChange('alphabetical')}
+              accessibilityRole="button"
+              accessibilityState={{ selected: sortOption === 'alphabetical' }}
+              accessibilityLabel={t('sort.byName')}
+            >
+              <Text
+                style={[
+                  styles.sortPillText,
+                  sortOption === 'alphabetical'
+                    ? styles.sortPillTextActive
+                    : styles.sortPillTextInactive,
+                ]}
+              >
+                {t('sort.byName')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
         {filteredArtists.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>

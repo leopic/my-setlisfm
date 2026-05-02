@@ -20,6 +20,7 @@ import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import { TabScrollView, Icon } from '@/components/ui';
+import PlacesInsightCards from '@/components/PlacesInsightCards';
 
 interface VenueWithStats {
   id: string;
@@ -97,12 +98,19 @@ export default function VenuesScreen() {
           color: colors.accent,
         },
 
+        // ── Sticky controls wrapper ──────────────────────────────────────
+        stickyControls: {
+          backgroundColor: colors.background,
+          paddingTop: 10,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
         // ── Sort pills ───────────────────────────────────────────────────
         sortRow: {
           flexDirection: 'row',
           gap: 8,
           paddingHorizontal: 16,
-          paddingBottom: 8,
+          paddingBottom: 10,
         },
         sortPill: {
           paddingHorizontal: 14,
@@ -135,7 +143,7 @@ export default function VenuesScreen() {
           borderColor: colors.border,
           borderRadius: 10,
           paddingHorizontal: 10,
-          paddingVertical: 6,
+          paddingVertical: 8,
         },
         searchIcon: {
           ...Type.body,
@@ -225,6 +233,9 @@ export default function VenuesScreen() {
   const [venues, setVenues] = useState<VenueWithStats[]>([]);
   const [filteredVenues, setFilteredVenues] = useState<VenueWithStats[]>([]);
   const [geoStats, setGeoStats] = useState<GeoStats | null>(null);
+  const [placesInsights, setPlacesInsights] = useState<Awaited<
+    ReturnType<(typeof dbOperations)['getPlacesInsights']>
+  > | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('recent');
@@ -241,9 +252,10 @@ export default function VenuesScreen() {
   const loadVenues = async () => {
     try {
       setLoading(true);
-      const [venuesWithStats, geoData] = await Promise.all([
+      const [venuesWithStats, geoData, insights] = await Promise.all([
         dbOperations.getVenuesWithStats(),
         dbOperations.getGeographicBreakdown(),
+        dbOperations.getPlacesInsights(),
       ]);
 
       const sortedVenues = sortByOption(
@@ -254,6 +266,7 @@ export default function VenuesScreen() {
       );
       setVenues(sortedVenues);
       setGeoStats(geoData);
+      setPlacesInsights(insights);
     } catch (error) {
       console.error('Failed to load venues:', error);
       Alert.alert(t('common.error'), t('venues.failedToLoad'));
@@ -402,59 +415,62 @@ export default function VenuesScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Sort pills */}
-      <View style={styles.sortRow}>
-        {(['recent', 'top', 'alphabetical'] as SortOption[]).map((option) => {
-          const isActive = sortOption === option;
-          const label =
-            option === 'recent'
-              ? t('sort.mostRecent')
-              : option === 'top'
-                ? t('sort.top')
-                : t('sort.byName');
-          return (
-            <TouchableOpacity
-              key={option}
-              style={[styles.sortPill, isActive && styles.sortPillActive]}
-              onPress={() => handleSortChange(option)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: isActive }}
-            >
-              <Text style={[styles.sortPillText, isActive && styles.sortPillTextActive]}>
-                {label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-
-      {/* Search bar */}
-      <View style={styles.searchContainer}>
-        <Icon
-          sf="magnifyingglass"
-          md="search-outline"
-          size={15}
-          color={colors.textMuted}
-          style={{ marginRight: 6 }}
-        />
-        <TextInput
-          style={styles.searchInput}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholder={t('venues.searchPlaceholder')}
-          placeholderTextColor={colors.textMuted}
-          returnKeyType="search"
-          clearButtonMode="while-editing"
-          autoCorrect={false}
-          autoCapitalize="none"
-        />
-      </View>
-
       {/* Venue list */}
       <TabScrollView
+        stickyHeaderIndices={[1]}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
+        {/* 0 — collapsible insight cards */}
+        <View>{placesInsights && <PlacesInsightCards insights={placesInsights} />}</View>
+
+        {/* 1 — sticky search + sort (search first, then sort) */}
+        <View style={styles.stickyControls}>
+          <View style={styles.searchContainer}>
+            <Icon
+              sf="magnifyingglass"
+              md="search-outline"
+              size={15}
+              color={colors.textMuted}
+              style={{ marginRight: 6 }}
+            />
+            <TextInput
+              style={styles.searchInput}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholder={t('venues.searchPlaceholder')}
+              placeholderTextColor={colors.textMuted}
+              returnKeyType="search"
+              clearButtonMode="while-editing"
+              autoCorrect={false}
+              autoCapitalize="none"
+            />
+          </View>
+          <View style={styles.sortRow}>
+            {(['recent', 'top', 'alphabetical'] as SortOption[]).map((option) => {
+              const isActive = sortOption === option;
+              const label =
+                option === 'recent'
+                  ? t('sort.mostRecent')
+                  : option === 'top'
+                    ? t('sort.top')
+                    : t('sort.byName');
+              return (
+                <TouchableOpacity
+                  key={option}
+                  style={[styles.sortPill, isActive && styles.sortPillActive]}
+                  onPress={() => handleSortChange(option)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isActive }}
+                >
+                  <Text style={[styles.sortPillText, isActive && styles.sortPillTextActive]}>
+                    {label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
         {filteredVenues.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>

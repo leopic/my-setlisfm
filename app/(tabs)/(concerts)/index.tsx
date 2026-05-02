@@ -21,6 +21,7 @@ import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import { EmptyState, Icon, TabScrollView } from '@/components/ui';
+import ConcertInsightCards from '@/components/ConcertInsightCards';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -55,6 +56,8 @@ export default function ConcertsScreen() {
           paddingHorizontal: 16,
           paddingTop: 12,
           paddingBottom: 8,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
         },
         headerTitle: {
           ...Type.heading,
@@ -64,6 +67,13 @@ export default function ConcertsScreen() {
           ...Type.body,
           color: colors.textSecondary,
           marginTop: 2,
+        },
+        // ── Sticky controls wrapper ─────────────────────────────────────────
+        stickyControls: {
+          backgroundColor: colors.background,
+          paddingTop: 10,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
         },
         // ── Search bar ──────────────────────────────────────────────────────
         searchContainer: {
@@ -224,6 +234,9 @@ export default function ConcertsScreen() {
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [concertInsights, setConcertInsights] = useState<Awaited<
+    ReturnType<(typeof dbOperations)['getConcertInsights']>
+  > | null>(null);
 
   useEffect(() => {
     loadConcerts();
@@ -232,7 +245,11 @@ export default function ConcertsScreen() {
   const loadConcerts = async () => {
     try {
       setLoading(true);
-      const rawConcerts = await dbOperations.getAllSetlists();
+      const [rawConcerts, insights] = await Promise.all([
+        dbOperations.getAllSetlists(),
+        dbOperations.getConcertInsights(),
+      ]);
+      setConcertInsights(insights);
 
       // Transform and add display names
       const concertsWithDetails: ConcertWithDetails[] = rawConcerts.map((concert) => ({
@@ -369,67 +386,72 @@ export default function ConcertsScreen() {
         </Text>
       </View>
 
-      {/* Search bar */}
-      <View style={styles.searchContainer}>
-        <View style={styles.searchInputWrapper}>
-          <Icon
-            sf="magnifyingglass"
-            md="search-outline"
-            size={15}
-            color={colors.textMuted}
-            style={{ marginRight: 6 }}
-          />
-          <TextInput
-            style={styles.searchInput}
-            placeholder={t('concerts.searchPlaceholder')}
-            placeholderTextColor={colors.textMuted}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            autoCapitalize="none"
-            autoCorrect={false}
-            clearButtonMode="while-editing"
-            accessibilityLabel={t('concerts.searchPlaceholder')}
-          />
-        </View>
-      </View>
-
-      {/* Sort pills */}
-      <View style={styles.sortContainer}>
-        <TouchableOpacity
-          style={[styles.sortPill, sortOption === 'recent' && styles.sortPillActive]}
-          onPress={() => handleSortChange('recent')}
-          accessibilityRole="button"
-          accessibilityState={{ selected: sortOption === 'recent' }}
-          accessibilityLabel={t('concerts.sortByMostRecent')}
-        >
-          <Text style={[styles.sortPillText, sortOption === 'recent' && styles.sortPillTextActive]}>
-            {t('concerts.mostRecent')}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.sortPill, sortOption === 'alphabetical' && styles.sortPillActive]}
-          onPress={() => handleSortChange('alphabetical')}
-          accessibilityRole="button"
-          accessibilityState={{ selected: sortOption === 'alphabetical' }}
-          accessibilityLabel={t('concerts.sortByAlphabetical')}
-        >
-          <Text
-            style={[
-              styles.sortPillText,
-              sortOption === 'alphabetical' && styles.sortPillTextActive,
-            ]}
-          >
-            {t('concerts.alphabetical')}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
       {/* Concerts list */}
       <TabScrollView
         style={styles.scrollView}
+        stickyHeaderIndices={[1]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
       >
+        {/* 0 — collapsible insight cards */}
+        <View>{concertInsights && <ConcertInsightCards insights={concertInsights} />}</View>
+
+        {/* 1 — sticky search + sort */}
+        <View style={styles.stickyControls}>
+          <View style={styles.searchContainer}>
+            <View style={styles.searchInputWrapper}>
+              <Icon
+                sf="magnifyingglass"
+                md="search-outline"
+                size={15}
+                color={colors.textMuted}
+                style={{ marginRight: 6 }}
+              />
+              <TextInput
+                style={styles.searchInput}
+                placeholder={t('concerts.searchPlaceholder')}
+                placeholderTextColor={colors.textMuted}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                autoCapitalize="none"
+                autoCorrect={false}
+                clearButtonMode="while-editing"
+                accessibilityLabel={t('concerts.searchPlaceholder')}
+              />
+            </View>
+          </View>
+          <View style={styles.sortContainer}>
+            <TouchableOpacity
+              style={[styles.sortPill, sortOption === 'recent' && styles.sortPillActive]}
+              onPress={() => handleSortChange('recent')}
+              accessibilityRole="button"
+              accessibilityState={{ selected: sortOption === 'recent' }}
+              accessibilityLabel={t('concerts.sortByMostRecent')}
+            >
+              <Text
+                style={[styles.sortPillText, sortOption === 'recent' && styles.sortPillTextActive]}
+              >
+                {t('concerts.mostRecent')}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.sortPill, sortOption === 'alphabetical' && styles.sortPillActive]}
+              onPress={() => handleSortChange('alphabetical')}
+              accessibilityRole="button"
+              accessibilityState={{ selected: sortOption === 'alphabetical' }}
+              accessibilityLabel={t('concerts.sortByAlphabetical')}
+            >
+              <Text
+                style={[
+                  styles.sortPillText,
+                  sortOption === 'alphabetical' && styles.sortPillTextActive,
+                ]}
+              >
+                {t('concerts.alphabetical')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
         {filteredYearGroups.length === 0 ? (
           <EmptyState
             title={searchQuery.trim() ? t('common.noMatchesFound') : t('concerts.empty')}
