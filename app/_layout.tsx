@@ -15,7 +15,7 @@ import { databaseManager } from '@/database/database';
 import { getStoredUsername } from '@/services/syncService';
 import { backfillMissingArtistImages } from '@/services/artistImageService';
 import { SyncProvider } from '@/contexts/SyncContext';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, useRootNavigationState } from 'expo-router';
 import '@/i18n';
 
 // Cap SDWebImage's in-memory cache before any images are loaded.
@@ -28,6 +28,7 @@ export { ErrorBoundary } from '@/components/ErrorBoundary';
 export default function Layout() {
   const colorScheme = useColorScheme();
   const router = useRouter();
+  const rootNavState = useRootNavigationState();
   const [dbReady, setDbReady] = useState(false);
   const [hasUsername, setHasUsername] = useState<boolean | null>(null);
   const didNavigateRef = useRef(false);
@@ -58,14 +59,18 @@ export default function Layout() {
     init();
   }, []);
 
-  // Always open the dashboard on launch — unstable_settings doesn't override
-  // the native tab bar's state restoration on iOS, so we navigate explicitly.
+  // Always open the dashboard on launch.
+  // We wait for rootNavState.key (truthy once React Navigation has finished
+  // restoring persisted state from AsyncStorage) so our replace fires AFTER
+  // the restored state — not before it, which is what caused the previous
+  // attempts to be overwritten by the artist-tab restoration.
   useEffect(() => {
+    if (!rootNavState?.key) return;
     if (dbReady && hasUsername === true && !didNavigateRef.current) {
       didNavigateRef.current = true;
       router.replace('/(tabs)/(home)');
     }
-  }, [dbReady, hasUsername, router]);
+  }, [rootNavState?.key, dbReady, hasUsername, router]);
 
   // fontError means the font CDN was unreachable — fall back to system font gracefully.
   if (!dbReady || hasUsername === null || (!fontsLoaded && !fontError)) {
