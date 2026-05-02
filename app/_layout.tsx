@@ -60,17 +60,24 @@ export default function Layout() {
   }, []);
 
   // Always open the dashboard on launch.
-  // We wait for rootNavState.key (truthy once React Navigation has finished
-  // restoring persisted state from AsyncStorage) so our replace fires AFTER
-  // the restored state — not before it, which is what caused the previous
-  // attempts to be overwritten by the artist-tab restoration.
+  //
+  // Why the previous attempts failed:
+  //  1. rootNavState.key is set synchronously at container init — before
+  //     AsyncStorage restoration finishes — so gating on it was useless.
+  //  2. router.replace from the root layout operates at the Stack level.
+  //     (tabs) is already the active Stack screen, so replace is a no-op
+  //     for the inner tab selection.
+  //
+  // Fix: wait for rootNavState.routes to be populated (only happens after
+  // restoration), then use router.navigate which dispatches a NAVIGATE
+  // action that drills into the tab navigator and switches the active tab.
   useEffect(() => {
-    if (!rootNavState?.key) return;
+    if (!rootNavState?.routes?.length) return;
     if (dbReady && hasUsername === true && !didNavigateRef.current) {
       didNavigateRef.current = true;
-      router.replace('/(tabs)/(home)');
+      router.navigate('/(tabs)/(home)');
     }
-  }, [rootNavState?.key, dbReady, hasUsername, router]);
+  }, [rootNavState?.routes?.length, dbReady, hasUsername, router]);
 
   // fontError means the font CDN was unreachable — fall back to system font gracefully.
   if (!dbReady || hasUsername === null || (!fontsLoaded && !fontError)) {
