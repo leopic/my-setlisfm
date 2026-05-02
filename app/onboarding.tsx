@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -31,6 +32,31 @@ export default function OnboardingScreen() {
   const [progress, setProgress] = useState<SyncProgress | null>(null);
   const [totalFound, setTotalFound] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Quip fade animation
+  const quipOpacity = useRef(new Animated.Value(0)).current;
+  const [displayedQuip, setDisplayedQuip] = useState<string | undefined>(undefined);
+  const latestQuipRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    const incoming = progress?.quip;
+    if (!incoming || incoming === latestQuipRef.current) return;
+    latestQuipRef.current = incoming;
+
+    // Fade out → swap text → fade in
+    Animated.timing(quipOpacity, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => {
+      setDisplayedQuip(incoming);
+      Animated.timing(quipOpacity, {
+        toValue: 1,
+        duration: 350,
+        useNativeDriver: true,
+      }).start();
+    });
+  }, [progress?.quip, quipOpacity]);
 
   const styles = useMemo(
     () =>
@@ -111,6 +137,32 @@ export default function OnboardingScreen() {
           textAlign: 'center',
           marginTop: 8,
         },
+        progressBar: {
+          width: '100%',
+          height: 3,
+          backgroundColor: colors.border,
+          borderRadius: 2,
+          overflow: 'hidden',
+          marginTop: 24,
+        },
+        progressBarFill: {
+          height: '100%',
+          backgroundColor: colors.accent,
+          borderRadius: 2,
+        },
+        quipContainer: {
+          marginTop: 28,
+          minHeight: 44,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+        quipText: {
+          ...Type.body,
+          color: colors.textMuted,
+          textAlign: 'center',
+          fontStyle: 'italic',
+          lineHeight: 22,
+        },
         doneContainer: {
           alignItems: 'center',
         },
@@ -150,19 +202,6 @@ export default function OnboardingScreen() {
           ...Type.title,
           color: '#ff6b6b',
         },
-        progressBar: {
-          width: '100%',
-          height: 3,
-          backgroundColor: colors.border,
-          borderRadius: 2,
-          overflow: 'hidden',
-          marginTop: 24,
-        },
-        progressBarFill: {
-          height: '100%',
-          backgroundColor: colors.accent,
-          borderRadius: 2,
-        },
       }),
     [colors],
   );
@@ -187,9 +226,7 @@ export default function OnboardingScreen() {
       setPhase('done');
     } else {
       const message =
-        result.error === 'User not found'
-          ? t('onboarding.userNotFound')
-          : t('onboarding.error');
+        result.error === 'User not found' ? t('onboarding.userNotFound') : t('onboarding.error');
       setErrorMessage(message);
       setPhase('error');
     }
@@ -200,16 +237,37 @@ export default function OnboardingScreen() {
     setProgress(null);
     setTotalFound(0);
     setErrorMessage('');
+    latestQuipRef.current = undefined;
+    setDisplayedQuip(undefined);
   };
 
   const handleLetsGo = () => {
     router.replace('/(tabs)/(home)');
   };
 
-  const progressPercent =
-    progress && progress.totalPages > 0
-      ? Math.round((progress.currentPage / progress.totalPages) * 100)
-      : 0;
+  const progressPercent = (() => {
+    if (!progress) return 0;
+    if (progress.phase === 'images' && progress.imagesTotal) {
+      return Math.round(((progress.imagesDone ?? 0) / progress.imagesTotal) * 100);
+    }
+    if (progress.totalPages > 0) {
+      return Math.round((progress.currentPage / progress.totalPages) * 100);
+    }
+    return 0;
+  })();
+
+  const progressLabel = (() => {
+    if (!progress) return '';
+    if (progress.phase === 'images') {
+      return progress.imagesTotal
+        ? `${progress.imagesDone ?? 0} / ${progress.imagesTotal} artists`
+        : '';
+    }
+    return t('onboarding.fetchingPage', {
+      current: progress.currentPage,
+      total: progress.totalPages,
+    });
+  })();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -252,13 +310,8 @@ export default function OnboardingScreen() {
             <ActivityIndicator size="large" color={colors.accent} />
             {progress && (
               <>
-                <Text style={styles.progressDetail}>
-                  {t('onboarding.fetchingPage', {
-                    current: progress.currentPage,
-                    total: progress.totalPages,
-                  })}
-                </Text>
-                {progress.totalConcerts > 0 && (
+                <Text style={styles.progressDetail}>{progressLabel}</Text>
+                {progress.totalConcerts > 0 && progress.phase === 'fetching' && (
                   <Text style={styles.progressCount}>
                     {t('onboarding.totalConcerts', { count: progress.totalConcerts })}
                   </Text>
@@ -268,6 +321,13 @@ export default function OnboardingScreen() {
                 </View>
               </>
             )}
+            <View style={styles.quipContainer}>
+              {displayedQuip ? (
+                <Animated.Text style={[styles.quipText, { opacity: quipOpacity }]}>
+                  {displayedQuip}
+                </Animated.Text>
+              ) : null}
+            </View>
           </View>
         )}
 

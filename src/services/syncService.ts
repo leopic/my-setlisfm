@@ -1,6 +1,9 @@
 import { SetlistApiService } from '@/services/setlistApi';
 import { DataProcessor } from '@/services/dataProcessor';
 import { dbOperations } from '@/database/operations';
+import { fetchAndStoreArtistImages } from '@/services/artistImageService';
+import { generateSyncQuip } from '@/utils/quipGenerator';
+import type { Setlist } from '@/types/api';
 
 const setlistApi = new SetlistApiService();
 const dataProcessor = new DataProcessor();
@@ -13,11 +16,14 @@ export interface SyncResult {
 }
 
 export interface SyncProgress {
-  phase: 'fetching' | 'processing' | 'done';
+  phase: 'fetching' | 'images' | 'done';
   currentPage: number;
   totalPages: number;
   totalConcerts: number;
   newConcertsFound: number;
+  quip?: string;
+  imagesTotal?: number;
+  imagesDone?: number;
 }
 
 export type SyncProgressCallback = (progress: SyncProgress) => void;
@@ -36,10 +42,25 @@ export async function setStoredUsername(username: string): Promise<void> {
   await dbOperations.upsertMetadata('username', username);
 }
 
+function computeQuipPages(totalPages: number): Set<number> {
+  const step = Math.max(1, Math.ceil(totalPages / 4));
+  const pages = new Set<number>();
+  for (let p = 1; p <= totalPages; p += step) {
+    if (pages.size < 4) pages.add(p);
+  }
+  return pages;
+}
+
 /**
  * Incrementally syncs attended concerts from the API.
- * Fetches page by page, stops early when an entire page contains
- * only setlists that already exist locally (i.e. we've caught up).
+ *
+ * Per page:
+ *  1. Fetch the concert page
+ *  2. Insert all setlists
+ *  3. Fetch archive.org images for any new artists on that page
+ *
+ * After all concert pages, any artists still missing images are caught up
+ * in a final images phase.
  */
 export async function syncConcertData(
   usernameOverride?: string,
@@ -59,6 +80,12 @@ export async function syncConcertData(
     let totalPages = 0;
     let totalConcerts = 0;
 
+    // Accumulated state for quip generation
+    const allSetlists: Setlist[] = [];
+    let quipPages: Set<number> | null = null;
+    let quipIndex = 0;
+    let currentQuip: string | undefined;
+
     while (hasMorePages) {
       const pageData = await setlistApi.getUserAttendedConcerts(username, currentPage);
 
@@ -69,19 +96,34 @@ export async function syncConcertData(
       totalPages = Math.ceil(pageData.total / pageData.itemsPerPage);
       totalConcerts = pageData.total;
 
+      // Compute quip checkpoint pages once we know the total
+      if (!quipPages) {
+        quipPages = computeQuipPages(totalPages);
+      }
+
+      // Accumulate setlists for quip generation
+      for (const s of pageData.setlist) {
+        allSetlists.push(s);
+      }
+
+      // Generate quip at checkpoint pages
+      if (quipPages.has(currentPage)) {
+        currentQuip = generateSyncQuip(allSetlists, quipIndex++);
+      }
+
       onProgress?.({
         phase: 'fetching',
         currentPage,
         totalPages,
         totalConcerts,
         newConcertsFound: totalNewConcerts,
+        quip: currentQuip,
       });
 
       const newOnThisPage = await dataProcessor.importSetlistsFromResponse(pageData);
       totalPagesProcessed++;
       totalNewConcerts += newOnThisPage;
 
-      // If no new setlists on this page, we've caught up — stop early
       if (newOnThisPage === 0) {
         break;
       }
@@ -92,10 +134,41 @@ export async function syncConcertData(
         currentPage++;
       }
 
-      // Small delay between pages
       if (hasMorePages) {
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
+    }
+
+    // Images cleanup phase — catch any artists that were missed or failed
+    const remainingMbids = await dbOperations.getArtistMbidsWithoutImages();
+
+    if (remainingMbids.length > 0) {
+      onProgress?.({
+        phase: 'images',
+        currentPage: totalPagesProcessed,
+        totalPages,
+        totalConcerts,
+        newConcertsFound: totalNewConcerts,
+        quip: `got your concerts — now fetching artist photos...`,
+        imagesTotal: remainingMbids.length,
+        imagesDone: 0,
+      });
+
+      await fetchAndStoreArtistImages(remainingMbids, (done, total) => {
+        const nearlyDone = done >= total * 0.75;
+        onProgress?.({
+          phase: 'images',
+          currentPage: totalPagesProcessed,
+          totalPages,
+          totalConcerts,
+          newConcertsFound: totalNewConcerts,
+          quip: nearlyDone
+            ? `almost done here...`
+            : `got your concerts — now fetching artist photos...`,
+          imagesTotal: total,
+          imagesDone: done,
+        });
+      });
     }
 
     await dbOperations.updateLastFetchedAt();

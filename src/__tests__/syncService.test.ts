@@ -36,8 +36,8 @@ import { dbOperations } from '@/database/operations';
 // on results[0].value (the returned object), not instances[0] (the `this` context).
 const apiInstance = (SetlistApiService as jest.MockedClass<typeof SetlistApiService>).mock
   .results[0].value as jest.Mocked<InstanceType<typeof SetlistApiService>>;
-const processorInstance = (DataProcessor as jest.MockedClass<typeof DataProcessor>).mock
-  .results[0].value as jest.Mocked<InstanceType<typeof DataProcessor>>;
+const processorInstance = (DataProcessor as jest.MockedClass<typeof DataProcessor>).mock.results[0]
+  .value as jest.Mocked<InstanceType<typeof DataProcessor>>;
 const mockDbOps = dbOperations as jest.Mocked<typeof dbOperations>;
 
 beforeEach(() => {
