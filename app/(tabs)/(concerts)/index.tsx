@@ -432,7 +432,7 @@ export default function ConcertsScreen() {
   };
 
   if (loading) {
-    return <ListSkeleton showSortBar />;
+    return <ListSkeleton showSortBar showInsightCards />;
   }
 
   return (

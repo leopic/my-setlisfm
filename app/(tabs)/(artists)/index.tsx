@@ -313,7 +313,7 @@ export default function ArtistsScreen() {
   };
 
   if (loading) {
-    return <ListSkeleton showSortBar />;
+    return <ListSkeleton showSortBar showInsightCards showAvatars />;
   }
 
   return (

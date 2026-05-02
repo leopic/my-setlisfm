@@ -347,7 +347,7 @@ export default function VenuesScreen() {
   };
 
   if (loading) {
-    return <ListSkeleton showSortBar />;
+    return <ListSkeleton showSortBar showInsightCards showGeoStrip />;
   }
 
   const venueCount = venues.length;
