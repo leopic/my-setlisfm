@@ -132,7 +132,7 @@ export default function CitiesScreen() {
   };
 
   const sortOptions: { value: SortOption; label: string }[] = [
-    { value: 'alphabetical', label: 'Alphabetical' },
+    { value: 'alphabetical', label: 'By Name' },
     { value: 'top', label: 'Top' },
   ];
 

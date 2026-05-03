@@ -21,7 +21,6 @@ import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import { Icon } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
-import ArtistInsightCards from '@/components/ArtistInsightCards';
 import ArtistImage from '@/components/ArtistImage';
 
 interface ArtistWithStats {
@@ -197,9 +196,6 @@ export default function ArtistsScreen() {
   const router = useRouter();
   const [artists, setArtists] = useState<ArtistWithStats[]>([]);
   const [filteredArtists, setFilteredArtists] = useState<ArtistWithStats[]>([]);
-  const [artistInsights, setArtistInsights] = useState<Awaited<
-    ReturnType<(typeof dbOperations)['getArtistInsights']>
-  > | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('recent');
@@ -216,10 +212,7 @@ export default function ArtistsScreen() {
   const loadArtists = async () => {
     try {
       setLoading(true);
-      const [artistsWithStats, insights] = await Promise.all([
-        dbOperations.getArtistsWithStats(),
-        dbOperations.getArtistInsights(),
-      ]);
+      const artistsWithStats = await dbOperations.getArtistsWithStats();
       const sortedArtists = sortByOption(
         artistsWithStats,
         sortOption,
@@ -227,7 +220,6 @@ export default function ArtistsScreen() {
         (a) => a.concertCount,
       );
       setArtists(sortedArtists);
-      setArtistInsights(insights);
     } catch (error) {
       console.error('Failed to load artists:', error);
       Alert.alert(t('common.error'), t('artists.failedToLoad'));
@@ -313,7 +305,7 @@ export default function ArtistsScreen() {
   };
 
   if (loading) {
-    return <ListSkeleton showSortBar showInsightCards showAvatars />;
+    return <ListSkeleton showSortBar showAvatars />;
   }
 
   return (
@@ -391,9 +383,7 @@ export default function ArtistsScreen() {
         keyExtractor={(item) => item.mbid}
         renderItem={renderArtist}
         estimatedItemSize={72}
-        ListHeaderComponent={
-          artistInsights ? <ArtistInsightCards insights={artistInsights} /> : null
-        }
+        ListHeaderComponent={null}
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>

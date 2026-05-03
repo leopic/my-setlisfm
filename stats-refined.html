@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chronicles — Stats Tab (Refined)</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0A0A0C;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      padding: 56px 32px 96px;
+      display: flex;
+      gap: 64px;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    /* Scrollable phone frame */
+    .phone-wrap {
+      flex-shrink: 0;
+    }
+    .phone-outer {
+      width: 300px;
+      height: 650px;
+      border-radius: 44px;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,.85), 0 0 0 1.5px rgba(255,255,255,.1);
+      position: relative;
+      background: #08090f;
+    }
+    /* Scrollable inner — the full tall PNG scrolls inside the phone frame */
+    .phone-scroll {
+      width: 100%;
+      height: 100%;
+      overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .phone-scroll::-webkit-scrollbar { display: none; }
+    .phone-scroll img {
+      display: block;
+      width: 100%;
+      /* PNG is 2x so halve the natural height */
+    }
+    /* Sticky tab bar overlay at bottom of phone */
+    .phone-outer::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 82px;
+      background: linear-gradient(to top, #0d1122 60%, transparent);
+      border-radius: 0 0 44px 44px;
+      pointer-events: none;
+    }
+    .scroll-hint {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 11px;
+      color: #3a4e68;
+      letter-spacing: .5px;
+    }
+
+    /* Right panel */
+    .breakdown {
+      max-width: 440px;
+      padding-top: 8px;
+    }
+    h1 { font-size: 26px; font-weight: 700; letter-spacing: -.4px; margin-bottom: 6px; }
+    .tagline { font-size: 13px; color: #5a7090; margin-bottom: 36px; line-height: 1.5; }
+
+    .section { margin-bottom: 28px; }
+    .section-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .section-title.global   { color: #00e8ff; }
+    .section-title.concerts { color: #ff9f0a; }
+    .section-title.artists  { color: #bf5af2; }
+    .section-title.venues   { color: #30d158; }
+
+    ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    li {
+      font-size: 13px; color: #8E8E93; padding-left: 16px; position: relative; line-height: 1.5;
+    }
+    li::before { content: '·'; position: absolute; left: 0; color: #3a4e68; }
+    li strong  { color: #dde4f5; font-weight: 600; }
+
+    .divider { width: 100%; height: 1px; background: #1a2035; margin: 24px 0; }
+
+    .chart-type {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 10px; margin-right: 6px; margin-bottom: 10px;
+    }
+    .bar  { color: #00e8ff; background: rgba(0,232,255,.1); }
+    .line { color: #bf5af2; background: rgba(191,90,242,.1); }
+    .area { color: #30d158; background: rgba(48,209,88,.1); }
+    .map  { color: #ff9f0a; background: rgba(255,159,10,.1); }
+
+    .note {
+      background: #0d1122; border: 1px solid #1a2035; border-radius: 14px;
+      padding: 16px 18px; font-size: 12.5px; color: #5a7090; line-height: 1.6; margin-top: 28px;
+    }
+    .note strong { color: #dde4f5; }
+    code { color: #00e8ff; font-size: 11.5px; }
+  </style>
+</head>
+<body>
+
+  <!-- Scrollable phone mockup -->
+  <div class="phone-wrap">
+    <div class="phone-outer">
+      <div class="phone-scroll">
+        <img src="assets/stats-refined.png">
+      </div>
+    </div>
+    <p class="scroll-hint">↕ scroll inside the phone</p>
+  </div>
+
+  <!-- Breakdown -->
+  <div class="breakdown">
+    <h1>Stats Tab — Refined</h1>
+    <p class="tagline">
+      Four sections, each with one chart and two half-width stat cards underneath.
+      The map moves here from the Venues tab — it fits better as a stats/exploration view.
+    </p>
+
+    <!-- Global -->
+    <div class="section">
+      <div class="section-title global">Your Story — Global</div>
+      <span class="chart-type area">Area line</span>
+      <ul>
+        <li><strong>Milestone growth chart</strong> — cumulative concert total as a filled area curve. Annotated dots at the 1st, 50th, 100th, and 200th show with artist + venue callouts.</li>
+        <li><strong>Card:</strong> 390 total shows</li>
+        <li><strong>Card:</strong> 14 countries visited</li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Concerts -->
+    <div class="section">
+      <div class="section-title concerts">Concerts</div>
+      <span class="chart-type bar">Bar chart</span>
+      <ul>
+        <li><strong>Concerts per year</strong> — vertical bars 2009–2024 with a toggle for "Concert Days" mode. 2020 dip and 2022 spike tell the story at a glance.</li>
+        <li><strong>Card:</strong> Busiest year (2023 · 48 shows)</li>
+        <li><strong>Card:</strong> Most common day (Friday)</li>
+        <li>Below the cards: weekday bar chart + streaks + longest gap (continued scroll)</li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Artists -->
+    <div class="section">
+      <div class="section-title artists">Artists</div>
+      <span class="chart-type line">Line chart</span>
+      <ul>
+        <li><strong>Top 5 artists over time</strong> — cumulative show count per year for your top 5. Lines diverge and cross, showing who's a long-term fixture vs. a phase.</li>
+        <li><strong>Card:</strong> 43% one-off artists</li>
+        <li><strong>Card:</strong> Longest reunion gap (8 yrs)</li>
+        <li>Below: repeat depth breakdown, insta-obsession / slow-burner lists</li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Places / Map -->
+    <div class="section">
+      <div class="section-title venues">Places</div>
+      <span class="chart-type map">Interactive map</span>
+      <ul>
+        <li><strong>World map</strong> — same map currently in the Venues tab, relocated here. Dots for each visited country, coloured by visit count. This is the natural home for it.</li>
+        <li><strong>Card:</strong> Germany · 61% of shows</li>
+        <li><strong>Card:</strong> Berlin · most visited city</li>
+        <li>Below: country scorecards, longest venue relationship, city-month combo</li>
+      </ul>
+    </div>
+
+    <div class="note">
+      <strong>Venues tab</strong> becomes a clean list — header, search, sort, rows.
+      No geo strip, no map button. The Continents / Countries / Cities drill-downs
+      can stay as sub-screens accessible from venue rows or from the Stats places section.<br><br>
+      <strong>Charts library:</strong> <code>react-native-svg</code> only.
+      Bar = <code>Rect</code>, line/area = <code>Polyline</code> + <code>Polygon</code>.
+      Map stays as the existing Leaflet WebView — no changes needed there.
+    </div>
+  </div>
+
+</body>
+</html>

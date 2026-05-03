@@ -21,7 +21,6 @@ import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import { Icon } from '@/components/ui';
-import PlacesInsightCards from '@/components/PlacesInsightCards';
 
 interface VenueWithStats {
   id: string;
@@ -228,9 +227,6 @@ export default function VenuesScreen() {
   const [venues, setVenues] = useState<VenueWithStats[]>([]);
   const [filteredVenues, setFilteredVenues] = useState<VenueWithStats[]>([]);
   const [geoStats, setGeoStats] = useState<GeoStats | null>(null);
-  const [placesInsights, setPlacesInsights] = useState<Awaited<
-    ReturnType<(typeof dbOperations)['getPlacesInsights']>
-  > | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('recent');
@@ -247,10 +243,9 @@ export default function VenuesScreen() {
   const loadVenues = async () => {
     try {
       setLoading(true);
-      const [venuesWithStats, geoData, insights] = await Promise.all([
+      const [venuesWithStats, geoData] = await Promise.all([
         dbOperations.getVenuesWithStats(),
         dbOperations.getGeographicBreakdown(),
-        dbOperations.getPlacesInsights(),
       ]);
 
       const sortedVenues = sortByOption(
@@ -261,7 +256,6 @@ export default function VenuesScreen() {
       );
       setVenues(sortedVenues);
       setGeoStats(geoData);
-      setPlacesInsights(insights);
     } catch (error) {
       console.error('Failed to load venues:', error);
       Alert.alert(t('common.error'), t('venues.failedToLoad'));
@@ -347,7 +341,7 @@ export default function VenuesScreen() {
   };
 
   if (loading) {
-    return <ListSkeleton showSortBar showInsightCards showGeoStrip />;
+    return <ListSkeleton showSortBar showGeoStrip />;
   }
 
   const venueCount = venues.length;
@@ -366,17 +360,8 @@ export default function VenuesScreen() {
         <Text style={styles.headerSubtitle}>{subtitle}</Text>
       </View>
 
-      {/* Geo navigation strip */}
+      {/* Geo navigation strip — map moved to Stats tab */}
       <View style={styles.geoStrip}>
-        <TouchableOpacity
-          style={styles.geoButton}
-          onPress={() => router.push('/(venues)/map')}
-          accessibilityRole="button"
-          accessibilityLabel={t('venues.map')}
-        >
-          <Text style={styles.geoButtonLabel}>Map</Text>
-        </TouchableOpacity>
-
         <TouchableOpacity
           style={styles.geoButton}
           testID="nav-continents"
@@ -464,9 +449,7 @@ export default function VenuesScreen() {
         keyExtractor={(item) => item.id}
         renderItem={renderVenue}
         estimatedItemSize={80}
-        ListHeaderComponent={
-          placesInsights ? <PlacesInsightCards insights={placesInsights} /> : null
-        }
+        ListHeaderComponent={null}
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>

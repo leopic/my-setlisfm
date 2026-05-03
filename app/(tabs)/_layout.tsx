@@ -34,10 +34,21 @@ export default function TabLayout() {
         <NativeTabs.Trigger.Label>{t('dashboard.venues')}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="(debug)">
-        <NativeTabs.Trigger.Icon sf="gear" md="settings" />
-        <NativeTabs.Trigger.Label>Debug</NativeTabs.Trigger.Label>
+      <NativeTabs.Trigger name="(stats)">
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'chart.bar', selected: 'chart.bar.fill' }}
+          md="bar_chart"
+        />
+        <NativeTabs.Trigger.Label>Stats</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
+
+      {/* Debug tab — development builds only */}
+      {__DEV__ && (
+        <NativeTabs.Trigger name="(debug)">
+          <NativeTabs.Trigger.Icon sf="gear" md="settings" />
+          <NativeTabs.Trigger.Label>Debug</NativeTabs.Trigger.Label>
+        </NativeTabs.Trigger>
+      )}
     </NativeTabs>
   );
 }

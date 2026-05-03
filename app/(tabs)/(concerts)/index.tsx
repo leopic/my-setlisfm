@@ -21,7 +21,6 @@ import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import { EmptyState, Icon } from '@/components/ui';
-import ConcertInsightCards from '@/components/ConcertInsightCards';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -228,9 +227,6 @@ export default function ConcertsScreen() {
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [concertInsights, setConcertInsights] = useState<Awaited<
-    ReturnType<(typeof dbOperations)['getConcertInsights']>
-  > | null>(null);
 
   useEffect(() => {
     loadConcerts();
@@ -239,11 +235,7 @@ export default function ConcertsScreen() {
   const loadConcerts = async () => {
     try {
       setLoading(true);
-      const [rawConcerts, insights] = await Promise.all([
-        dbOperations.getAllSetlists(),
-        dbOperations.getConcertInsights(),
-      ]);
-      setConcertInsights(insights);
+      const rawConcerts = await dbOperations.getAllSetlists();
 
       const concertsWithDetails: ConcertWithDetails[] = rawConcerts.map((concert) => ({
         ...concert,
@@ -432,7 +424,7 @@ export default function ConcertsScreen() {
   };
 
   if (loading) {
-    return <ListSkeleton showSortBar showInsightCards />;
+    return <ListSkeleton showSortBar />;
   }
 
   return (
@@ -506,9 +498,7 @@ export default function ConcertsScreen() {
         keyExtractor={keyExtractor}
         renderItem={renderItem}
         estimatedItemSize={sortOption === 'alphabetical' ? 72 : 300}
-        ListHeaderComponent={
-          concertInsights ? <ConcertInsightCards insights={concertInsights} /> : null
-        }
+        ListHeaderComponent={null}
         ListEmptyComponent={
           <EmptyState
             title={searchQuery.trim() ? t('common.noMatchesFound') : t('concerts.empty')}

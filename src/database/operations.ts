@@ -2070,6 +2070,127 @@ export class DatabaseOperations {
     };
   }
 
+  // ── Stats tab chart data ─────────────────────────────────────────────────
+  async getStatsChartData(): Promise<{
+    weekdays: Array<{ weekday: number; concertDays: number }>;
+    milestones: Array<{
+      number: number;
+      artistName: string;
+      eventDate: string;
+      venueName: string;
+      cityName: string;
+    }>;
+    topArtistsPerYear: Array<{ artistName: string; year: string; shows: number }>;
+    topCountry: { name: string; pct: number } | null;
+    topCity: string | null;
+  }> {
+    const ISO = `substr(eventDate,7,4)||'-'||substr(eventDate,4,2)||'-'||substr(eventDate,1,2)`;
+
+    const total =
+      ((await this.db.getFirstAsync('SELECT COUNT(*) AS n FROM setlists')) as { n: number } | null)
+        ?.n ?? 0;
+
+    const [weekdayRaw, milestonesRaw, topArtistsRaw, topCountryRaw, topCityRaw] = await Promise.all(
+      [
+        // Weekday distribution (0=Sun … 6=Sat)
+        this.db.getAllAsync(`
+        SELECT
+          CAST(strftime('%w', ${ISO}) AS INTEGER) AS weekday,
+          COUNT(DISTINCT ${ISO}) AS concertDays
+        FROM setlists
+        GROUP BY weekday
+        ORDER BY weekday
+      `),
+
+        // 1st, 50th, 100th, 200th concerts
+        this.db.getAllAsync(`
+        WITH ordered AS (
+          SELECT
+            sl.id, sl.eventDate,
+            a.name AS artistName,
+            v.name AS venueName,
+            c.name AS cityName,
+            ROW_NUMBER() OVER (ORDER BY ${ISO}) AS rn
+          FROM setlists sl
+          JOIN artists a ON sl.artistMbid = a.mbid
+          JOIN venues  v ON sl.venueId    = v.id
+          JOIN cities  c ON v.cityId      = c.id
+        )
+        SELECT rn AS number, artistName, eventDate, venueName, cityName
+        FROM ordered
+        WHERE rn IN (1, 50, 100, 200)
+        ORDER BY rn
+      `),
+
+        // Per-year show counts for each of the top-5 artists
+        this.db.getAllAsync(`
+        WITH top5 AS (
+          SELECT artistMbid
+          FROM setlists
+          GROUP BY artistMbid
+          ORDER BY COUNT(*) DESC
+          LIMIT 5
+        )
+        SELECT
+          a.name AS artistName,
+          substr(sl.eventDate, 7, 4) AS year,
+          COUNT(*) AS shows
+        FROM setlists sl
+        JOIN artists a ON sl.artistMbid = a.mbid
+        WHERE sl.artistMbid IN (SELECT artistMbid FROM top5)
+        GROUP BY a.name, year
+        ORDER BY a.name, year ASC
+      `),
+
+        // Top country by show count + percentage
+        this.db.getFirstAsync(`
+        SELECT co.name AS countryName, COUNT(*) AS showCount
+        FROM setlists sl
+        JOIN venues v ON sl.venueId = v.id
+        JOIN cities c ON v.cityId = c.id
+        JOIN countries co ON c.countryCode = co.code
+        GROUP BY co.code
+        ORDER BY showCount DESC
+        LIMIT 1
+      `),
+
+        // Most visited city
+        this.db.getFirstAsync(`
+        SELECT c.name AS cityName, COUNT(DISTINCT ${ISO}) AS concertDays
+        FROM setlists sl
+        JOIN venues v ON sl.venueId = v.id
+        JOIN cities c ON v.cityId = c.id
+        GROUP BY c.id
+        ORDER BY concertDays DESC
+        LIMIT 1
+      `),
+      ],
+    );
+
+    const tc = topCountryRaw as { countryName: string; showCount: number } | null;
+    const tCity = topCityRaw as { cityName: string } | null;
+
+    return {
+      weekdays: weekdayRaw as Array<{ weekday: number; concertDays: number }>,
+      milestones: milestonesRaw as Array<{
+        number: number;
+        artistName: string;
+        eventDate: string;
+        venueName: string;
+        cityName: string;
+      }>,
+      topArtistsPerYear: topArtistsRaw as Array<{
+        artistName: string;
+        year: string;
+        shows: number;
+      }>,
+      topCountry: tc
+        ? { name: tc.countryName, pct: total > 0 ? Math.round((tc.showCount / total) * 100) : 0 }
+        : null,
+      topCity: tCity?.cityName ?? null,
+    };
+  }
+
   // Clear all data for testing (use with caution!)
   async clearAllData(): Promise<void> {
     try {

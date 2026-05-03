@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chronicles — Stats Tab Concepts</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0A0A0C;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      padding: 56px 32px 96px;
+    }
+
+    .page-header { text-align: center; margin-bottom: 10px; }
+    .page-header h1 { font-size: 30px; font-weight: 700; letter-spacing: -.5px; }
+    .page-subtitle { font-size: 14px; color: #5a7090; text-align: center; margin-bottom: 48px; }
+
+    .grid {
+      display: flex; flex-wrap: wrap; gap: 48px;
+      justify-content: center; max-width: 1400px; margin: 0 auto;
+    }
+
+    .concept { width: 370px; display: flex; flex-direction: column; }
+
+    .concept-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 2.5px;
+      text-transform: uppercase; color: #00e8ff; margin-bottom: 16px;
+    }
+
+    .phone {
+      width: 260px; margin: 0 auto 26px;
+      border-radius: 44px; overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.08);
+    }
+    .phone img { display: block; width: 100%; }
+
+    .concept-name {
+      font-size: 20px; font-weight: 700; letter-spacing: -.3px; margin-bottom: 6px;
+    }
+    .concept-pitch {
+      font-size: 13px; color: #5a7090; line-height: 1.55; margin-bottom: 18px;
+    }
+
+    .charts { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .chart-pill {
+      font-size: 11px; font-weight: 600; padding: 4px 10px;
+      border-radius: 20px; border: 1px solid;
+    }
+    .chart-pill.bar  { color: #00e8ff; border-color: rgba(0,232,255,.3);  background: rgba(0,232,255,.08); }
+    .chart-pill.line { color: #bf5af2; border-color: rgba(191,90,242,.3); background: rgba(191,90,242,.08); }
+    .chart-pill.area { color: #30d158; border-color: rgba(48,209,88,.3);  background: rgba(48,209,88,.08); }
+
+    .section { margin-bottom: 16px; }
+    .section-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: #3a4e68; margin-bottom: 8px;
+    }
+    .section ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+    .section li {
+      font-size: 12.5px; color: #8E8E93; padding-left: 14px;
+      position: relative; line-height: 1.5;
+    }
+    .section li::before { content: '·'; position: absolute; left: 0; color: #3a4e68; }
+    .section li strong  { color: #dde4f5; font-weight: 600; }
+
+    /* Chart legend at top */
+    .charts-legend {
+      max-width: 860px; margin: 0 auto 52px;
+      background: #0d1122; border: 1px solid #1a2035;
+      border-radius: 20px; padding: 28px 32px;
+    }
+    .charts-legend h2 {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: #3a4e68; margin-bottom: 20px;
+    }
+    .chart-cards {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 14px;
+    }
+    .chart-card {
+      background: #131828; border: 1px solid #1a2035;
+      border-radius: 14px; padding: 16px;
+    }
+    .ct { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 7px; }
+    .ct.bar  { color: #00e8ff; }
+    .ct.line { color: #bf5af2; }
+    .ct.area { color: #30d158; }
+    .chart-card h3 { font-size: 14px; font-weight: 700; color: #dde4f5; margin-bottom: 6px; }
+    .chart-card p  { font-size: 11.5px; color: #5a7090; line-height: 1.5; }
+
+    .divider { width: 100%; height: 1px; background: #1a2035; margin: 52px 0; }
+    .footer-note {
+      max-width: 640px; margin: 0 auto; text-align: center;
+      font-size: 12.5px; color: #3a4e68; line-height: 1.7;
+    }
+    .footer-note strong { color: #dde4f5; }
+    code { color: #00e8ff; }
+  </style>
+</head>
+<body>
+
+<header class="page-header"><h1>Chronicles — Stats Tab</h1></header>
+<p class="page-subtitle">3 concepts · 4 charts · pick a direction</p>
+
+<!-- Chart inventory -->
+<div class="charts-legend">
+  <h2>Charts we'd build — shared across all three concepts</h2>
+  <div class="chart-cards">
+
+    <div class="chart-card">
+      <div class="ct bar">Bar chart</div>
+      <h3>Concerts per year</h3>
+      <p>Vertical bars 2009–2024 with a toggle for "Concert Days" mode. The 2020 dip and 2022 spike tell the story at a glance. Plain <code>Rect</code> elements in react-native-svg.</p>
+    </div>
+
+    <div class="chart-card">
+      <div class="ct bar">Bar chart</div>
+      <h3>Weekday distribution</h3>
+      <p>7 bars Mon → Sun. Friday almost always wins. Fast to scan, always triggers a "huh" moment. Same react-native-svg approach, one new DB query (<code>GROUP BY strftime('%w')</code>).</p>
+    </div>
+
+    <div class="chart-card">
+      <div class="ct line">Line chart</div>
+      <h3>Top 5 artists over time</h3>
+      <p>Cumulative show count per year for the top 5 artists. Lines diverge and cross — shows who became a long-term favourite vs. a phase. <code>Polyline</code> elements, 5 colours.</p>
+    </div>
+
+    <div class="chart-card">
+      <div class="ct area">Area line</div>
+      <h3>Milestone growth</h3>
+      <p>Cumulative concert total as a filled area curve, with annotated dots at the 1st, 50th, 100th, 200th show. Very personal — makes the history feel like a story arc. <code>Polygon</code> + <code>Polyline</code>.</p>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- Concept cards -->
+<main class="grid">
+
+  <!-- CONCEPT 1 -->
+  <div class="concept">
+    <div class="concept-label">Concept 01</div>
+    <div class="phone"><img src="assets/stats-concept-1.png" alt="Sections"></div>
+
+    <div class="concept-name">Sections</div>
+    <p class="concept-pitch">Vertical scroll with three labeled sections — Rhythm, Habits, Artists. Familiar card-grid feel, easy to scan. Closest to what the rest of the app already speaks.</p>
+
+    <div class="charts">
+      <span class="chart-pill bar">Concerts per year</span>
+      <span class="chart-pill bar">Weekdays</span>
+      <span class="chart-pill line">Top 5 artists</span>
+    </div>
+
+    <div class="section">
+      <div class="section-title">What we'd build</div>
+      <ul>
+        <li><strong>Rhythm</strong> — concerts-per-year bar chart (full width), toggle for concert days</li>
+        <li><strong>Habits</strong> — weekday bar chart + dominant-day-by-era text grid (4 time periods)</li>
+        <li><strong>Artists</strong> — top-5 cumulative line chart + repeat-depth breakdown cards</li>
+        <li><strong>Places</strong> — country scorecards, longest venue relationship, best city-month</li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="section-title">Effort</div>
+      <ul>
+        <li>Lowest build effort — existing stat cards just move to this tab</li>
+        <li>3 new chart components + 2 new DB queries (weekdays, per-artist-per-year)</li>
+        <li>Section headers can be made sticky for a long-scroll feel</li>
+      </ul>
+    </div>
+  </div>
+
+
+  <!-- CONCEPT 2 -->
+  <div class="concept">
+    <div class="concept-label">Concept 02</div>
+    <div class="phone"><img src="assets/stats-concept-2.png" alt="Big Picture"></div>
+
+    <div class="concept-name">Big Picture</div>
+    <p class="concept-pitch">Everything above the fold. 2×2 hero numbers, then the concerts-per-year chart as the centrepiece, then a compact weekday chart. The whole story in one viewport.</p>
+
+    <div class="charts">
+      <span class="chart-pill bar">Concerts per year</span>
+      <span class="chart-pill bar">Weekdays</span>
+      <span class="chart-pill area">Milestone growth</span>
+    </div>
+
+    <div class="section">
+      <div class="section-title">What we'd build</div>
+      <ul>
+        <li><strong>Hero grid</strong> — 2×2 chips: total shows, years active, countries, artists (coloured numbers)</li>
+        <li><strong>Dominant chart</strong> — full-width concerts-per-year bar, with toggle for concert days</li>
+        <li><strong>Weekday chart</strong> — secondary compact bar, Fri/Sat/Sun cluster immediately visible</li>
+        <li><strong>Milestone strip</strong> — 1st, 50th, 100th, 200th concert callouts beneath the charts</li>
+        <li>Scroll reveals deeper: artist cards, places, streaks, reunion gaps</li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="section-title">Effort</div>
+      <ul>
+        <li>Low–Medium — first viewport requires only 2 charts</li>
+        <li>Highest impact-per-line-of-code of the three; no scrolling needed for the core story</li>
+        <li>Toggle on the bar chart adds a small state management layer</li>
+      </ul>
+    </div>
+  </div>
+
+
+  <!-- CONCEPT 3 -->
+  <div class="concept">
+    <div class="concept-label">Concept 03</div>
+    <div class="phone"><img src="assets/stats-concept-3.png" alt="Chronicle"></div>
+
+    <div class="concept-name">Chronicle</div>
+    <p class="concept-pitch">Story-first. Opens with the headline count, then an annotated cumulative growth arc — your whole concert life as a single line. Charts and stat lanes below. Feels like a documentary.</p>
+
+    <div class="charts">
+      <span class="chart-pill area">Milestone growth</span>
+      <span class="chart-pill bar">Concerts per year</span>
+      <span class="chart-pill line">Top 5 artists</span>
+    </div>
+
+    <div class="section">
+      <div class="section-title">What we'd build</div>
+      <ul>
+        <li><strong>Headline</strong> — "390 shows" in display type, years · countries · artists subtitle</li>
+        <li><strong>Milestone arc</strong> — cumulative area chart with annotated dots at 1st/50th/100th/200th</li>
+        <li><strong>Rhythm bar</strong> — concerts per year below the arc, adds context to the growth shape</li>
+        <li><strong>Artist lines</strong> — top-5 cumulative line chart showing loyalty vs. phases over time</li>
+        <li><strong>Stat lanes</strong> — compact horizontal rows: Artist insights, On the road, Places</li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="section-title">Effort</div>
+      <ul>
+        <li>Medium–High — annotated milestone chart is the most custom piece</li>
+        <li>Artists line chart needs a new per-artist-per-year count query</li>
+        <li>Highest visual payoff; most distinctive — closest to Spotify Wrapped in feel</li>
+      </ul>
+    </div>
+  </div>
+
+</main>
+
+<div class="divider"></div>
+
+<p class="footer-note">
+  All charts use <strong>react-native-svg</strong> directly — no Victory Native, no Skia, no charting library.
+  Bar charts = <code>Rect</code> elements with varying opacity.
+  Line / area charts = <code>Polyline</code> + <code>Polygon</code>.
+  One new dependency, renders natively on iOS and Android, zero layout engine overhead.
+</p>
+
+</body>
+</html>
