@@ -12,7 +12,7 @@ import { useSyncContext } from '@/contexts/SyncContext';
 import DashboardSkeleton from '@/components/skeletons/DashboardSkeleton';
 import InsightCards from '@/components/InsightCards';
 import ArtistImage from '@/components/ArtistImage';
-import { TabScrollView, Icon } from '@/components/ui';
+import { TabScrollView, Icon, EmptyState } from '@/components/ui';
 
 type DashboardStats = Awaited<ReturnType<typeof dbOperations.getDashboardStats>>;
 
@@ -358,6 +358,35 @@ export default function DashboardScreen() {
 
   if (loading) {
     return <DashboardSkeleton />;
+  }
+
+  // No concerts synced yet
+  if (stats.totalConcerts === 0) {
+    return (
+      <SafeAreaView
+        edges={['top', 'left', 'right']}
+        style={styles.container}
+        testID="dashboard-screen"
+      >
+        <View style={styles.topBar}>
+          <View style={styles.topBarRow}>
+            <Text style={styles.appTitle}>Chronicles</Text>
+            <TouchableOpacity
+              onPress={handleSync}
+              accessibilityRole="button"
+              accessibilityLabel="Sync concert data"
+            >
+              <Icon sf="arrow.clockwise" md="refresh-outline" size={20} color={colors.textMuted} />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <EmptyState
+          icon={{ sf: 'music.note', md: 'musical-note-outline' }}
+          title={t('dashboard.emptyTitle')}
+          body={t('dashboard.emptyBody')}
+        />
+      </SafeAreaView>
+    );
   }
 
   const MONTH_ABBR = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];

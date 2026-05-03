@@ -7,6 +7,7 @@ import { dbOperations } from '@/database/operations';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { formatDate } from '@/utils/date';
+import { EmptyState } from '@/components/ui';
 import BarChart from '@/components/charts/BarChart';
 import LineChart, { type LineSeries } from '@/components/charts/LineChart';
 import AreaChart, { type Milestone } from '@/components/charts/AreaChart';
@@ -220,10 +221,29 @@ export default function StatsScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
+      <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Stats</Text>
         </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (yearSummaries.length === 0) {
+    return (
+      <SafeAreaView
+        edges={['top', 'left', 'right', 'bottom']}
+        style={styles.container}
+        testID="stats-screen"
+      >
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Stats</Text>
+        </View>
+        <EmptyState
+          icon={{ sf: 'chart.bar', md: 'bar-chart-outline' }}
+          title="Nothing to chart yet"
+          body="Your stats come to life once you sync some concerts."
+        />
       </SafeAreaView>
     );
   }

@@ -20,7 +20,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
-import { Icon } from '@/components/ui';
+import { Icon, EmptyState } from '@/components/ui';
 
 interface VenueWithStats {
   id: string;
@@ -344,6 +344,26 @@ export default function VenuesScreen() {
     return <ListSkeleton showSortBar showGeoStrip />;
   }
 
+  // No venues at all — hide geo strip and controls, show full-page empty state
+  if (venues.length === 0) {
+    return (
+      <SafeAreaView
+        edges={['top', 'left', 'right']}
+        style={styles.container}
+        testID="venues-screen"
+      >
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t('venues.title')}</Text>
+        </View>
+        <EmptyState
+          icon={{ sf: 'mappin', md: 'location-outline' }}
+          title={t('venues.empty')}
+          body={t('venues.emptyBody')}
+        />
+      </SafeAreaView>
+    );
+  }
+
   const venueCount = venues.length;
   const subtitle =
     sortOption === 'top'
@@ -451,18 +471,11 @@ export default function VenuesScreen() {
         estimatedItemSize={80}
         ListHeaderComponent={null}
         ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>
-              {searchQuery.trim() ? t('venues.noMatch') : t('venues.empty')}
-            </Text>
-            <TouchableOpacity
-              style={styles.refreshButton}
-              onPress={loadVenues}
-              accessibilityRole="button"
-            >
-              <Text style={styles.refreshButtonText}>{t('common.refresh')}</Text>
-            </TouchableOpacity>
-          </View>
+          <EmptyState
+            variant="inline"
+            title={t('venues.noMatch')}
+            body={t('common.tryDifferentSearch')}
+          />
         }
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}

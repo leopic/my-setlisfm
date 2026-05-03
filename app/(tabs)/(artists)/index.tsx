@@ -19,7 +19,7 @@ import { sortByOption } from '@/utils/sort';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
-import { Icon } from '@/components/ui';
+import { Icon, EmptyState } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import ArtistImage from '@/components/ArtistImage';
 
@@ -308,6 +308,26 @@ export default function ArtistsScreen() {
     return <ListSkeleton showSortBar showAvatars />;
   }
 
+  // No data at all — hide all controls, show a full-page empty state
+  if (artists.length === 0) {
+    return (
+      <SafeAreaView
+        edges={['top', 'left', 'right']}
+        style={styles.container}
+        testID="artists-screen"
+      >
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t('artists.title')}</Text>
+        </View>
+        <EmptyState
+          icon={{ sf: 'person', md: 'person-outline' }}
+          title={t('artists.empty')}
+          body={t('artists.emptyBody')}
+        />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="artists-screen">
       {/* Header */}
@@ -385,18 +405,11 @@ export default function ArtistsScreen() {
         estimatedItemSize={72}
         ListHeaderComponent={null}
         ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>
-              {searchQuery.trim() ? t('artists.noMatch') : t('artists.empty')}
-            </Text>
-            <TouchableOpacity
-              style={styles.refreshButton}
-              onPress={loadArtists}
-              accessibilityRole="button"
-            >
-              <Text style={styles.refreshButtonText}>{t('common.refresh')}</Text>
-            </TouchableOpacity>
-          </View>
+          <EmptyState
+            variant="inline"
+            title={t('artists.noMatch')}
+            body={t('common.tryDifferentSearch')}
+          />
         }
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}

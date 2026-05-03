@@ -427,6 +427,26 @@ export default function ConcertsScreen() {
     return <ListSkeleton showSortBar />;
   }
 
+  // No concerts at all — hide controls, show full-page empty state
+  if (concerts.length === 0) {
+    return (
+      <SafeAreaView
+        edges={['top', 'left', 'right']}
+        style={styles.container}
+        testID="concerts-screen"
+      >
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t('concerts.title')}</Text>
+        </View>
+        <EmptyState
+          icon={{ sf: 'music.note.list', md: 'musical-notes-outline' }}
+          title={t('concerts.empty')}
+          body={t('concerts.emptyBody')}
+        />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
