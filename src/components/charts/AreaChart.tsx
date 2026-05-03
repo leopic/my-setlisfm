@@ -1,110 +1,104 @@
 import { useMemo } from 'react';
-import { View } from 'react-native';
-import Svg, { Polyline, Polygon, Circle, Line, Text as SvgText, G } from 'react-native-svg';
+import { View, Text, StyleSheet } from 'react-native';
 import { useChronicleColors } from '@/utils/colors';
 
 export interface Milestone {
-  /** Index into the data array */
   index: number;
   label: string;
-  detail?: string;
 }
 
 interface AreaChartProps {
-  /** Cumulative values — one per year, ascending */
   data: number[];
   milestones?: Milestone[];
   color?: string;
   height?: number;
 }
 
-const LABEL_HEIGHT = 14;
-
 export default function AreaChart({ data, milestones = [], color, height = 110 }: AreaChartProps) {
   const colors = useChronicleColors();
   const lineColor = color ?? colors.accent;
+  const max = useMemo(() => Math.max(...data, 1), [data]);
 
-  const VW = 1000;
-  const totalHeight = height + LABEL_HEIGHT + 4;
-  const maxY = Math.max(...data, 1);
-  const n = data.length;
-
-  const pts = useMemo(
+  const styles = useMemo(
     () =>
-      data.map((v, i) => ({
-        x: n === 1 ? VW / 2 : (i / (n - 1)) * VW,
-        y: height - (v / maxY) * height,
-      })),
-    [data, height, maxY, n],
+      StyleSheet.create({
+        container: { width: '100%' },
+        bars: {
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          height,
+          gap: 2,
+          position: 'relative',
+        },
+        bar: { flex: 1, borderRadius: 2 },
+        milestoneRow: {
+          flexDirection: 'row',
+          marginTop: 8,
+          gap: 2,
+        },
+        milestoneSlot: { flex: 1, alignItems: 'center' },
+        milestoneDot: {
+          width: 7,
+          height: 7,
+          borderRadius: 3.5,
+        },
+        milestoneLabel: {
+          fontSize: 9,
+          fontWeight: '700',
+          marginTop: 3,
+          textAlign: 'center',
+        },
+      }),
+    [height],
   );
 
-  const linePts = pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
-  const fillPts = `0,${height} ${linePts} ${VW},${height}`;
+  if (!data.length) return null;
 
-  // Milestone annotations — stagger vertically to avoid overlap
-  const annotatedMilestones = milestones.map((m, idx) => {
-    const pt = pts[Math.min(m.index, pts.length - 1)];
-    // alternate label above/below based on index
-    const above = idx % 2 === 0;
-    return { ...m, pt, above };
-  });
+  // Build milestone set for quick lookup
+  const milestoneByIndex = new Map(milestones.map((m) => [m.index, m.label]));
 
   return (
-    <View style={{ width: '100%', height: totalHeight }}>
-      <Svg
-        width="100%"
-        height={totalHeight}
-        viewBox={`0 0 ${VW} ${totalHeight}`}
-        preserveAspectRatio="none"
-      >
-        {/* Fill */}
-        <Polygon points={fillPts} fill={lineColor} opacity={0.08} />
-
-        {/* Subtle grid */}
-        {[0.25, 0.5, 0.75].map((f) => {
-          const gy = height - f * height;
+    <View style={styles.container}>
+      {/* Bars representing cumulative growth */}
+      <View style={styles.bars}>
+        {data.map((v, i) => {
+          const ratio = v / max;
+          const barH = Math.max(2, ratio * height);
+          const hasMilestone = milestoneByIndex.has(i);
           return (
-            <Line key={f} x1={0} y1={gy} x2={VW} y2={gy} stroke={colors.border} strokeWidth={1} />
+            <View
+              key={i}
+              style={[
+                styles.bar,
+                {
+                  height: barH,
+                  backgroundColor: lineColor,
+                  opacity: hasMilestone ? 1 : ratio > 0.6 ? 0.6 : ratio > 0.3 ? 0.35 : 0.18,
+                },
+              ]}
+            />
           );
         })}
+      </View>
 
-        {/* Line */}
-        <Polyline
-          points={linePts}
-          fill="none"
-          stroke={lineColor}
-          strokeWidth={2.5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-
-        {/* Milestone annotations */}
-        {annotatedMilestones.map((m) => {
-          const labelY = m.above ? m.pt.y - 10 : m.pt.y + 20;
-          return (
-            <G key={m.label}>
-              <Circle
-                cx={m.pt.x}
-                cy={m.pt.y}
-                r={5}
-                fill={lineColor}
-                stroke={colors.background}
-                strokeWidth={2}
-              />
-              <SvgText
-                x={m.pt.x}
-                y={labelY}
-                fontSize={22}
-                fontWeight="700"
-                fill={lineColor}
-                textAnchor="middle"
-              >
-                {m.label}
-              </SvgText>
-            </G>
-          );
-        })}
-      </Svg>
+      {/* Milestone annotations */}
+      {milestones.length > 0 && (
+        <View style={styles.milestoneRow}>
+          {data.map((_, i) => {
+            const label = milestoneByIndex.get(i);
+            return (
+              <View key={i} style={styles.milestoneSlot}>
+                {label ? (
+                  <>
+                    <View style={[styles.milestoneDot, { backgroundColor: lineColor }]} />
+                    <Text style={[styles.milestoneLabel, { color: lineColor }]}>{label}</Text>
+                  </>
+                ) : null}
+              </View>
+            );
+          })}
+        </View>
+      )}
     </View>
   );
 }

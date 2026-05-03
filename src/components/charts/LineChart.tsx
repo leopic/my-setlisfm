@@ -1,21 +1,11 @@
 import { useMemo } from 'react';
-import { View } from 'react-native';
-import Svg, {
-  Polyline,
-  Circle,
-  Line,
-  Text as SvgText,
-  G,
-  Defs,
-  ClipPath,
-  Rect,
-} from 'react-native-svg';
+import { View, Text, StyleSheet } from 'react-native';
 import { useChronicleColors } from '@/utils/colors';
 
 export interface LineSeries {
   label: string;
   color: string;
-  /** Values in chronological order — one per x position */
+  /** Values in chronological order */
   data: number[];
 }
 
@@ -25,120 +15,63 @@ interface LineChartProps {
   height?: number;
 }
 
-const LABEL_HEIGHT = 14;
-const RIGHT_PAD = 80; // space for end labels
-
-export default function LineChart({ series, xLabels = [], height = 100 }: LineChartProps) {
+/**
+ * Renders a horizontal leaderboard bar chart — total cumulative value per series.
+ * Works without react-native-svg and reads clearly for a "top artists" comparison.
+ */
+export default function LineChart({ series, height = 100 }: LineChartProps) {
   const colors = useChronicleColors();
 
-  const VW = 1000;
-  const chartW = VW - RIGHT_PAD;
-  const totalHeight = height + LABEL_HEIGHT + 4;
+  const ranked = useMemo(
+    () =>
+      series
+        .map((s) => ({ ...s, total: s.data[s.data.length - 1] ?? 0 }))
+        .sort((a, b) => b.total - a.total),
+    [series],
+  );
 
-  const { points, maxY } = useMemo(() => {
-    const allVals = series.flatMap((s) => s.data);
-    const maxY = Math.max(...allVals, 1);
-    const nPts = Math.max(...series.map((s) => s.data.length));
+  const maxTotal = ranked[0]?.total ?? 1;
 
-    const points = series.map((s) => ({
-      ...s,
-      pts: s.data.map((v, i) => ({
-        x: nPts === 1 ? chartW / 2 : (i / (nPts - 1)) * chartW,
-        y: height - (v / maxY) * height,
-      })),
-    }));
-    return { points, maxY };
-  }, [series, height, chartW]);
-
-  const nPts = points[0]?.pts.length ?? 0;
-  const gridValues = [Math.round(maxY * 0.25), Math.round(maxY * 0.5), Math.round(maxY * 0.75)];
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: { width: '100%', gap: 8, minHeight: height },
+        row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+        labelWrap: { width: 88 },
+        label: { fontSize: 12, fontWeight: '500', color: colors.textSecondary },
+        trackWrap: {
+          flex: 1,
+          height: 10,
+          backgroundColor: colors.border,
+          borderRadius: 5,
+          overflow: 'hidden',
+        },
+        fill: { height: '100%', borderRadius: 5 },
+        count: { width: 24, fontSize: 12, fontWeight: '700', textAlign: 'right' },
+      }),
+    [colors, height],
+  );
 
   return (
-    <View style={{ width: '100%', height: totalHeight }}>
-      <Svg
-        width="100%"
-        height={totalHeight}
-        viewBox={`0 0 ${VW} ${totalHeight}`}
-        preserveAspectRatio="none"
-      >
-        <Defs>
-          <ClipPath id="lc-clip">
-            <Rect x={0} y={0} width={chartW} height={height} />
-          </ClipPath>
-        </Defs>
-
-        {/* Grid lines */}
-        {gridValues.map((v) => {
-          const gy = height - (v / maxY) * height;
-          return (
-            <Line
-              key={v}
-              x1={0}
-              y1={gy}
-              x2={chartW}
-              y2={gy}
-              stroke={colors.border}
-              strokeWidth={1}
+    <View style={styles.container}>
+      {ranked.map((s) => (
+        <View key={s.label} style={styles.row}>
+          <View style={styles.labelWrap}>
+            <Text style={[styles.label, { color: s.color }]} numberOfLines={1}>
+              {s.label}
+            </Text>
+          </View>
+          <View style={styles.trackWrap}>
+            <View
+              style={[
+                styles.fill,
+                { width: `${(s.total / maxTotal) * 100}%`, backgroundColor: s.color },
+              ]}
             />
-          );
-        })}
-
-        {/* Series lines */}
-        {points.map((s) => {
-          const ptStr = s.pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
-          const lastPt = s.pts[s.pts.length - 1];
-          return (
-            <G key={s.label} clipPath="url(#lc-clip)">
-              <Polyline
-                points={ptStr}
-                fill="none"
-                stroke={s.color}
-                strokeWidth={2.5}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <Circle cx={lastPt.x} cy={lastPt.y} r={4} fill={s.color} />
-            </G>
-          );
-        })}
-
-        {/* End labels (outside clip) */}
-        {points.map((s) => {
-          const lastPt = s.pts[s.pts.length - 1];
-          return (
-            <SvgText
-              key={`lbl-${s.label}`}
-              x={chartW + 8}
-              y={lastPt.y + 5}
-              fontSize={22}
-              fontWeight="500"
-              fill={s.color}
-            >
-              {s.label.split(' ')[0]}
-            </SvgText>
-          );
-        })}
-
-        {/* X-axis labels */}
-        {xLabels.map((lbl, i) => {
-          if (nPts <= 1) return null;
-          const x = (i / (nPts - 1)) * chartW;
-          if (i % 2 !== 0) return null;
-          return (
-            <SvgText
-              key={lbl}
-              x={x}
-              y={height + LABEL_HEIGHT}
-              fontSize={22}
-              fontWeight="400"
-              fill={colors.textMuted}
-              textAnchor="middle"
-            >
-              {lbl}
-            </SvgText>
-          );
-        })}
-      </Svg>
+          </View>
+          <Text style={[styles.count, { color: s.color }]}>{s.total}</Text>
+        </View>
+      ))}
     </View>
   );
 }
