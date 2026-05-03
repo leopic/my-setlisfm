@@ -373,13 +373,27 @@ export default function DashboardScreen() {
         <View style={styles.topBar}>
           <View style={styles.topBarRow}>
             <Text style={styles.appTitle}>Chronicles</Text>
-            <TouchableOpacity
-              onPress={handleSync}
-              accessibilityRole="button"
-              accessibilityLabel="Sync concert data"
-            >
-              <Icon sf="arrow.clockwise" md="refresh-outline" size={20} color={colors.textMuted} />
-            </TouchableOpacity>
+            <View style={styles.topBarActions}>
+              <TouchableOpacity
+                onPress={handleSync}
+                accessibilityRole="button"
+                accessibilityLabel="Sync concert data"
+              >
+                <Icon
+                  sf="arrow.clockwise"
+                  md="refresh-outline"
+                  size={20}
+                  color={colors.textMuted}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => router.push('/(home)/settings')}
+                accessibilityRole="button"
+                accessibilityLabel="Open settings"
+              >
+                <Icon sf="gearshape" md="settings-outline" size={20} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
         <EmptyState
@@ -456,13 +470,22 @@ export default function DashboardScreen() {
       <View style={styles.topBar}>
         <View style={styles.topBarRow}>
           <Text style={styles.appTitle}>Chronicles</Text>
-          <TouchableOpacity
-            onPress={handleSync}
-            accessibilityRole="button"
-            accessibilityLabel="Sync concert data"
-          >
-            <Icon sf="arrow.clockwise" md="refresh-outline" size={20} color={colors.textMuted} />
-          </TouchableOpacity>
+          <View style={styles.topBarActions}>
+            <TouchableOpacity
+              onPress={handleSync}
+              accessibilityRole="button"
+              accessibilityLabel="Sync concert data"
+            >
+              <Icon sf="arrow.clockwise" md="refresh-outline" size={20} color={colors.textMuted} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push('/(home)/settings')}
+              accessibilityRole="button"
+              accessibilityLabel="Open settings"
+            >
+              <Icon sf="gearshape" md="settings-outline" size={20} color={colors.textMuted} />
+            </TouchableOpacity>
+          </View>
         </View>
         <Text style={styles.statsLine}>
           {`${stats.totalConcerts} shows · ${stats.totalArtists} artists · ${stats.totalCountries} countries`}
