@@ -13,6 +13,7 @@ import DashboardSkeleton from '@/components/skeletons/DashboardSkeleton';
 import InsightCards from '@/components/InsightCards';
 import ArtistImage from '@/components/ArtistImage';
 import { TabScrollView, Icon, EmptyState } from '@/components/ui';
+import { useTabletLayout } from '@/utils/tablet';
 
 type DashboardStats = Awaited<ReturnType<typeof dbOperations.getDashboardStats>>;
 
@@ -32,6 +33,7 @@ export default function DashboardScreen() {
   const router = useRouter();
   const colors = useChronicleColors();
   const { t } = useTranslation();
+  const { isTablet } = useTabletLayout();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -473,285 +475,290 @@ export default function DashboardScreen() {
       <TabScrollView
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        {/* ── On this day ─────────────────────────────────────────────────── */}
-        {onThisDay && (
-          <TouchableOpacity
-            style={styles.onThisDayCard}
-            onPress={() =>
-              router.push({ pathname: '/(home)/concert/[id]', params: { id: onThisDay.setlistId } })
-            }
-            accessibilityRole="button"
-            accessibilityLabel={`On this day ${onThisDay.yearsAgo} years ago: ${onThisDay.artistName}`}
-            accessibilityHint={t('Opens concert details')}
-          >
-            <Text style={styles.onThisDayLabel}>
-              {`ON THIS DAY · ${onThisDay.yearsAgo} YEAR${onThisDay.yearsAgo !== 1 ? 'S' : ''} AGO`}
-            </Text>
-            <View style={styles.onThisDayRow}>
-              {onThisDay.artistMbid && (
-                <View style={styles.entryImageWrapper}>
-                  <ArtistImage
-                    mbid={onThisDay.artistMbid}
-                    imageUrl={onThisDay.artistImageUrl}
-                    size={44}
-                    name={onThisDay.artistName}
-                  />
+        <View style={isTablet ? { maxWidth: 680, alignSelf: 'center', width: '100%' } : {}}>
+          {/* ── On this day ─────────────────────────────────────────────────── */}
+          {onThisDay && (
+            <TouchableOpacity
+              style={styles.onThisDayCard}
+              onPress={() =>
+                router.push({
+                  pathname: '/(home)/concert/[id]',
+                  params: { id: onThisDay.setlistId },
+                })
+              }
+              accessibilityRole="button"
+              accessibilityLabel={`On this day ${onThisDay.yearsAgo} years ago: ${onThisDay.artistName}`}
+              accessibilityHint={t('Opens concert details')}
+            >
+              <Text style={styles.onThisDayLabel}>
+                {`ON THIS DAY · ${onThisDay.yearsAgo} YEAR${onThisDay.yearsAgo !== 1 ? 'S' : ''} AGO`}
+              </Text>
+              <View style={styles.onThisDayRow}>
+                {onThisDay.artistMbid && (
+                  <View style={styles.entryImageWrapper}>
+                    <ArtistImage
+                      mbid={onThisDay.artistMbid}
+                      imageUrl={onThisDay.artistImageUrl}
+                      size={44}
+                      name={onThisDay.artistName}
+                    />
+                  </View>
+                )}
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.onThisDayArtist}>{onThisDay.artistName}</Text>
+                  <Text style={styles.onThisDayMeta}>
+                    {onThisDay.venueName} · {formatDate(onThisDay.eventDate)}
+                  </Text>
                 </View>
-              )}
-              <View style={{ flex: 1 }}>
-                <Text style={styles.onThisDayArtist}>{onThisDay.artistName}</Text>
-                <Text style={styles.onThisDayMeta}>
-                  {onThisDay.venueName} · {formatDate(onThisDay.eventDate)}
-                </Text>
+                <Text style={styles.onThisDayChevron}>›</Text>
               </View>
-              <Text style={styles.onThisDayChevron}>›</Text>
-            </View>
-          </TouchableOpacity>
-        )}
+            </TouchableOpacity>
+          )}
 
-        {/* ── Insight cards ───────────────────────────────────────────────── */}
-        {insightStats && <InsightCards stats={insightStats} />}
+          {/* ── Insight cards ───────────────────────────────────────────────── */}
+          {insightStats && <InsightCards stats={insightStats} />}
 
-        {/* ── Timeline river ──────────────────────────────────────────────── */}
-        {yearsSorted.map((yearItem, yearIndex) => {
-          const yearStr = String(yearItem.year);
-          const showsInYear = yearItem.count;
-          const summary = summaryByYear[yearStr];
-          const isPastYear = yearStr !== currentYear;
+          {/* ── Timeline river ──────────────────────────────────────────────── */}
+          {yearsSorted.map((yearItem, yearIndex) => {
+            const yearStr = String(yearItem.year);
+            const showsInYear = yearItem.count;
+            const summary = summaryByYear[yearStr];
+            const isPastYear = yearStr !== currentYear;
 
-          // Collect bookmark concerts that belong to this year
-          const isLastConcertYear = lastConcertYear === yearStr;
-          const isFirstConcertYear = firstConcertYear === yearStr;
-          const isOnThisDayYear = onThisDayYear === yearStr;
-          // Deduplicate milestones against entries already shown in this year's spine
-          const alreadyShownIds = new Set([
-            isLastConcertYear ? stats.lastConcert?.setlistId : undefined,
-            isFirstConcertYear ? stats.firstConcert?.setlistId : undefined,
-            isOnThisDayYear ? onThisDay?.setlistId : undefined,
-          ]);
-          const milestonesInYear = (milestonesByYear[yearStr] ?? []).filter(
-            (m) => !alreadyShownIds.has(m.setlistId),
-          );
+            // Collect bookmark concerts that belong to this year
+            const isLastConcertYear = lastConcertYear === yearStr;
+            const isFirstConcertYear = firstConcertYear === yearStr;
+            const isOnThisDayYear = onThisDayYear === yearStr;
+            // Deduplicate milestones against entries already shown in this year's spine
+            const alreadyShownIds = new Set([
+              isLastConcertYear ? stats.lastConcert?.setlistId : undefined,
+              isFirstConcertYear ? stats.firstConcert?.setlistId : undefined,
+              isOnThisDayYear ? onThisDay?.setlistId : undefined,
+            ]);
+            const milestonesInYear = (milestonesByYear[yearStr] ?? []).filter(
+              (m) => !alreadyShownIds.has(m.setlistId),
+            );
 
-          return (
-            <View key={yearStr}>
-              {/* Year ghost chapter heading + stats + monthly dot grid */}
-              <View style={styles.yearChapter}>
-                <Text style={styles.yearGhost}>{yearStr}</Text>
-                <Text style={styles.yearMeta}>
-                  {`${showsInYear} show${showsInYear !== 1 ? 's' : ''}`}
-                </Text>
-                {/* Richer stats for completed years */}
-                {isPastYear && summary && (summary.countries > 1 || summary.cities > 1) && (
-                  <View style={styles.yearStatRow}>
-                    {summary.countries > 1 && (
-                      <View style={styles.yearStatChip}>
-                        <Text style={styles.yearStatValue}>{summary.countries}</Text>
-                        <Text style={styles.yearStatLabel}>
-                          {summary.countries === 1 ? 'country' : 'countries'}
-                        </Text>
-                      </View>
-                    )}
-                    {summary.cities > 1 && (
-                      <View style={styles.yearStatChip}>
-                        <Text style={styles.yearStatValue}>{summary.cities}</Text>
-                        <Text style={styles.yearStatLabel}>
-                          {summary.cities === 1 ? 'city' : 'cities'}
-                        </Text>
-                      </View>
-                    )}
-                    {summary.peakMonth > 0 && summary.peakMonthCount > 1 && (
-                      <View style={styles.yearStatChip}>
-                        <Text style={styles.yearStatLabel}>peak</Text>
-                        <Text style={styles.yearStatValue}>
-                          {MONTH_NAMES[summary.peakMonth - 1]}
-                        </Text>
-                        <Text style={styles.yearStatLabel}>({summary.peakMonthCount})</Text>
-                      </View>
-                    )}
-                  </View>
-                )}
-                {monthlyByYear[yearStr] && (
-                  <View style={styles.monthGrid}>
-                    {MONTH_ABBR.map((abbr, idx) => {
-                      const month = idx + 1;
-                      const count = monthlyByYear[yearStr]?.[month] ?? 0;
-                      const yearMonths = monthlyByYear[yearStr] ?? {};
-                      const peak = Math.max(...Object.values(yearMonths), 0);
-                      const isPeak = count > 0 && count === peak;
-                      return (
-                        <View key={month} style={styles.monthCell}>
-                          <Text style={styles.monthLabel}>{abbr}</Text>
-                          <View
-                            style={
-                              count === 0
-                                ? styles.monthDotEmpty
-                                : isPeak
-                                  ? styles.monthDotPeak
-                                  : styles.monthDotFull
-                            }
-                          />
-                        </View>
-                      );
-                    })}
-                  </View>
-                )}
-              </View>
-
-              {/* Spine with bookmark concert entries for this year */}
-              {(isLastConcertYear ||
-                isOnThisDayYear ||
-                isFirstConcertYear ||
-                milestonesInYear.length > 0) && (
-                <View style={styles.spineContainer}>
-                  {isLastConcertYear && stats.lastConcert && (
-                    <TouchableOpacity
-                      style={styles.concertEntry}
-                      onPress={() =>
-                        router.push({
-                          pathname: '/(home)/concert/[id]',
-                          params: { id: stats.lastConcert?.setlistId },
-                        })
-                      }
-                      accessibilityRole="button"
-                      accessibilityLabel={`${t('dashboard.mostRecent')}, ${stats.lastConcert.artistName}, ${formatDate(stats.lastConcert.eventDate)}`}
-                      accessibilityHint={t('Opens concert details')}
-                    >
-                      <View style={styles.dotWrapper}>
-                        <View style={yearIndex === 0 ? styles.dotActive : styles.dotInactive} />
-                      </View>
-                      {stats.lastConcert.artistMbid && (
-                        <View style={styles.entryImageWrapper}>
-                          <ArtistImage
-                            mbid={stats.lastConcert.artistMbid}
-                            imageUrl={stats.lastConcert.artistImageUrl}
-                            size={32}
-                            name={stats.lastConcert.artistName}
-                          />
+            return (
+              <View key={yearStr}>
+                {/* Year ghost chapter heading + stats + monthly dot grid */}
+                <View style={styles.yearChapter}>
+                  <Text style={styles.yearGhost}>{yearStr}</Text>
+                  <Text style={styles.yearMeta}>
+                    {`${showsInYear} show${showsInYear !== 1 ? 's' : ''}`}
+                  </Text>
+                  {/* Richer stats for completed years */}
+                  {isPastYear && summary && (summary.countries > 1 || summary.cities > 1) && (
+                    <View style={styles.yearStatRow}>
+                      {summary.countries > 1 && (
+                        <View style={styles.yearStatChip}>
+                          <Text style={styles.yearStatValue}>{summary.countries}</Text>
+                          <Text style={styles.yearStatLabel}>
+                            {summary.countries === 1 ? 'country' : 'countries'}
+                          </Text>
                         </View>
                       )}
-                      <View style={styles.entryContent}>
-                        <Text style={styles.entryDate}>
-                          {formatDate(stats.lastConcert.eventDate)}
-                        </Text>
-                        <Text style={styles.entryArtist}>{stats.lastConcert.artistName}</Text>
-                      </View>
-                      <Text style={styles.entryChevron}>›</Text>
-                    </TouchableOpacity>
+                      {summary.cities > 1 && (
+                        <View style={styles.yearStatChip}>
+                          <Text style={styles.yearStatValue}>{summary.cities}</Text>
+                          <Text style={styles.yearStatLabel}>
+                            {summary.cities === 1 ? 'city' : 'cities'}
+                          </Text>
+                        </View>
+                      )}
+                      {summary.peakMonth > 0 && summary.peakMonthCount > 1 && (
+                        <View style={styles.yearStatChip}>
+                          <Text style={styles.yearStatLabel}>peak</Text>
+                          <Text style={styles.yearStatValue}>
+                            {MONTH_NAMES[summary.peakMonth - 1]}
+                          </Text>
+                          <Text style={styles.yearStatLabel}>({summary.peakMonthCount})</Text>
+                        </View>
+                      )}
+                    </View>
                   )}
+                  {monthlyByYear[yearStr] && (
+                    <View style={styles.monthGrid}>
+                      {MONTH_ABBR.map((abbr, idx) => {
+                        const month = idx + 1;
+                        const count = monthlyByYear[yearStr]?.[month] ?? 0;
+                        const yearMonths = monthlyByYear[yearStr] ?? {};
+                        const peak = Math.max(...Object.values(yearMonths), 0);
+                        const isPeak = count > 0 && count === peak;
+                        return (
+                          <View key={month} style={styles.monthCell}>
+                            <Text style={styles.monthLabel}>{abbr}</Text>
+                            <View
+                              style={
+                                count === 0
+                                  ? styles.monthDotEmpty
+                                  : isPeak
+                                    ? styles.monthDotPeak
+                                    : styles.monthDotFull
+                              }
+                            />
+                          </View>
+                        );
+                      })}
+                    </View>
+                  )}
+                </View>
 
-                  {milestonesInYear.map((m) => {
-                    const n = m.number;
-                    const suffix = n === 1 ? 'ST' : n === 2 ? 'ND' : n === 3 ? 'RD' : 'TH';
-                    const label = `${n}${suffix} SHOW`;
-                    return (
+                {/* Spine with bookmark concert entries for this year */}
+                {(isLastConcertYear ||
+                  isOnThisDayYear ||
+                  isFirstConcertYear ||
+                  milestonesInYear.length > 0) && (
+                  <View style={styles.spineContainer}>
+                    {isLastConcertYear && stats.lastConcert && (
                       <TouchableOpacity
-                        key={m.number}
                         style={styles.concertEntry}
                         onPress={() =>
                           router.push({
                             pathname: '/(home)/concert/[id]',
-                            params: { id: m.setlistId },
+                            params: { id: stats.lastConcert?.setlistId },
                           })
                         }
                         accessibilityRole="button"
-                        accessibilityLabel={`${label}: ${m.artistName}, ${formatDate(m.eventDate)}`}
+                        accessibilityLabel={`${t('dashboard.mostRecent')}, ${stats.lastConcert.artistName}, ${formatDate(stats.lastConcert.eventDate)}`}
                         accessibilityHint={t('Opens concert details')}
                       >
                         <View style={styles.dotWrapper}>
-                          <View style={styles.milestoneMarker} />
+                          <View style={yearIndex === 0 ? styles.dotActive : styles.dotInactive} />
                         </View>
+                        {stats.lastConcert.artistMbid && (
+                          <View style={styles.entryImageWrapper}>
+                            <ArtistImage
+                              mbid={stats.lastConcert.artistMbid}
+                              imageUrl={stats.lastConcert.artistImageUrl}
+                              size={32}
+                              name={stats.lastConcert.artistName}
+                            />
+                          </View>
+                        )}
                         <View style={styles.entryContent}>
-                          <Text style={styles.milestoneTag}>{label}</Text>
-                          <Text style={styles.entryArtist}>{m.artistName}</Text>
-                          {m.cityName ? (
-                            <Text style={styles.entryVenue}>
-                              {m.cityName} · {formatDate(m.eventDate)}
-                            </Text>
-                          ) : (
-                            <Text style={styles.entryVenue}>{formatDate(m.eventDate)}</Text>
-                          )}
+                          <Text style={styles.entryDate}>
+                            {formatDate(stats.lastConcert.eventDate)}
+                          </Text>
+                          <Text style={styles.entryArtist}>{stats.lastConcert.artistName}</Text>
                         </View>
                         <Text style={styles.entryChevron}>›</Text>
                       </TouchableOpacity>
-                    );
-                  })}
+                    )}
 
-                  {isOnThisDayYear && onThisDay && (
-                    <TouchableOpacity
-                      style={styles.concertEntry}
-                      onPress={() =>
-                        router.push({
-                          pathname: '/(home)/concert/[id]',
-                          params: { id: onThisDay.setlistId },
-                        })
-                      }
-                      accessibilityRole="button"
-                      accessibilityLabel={`${t('dashboard.yearsAgo', { count: onThisDay.yearsAgo })}, ${onThisDay.artistName}, ${formatDate(onThisDay.eventDate)}`}
-                      accessibilityHint={t('Opens concert details')}
-                    >
-                      <View style={styles.dotWrapper}>
-                        <View style={styles.dotInactive} />
-                      </View>
-                      {onThisDay.artistMbid && (
-                        <View style={styles.entryImageWrapper}>
-                          <ArtistImage
-                            mbid={onThisDay.artistMbid}
-                            imageUrl={onThisDay.artistImageUrl}
-                            size={32}
-                            name={onThisDay.artistName}
-                          />
-                        </View>
-                      )}
-                      <View style={styles.entryContent}>
-                        <Text style={styles.entryDate}>{formatDate(onThisDay.eventDate)}</Text>
-                        <Text style={styles.entryArtist}>{onThisDay.artistName}</Text>
-                        <Text style={styles.entryVenue}>{onThisDay.venueName}</Text>
-                      </View>
-                      <Text style={styles.entryChevron}>›</Text>
-                    </TouchableOpacity>
-                  )}
+                    {milestonesInYear.map((m) => {
+                      const n = m.number;
+                      const suffix = n === 1 ? 'ST' : n === 2 ? 'ND' : n === 3 ? 'RD' : 'TH';
+                      const label = `${n}${suffix} SHOW`;
+                      return (
+                        <TouchableOpacity
+                          key={m.number}
+                          style={styles.concertEntry}
+                          onPress={() =>
+                            router.push({
+                              pathname: '/(home)/concert/[id]',
+                              params: { id: m.setlistId },
+                            })
+                          }
+                          accessibilityRole="button"
+                          accessibilityLabel={`${label}: ${m.artistName}, ${formatDate(m.eventDate)}`}
+                          accessibilityHint={t('Opens concert details')}
+                        >
+                          <View style={styles.dotWrapper}>
+                            <View style={styles.milestoneMarker} />
+                          </View>
+                          <View style={styles.entryContent}>
+                            <Text style={styles.milestoneTag}>{label}</Text>
+                            <Text style={styles.entryArtist}>{m.artistName}</Text>
+                            {m.cityName ? (
+                              <Text style={styles.entryVenue}>
+                                {m.cityName} · {formatDate(m.eventDate)}
+                              </Text>
+                            ) : (
+                              <Text style={styles.entryVenue}>{formatDate(m.eventDate)}</Text>
+                            )}
+                          </View>
+                          <Text style={styles.entryChevron}>›</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
 
-                  {isFirstConcertYear && stats.firstConcert && (
-                    <TouchableOpacity
-                      style={styles.concertEntry}
-                      onPress={() =>
-                        router.push({
-                          pathname: '/(home)/concert/[id]',
-                          params: { id: stats.firstConcert?.setlistId },
-                        })
-                      }
-                      accessibilityRole="button"
-                      accessibilityLabel={`${t('dashboard.firstConcert')}, ${stats.firstConcert.artistName}, ${formatDate(stats.firstConcert.eventDate)}`}
-                      accessibilityHint={t('Opens concert details')}
-                    >
-                      <View style={styles.dotWrapper}>
-                        <View style={styles.dotInactive} />
-                      </View>
-                      {stats.firstConcert.artistMbid && (
-                        <View style={styles.entryImageWrapper}>
-                          <ArtistImage
-                            mbid={stats.firstConcert.artistMbid}
-                            imageUrl={stats.firstConcert.artistImageUrl}
-                            size={32}
-                            name={stats.firstConcert.artistName}
-                          />
+                    {isOnThisDayYear && onThisDay && (
+                      <TouchableOpacity
+                        style={styles.concertEntry}
+                        onPress={() =>
+                          router.push({
+                            pathname: '/(home)/concert/[id]',
+                            params: { id: onThisDay.setlistId },
+                          })
+                        }
+                        accessibilityRole="button"
+                        accessibilityLabel={`${t('dashboard.yearsAgo', { count: onThisDay.yearsAgo })}, ${onThisDay.artistName}, ${formatDate(onThisDay.eventDate)}`}
+                        accessibilityHint={t('Opens concert details')}
+                      >
+                        <View style={styles.dotWrapper}>
+                          <View style={styles.dotInactive} />
                         </View>
-                      )}
-                      <View style={styles.entryContent}>
-                        <Text style={styles.entryDate}>
-                          {formatDate(stats.firstConcert.eventDate)}
-                        </Text>
-                        <Text style={styles.entryArtist}>{stats.firstConcert.artistName}</Text>
-                      </View>
-                      <Text style={styles.entryChevron}>›</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              )}
-            </View>
-          );
-        })}
+                        {onThisDay.artistMbid && (
+                          <View style={styles.entryImageWrapper}>
+                            <ArtistImage
+                              mbid={onThisDay.artistMbid}
+                              imageUrl={onThisDay.artistImageUrl}
+                              size={32}
+                              name={onThisDay.artistName}
+                            />
+                          </View>
+                        )}
+                        <View style={styles.entryContent}>
+                          <Text style={styles.entryDate}>{formatDate(onThisDay.eventDate)}</Text>
+                          <Text style={styles.entryArtist}>{onThisDay.artistName}</Text>
+                          <Text style={styles.entryVenue}>{onThisDay.venueName}</Text>
+                        </View>
+                        <Text style={styles.entryChevron}>›</Text>
+                      </TouchableOpacity>
+                    )}
+
+                    {isFirstConcertYear && stats.firstConcert && (
+                      <TouchableOpacity
+                        style={styles.concertEntry}
+                        onPress={() =>
+                          router.push({
+                            pathname: '/(home)/concert/[id]',
+                            params: { id: stats.firstConcert?.setlistId },
+                          })
+                        }
+                        accessibilityRole="button"
+                        accessibilityLabel={`${t('dashboard.firstConcert')}, ${stats.firstConcert.artistName}, ${formatDate(stats.firstConcert.eventDate)}`}
+                        accessibilityHint={t('Opens concert details')}
+                      >
+                        <View style={styles.dotWrapper}>
+                          <View style={styles.dotInactive} />
+                        </View>
+                        {stats.firstConcert.artistMbid && (
+                          <View style={styles.entryImageWrapper}>
+                            <ArtistImage
+                              mbid={stats.firstConcert.artistMbid}
+                              imageUrl={stats.firstConcert.artistImageUrl}
+                              size={32}
+                              name={stats.firstConcert.artistName}
+                            />
+                          </View>
+                        )}
+                        <View style={styles.entryContent}>
+                          <Text style={styles.entryDate}>
+                            {formatDate(stats.firstConcert.eventDate)}
+                          </Text>
+                          <Text style={styles.entryArtist}>{stats.firstConcert.artistName}</Text>
+                        </View>
+                        <Text style={styles.entryChevron}>›</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                )}
+              </View>
+            );
+          })}
+        </View>
       </TabScrollView>
     </SafeAreaView>
   );

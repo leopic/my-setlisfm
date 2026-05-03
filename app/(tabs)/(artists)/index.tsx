@@ -22,6 +22,8 @@ import { useSyncContext } from '@/contexts/SyncContext';
 import { Icon, EmptyState } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import ArtistImage from '@/components/ArtistImage';
+import ArtistDetailPane from '@/components/panes/ArtistDetailPane';
+import { useTabletLayout } from '@/utils/tablet';
 
 interface ArtistWithStats {
   mbid: string;
@@ -40,6 +42,7 @@ const CONTENT_PADDING_BOTTOM = 100;
 export default function ArtistsScreen() {
   const { t } = useTranslation();
   const colors = useChronicleColors();
+  const { isTablet, sidebarWidth } = useTabletLayout();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -188,6 +191,11 @@ export default function ArtistsScreen() {
           ...Type.label,
           color: colors.textOnAccent,
         },
+        // ── Tablet master-detail ─────────────────────────────────────────
+        masterDetail: { flex: 1, flexDirection: 'row' },
+        sidebar: { borderRightWidth: 1, borderRightColor: colors.border },
+        detailPane: { flex: 1 },
+        artistRowSelected: { backgroundColor: colors.accentSoft },
       }),
     [colors],
   );
@@ -200,6 +208,7 @@ export default function ArtistsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedArtistMbid, setSelectedArtistMbid] = useState<string | null>(null);
 
   useEffect(() => {
     loadArtists();
@@ -229,10 +238,11 @@ export default function ArtistsScreen() {
   };
 
   const handleViewConcerts = (artist: ArtistWithStats) => {
-    router.push({
-      pathname: '/(artists)/concerts',
-      params: { artist: artist.mbid },
-    });
+    if (isTablet) {
+      setSelectedArtistMbid(artist.mbid);
+    } else {
+      router.push({ pathname: '/(artists)/concerts', params: { artist: artist.mbid } });
+    }
   };
 
   const handleSortChange = (newSortOption: SortOption) => {
@@ -266,10 +276,15 @@ export default function ArtistsScreen() {
 
   const renderArtist = ({ item: artist, index }: { item: ArtistWithStats; index: number }) => {
     const hasAccentBar = index < 2;
+    const isSelected = isTablet && selectedArtistMbid === artist.mbid;
 
     return (
       <TouchableOpacity
-        style={[styles.artistRow, hasAccentBar ? styles.artistRowAccent : styles.artistRowNoAccent]}
+        style={[
+          styles.artistRow,
+          hasAccentBar ? styles.artistRowAccent : styles.artistRowNoAccent,
+          isSelected && styles.artistRowSelected,
+        ]}
         testID={`artist-${artist.mbid}`}
         activeOpacity={0.7}
         onPress={() => handleViewConcerts(artist)}
@@ -328,8 +343,8 @@ export default function ArtistsScreen() {
     );
   }
 
-  return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="artists-screen">
+  const artistList = (
+    <>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{t('artists.title')}</Text>
@@ -340,7 +355,7 @@ export default function ArtistsScreen() {
         </Text>
       </View>
 
-      {/* Search + sort — pinned above the list */}
+      {/* Search + sort */}
       <View style={styles.controls}>
         <View style={styles.searchRow}>
           <Icon
@@ -395,7 +410,6 @@ export default function ArtistsScreen() {
         </View>
       </View>
 
-      {/* Virtualized artist list — insight cards scroll away via ListHeaderComponent */}
       <LegendList
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: CONTENT_PADDING_BOTTOM }}
@@ -414,6 +428,29 @@ export default function ArtistsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
       />
+    </>
+  );
+
+  if (isTablet) {
+    return (
+      <SafeAreaView
+        edges={['top', 'left', 'right']}
+        style={styles.container}
+        testID="artists-screen"
+      >
+        <View style={styles.masterDetail}>
+          <View style={[styles.sidebar, { width: sidebarWidth }]}>{artistList}</View>
+          <View style={styles.detailPane}>
+            <ArtistDetailPane artistMbid={selectedArtistMbid} />
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="artists-screen">
+      {artistList}
     </SafeAreaView>
   );
 }

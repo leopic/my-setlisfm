@@ -21,6 +21,8 @@ import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import { Icon, EmptyState } from '@/components/ui';
+import VenueDetailPane from '@/components/panes/VenueDetailPane';
+import { useTabletLayout } from '@/utils/tablet';
 
 interface VenueWithStats {
   id: string;
@@ -53,6 +55,7 @@ const CONTENT_PADDING_BOTTOM = 100;
 export default function VenuesScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
+  const { isTablet, sidebarWidth } = useTabletLayout();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -218,6 +221,11 @@ export default function VenuesScreen() {
           ...Type.label,
           color: colors.textOnAccent,
         },
+        // ── Tablet master-detail ─────────────────────────────────────────
+        masterDetail: { flex: 1, flexDirection: 'row' },
+        sidebar: { borderRightWidth: 1, borderRightColor: colors.border },
+        detailPane: { flex: 1 },
+        venueRowSelected: { backgroundColor: colors.accentSoft },
       }),
     [colors],
   );
@@ -231,6 +239,7 @@ export default function VenuesScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedVenue, setSelectedVenue] = useState<VenueWithStats | null>(null);
 
   useEffect(() => {
     loadVenues();
@@ -265,10 +274,11 @@ export default function VenuesScreen() {
   };
 
   const handleViewConcerts = (venue: VenueWithStats) => {
-    router.push({
-      pathname: '/(venues)/concerts',
-      params: { venue: venue.id },
-    });
+    if (isTablet) {
+      setSelectedVenue(venue);
+    } else {
+      router.push({ pathname: '/(venues)/concerts', params: { venue: venue.id } });
+    }
   };
 
   const handleSortChange = (newSortOption: SortOption) => {
@@ -313,9 +323,11 @@ export default function VenuesScreen() {
           (extraArtists > 0 ? ` ${t('common.moreCount', { count: extraArtists })}` : '')
         : null;
 
+    const isSelected = isTablet && selectedVenue?.id === venue.id;
+
     return (
       <TouchableOpacity
-        style={styles.venueRow}
+        style={[styles.venueRow, isSelected && styles.venueRowSelected]}
         testID={`venue-${venue.id}`}
         activeOpacity={0.7}
         onPress={() => handleViewConcerts(venue)}
@@ -372,15 +384,15 @@ export default function VenuesScreen() {
         ? t('venues.subtitleRecent', { count: venueCount })
         : t('venues.subtitle', { count: venueCount });
 
-  return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="venues-screen">
+  const venueList = (
+    <>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{t('venues.title')}</Text>
         <Text style={styles.headerSubtitle}>{subtitle}</Text>
       </View>
 
-      {/* Geo navigation strip — map moved to Stats tab */}
+      {/* Geo navigation strip */}
       <View style={styles.geoStrip}>
         <TouchableOpacity
           style={styles.geoButton}
@@ -391,7 +403,6 @@ export default function VenuesScreen() {
         >
           <Text style={styles.geoButtonLabel}>Continents</Text>
         </TouchableOpacity>
-
         <TouchableOpacity
           style={styles.geoButton}
           testID="nav-countries"
@@ -401,7 +412,6 @@ export default function VenuesScreen() {
         >
           <Text style={styles.geoButtonLabel}>Countries</Text>
         </TouchableOpacity>
-
         <TouchableOpacity
           style={styles.geoButton}
           testID="nav-cities"
@@ -413,7 +423,7 @@ export default function VenuesScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Search + sort — pinned above the list */}
+      {/* Search + sort */}
       <View style={styles.controls}>
         <View style={styles.searchContainer}>
           <Icon
@@ -461,7 +471,6 @@ export default function VenuesScreen() {
         </View>
       </View>
 
-      {/* Virtualized venue list — insight cards scroll away via ListHeaderComponent */}
       <LegendList
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: CONTENT_PADDING_BOTTOM }}
@@ -480,6 +489,29 @@ export default function VenuesScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
       />
+    </>
+  );
+
+  if (isTablet) {
+    return (
+      <SafeAreaView
+        edges={['top', 'left', 'right']}
+        style={styles.container}
+        testID="venues-screen"
+      >
+        <View style={styles.masterDetail}>
+          <View style={[styles.sidebar, { width: sidebarWidth }]}>{venueList}</View>
+          <View style={styles.detailPane}>
+            <VenueDetailPane venue={selectedVenue} />
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="venues-screen">
+      {venueList}
     </SafeAreaView>
   );
 }
