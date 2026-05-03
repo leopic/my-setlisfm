@@ -21,14 +21,14 @@ module.exports = {
     },
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.chronicles.app"
+      bundleIdentifier: "com.leopicado.chronicles"
     },
     android: {
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#0D0D1A"
       },
-      package: "com.chronicles.app",
+      package: "com.leopicado.chronicles",
       config: {
         googleMaps: {
           apiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY
