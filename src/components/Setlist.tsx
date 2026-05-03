@@ -11,7 +11,7 @@ import { Type } from '@/utils/typography';
 interface SetlistProps {
   setlist: SetlistWithDetails;
   sets: SetWithSongs[];
-  onBackPress: () => void;
+  onBackPress?: () => void;
 }
 
 export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
@@ -171,12 +171,18 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
 
   return (
     <>
-      {/* Back bar */}
+      {/* Back bar — hidden when used as an inline pane */}
       <View style={styles.backBar}>
         <View style={styles.backBarRow}>
-          <Pressable onPress={onBackPress} accessibilityRole="button" accessibilityLabel="Go back">
-            <Text style={styles.backButton}>{'← Back'}</Text>
-          </Pressable>
+          {onBackPress && (
+            <Pressable
+              onPress={onBackPress}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+            >
+              <Text style={styles.backButton}>{'← Back'}</Text>
+            </Pressable>
+          )}
           {setlist.artist?.mbid && (
             <ArtistImage mbid={setlist.artist.mbid} size={28} name={setlist.artist.name} />
           )}

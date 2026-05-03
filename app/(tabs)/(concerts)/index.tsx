@@ -21,6 +21,8 @@ import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import { EmptyState, Icon } from '@/components/ui';
+import SetlistDetailPane from '@/components/panes/SetlistDetailPane';
+import { useTabletLayout } from '@/utils/tablet';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -46,6 +48,7 @@ const CONTENT_PADDING_BOTTOM = 100;
 export default function ConcertsScreen() {
   const { t } = useTranslation();
   const colors = useChronicleColors();
+  const { isTablet, sidebarWidth } = useTabletLayout();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -199,6 +202,11 @@ export default function ConcertsScreen() {
           color: colors.textDisabled,
           alignSelf: 'center',
         },
+        // ── Tablet master-detail ─────────────────────────────────────────────
+        masterDetail: { flex: 1, flexDirection: 'row' },
+        sidebar: { borderRightWidth: 1, borderRightColor: colors.border },
+        detailPane: { flex: 1 },
+        riverEntrySelected: { backgroundColor: colors.accentSoft },
         // ── Alphabetical list ────────────────────────────────────────────────
         alphabeticalEntry: {
           paddingVertical: 10,
@@ -227,6 +235,7 @@ export default function ConcertsScreen() {
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedConcertId, setSelectedConcertId] = useState<string | null>(null);
 
   useEffect(() => {
     loadConcerts();
@@ -348,6 +357,14 @@ export default function ConcertsScreen() {
 
   const totalConcerts = yearGroups.reduce((sum, g) => sum + g.totalConcerts, 0);
 
+  const handleConcertPress = (concert: ConcertWithDetails) => {
+    if (isTablet) {
+      setSelectedConcertId(concert.id);
+    } else {
+      router.push({ pathname: '/(concerts)/[id]', params: { id: concert.id } });
+    }
+  };
+
   const renderYearGroup = (yearGroup: YearGroup, yearIndex: number) => (
     <View style={styles.yearSection}>
       <Text style={styles.yearGhost}>{yearGroup.year}</Text>
@@ -357,14 +374,13 @@ export default function ConcertsScreen() {
       <View style={styles.spineContainer}>
         {yearGroup.concerts.map((concert, concertIndex) => {
           const isFirstOfMostRecentYear = yearIndex === 0 && concertIndex === 0;
+          const isSelected = isTablet && selectedConcertId === concert.id;
           return (
             <TouchableOpacity
               key={concert.id}
-              style={styles.riverEntry}
+              style={[styles.riverEntry, isSelected && styles.riverEntrySelected]}
               testID={`concert-${concert.id}`}
-              onPress={() =>
-                router.push({ pathname: '/(concerts)/[id]', params: { id: concert.id } })
-              }
+              onPress={() => handleConcertPress(concert)}
               accessibilityRole="button"
               accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
               accessibilityHint={t('concerts.viewConcertDetails')}
@@ -389,29 +405,32 @@ export default function ConcertsScreen() {
     </View>
   );
 
-  const renderFlatConcert = (concert: ConcertWithDetails) => (
-    <TouchableOpacity
-      style={styles.alphabeticalEntry}
-      testID={`concert-${concert.id}`}
-      onPress={() => router.push({ pathname: '/(concerts)/[id]', params: { id: concert.id } })}
-      accessibilityRole="button"
-      accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
-      accessibilityHint={t('concerts.viewConcertDetails')}
-    >
-      <View style={styles.alphabeticalEntryRow}>
-        <View style={styles.alphabeticalEntryContent}>
-          <Text style={styles.entryDate}>{formatDate(concert.eventDate ?? '')}</Text>
-          <Text style={styles.entryArtist}>{concert.artistName}</Text>
-          <Text style={styles.entryVenue}>
-            {concert.venueName}
-            {concert.cityName ? ` · ${concert.cityName}` : ''}
-          </Text>
-          {concert.tour?.name && <Text style={styles.entryTour}>{concert.tour.name}</Text>}
+  const renderFlatConcert = (concert: ConcertWithDetails) => {
+    const isSelected = isTablet && selectedConcertId === concert.id;
+    return (
+      <TouchableOpacity
+        style={[styles.alphabeticalEntry, isSelected && styles.riverEntrySelected]}
+        testID={`concert-${concert.id}`}
+        onPress={() => handleConcertPress(concert)}
+        accessibilityRole="button"
+        accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
+        accessibilityHint={t('concerts.viewConcertDetails')}
+      >
+        <View style={styles.alphabeticalEntryRow}>
+          <View style={styles.alphabeticalEntryContent}>
+            <Text style={styles.entryDate}>{formatDate(concert.eventDate ?? '')}</Text>
+            <Text style={styles.entryArtist}>{concert.artistName}</Text>
+            <Text style={styles.entryVenue}>
+              {concert.venueName}
+              {concert.cityName ? ` · ${concert.cityName}` : ''}
+            </Text>
+            {concert.tour?.name && <Text style={styles.entryTour}>{concert.tour.name}</Text>}
+          </View>
+          <Text style={styles.entryChevron}>›</Text>
         </View>
-        <Text style={styles.entryChevron}>›</Text>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   const renderItem = ({ item }: { item: ConcertListItem }) => {
     if (item.type === 'year') return renderYearGroup(item.yearGroup, item.yearIndex);
@@ -447,12 +466,8 @@ export default function ConcertsScreen() {
     );
   }
 
-  return (
-    <SafeAreaView
-      edges={['top', 'left', 'right']}
-      style={styles.container}
-      testID="concerts-screen"
-    >
+  const concertList = (
+    <>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{t('concerts.title')}</Text>
@@ -463,7 +478,7 @@ export default function ConcertsScreen() {
         </Text>
       </View>
 
-      {/* Search + sort — pinned above the list */}
+      {/* Search + sort */}
       <View style={styles.controls}>
         <View style={styles.searchContainer}>
           <View style={styles.searchInputWrapper}>
@@ -510,7 +525,6 @@ export default function ConcertsScreen() {
         </View>
       </View>
 
-      {/* Virtualized concert list — insight cards scroll away via ListHeaderComponent */}
       <LegendList
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: CONTENT_PADDING_BOTTOM }}
@@ -528,6 +542,33 @@ export default function ConcertsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
       />
+    </>
+  );
+
+  if (isTablet) {
+    return (
+      <SafeAreaView
+        edges={['top', 'left', 'right']}
+        style={styles.container}
+        testID="concerts-screen"
+      >
+        <View style={styles.masterDetail}>
+          <View style={[styles.sidebar, { width: sidebarWidth }]}>{concertList}</View>
+          <View style={styles.detailPane}>
+            <SetlistDetailPane concertId={selectedConcertId} />
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={styles.container}
+      testID="concerts-screen"
+    >
+      {concertList}
     </SafeAreaView>
   );
 }
