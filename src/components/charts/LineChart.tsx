@@ -1,11 +1,21 @@
 import { useMemo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View } from 'react-native';
+import Svg, {
+  Polyline,
+  Circle,
+  Line,
+  Text as SvgText,
+  G,
+  Defs,
+  ClipPath,
+  Rect,
+} from 'react-native-svg';
 import { useChronicleColors } from '@/utils/colors';
 
 export interface LineSeries {
   label: string;
   color: string;
-  /** Values in chronological order */
+  /** Cumulative values in chronological order */
   data: number[];
 }
 
@@ -15,63 +25,118 @@ interface LineChartProps {
   height?: number;
 }
 
-/**
- * Renders a horizontal leaderboard bar chart — total cumulative value per series.
- * Works without react-native-svg and reads clearly for a "top artists" comparison.
- */
-export default function LineChart({ series, height = 100 }: LineChartProps) {
+const LABEL_HEIGHT = 14;
+const RIGHT_PAD = 90;
+
+export default function LineChart({ series, xLabels = [], height = 100 }: LineChartProps) {
   const colors = useChronicleColors();
 
-  const ranked = useMemo(
-    () =>
-      series
-        .map((s) => ({ ...s, total: s.data[s.data.length - 1] ?? 0 }))
-        .sort((a, b) => b.total - a.total),
-    [series],
-  );
+  const VW = 1000;
+  const chartW = VW - RIGHT_PAD;
+  const totalHeight = height + LABEL_HEIGHT + 4;
 
-  const maxTotal = ranked[0]?.total ?? 1;
+  const { points } = useMemo(() => {
+    const allVals = series.flatMap((s) => s.data);
+    const maxY = Math.max(...allVals, 1);
+    const nPts = Math.max(...series.map((s) => s.data.length), 2);
 
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
-        container: { width: '100%', gap: 8, minHeight: height },
-        row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-        labelWrap: { width: 88 },
-        label: { fontSize: 12, fontWeight: '500', color: colors.textSecondary },
-        trackWrap: {
-          flex: 1,
-          height: 10,
-          backgroundColor: colors.border,
-          borderRadius: 5,
-          overflow: 'hidden',
-        },
-        fill: { height: '100%', borderRadius: 5 },
-        count: { width: 24, fontSize: 12, fontWeight: '700', textAlign: 'right' },
-      }),
-    [colors, height],
-  );
+    const points = series.map((s) => ({
+      ...s,
+      pts: s.data.map((v, i) => ({
+        x: (i / (nPts - 1)) * chartW,
+        y: height - (v / maxY) * height,
+      })),
+    }));
+    return { points, maxY };
+  }, [series, height, chartW]);
+
+  const nPts = Math.max(...series.map((s) => s.data.length), 2);
 
   return (
-    <View style={styles.container}>
-      {ranked.map((s) => (
-        <View key={s.label} style={styles.row}>
-          <View style={styles.labelWrap}>
-            <Text style={[styles.label, { color: s.color }]} numberOfLines={1}>
-              {s.label}
-            </Text>
-          </View>
-          <View style={styles.trackWrap}>
-            <View
-              style={[
-                styles.fill,
-                { width: `${(s.total / maxTotal) * 100}%`, backgroundColor: s.color },
-              ]}
+    <View style={{ width: '100%', height: totalHeight }}>
+      <Svg
+        width="100%"
+        height={totalHeight}
+        viewBox={`0 0 ${VW} ${totalHeight}`}
+        preserveAspectRatio="none"
+      >
+        <Defs>
+          <ClipPath id="lc">
+            <Rect x={0} y={0} width={chartW} height={height} />
+          </ClipPath>
+        </Defs>
+
+        {/* Subtle grid */}
+        {[0.25, 0.5, 0.75].map((f) => {
+          const gy = height - f * height;
+          return (
+            <Line
+              key={f}
+              x1={0}
+              y1={gy}
+              x2={chartW}
+              y2={gy}
+              stroke={colors.border}
+              strokeWidth={1}
             />
-          </View>
-          <Text style={[styles.count, { color: s.color }]}>{s.total}</Text>
-        </View>
-      ))}
+          );
+        })}
+
+        {/* Series */}
+        {points.map((s) => {
+          const ptStr = s.pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+          const last = s.pts[s.pts.length - 1];
+          return (
+            <G key={s.label} clipPath="url(#lc)">
+              <Polyline
+                points={ptStr}
+                fill="none"
+                stroke={s.color}
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <Circle cx={last.x} cy={last.y} r={4} fill={s.color} />
+            </G>
+          );
+        })}
+
+        {/* End labels (outside clip) */}
+        {points.map((s) => {
+          const last = s.pts[s.pts.length - 1];
+          return (
+            <SvgText
+              key={`lbl-${s.label}`}
+              x={chartW + 8}
+              y={last.y + 5}
+              fontSize={22}
+              fontWeight="500"
+              fill={s.color}
+            >
+              {s.label.split(' ')[0]}
+            </SvgText>
+          );
+        })}
+
+        {/* X-axis labels — every other to avoid crowding */}
+        {xLabels.map((lbl, i) => {
+          if (i % 2 !== 0) return null;
+          const x = (i / (nPts - 1)) * chartW;
+          return (
+            <SvgText
+              key={lbl}
+              x={x}
+              y={height + LABEL_HEIGHT}
+              fontSize={22}
+              fontWeight="400"
+              fill={colors.textMuted}
+              textAnchor="middle"
+            >
+              {lbl}
+            </SvgText>
+          );
+        })}
+      </Svg>
     </View>
   );
 }
