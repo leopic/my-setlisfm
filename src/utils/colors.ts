@@ -121,6 +121,11 @@ const chronicleDark = {
 
   danger: '#ff453a', // iOS dark mode red
 
+  chartGreen: '#30d158',
+  chartOrange: '#ff9f0a',
+  chartPurple: '#bf5af2',
+  chartCoral: '#ff6b6b',
+
   // Timeline-specific
   spineColor: '#16203a', // decorative — spine line
   dotActive: '#00e8ff',
@@ -151,6 +156,11 @@ const chronicleLight = {
   textOnAccent: '#ffffff',
 
   danger: '#c0392b', // readable red on light bg
+
+  chartGreen: '#16a34a',
+  chartOrange: '#b45309',
+  chartPurple: '#7c3aed',
+  chartCoral: '#dc2626',
 
   // Timeline-specific
   spineColor: '#d0dced', // decorative — spine line

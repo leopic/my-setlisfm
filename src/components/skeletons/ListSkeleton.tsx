@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '@/components/SkeletonBox';
 import { useChronicleColors } from '@/utils/colors';
+import { useTabletLayout } from '@/utils/tablet';
 
 interface Props {
   cardCount?: number;
@@ -25,6 +26,7 @@ export default function ListSkeleton({
   showAvatars = false,
 }: Props) {
   const colors = useChronicleColors();
+  const { isTablet, sidebarWidth } = useTabletLayout();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -114,16 +116,17 @@ export default function ListSkeleton({
         rowRightLabel: {
           marginTop: 3,
         },
+
+        // ── Tablet master-detail ─────────────────────────────────────────
+        masterDetail: { flex: 1, flexDirection: 'row' },
+        sidebar: { borderRightWidth: 1, borderRightColor: colors.border },
+        detailPane: { flex: 1, backgroundColor: colors.background },
       }),
     [colors],
   );
 
-  return (
-    <SafeAreaView
-      edges={['top', 'left', 'right']}
-      style={styles.container}
-      testID="loading-skeleton"
-    >
+  const sidebarContent = (
+    <>
       {/* Header */}
       {showHeader && (
         <View style={styles.header}>
@@ -181,6 +184,31 @@ export default function ListSkeleton({
           </View>
         </View>
       ))}
+    </>
+  );
+
+  if (isTablet) {
+    return (
+      <SafeAreaView
+        edges={['top', 'left', 'right']}
+        style={styles.container}
+        testID="loading-skeleton"
+      >
+        <View style={styles.masterDetail}>
+          <View style={[styles.sidebar, { width: sidebarWidth }]}>{sidebarContent}</View>
+          <View style={styles.detailPane} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={styles.container}
+      testID="loading-skeleton"
+    >
+      {sidebarContent}
     </SafeAreaView>
   );
 }

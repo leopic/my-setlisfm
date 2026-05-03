@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useSyncContext } from '@/contexts/SyncContext';
@@ -13,7 +13,8 @@ import LineChart, { type LineSeries } from '@/components/charts/LineChart';
 import AreaChart, { type Milestone } from '@/components/charts/AreaChart';
 import { useTabletLayout } from '@/utils/tablet';
 
-const ARTIST_COLORS = ['#00e8ff', '#ff9f0a', '#30d158', '#bf5af2', '#ff6b6b'];
+const ARTIST_COLORS_DARK = ['#00e8ff', '#ff9f0a', '#30d158', '#bf5af2', '#ff6b6b'];
+const ARTIST_COLORS_LIGHT = ['#0066bb', '#b45309', '#16a34a', '#7c3aed', '#dc2626'];
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function StatsScreen() {
@@ -21,6 +22,8 @@ export default function StatsScreen() {
   const router = useRouter();
   const { lastSyncTimestamp } = useSyncContext();
   const { isTablet } = useTabletLayout();
+  const scheme = useColorScheme();
+  const artistColors = scheme === 'dark' ? ARTIST_COLORS_DARK : ARTIST_COLORS_LIGHT;
 
   const [yearSummaries, setYearSummaries] = useState<
     Awaited<ReturnType<typeof dbOperations.getYearSummaries>>
@@ -201,9 +204,9 @@ export default function StatsScreen() {
         cumul += yearMap.get(yr) ?? 0;
         return cumul;
       });
-      return { label: name, color: ARTIST_COLORS[i % ARTIST_COLORS.length], data };
+      return { label: name, color: artistColors[i % artistColors.length], data };
     });
-  }, [chartData.topArtistsPerYear, yearSummaries]);
+  }, [chartData.topArtistsPerYear, yearSummaries, artistColors]);
 
   const artistXLabels = useMemo(
     () =>
@@ -223,6 +226,15 @@ export default function StatsScreen() {
     const top = chartData.weekdays.reduce((a, b) => (a.concertDays > b.concertDays ? a : b));
     return DAY_LABELS[top.weekday] ?? null;
   }, [chartData.weekdays]);
+
+  const weekdayBarData = useMemo(
+    () =>
+      DAY_LABELS.map((label, i) => ({
+        label,
+        value: chartData.weekdays.find((w) => w.weekday === i)?.concertDays ?? 0,
+      })),
+    [chartData.weekdays],
+  );
 
   const firstMilestone = chartData.milestones.find((m) => m.number === 1);
 
@@ -286,7 +298,9 @@ export default function StatsScreen() {
                     <Text style={styles.statLabel}>total shows</Text>
                   </View>
                   <View style={styles.statCard}>
-                    <Text style={[styles.statValue, { color: '#30d158' }]}>{totalCountries}</Text>
+                    <Text style={[styles.statValue, { color: colors.chartGreen }]}>
+                      {totalCountries}
+                    </Text>
                     <Text style={styles.statLabel}>countries visited</Text>
                   </View>
                 </View>
@@ -302,7 +316,7 @@ export default function StatsScreen() {
                 )}
                 <View style={styles.cardRow}>
                   <View style={styles.statCard}>
-                    <Text style={[styles.statValue, { color: '#bf5af2' }]}>
+                    <Text style={[styles.statValue, { color: colors.chartPurple }]}>
                       {firstMilestone ? firstMilestone.artistName.split(' ')[0] : '—'}
                     </Text>
                     <Text style={styles.statLabel}>
@@ -312,7 +326,7 @@ export default function StatsScreen() {
                     </Text>
                   </View>
                   <View style={styles.statCard}>
-                    <Text style={[styles.statValue, { color: '#ff6b6b' }]}>
+                    <Text style={[styles.statValue, { color: colors.chartCoral }]}>
                       {chartData.milestones
                         .find((m) => m.number === 100)
                         ?.artistName?.split(' ')[0] ?? '—'}
@@ -334,9 +348,13 @@ export default function StatsScreen() {
                   <Text style={styles.chartTitle}>SHOWS PER YEAR</Text>
                   <BarChart data={yearBarData} height={90} />
                 </View>
+                <View style={styles.chartCard}>
+                  <Text style={styles.chartTitle}>SHOWS BY DAY</Text>
+                  <BarChart data={weekdayBarData} height={70} />
+                </View>
                 <View style={styles.cardRow}>
                   <View style={styles.statCard}>
-                    <Text style={[styles.statValue, { color: '#ff9f0a' }]}>
+                    <Text style={[styles.statValue, { color: colors.chartOrange }]}>
                       {busiestYear?.year ?? '—'}
                     </Text>
                     <Text style={styles.statLabel}>
@@ -370,7 +388,7 @@ export default function StatsScreen() {
               </TouchableOpacity>
               <View style={[styles.cardRow, { paddingHorizontal: 20, marginBottom: 20 }]}>
                 <View style={styles.statCard}>
-                  <Text style={[styles.statValue, { color: '#30d158' }]}>
+                  <Text style={[styles.statValue, { color: colors.chartGreen }]}>
                     {topCountry?.name ?? '—'}
                   </Text>
                   <Text style={styles.statLabel}>
@@ -399,7 +417,9 @@ export default function StatsScreen() {
                   <Text style={styles.statLabel}>total shows</Text>
                 </View>
                 <View style={styles.statCard}>
-                  <Text style={[styles.statValue, { color: '#30d158' }]}>{totalCountries}</Text>
+                  <Text style={[styles.statValue, { color: colors.chartGreen }]}>
+                    {totalCountries}
+                  </Text>
                   <Text style={styles.statLabel}>countries visited</Text>
                 </View>
               </View>
@@ -413,9 +433,13 @@ export default function StatsScreen() {
                 <Text style={styles.chartTitle}>SHOWS PER YEAR</Text>
                 <BarChart data={yearBarData} height={90} />
               </View>
+              <View style={styles.chartCard}>
+                <Text style={styles.chartTitle}>SHOWS BY DAY</Text>
+                <BarChart data={weekdayBarData} height={70} />
+              </View>
               <View style={styles.cardRow}>
                 <View style={styles.statCard}>
-                  <Text style={[styles.statValue, { color: '#ff9f0a' }]}>
+                  <Text style={[styles.statValue, { color: colors.chartOrange }]}>
                     {busiestYear?.year ?? '—'}
                   </Text>
                   <Text style={styles.statLabel}>
@@ -443,7 +467,7 @@ export default function StatsScreen() {
               )}
               <View style={styles.cardRow}>
                 <View style={styles.statCard}>
-                  <Text style={[styles.statValue, { color: '#bf5af2' }]}>
+                  <Text style={[styles.statValue, { color: colors.chartPurple }]}>
                     {firstMilestone ? firstMilestone.artistName.split(' ')[0] : '—'}
                   </Text>
                   <Text style={styles.statLabel}>
@@ -453,7 +477,7 @@ export default function StatsScreen() {
                   </Text>
                 </View>
                 <View style={styles.statCard}>
-                  <Text style={[styles.statValue, { color: '#ff6b6b' }]}>
+                  <Text style={[styles.statValue, { color: colors.chartCoral }]}>
                     {chartData.milestones
                       .find((m) => m.number === 100)
                       ?.artistName?.split(' ')[0] ?? '—'}
@@ -483,7 +507,7 @@ export default function StatsScreen() {
             </TouchableOpacity>
             <View style={[styles.cardRow, { paddingHorizontal: 20, marginBottom: 20 }]}>
               <View style={styles.statCard}>
-                <Text style={[styles.statValue, { color: '#30d158' }]}>
+                <Text style={[styles.statValue, { color: colors.chartGreen }]}>
                   {topCountry?.name ?? '—'}
                 </Text>
                 <Text style={styles.statLabel}>
