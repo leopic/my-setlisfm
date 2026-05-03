@@ -231,11 +231,7 @@ export default function StatsScreen() {
 
   if (yearSummaries.length === 0) {
     return (
-      <SafeAreaView
-        edges={['top', 'left', 'right', 'bottom']}
-        style={styles.container}
-        testID="stats-screen"
-      >
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="stats-screen">
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Stats</Text>
         </View>
