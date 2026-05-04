@@ -7,7 +7,9 @@ import {
   TextInput,
   Alert,
   RefreshControl,
-  ScrollView,
+  Modal,
+  FlatList,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -127,10 +129,69 @@ export default function ConcertsScreen() {
         sortPillTextActive: {
           color: colors.accent,
         },
-        yearFilterRow: {
-          paddingHorizontal: 16,
-          paddingBottom: 10,
-          gap: 8,
+        yearDropdownTrigger: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 6,
+          paddingVertical: 6,
+          paddingHorizontal: 14,
+          borderRadius: 20,
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: 'transparent',
+          alignSelf: 'flex-start',
+        },
+        yearDropdownTriggerActive: {
+          backgroundColor: colors.accentSoft,
+          borderColor: colors.accent,
+        },
+        yearDropdownTriggerText: {
+          ...Type.label,
+          color: colors.textMuted,
+        },
+        yearDropdownTriggerTextActive: {
+          color: colors.accent,
+        },
+        yearDropdownChevron: {
+          ...Type.label,
+          color: colors.textMuted,
+          fontSize: 10,
+        },
+        yearDropdownChevronActive: {
+          color: colors.accent,
+        },
+        // Modal overlay + sheet
+        modalOverlay: {
+          flex: 1,
+          backgroundColor: 'rgba(0,0,0,0.35)',
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        dropdownSheet: {
+          width: 220,
+          maxHeight: 360,
+          backgroundColor: colors.surface,
+          borderRadius: 14,
+          overflow: 'hidden',
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        dropdownItem: {
+          paddingVertical: 13,
+          paddingHorizontal: 18,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        dropdownItemLast: {
+          borderBottomWidth: 0,
+        },
+        dropdownItemText: {
+          ...Type.body,
+          color: colors.textPrimary,
+        },
+        dropdownItemTextActive: {
+          color: colors.accent,
+          fontWeight: '600',
         },
         // ── Timeline river ──────────────────────────────────────────────────
         yearSection: {
@@ -243,6 +304,7 @@ export default function ConcertsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedConcertId, setSelectedConcertId] = useState<string | null>(null);
   const [yearFilter, setYearFilter] = useState<string | null>(null);
+  const [yearDropdownOpen, setYearDropdownOpen] = useState(false);
 
   useEffect(() => {
     loadConcerts();
@@ -510,32 +572,74 @@ export default function ConcertsScreen() {
             />
           </View>
         </View>
-        {/* Year filter */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.yearFilterRow}
-          contentContainerStyle={{ gap: 8 }}
+        {/* Year filter dropdown */}
+        <View style={[styles.sortContainer, { paddingBottom: 0 }]}>
+          <TouchableOpacity
+            style={[styles.yearDropdownTrigger, yearFilter && styles.yearDropdownTriggerActive]}
+            onPress={() => setYearDropdownOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel={yearFilter ? `Filtered by ${yearFilter}` : 'Filter by year'}
+            accessibilityHint="Opens year picker"
+          >
+            <Text
+              style={[
+                styles.yearDropdownTriggerText,
+                yearFilter && styles.yearDropdownTriggerTextActive,
+              ]}
+            >
+              {yearFilter ?? t('common.all')}
+            </Text>
+            <Text
+              style={[
+                styles.yearDropdownChevron,
+                yearFilter && styles.yearDropdownChevronActive,
+              ]}
+            >
+              ▾
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <Modal
+          visible={yearDropdownOpen}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setYearDropdownOpen(false)}
         >
-          {[null, ...yearGroups.map((g) => g.year)].map((year) => {
-            const isActive = yearFilter === year;
-            const label = year ?? t('common.all');
-            return (
-              <TouchableOpacity
-                key={year ?? 'all'}
-                style={[styles.sortPill, isActive && styles.sortPillActive]}
-                onPress={() => setYearFilter(year)}
-                accessibilityRole="button"
-                accessibilityState={{ selected: isActive }}
-                accessibilityLabel={label}
-              >
-                <Text style={[styles.sortPillText, isActive && styles.sortPillTextActive]}>
-                  {label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+          <Pressable style={styles.modalOverlay} onPress={() => setYearDropdownOpen(false)}>
+            <View style={styles.dropdownSheet}>
+              <FlatList
+                data={[null, ...yearGroups.map((g) => g.year)]}
+                keyExtractor={(item) => item ?? 'all'}
+                renderItem={({ item: year, index, separators: _ }) => {
+                  const isActive = yearFilter === year;
+                  const label = year ?? t('common.all');
+                  const isLast = index === yearGroups.length;
+                  return (
+                    <TouchableOpacity
+                      style={[styles.dropdownItem, isLast && styles.dropdownItemLast]}
+                      onPress={() => {
+                        setYearFilter(year);
+                        setYearDropdownOpen(false);
+                      }}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: isActive }}
+                    >
+                      <Text
+                        style={[
+                          styles.dropdownItemText,
+                          isActive && styles.dropdownItemTextActive,
+                        ]}
+                      >
+                        {label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            </View>
+          </Pressable>
+        </Modal>
 
         <View style={styles.sortContainer}>
           {(['recent', 'alphabetical'] as SortOption[]).map((option) => {
