@@ -93,13 +93,13 @@ export default function DashboardScreen() {
           borderBottomColor: colors.border,
         },
         tabletTopBarLeft: {
-          width: YEAR_GRID_WIDTH,
+          flex: 1,
           paddingHorizontal: 16,
           paddingVertical: 10,
           justifyContent: 'center',
         },
         tabletTopBarRight: {
-          flex: 1,
+          flex: 2,
           flexDirection: 'row',
           alignItems: 'center',
           paddingHorizontal: 14,
@@ -145,7 +145,7 @@ export default function DashboardScreen() {
         },
         // ── Year grid (left column) ───────────────────────────────────────────
         yearGridCol: {
-          width: YEAR_GRID_WIDTH,
+          flex: 1,
           borderRightWidth: 1,
           borderRightColor: colors.border,
           backgroundColor: colors.background,
@@ -159,8 +159,9 @@ export default function DashboardScreen() {
           gap: 8,
         },
         yearTile: {
-          // (YEAR_GRID_WIDTH - 2*12 padding - 8 gap) / 2
-          width: (YEAR_GRID_WIDTH - 24 - 8) / 2,
+          // flexBasis 30% + flexGrow: 3 items fill the row, 4th wraps
+          flexBasis: '30%',
+          flexGrow: 1,
           backgroundColor: colors.surface,
           borderWidth: 1.5,
           borderColor: colors.border,
@@ -195,7 +196,7 @@ export default function DashboardScreen() {
         },
         // ── Detail panel (right column) ───────────────────────────────────────
         detailPanel: {
-          flex: 1,
+          flex: 2,
           backgroundColor: colors.surface,
         },
         detailPanelContent: {
