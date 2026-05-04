@@ -572,34 +572,6 @@ export default function ConcertsScreen() {
             />
           </View>
         </View>
-        {/* Year filter dropdown */}
-        <View style={[styles.sortContainer, { paddingBottom: 0 }]}>
-          <TouchableOpacity
-            style={[styles.yearDropdownTrigger, yearFilter && styles.yearDropdownTriggerActive]}
-            onPress={() => setYearDropdownOpen(true)}
-            accessibilityRole="button"
-            accessibilityLabel={yearFilter ? `Filtered by ${yearFilter}` : 'Filter by year'}
-            accessibilityHint="Opens year picker"
-          >
-            <Text
-              style={[
-                styles.yearDropdownTriggerText,
-                yearFilter && styles.yearDropdownTriggerTextActive,
-              ]}
-            >
-              {yearFilter ?? t('common.all')}
-            </Text>
-            <Text
-              style={[
-                styles.yearDropdownChevron,
-                yearFilter && styles.yearDropdownChevronActive,
-              ]}
-            >
-              ▾
-            </Text>
-          </TouchableOpacity>
-        </View>
-
         <Modal
           visible={yearDropdownOpen}
           transparent
@@ -642,6 +614,32 @@ export default function ConcertsScreen() {
         </Modal>
 
         <View style={styles.sortContainer}>
+          {/* Year filter — grouped with sort pills */}
+          <TouchableOpacity
+            style={[styles.yearDropdownTrigger, yearFilter && styles.yearDropdownTriggerActive]}
+            onPress={() => setYearDropdownOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel={yearFilter ? `Filtered by ${yearFilter}` : 'Filter by year'}
+            accessibilityHint="Opens year picker"
+          >
+            <Text
+              style={[
+                styles.yearDropdownTriggerText,
+                yearFilter && styles.yearDropdownTriggerTextActive,
+              ]}
+            >
+              {yearFilter ?? t('common.all')}
+            </Text>
+            <Text
+              style={[
+                styles.yearDropdownChevron,
+                yearFilter && styles.yearDropdownChevronActive,
+              ]}
+            >
+              ▾
+            </Text>
+          </TouchableOpacity>
+
           {(['recent', 'alphabetical'] as SortOption[]).map((option) => {
             const isActive = sortOption === option;
             const label =
