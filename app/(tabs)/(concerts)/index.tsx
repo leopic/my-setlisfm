@@ -7,6 +7,7 @@ import {
   TextInput,
   Alert,
   RefreshControl,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -126,6 +127,11 @@ export default function ConcertsScreen() {
         sortPillTextActive: {
           color: colors.accent,
         },
+        yearFilterRow: {
+          paddingHorizontal: 16,
+          paddingBottom: 10,
+          gap: 8,
+        },
         // ── Timeline river ──────────────────────────────────────────────────
         yearSection: {
           paddingHorizontal: 16,
@@ -236,6 +242,7 @@ export default function ConcertsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [selectedConcertId, setSelectedConcertId] = useState<string | null>(null);
+  const [yearFilter, setYearFilter] = useState<string | null>(null);
 
   useEffect(() => {
     loadConcerts();
@@ -325,9 +332,10 @@ export default function ConcertsScreen() {
   };
 
   const filteredYearGroups = useMemo(() => {
-    if (!searchQuery.trim()) return yearGroups;
+    let groups = yearFilter ? yearGroups.filter((g) => g.year === yearFilter) : yearGroups;
+    if (!searchQuery.trim()) return groups;
     const q = searchQuery.toLowerCase();
-    return yearGroups
+    return groups
       .map((group) => ({
         ...group,
         concerts: group.concerts.filter(
@@ -339,7 +347,7 @@ export default function ConcertsScreen() {
         ),
       }))
       .filter((group) => group.concerts.length > 0);
-  }, [yearGroups, searchQuery]);
+  }, [yearGroups, searchQuery, yearFilter]);
 
   const listData = useMemo((): ConcertListItem[] => {
     if (sortOption === 'alphabetical') {
@@ -502,6 +510,33 @@ export default function ConcertsScreen() {
             />
           </View>
         </View>
+        {/* Year filter */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.yearFilterRow}
+          contentContainerStyle={{ gap: 8 }}
+        >
+          {[null, ...yearGroups.map((g) => g.year)].map((year) => {
+            const isActive = yearFilter === year;
+            const label = year ?? t('common.all');
+            return (
+              <TouchableOpacity
+                key={year ?? 'all'}
+                style={[styles.sortPill, isActive && styles.sortPillActive]}
+                onPress={() => setYearFilter(year)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isActive }}
+                accessibilityLabel={label}
+              >
+                <Text style={[styles.sortPillText, isActive && styles.sortPillTextActive]}>
+                  {label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
         <View style={styles.sortContainer}>
           {(['recent', 'alphabetical'] as SortOption[]).map((option) => {
             const isActive = sortOption === option;

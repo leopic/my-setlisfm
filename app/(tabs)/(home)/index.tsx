@@ -276,12 +276,6 @@ export default function DashboardScreen() {
           color: colors.textMuted,
           marginTop: 2,
         },
-        // Charts row
-        detailChartsRow: {
-          flexDirection: 'row',
-          gap: 8,
-          marginBottom: 14,
-        },
         detailChartBox: {
           flex: 1,
           backgroundColor: colors.background,
@@ -994,10 +988,6 @@ export default function DashboardScreen() {
     label,
     value: selectedMonthlyMap[i + 1] ?? 0,
   }));
-  const yoyChartData = [...stats.concertsByYear]
-    .sort((a, b) => Number(a.year) - Number(b.year))
-    .map((y) => ({ label: String(y.year).slice(2), value: y.count }));
-
   const isSelectedLastYear = lastConcertYear === selectedYearStr;
   const isSelectedFirstYear = firstConcertYear === selectedYearStr;
   const isSelectedOnThisDayYear = onThisDayYear === selectedYearStr;
@@ -1085,16 +1075,10 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Charts row */}
-        <View style={styles.detailChartsRow}>
-          <View style={styles.detailChartBox}>
-            <Text style={styles.detailChartLabel}>MONTHLY</Text>
-            <BarChart data={monthlyChartData} height={90} showLabels />
-          </View>
-          <View style={styles.detailChartBox}>
-            <Text style={styles.detailChartLabel}>YEAR OVER YEAR</Text>
-            <BarChart data={yoyChartData} color={colors.chartPurple} height={90} showLabels />
-          </View>
+        {/* Monthly chart — full width */}
+        <View style={[styles.detailChartBox, { marginBottom: 14 }]}>
+          <Text style={styles.detailChartLabel}>MONTHLY</Text>
+          <BarChart data={monthlyChartData} height={90} showLabels />
         </View>
 
         {/* Concert highlights */}
