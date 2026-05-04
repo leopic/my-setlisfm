@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -46,6 +47,8 @@ export default function DashboardScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
   const { isTablet } = useTabletLayout();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const isLandscape = windowWidth > windowHeight;
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -1315,7 +1318,12 @@ export default function DashboardScreen() {
                   return (
                     <TouchableOpacity
                       key={yr}
-                      style={[styles.yearTile, isSelected && styles.yearTileSelected]}
+                      style={[
+                        styles.yearTile,
+                        // 4 per row in landscape, 3 in portrait
+                        { flexBasis: isLandscape ? '23%' : '30%' },
+                        isSelected && styles.yearTileSelected,
+                      ]}
                       onPress={() => selectYear(yr)}
                       accessibilityRole="button"
                       accessibilityLabel={`${yr}, ${y.count} shows`}
