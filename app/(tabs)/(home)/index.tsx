@@ -174,8 +174,8 @@ export default function DashboardScreen() {
           backgroundColor: colors.accentSoft,
         },
         yearTileYear: {
+          ...Type.display,
           fontSize: 26,
-          fontWeight: '700',
           letterSpacing: -1,
           color: colors.textDisabled,
           lineHeight: 30,
@@ -209,8 +209,8 @@ export default function DashboardScreen() {
           marginBottom: 12,
         },
         detailYearHeading: {
+          ...Type.display,
           fontSize: 52,
-          fontWeight: '700',
           letterSpacing: -2,
           color: colors.textPrimary,
           lineHeight: 54,
