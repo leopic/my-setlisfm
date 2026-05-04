@@ -28,6 +28,7 @@ export default {
     year_other: '{{count}} years',
     lastShow: 'Last show: {{date}}',
     lastSeen: 'Last seen: {{date}}',
+    all: 'All',
     noMatchesFound: 'No matches found',
     tryDifferentSearch: 'Try a different search term',
     moreCount: '+{{count}} more',

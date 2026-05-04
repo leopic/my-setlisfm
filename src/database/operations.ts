@@ -905,6 +905,64 @@ export class DatabaseOperations {
     };
   }
 
+  // Same as getOnThisDayConcert but scoped to a specific year (for tablet panel OTD).
+  async getOnThisDayConcertForYear(year: string): Promise<{
+    setlistId: string;
+    artistName: string;
+    eventDate: string;
+    venueName: string;
+    yearsAgo: number;
+    artistMbid: string | null;
+    artistImageUrl: string | null;
+  } | null> {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const dd = String(now.getDate()).padStart(2, '0');
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+
+    const result = (await this.db.getFirstAsync(
+      `
+      SELECT setlistId, artistName, eventDate, venueName, dayDiff, artistMbid, artistImageUrl FROM (
+        SELECT
+          sl.id as setlistId,
+          a.name as artistName,
+          sl.eventDate,
+          v.name as venueName,
+          a.mbid as artistMbid,
+          a.imageUrl as artistImageUrl,
+          ABS(
+            julianday(
+              substr(sl.eventDate, 7, 4) || '-' || substr(sl.eventDate, 4, 2) || '-' || substr(sl.eventDate, 1, 2)
+            ) - julianday(
+              substr(sl.eventDate, 7, 4) || '-' || ? || '-' || ?
+            )
+          ) as dayDiff
+        FROM setlists sl
+        LEFT JOIN artists a ON sl.artistMbid = a.mbid
+        LEFT JOIN venues v ON sl.venueId = v.id
+        WHERE substr(sl.eventDate, 7, 4) = ?
+      )
+      WHERE dayDiff <= 7
+      ORDER BY dayDiff ASC
+      LIMIT 1
+      `,
+      [mm, dd, year],
+    )) as OnThisDayRow | null;
+
+    if (!result?.eventDate) return null;
+
+    const eventYear = parseInt(result.eventDate.substring(6, 10), 10);
+    return {
+      setlistId: result.setlistId,
+      artistName: result.artistName,
+      eventDate: result.eventDate,
+      venueName: result.venueName,
+      yearsAgo: currentYear - eventYear,
+      artistMbid: result.artistMbid ?? null,
+      artistImageUrl: result.artistImageUrl ?? null,
+    };
+  }
+
   // Get all artists with their concert counts and stats
   async getArtistsWithStats(): Promise<
     {

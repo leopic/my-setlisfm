@@ -7,6 +7,9 @@ import {
   TextInput,
   Alert,
   RefreshControl,
+  Modal,
+  FlatList,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -126,6 +129,70 @@ export default function ConcertsScreen() {
         sortPillTextActive: {
           color: colors.accent,
         },
+        yearDropdownTrigger: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 6,
+          paddingVertical: 6,
+          paddingHorizontal: 14,
+          borderRadius: 20,
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: 'transparent',
+          alignSelf: 'flex-start',
+        },
+        yearDropdownTriggerActive: {
+          backgroundColor: colors.accentSoft,
+          borderColor: colors.accent,
+        },
+        yearDropdownTriggerText: {
+          ...Type.label,
+          color: colors.textMuted,
+        },
+        yearDropdownTriggerTextActive: {
+          color: colors.accent,
+        },
+        yearDropdownChevron: {
+          ...Type.label,
+          color: colors.textMuted,
+          fontSize: 10,
+        },
+        yearDropdownChevronActive: {
+          color: colors.accent,
+        },
+        // Modal overlay + sheet
+        modalOverlay: {
+          flex: 1,
+          backgroundColor: 'rgba(0,0,0,0.35)',
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        dropdownSheet: {
+          width: 220,
+          maxHeight: 360,
+          backgroundColor: colors.surface,
+          borderRadius: 14,
+          overflow: 'hidden',
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        dropdownItem: {
+          paddingVertical: 13,
+          paddingHorizontal: 18,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        dropdownItemLast: {
+          borderBottomWidth: 0,
+        },
+        dropdownItemText: {
+          ...Type.body,
+          color: colors.textPrimary,
+        },
+        dropdownItemTextActive: {
+          color: colors.accent,
+          fontWeight: '600',
+        },
         // ── Timeline river ──────────────────────────────────────────────────
         yearSection: {
           paddingHorizontal: 16,
@@ -236,6 +303,8 @@ export default function ConcertsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [selectedConcertId, setSelectedConcertId] = useState<string | null>(null);
+  const [yearFilter, setYearFilter] = useState<string | null>(null);
+  const [yearDropdownOpen, setYearDropdownOpen] = useState(false);
 
   useEffect(() => {
     loadConcerts();
@@ -325,9 +394,10 @@ export default function ConcertsScreen() {
   };
 
   const filteredYearGroups = useMemo(() => {
-    if (!searchQuery.trim()) return yearGroups;
+    let groups = yearFilter ? yearGroups.filter((g) => g.year === yearFilter) : yearGroups;
+    if (!searchQuery.trim()) return groups;
     const q = searchQuery.toLowerCase();
-    return yearGroups
+    return groups
       .map((group) => ({
         ...group,
         concerts: group.concerts.filter(
@@ -339,7 +409,7 @@ export default function ConcertsScreen() {
         ),
       }))
       .filter((group) => group.concerts.length > 0);
-  }, [yearGroups, searchQuery]);
+  }, [yearGroups, searchQuery, yearFilter]);
 
   const listData = useMemo((): ConcertListItem[] => {
     if (sortOption === 'alphabetical') {
@@ -502,7 +572,74 @@ export default function ConcertsScreen() {
             />
           </View>
         </View>
+        <Modal
+          visible={yearDropdownOpen}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setYearDropdownOpen(false)}
+        >
+          <Pressable style={styles.modalOverlay} onPress={() => setYearDropdownOpen(false)}>
+            <View style={styles.dropdownSheet}>
+              <FlatList
+                data={[null, ...yearGroups.map((g) => g.year)]}
+                keyExtractor={(item) => item ?? 'all'}
+                renderItem={({ item: year, index, separators: _ }) => {
+                  const isActive = yearFilter === year;
+                  const label = year ?? t('common.all');
+                  const isLast = index === yearGroups.length;
+                  return (
+                    <TouchableOpacity
+                      style={[styles.dropdownItem, isLast && styles.dropdownItemLast]}
+                      onPress={() => {
+                        setYearFilter(year);
+                        setYearDropdownOpen(false);
+                      }}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: isActive }}
+                    >
+                      <Text
+                        style={[
+                          styles.dropdownItemText,
+                          isActive && styles.dropdownItemTextActive,
+                        ]}
+                      >
+                        {label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            </View>
+          </Pressable>
+        </Modal>
+
         <View style={styles.sortContainer}>
+          {/* Year filter — grouped with sort pills */}
+          <TouchableOpacity
+            style={[styles.yearDropdownTrigger, yearFilter && styles.yearDropdownTriggerActive]}
+            onPress={() => setYearDropdownOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel={yearFilter ? `Filtered by ${yearFilter}` : 'Filter by year'}
+            accessibilityHint="Opens year picker"
+          >
+            <Text
+              style={[
+                styles.yearDropdownTriggerText,
+                yearFilter && styles.yearDropdownTriggerTextActive,
+              ]}
+            >
+              {yearFilter ?? t('common.all')}
+            </Text>
+            <Text
+              style={[
+                styles.yearDropdownChevron,
+                yearFilter && styles.yearDropdownChevronActive,
+              ]}
+            >
+              ▾
+            </Text>
+          </TouchableOpacity>
+
           {(['recent', 'alphabetical'] as SortOption[]).map((option) => {
             const isActive = sortOption === option;
             const label =
