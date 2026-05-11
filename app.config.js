@@ -39,7 +39,8 @@ module.exports = {
       "expo-router",
       "expo-sqlite",
       "expo-image",
-      "expo-localization"
+      "expo-localization",
+      ["expo-build-properties", { ios: { useHermesV1: true }, android: { useHermesV1: true } }]
     ],
     extra: {
       setlistfmApiKey: process.env.SETLISTFM_API_KEY,

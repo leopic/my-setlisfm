@@ -19,6 +19,7 @@
     "@expo-google-fonts/space-grotesk": "^0.4.1",
     "@legendapp/list": "^2.0.19",
     "expo": "^56.0.0-preview.7",
+    "expo-build-properties": "~56.0.5",
     "expo-constants": "~56.0.6",
     "expo-dev-client": "~56.0.5",
     "expo-file-system": "~56.0.4",
