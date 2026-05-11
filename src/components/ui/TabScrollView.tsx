@@ -11,6 +11,7 @@ const styles = StyleSheet.create({
 export default function TabScrollView({ contentContainerStyle, ...props }: ScrollViewProps) {
   return (
     <ScrollView
+      keyboardShouldPersistTaps="handled"
       contentContainerStyle={[styles.contentContainer, contentContainerStyle]}
       {...props}
     />

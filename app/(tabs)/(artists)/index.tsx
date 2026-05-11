@@ -413,6 +413,7 @@ export default function ArtistsScreen() {
       <LegendList
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: CONTENT_PADDING_BOTTOM }}
+        keyboardShouldPersistTaps="handled"
         data={filteredArtists}
         keyExtractor={(item) => item.mbid}
         renderItem={renderArtist}

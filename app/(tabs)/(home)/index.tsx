@@ -1018,7 +1018,7 @@ export default function DashboardScreen() {
   // ── Tablet: detail panel ───────────────────────────────────────────────────
 
   const tabletDetailPanel = (
-    <ScrollView style={styles.detailPanel}>
+    <ScrollView style={styles.detailPanel} keyboardShouldPersistTaps="handled">
       <View style={styles.detailPanelContent}>
         {/* Year heading + Also On This Day inline */}
         <View style={styles.detailYearRow}>
@@ -1331,6 +1331,7 @@ export default function DashboardScreen() {
             <ScrollView
               style={styles.yearGridCol}
               contentContainerStyle={styles.yearGridContent}
+              keyboardShouldPersistTaps="handled"
               refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             >
               <View style={styles.yearGrid}>

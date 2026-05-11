@@ -287,6 +287,7 @@ export default function StatsScreen() {
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         {isTablet ? (

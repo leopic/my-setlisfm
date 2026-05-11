@@ -583,6 +583,7 @@ export default function ConcertsScreen() {
               <FlatList
                 data={[null, ...yearGroups.map((g) => g.year)]}
                 keyExtractor={(item) => item ?? 'all'}
+                keyboardShouldPersistTaps="handled"
                 renderItem={({ item: year, index, separators: _ }) => {
                   const isActive = yearFilter === year;
                   const label = year ?? t('common.all');
