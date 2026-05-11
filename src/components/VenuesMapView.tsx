@@ -144,11 +144,10 @@ export default function VenuesMapView() {
       setVenues(venuesWithCoords);
 
       if (venuesWithCoords.length > 0) {
-        const avgLat =
-          venuesWithCoords.reduce((s, v) => s + (v.coordsLat ?? 0), 0) / venuesWithCoords.length;
-        const avgLng =
-          venuesWithCoords.reduce((s, v) => s + (v.coordsLong ?? 0), 0) / venuesWithCoords.length;
-        setCenter({ lat: avgLat, lng: avgLng });
+        const mostVisited = venuesWithCoords.reduce((best, v) =>
+          v.concertCount > best.concertCount ? v : best,
+        );
+        setCenter({ lat: mostVisited.coordsLat ?? 51.0, lng: mostVisited.coordsLong ?? 10.0 });
       }
     } catch (error) {
       console.error('Failed to load venues for map:', error);
