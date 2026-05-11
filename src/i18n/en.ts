@@ -94,6 +94,7 @@ export default {
     sortBy: 'Sort by:',
     mostRecent: 'Most Recent',
     alphabetical: 'By Name',
+    yearFilter: 'Year',
     searchPlaceholder: 'Search by artist, venue, city...',
     empty: 'No shows yet',
     emptyBody: 'Your concert timeline builds here as you sync.',

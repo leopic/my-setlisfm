@@ -625,7 +625,7 @@ export default function ConcertsScreen() {
                 yearFilter && styles.yearDropdownTriggerTextActive,
               ]}
             >
-              {yearFilter ?? t('common.all')}
+              {yearFilter ?? t('concerts.yearFilter')}
             </Text>
             <Text
               style={[styles.yearDropdownChevron, yearFilter && styles.yearDropdownChevronActive]}
