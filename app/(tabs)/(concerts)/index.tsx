@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  TextInput,
   Alert,
   RefreshControl,
   Modal,
@@ -23,7 +22,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
-import { EmptyState, Icon } from '@/components/ui';
+import { EmptyState, SearchInput } from '@/components/ui';
 import SetlistDetailPane from '@/components/panes/SetlistDetailPane';
 import { useTabletLayout } from '@/utils/tablet';
 
@@ -551,26 +550,13 @@ export default function ConcertsScreen() {
       {/* Search + sort */}
       <View style={styles.controls}>
         <View style={styles.searchContainer}>
-          <View style={styles.searchInputWrapper}>
-            <Icon
-              sf="magnifyingglass"
-              md="search-outline"
-              size={15}
-              color={colors.textMuted}
-              style={{ marginRight: 6 }}
-            />
-            <TextInput
-              style={styles.searchInput}
-              placeholder={t('concerts.searchPlaceholder')}
-              placeholderTextColor={colors.textMuted}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              autoCapitalize="none"
-              autoCorrect={false}
-              clearButtonMode="while-editing"
-              accessibilityLabel={t('concerts.searchPlaceholder')}
-            />
-          </View>
+          <SearchInput
+            style={styles.searchInputWrapper}
+            placeholder={t('concerts.searchPlaceholder')}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            accessibilityLabel={t('concerts.searchPlaceholder')}
+          />
         </View>
         <Modal
           visible={yearDropdownOpen}

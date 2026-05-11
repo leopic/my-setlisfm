@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  RefreshControl,
-  TextInput,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +12,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
-import { Icon, EmptyState } from '@/components/ui';
+import { EmptyState, SearchInput } from '@/components/ui';
 import VenueDetailPane from '@/components/panes/VenueDetailPane';
 import { useTabletLayout } from '@/utils/tablet';
 
@@ -425,26 +417,13 @@ export default function VenuesScreen() {
 
       {/* Search + sort */}
       <View style={styles.controls}>
-        <View style={styles.searchContainer}>
-          <Icon
-            sf="magnifyingglass"
-            md="search-outline"
-            size={15}
-            color={colors.textMuted}
-            style={{ marginRight: 6 }}
-          />
-          <TextInput
-            style={styles.searchInput}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder={t('venues.searchPlaceholder')}
-            placeholderTextColor={colors.textMuted}
-            returnKeyType="search"
-            clearButtonMode="while-editing"
-            autoCorrect={false}
-            autoCapitalize="none"
-          />
-        </View>
+        <SearchInput
+          style={styles.searchContainer}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder={t('venues.searchPlaceholder')}
+          returnKeyType="search"
+        />
         <View style={styles.sortRow}>
           {(['recent', 'top', 'alphabetical'] as SortOption[]).map((option) => {
             const isActive = sortOption === option;

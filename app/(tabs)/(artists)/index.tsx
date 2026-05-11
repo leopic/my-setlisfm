@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  Alert,
-  RefreshControl,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LegendList } from '@legendapp/list';
@@ -19,7 +11,7 @@ import { sortByOption } from '@/utils/sort';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
-import { Icon, EmptyState } from '@/components/ui';
+import { EmptyState, SearchInput } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import ArtistImage from '@/components/ArtistImage';
 import ArtistDetailPane from '@/components/panes/ArtistDetailPane';
@@ -357,24 +349,13 @@ export default function ArtistsScreen() {
 
       {/* Search + sort */}
       <View style={styles.controls}>
-        <View style={styles.searchRow}>
-          <Icon
-            sf="magnifyingglass"
-            md="search-outline"
-            size={15}
-            color={colors.textMuted}
-            style={{ marginRight: 6 }}
-          />
-          <TextInput
-            style={styles.searchInput}
-            placeholder={t('artists.searchPlaceholder')}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            autoCapitalize="none"
-            placeholderTextColor={colors.textMuted}
-            accessibilityLabel={t('artists.searchPlaceholder')}
-          />
-        </View>
+        <SearchInput
+          style={styles.searchRow}
+          placeholder={t('artists.searchPlaceholder')}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          accessibilityLabel={t('artists.searchPlaceholder')}
+        />
         <View style={styles.sortStrip}>
           {(['recent', 'top', 'alphabetical'] as SortOption[]).map((option) => {
             const isActive = sortOption === option;
