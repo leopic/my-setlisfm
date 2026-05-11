@@ -28,7 +28,8 @@ interface LineChartProps {
 const LABEL_HEIGHT = 14;
 const RIGHT_PAD = 80;
 const LABEL_MIN_SPACING = 13;
-const LABEL_MIN_Y = 12; // keep labels below SVG top edge (baseline + ascenders)
+const LABEL_MIN_Y = 12;
+const TOP_PAD = 10; // prevent highest data point from hitting the clip boundary
 
 export default function LineChart({ series, xLabels = [], height = 100 }: LineChartProps) {
   const colors = useChronicleColors();
@@ -41,11 +42,12 @@ export default function LineChart({ series, xLabels = [], height = 100 }: LineCh
     const allVals = series.flatMap((s) => s.data);
     const maxY = Math.max(...allVals, 1);
     const nPts = Math.max(...series.map((s) => s.data.length), 2);
+    const drawH = height - TOP_PAD;
     return series.map((s) => ({
       ...s,
       pts: s.data.map((v, i) => ({
         x: (i / (nPts - 1)) * chartW,
-        y: height - (v / maxY) * height,
+        y: TOP_PAD + drawH * (1 - v / maxY),
       })),
     }));
   }, [series, height, chartW, chartWidth]);
@@ -83,7 +85,7 @@ export default function LineChart({ series, xLabels = [], height = 100 }: LineCh
           </Defs>
 
           {[0.25, 0.5, 0.75].map((f) => {
-            const gy = height - f * height;
+            const gy = TOP_PAD + (height - TOP_PAD) * (1 - f);
             return (
               <Line
                 key={f}
