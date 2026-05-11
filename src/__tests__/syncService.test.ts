@@ -19,7 +19,12 @@ jest.mock('@/database/operations', () => ({
     getMetadata: jest.fn(),
     upsertMetadata: jest.fn(),
     updateLastFetchedAt: jest.fn(),
+    getArtistsWithoutImages: jest.fn().mockResolvedValue([]),
   },
+}));
+
+jest.mock('@/services/artistImageService', () => ({
+  fetchAndStoreArtistImages: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('@/database/database', () => ({

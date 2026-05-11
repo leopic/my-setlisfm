@@ -94,14 +94,14 @@ describe('DatabaseOperations — new dashboard queries', () => {
 
       expect(result).toHaveLength(2);
 
-      const y2025 = result.find((r) => r.year === '2025')!;
+      const y2025 = result.find((r) => r.year === '2025') as (typeof result)[number];
       expect(y2025.shows).toBe(40);
       expect(y2025.countries).toBe(3);
       expect(y2025.cities).toBe(12);
       expect(y2025.peakMonth).toBe(7); // July had most (8)
       expect(y2025.peakMonthCount).toBe(8);
 
-      const y2024 = result.find((r) => r.year === '2024')!;
+      const y2024 = result.find((r) => r.year === '2024') as (typeof result)[number];
       expect(y2024.peakMonth).toBe(6); // June had most (10)
       expect(y2024.peakMonthCount).toBe(10);
     });

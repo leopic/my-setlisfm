@@ -28,8 +28,6 @@ import { useTabletLayout } from '@/utils/tablet';
 type DashboardStats = Awaited<ReturnType<typeof dbOperations.getDashboardStats>>;
 type OnThisDayConcert = Awaited<ReturnType<typeof dbOperations.getOnThisDayConcert>>;
 
-const YEAR_GRID_WIDTH = 260;
-
 const emptyStats: DashboardStats = {
   totalConcerts: 0,
   totalArtists: 0,
