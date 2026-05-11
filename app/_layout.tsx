@@ -12,8 +12,11 @@ import {
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import { databaseManager } from '@/database/database';
-import { getStoredUsername } from '@/services/syncService';
-import { backfillMissingArtistImages } from '@/services/artistImageService';
+import { dbOperations } from '@/database/operations';
+import { getStoredUsername, setStoredUsername } from '@/services/syncService';
+import { backfillMissingArtistImages, clearArtistImageCache } from '@/services/artistImageService';
+import { registerDevMenuItems } from 'expo-dev-client';
+import { Alert } from 'react-native';
 import { SyncProvider } from '@/contexts/SyncContext';
 import { Stack, useRouter, useRootNavigationState } from 'expo-router';
 import '@/i18n';
@@ -47,6 +50,70 @@ export default function Layout() {
         setDbReady(true);
         const username = await getStoredUsername();
         setHasUsername(!!username);
+
+        if (__DEV__) {
+          registerDevMenuItems([
+            {
+              name: 'Show DB Stats',
+              shouldCollapse: true,
+              callback: async () => {
+                const [counts, fetchedAt, mbidsWithout] = await Promise.all([
+                  dbOperations.getDatabaseCounts(),
+                  dbOperations.getLastFetchedAt(),
+                  dbOperations.getArtistMbidsWithoutImages(),
+                ]);
+                const withImages = counts.totalArtists - mbidsWithout.length;
+                Alert.alert(
+                  'DB Stats',
+                  `Setlists: ${counts.totalSetlists}\nArtists: ${counts.totalArtists} (${withImages} with image)\nVenues: ${counts.totalVenues}\nSongs: ${counts.totalSongs}\n\nLast synced: ${fetchedAt?.toLocaleString() ?? 'never'}`,
+                );
+              },
+            },
+            {
+              name: 'Clear Image Cache',
+              shouldCollapse: true,
+              callback: async () => {
+                await clearArtistImageCache();
+                Alert.alert('Done', 'Artist image cache cleared');
+              },
+            },
+            {
+              name: '⚠ Clear Database',
+              shouldCollapse: true,
+              callback: () => {
+                Alert.alert('Clear Database', 'Delete ALL concert data?', [
+                  { text: 'Cancel', style: 'cancel' },
+                  {
+                    text: 'Clear All',
+                    style: 'destructive',
+                    onPress: async () => {
+                      await dbOperations.clearAllData();
+                      Alert.alert('Done', 'Database cleared');
+                    },
+                  },
+                ]);
+              },
+            },
+            {
+              name: '⚠ Reset Onboarding',
+              shouldCollapse: true,
+              callback: () => {
+                Alert.alert('Reset Onboarding', 'Clear username and restart?', [
+                  { text: 'Cancel', style: 'cancel' },
+                  {
+                    text: 'Reset',
+                    style: 'destructive',
+                    onPress: async () => {
+                      await dbOperations.clearAllData();
+                      await setStoredUsername('');
+                      router.replace('/onboarding');
+                    },
+                  },
+                ]);
+              },
+            },
+          ]);
+        }
         if (username) {
           // Fire-and-forget: populate any missing artist images in the background.
           backfillMissingArtistImages();

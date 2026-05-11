@@ -41,14 +41,6 @@ export default function TabLayout() {
         />
         <NativeTabs.Trigger.Label>Stats</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
-
-      {/* Debug tab — development builds only */}
-      {__DEV__ && (
-        <NativeTabs.Trigger name="(debug)">
-          <NativeTabs.Trigger.Icon sf="gear" md="settings" />
-          <NativeTabs.Trigger.Label>Debug</NativeTabs.Trigger.Label>
-        </NativeTabs.Trigger>
-      )}
     </NativeTabs>
   );
 }
