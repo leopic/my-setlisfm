@@ -48,7 +48,11 @@ export default function ArtistImage({
   );
 
   useEffect(() => {
-    if (hasPreloaded) return; // already resolved
+    if (hasPreloaded) {
+      setImageUri(preloaded || null);
+      setLoaded(true);
+      return;
+    }
     let cancelled = false;
     getArtistImageUri(mbid).then((uri) => {
       if (!cancelled) {
@@ -59,7 +63,7 @@ export default function ArtistImage({
     return () => {
       cancelled = true;
     };
-  }, [mbid, hasPreloaded]);
+  }, [mbid, hasPreloaded, preloaded]);
 
   return (
     <View
