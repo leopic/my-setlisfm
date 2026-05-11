@@ -28,6 +28,7 @@ interface LineChartProps {
 const LABEL_HEIGHT = 14;
 const RIGHT_PAD = 80;
 const LABEL_MIN_SPACING = 13;
+const LABEL_MIN_Y = 12; // keep labels below SVG top edge (baseline + ascenders)
 
 export default function LineChart({ series, xLabels = [], height = 100 }: LineChartProps) {
   const colors = useChronicleColors();
@@ -61,7 +62,7 @@ export default function LineChart({ series, xLabels = [], height = 100 }: LineCh
     let prevY = -Infinity;
     for (const s of sorted) {
       const raw = (s.pts[s.pts.length - 1]?.y ?? 0) + 4;
-      const y = Math.max(raw, prevY + LABEL_MIN_SPACING);
+      const y = Math.max(raw, prevY + LABEL_MIN_SPACING, LABEL_MIN_Y);
       map.set(s.label, y);
       prevY = y;
     }

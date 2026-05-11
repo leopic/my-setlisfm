@@ -16,6 +16,15 @@ import { Ionicons } from '@expo/vector-icons';
 const ARTIST_COLORS_DARK = ['#00e8ff', '#ff9f0a', '#30d158', '#bf5af2', '#ff6b6b'];
 const ARTIST_COLORS_LIGHT = ['#0066bb', '#b45309', '#16a34a', '#7c3aed', '#dc2626'];
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAY_FULL_LABELS = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
 
 export default function StatsScreen() {
   const colors = useChronicleColors();
@@ -224,7 +233,8 @@ export default function StatsScreen() {
   const busiestWeekday = useMemo(() => {
     if (!chartData.weekdays.length) return null;
     const top = chartData.weekdays.reduce((a, b) => (a.concertDays > b.concertDays ? a : b));
-    return DAY_LABELS[top.weekday] ?? null;
+    const name = DAY_FULL_LABELS[top.weekday];
+    return name ? { name, count: top.concertDays } : null;
   }, [chartData.weekdays]);
 
   const weekdayBarData = useMemo(
@@ -360,9 +370,11 @@ export default function StatsScreen() {
                   </View>
                   <View style={styles.statCard}>
                     <Text style={[styles.statValue, { color: colors.accent }]}>
-                      {busiestWeekday ?? '—'}
+                      {busiestWeekday?.name ?? '—'}
                     </Text>
-                    <Text style={styles.statLabel}>most common day</Text>
+                    <Text style={styles.statLabel}>
+                      most common day · {busiestWeekday?.count ?? 0} shows
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -481,9 +493,11 @@ export default function StatsScreen() {
                 </View>
                 <View style={styles.statCard}>
                   <Text style={[styles.statValue, { color: colors.accent }]}>
-                    {busiestWeekday ?? '—'}
+                    {busiestWeekday?.name ?? '—'}
                   </Text>
-                  <Text style={styles.statLabel}>most common day</Text>
+                  <Text style={styles.statLabel}>
+                    most common day · {busiestWeekday?.count ?? 0} shows
+                  </Text>
                 </View>
               </View>
             </View>
