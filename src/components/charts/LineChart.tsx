@@ -132,7 +132,6 @@ export default function LineChart({ series, xLabels = [], height = 100 }: LineCh
           ))}
 
           {xLabels.map((lbl, i) => {
-            if (i % 2 !== 0) return null;
             const x = (i / (nPts - 1)) * chartW;
             return (
               <SvgText
