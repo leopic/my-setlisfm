@@ -552,10 +552,15 @@ export default function DashboardScreen() {
     init();
   }, [lastSyncTimestamp]);
 
-  // Load panel OTD whenever selected year changes (tablet only)
+  const [yearConcerts, setYearConcerts] = useState<
+    Awaited<ReturnType<typeof dbOperations.getSetlistsByYear>>
+  >([]);
+
+  // Load panel OTD and year concerts whenever selected year changes (tablet only)
   useEffect(() => {
     if (!isTablet || !selectedYear) return;
     dbOperations.getOnThisDayConcertForYear(selectedYear).then(setPanelOnThisDay);
+    dbOperations.getSetlistsByYear(selectedYear).then(setYearConcerts);
   }, [selectedYear, isTablet]);
 
   const loadDashboard = async () => {
@@ -1205,6 +1210,40 @@ export default function DashboardScreen() {
                 <Text style={styles.detailChevron}>›</Text>
               </TouchableOpacity>
             )}
+          </>
+        )}
+
+        {/* Shows this year */}
+        {yearConcerts.length > 0 && (
+          <>
+            <Text style={styles.detailHighlightsLabel}>SHOWS</Text>
+            {yearConcerts.map((c) => (
+              <TouchableOpacity
+                key={c.setlistId}
+                style={styles.detailHighlightEntry}
+                onPress={() =>
+                  router.push({ pathname: '/(home)/concert/[id]', params: { id: c.setlistId } })
+                }
+                accessibilityRole="button"
+              >
+                {c.artistMbid && (
+                  <ArtistImage
+                    mbid={c.artistMbid}
+                    imageUrl={c.artistImageUrl}
+                    size={32}
+                    name={c.artistName}
+                  />
+                )}
+                <View style={styles.detailHighlightText}>
+                  <Text style={styles.detailArtistName}>{c.artistName}</Text>
+                  <Text style={styles.detailMeta}>
+                    {c.venueName ? `${c.venueName} · ` : ''}
+                    {formatDate(c.eventDate)}
+                  </Text>
+                </View>
+                <Text style={styles.detailChevron}>›</Text>
+              </TouchableOpacity>
+            ))}
           </>
         )}
       </View>

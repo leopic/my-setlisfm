@@ -1295,6 +1295,48 @@ export class DatabaseOperations {
     );
   }
 
+  async getSetlistsByYear(
+    year: string,
+    limit = 5,
+  ): Promise<
+    Array<{
+      setlistId: string;
+      artistName: string;
+      artistMbid: string | null;
+      artistImageUrl: string | null;
+      eventDate: string;
+      venueName: string | null;
+    }>
+  > {
+    const ISO = `substr(eventDate,7,4)||'-'||substr(eventDate,4,2)||'-'||substr(eventDate,1,2)`;
+    const rows = (await this.db.getAllAsync(
+      `SELECT sl.id AS setlistId, a.name AS artistName, a.mbid AS artistMbid,
+              a.imageUrl AS artistImageUrl, sl.eventDate, v.name AS venueName
+       FROM setlists sl
+       LEFT JOIN artists a ON sl.artistMbid = a.mbid
+       LEFT JOIN venues v ON sl.venueId = v.id
+       WHERE substr(sl.eventDate, 7, 4) = ?
+       ORDER BY ${ISO} ASC
+       LIMIT ?`,
+      [year, limit],
+    )) as Array<{
+      setlistId: string;
+      artistName?: string;
+      artistMbid?: string;
+      artistImageUrl?: string;
+      eventDate?: string;
+      venueName?: string;
+    }>;
+    return rows.map((r) => ({
+      setlistId: r.setlistId,
+      artistName: r.artistName ?? 'Unknown Artist',
+      artistMbid: r.artistMbid ?? null,
+      artistImageUrl: r.artistImageUrl ?? null,
+      eventDate: r.eventDate ?? '',
+      venueName: r.venueName ?? null,
+    }));
+  }
+
   async getArtistByMbid(mbid: string): Promise<DBArtist | null> {
     const result = await this.db.getFirstAsync('SELECT * FROM artists WHERE mbid = ?', [mbid]);
     return result as DBArtist | null;
