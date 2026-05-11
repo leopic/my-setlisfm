@@ -12,6 +12,7 @@ import BarChart from '@/components/charts/BarChart';
 import LineChart, { type LineSeries } from '@/components/charts/LineChart';
 import AreaChart, { type Milestone } from '@/components/charts/AreaChart';
 import { useTabletLayout } from '@/utils/tablet';
+import { Ionicons } from '@expo/vector-icons';
 
 const ARTIST_COLORS_DARK = ['#00e8ff', '#ff9f0a', '#30d158', '#bf5af2', '#ff6b6b'];
 const ARTIST_COLORS_LIGHT = ['#0066bb', '#b45309', '#16a34a', '#7c3aed', '#dc2626'];
@@ -136,7 +137,6 @@ export default function StatsScreen() {
           justifyContent: 'center',
         },
         mapInner: { alignItems: 'center', gap: 6 },
-        mapIcon: { ...Type.display, fontSize: 36, color: colors.accent, opacity: 0.6 },
         mapLabel: { ...Type.title, color: colors.textSecondary },
         mapSub: { ...Type.body, color: colors.textMuted },
         // ── Tablet 2-column ───────────────────────────────────────────────
@@ -381,7 +381,7 @@ export default function StatsScreen() {
                 accessibilityLabel="Open world map"
               >
                 <View style={styles.mapInner}>
-                  <Text style={styles.mapIcon}>🗺</Text>
+                  <Ionicons name="map-outline" size={36} color={colors.accent} style={{ opacity: 0.6 }} />
                   <Text style={styles.mapLabel}>World Map</Text>
                   <Text style={styles.mapSub}>{totalCountries} countries · tap to explore</Text>
                 </View>
@@ -500,7 +500,7 @@ export default function StatsScreen() {
               accessibilityLabel="Open world map"
             >
               <View style={styles.mapInner}>
-                <Text style={styles.mapIcon}>🗺</Text>
+                <Ionicons name="map-outline" size={36} color={colors.accent} style={{ opacity: 0.6 }} />
                 <Text style={styles.mapLabel}>World Map</Text>
                 <Text style={styles.mapSub}>{totalCountries} countries · tap to explore</Text>
               </View>
