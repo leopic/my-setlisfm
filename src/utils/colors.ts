@@ -43,7 +43,7 @@ const lightColors = {
   mapFrequent: '#FF6B6B',
 } as const;
 
-const darkColors: typeof lightColors = {
+const darkColors = {
   // Brand / action
   primary: '#0A84FF',
   success: '#30D158',
@@ -94,7 +94,7 @@ export const colors = lightColors;
 /** Hook that returns the active color palette based on the system color scheme. */
 export function useColors(): Colors {
   const scheme = useColorScheme();
-  return scheme === 'dark' ? darkColors : lightColors;
+  return (scheme === 'dark' ? darkColors : lightColors) as Colors;
 }
 
 // ─── Chronicle redesign palette ───────────────────────────────────────────────
@@ -178,5 +178,5 @@ export type ChronicleColors = typeof chronicleDark;
 /** Hook that returns the Chronicle-specific palette for the active color scheme. */
 export function useChronicleColors(): ChronicleColors {
   const scheme = useColorScheme();
-  return scheme === 'dark' ? chronicleDark : chronicleLight;
+  return (scheme === 'dark' ? chronicleDark : chronicleLight) as ChronicleColors;
 }

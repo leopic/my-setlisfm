@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useColorScheme } from 'react-native';
-import { ThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native';
+import { ThemeProvider, DarkTheme, DefaultTheme } from 'expo-router/react-navigation';
 import {
   useFonts,
   SpaceGrotesk_300Light,

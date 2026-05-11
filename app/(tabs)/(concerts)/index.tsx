@@ -394,7 +394,7 @@ export default function ConcertsScreen() {
   };
 
   const filteredYearGroups = useMemo(() => {
-    let groups = yearFilter ? yearGroups.filter((g) => g.year === yearFilter) : yearGroups;
+    const groups = yearFilter ? yearGroups.filter((g) => g.year === yearFilter) : yearGroups;
     if (!searchQuery.trim()) return groups;
     const q = searchQuery.toLowerCase();
     return groups
@@ -598,10 +598,7 @@ export default function ConcertsScreen() {
                       accessibilityState={{ selected: isActive }}
                     >
                       <Text
-                        style={[
-                          styles.dropdownItemText,
-                          isActive && styles.dropdownItemTextActive,
-                        ]}
+                        style={[styles.dropdownItemText, isActive && styles.dropdownItemTextActive]}
                       >
                         {label}
                       </Text>
@@ -631,10 +628,7 @@ export default function ConcertsScreen() {
               {yearFilter ?? t('common.all')}
             </Text>
             <Text
-              style={[
-                styles.yearDropdownChevron,
-                yearFilter && styles.yearDropdownChevronActive,
-              ]}
+              style={[styles.yearDropdownChevron, yearFilter && styles.yearDropdownChevronActive]}
             >
               ▾
             </Text>

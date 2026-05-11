@@ -579,7 +579,7 @@ export class DatabaseOperations {
         const currentSet = setsMap.get(row.setId);
         currentSet?.songs?.push({
           id: row.songId,
-          setId: row.songSetId,
+          setId: row.songSetId ?? 0,
           name: row.songName,
           tape: row.tape,
           info: row.songInfo,
@@ -591,7 +591,7 @@ export class DatabaseOperations {
           coverArtist: row.coverArtistMbid
             ? { mbid: row.coverArtistMbid, name: row.coverArtistName }
             : undefined,
-          songOrder: row.songSongOrder,
+          songOrder: row.songSongOrder ?? 0,
         });
       }
     }
@@ -1006,7 +1006,7 @@ export class DatabaseOperations {
 
         return {
           ...artist,
-          lastConcertDate: lastConcertResult?.eventDate || null,
+          lastConcertDate: lastConcertResult?.eventDate ?? undefined,
         };
       }),
     );

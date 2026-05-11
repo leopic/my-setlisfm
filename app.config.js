@@ -37,7 +37,9 @@ module.exports = {
     },
     plugins: [
       "expo-router",
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-image",
+      "expo-localization"
     ],
     extra: {
       setlistfmApiKey: process.env.SETLISTFM_API_KEY,

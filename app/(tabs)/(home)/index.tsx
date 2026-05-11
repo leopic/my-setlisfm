@@ -578,9 +578,7 @@ export default function DashboardScreen() {
       setInsightStats(insights);
       setLastSynced(fetchedAt ? fetchedAt.toLocaleString() : null);
       // Default to the most recent year on first load
-      const sorted = [...dashStats.concertsByYear].sort(
-        (a, b) => Number(b.year) - Number(a.year),
-      );
+      const sorted = [...dashStats.concertsByYear].sort((a, b) => Number(b.year) - Number(a.year));
       setSelectedYear((prev) => prev ?? sorted[0]?.year ?? null);
     } catch (error) {
       console.error('Failed to load dashboard:', error);
@@ -672,8 +670,18 @@ export default function DashboardScreen() {
 
   const MONTH_ABBR = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
   const MONTH_NAMES = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
 
   // Build lookups
@@ -1274,12 +1282,7 @@ export default function DashboardScreen() {
                   accessibilityRole="button"
                   accessibilityLabel="Open settings"
                 >
-                  <Icon
-                    sf="gearshape"
-                    md="settings-outline"
-                    size={20}
-                    color={colors.textMuted}
-                  />
+                  <Icon sf="gearshape" md="settings-outline" size={20} color={colors.textMuted} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -1291,9 +1294,7 @@ export default function DashboardScreen() {
             <ScrollView
               style={styles.yearGridCol}
               contentContainerStyle={styles.yearGridContent}
-              refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-              }
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             >
               <View style={styles.yearGrid}>
                 {yearsSorted.map((y) => {
@@ -1319,10 +1320,7 @@ export default function DashboardScreen() {
                         {yr}
                       </Text>
                       <Text
-                        style={[
-                          styles.yearTileCount,
-                          isSelected && styles.yearTileCountSelected,
-                        ]}
+                        style={[styles.yearTileCount, isSelected && styles.yearTileCountSelected]}
                       >
                         {`${y.count} show${y.count !== 1 ? 's' : ''}`}
                       </Text>
@@ -1360,12 +1358,7 @@ export default function DashboardScreen() {
                   accessibilityRole="button"
                   accessibilityLabel="Open settings"
                 >
-                  <Icon
-                    sf="gearshape"
-                    md="settings-outline"
-                    size={20}
-                    color={colors.textMuted}
-                  />
+                  <Icon sf="gearshape" md="settings-outline" size={20} color={colors.textMuted} />
                 </TouchableOpacity>
               </View>
             </View>

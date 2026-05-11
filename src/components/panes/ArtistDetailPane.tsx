@@ -46,7 +46,7 @@ export default function ArtistDetailPane({ artistMbid }: Props) {
         dbOperations.getSetlistsByArtist(mbid),
       ]);
       if (artistData) {
-        setArtistName(artistData.name);
+        setArtistName(artistData.name ?? '');
         setArtistImageUrl(artistData.imageUrl ?? undefined);
       }
       setConcerts(rawConcerts);
