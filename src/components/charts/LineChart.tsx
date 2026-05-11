@@ -26,7 +26,8 @@ interface LineChartProps {
 }
 
 const LABEL_HEIGHT = 14;
-const RIGHT_PAD = 50;
+const RIGHT_PAD = 80;
+const LABEL_MIN_SPACING = 13;
 
 export default function LineChart({ series, xLabels = [], height = 100 }: LineChartProps) {
   const colors = useChronicleColors();
@@ -49,6 +50,23 @@ export default function LineChart({ series, xLabels = [], height = 100 }: LineCh
   }, [series, height, chartW, chartWidth]);
 
   const nPts = Math.max(...series.map((s) => s.data.length), 2);
+
+  // Spread end-labels so they don't overlap when lines converge
+  const labelYs = useMemo(() => {
+    if (points.length === 0) return new Map<string, number>();
+    const sorted = [...points].sort(
+      (a, b) => (a.pts[a.pts.length - 1]?.y ?? 0) - (b.pts[b.pts.length - 1]?.y ?? 0),
+    );
+    const map = new Map<string, number>();
+    let prevY = -Infinity;
+    for (const s of sorted) {
+      const raw = (s.pts[s.pts.length - 1]?.y ?? 0) + 4;
+      const y = Math.max(raw, prevY + LABEL_MIN_SPACING);
+      map.set(s.label, y);
+      prevY = y;
+    }
+    return map;
+  }, [points]);
 
   return (
     <View
@@ -97,21 +115,18 @@ export default function LineChart({ series, xLabels = [], height = 100 }: LineCh
           })}
 
           {/* End labels rendered outside clip so they appear in the right pad */}
-          {points.map((s) => {
-            const last = s.pts[s.pts.length - 1];
-            return (
-              <SvgText
-                key={`lbl-${s.label}`}
-                x={chartW + 6}
-                y={last.y + 4}
-                fontSize={10}
-                fontWeight="500"
-                fill={s.color}
-              >
-                {s.label.split(' ')[0]}
-              </SvgText>
-            );
-          })}
+          {points.map((s) => (
+            <SvgText
+              key={`lbl-${s.label}`}
+              x={chartW + 6}
+              y={labelYs.get(s.label) ?? (s.pts[s.pts.length - 1]?.y ?? 0) + 4}
+              fontSize={10}
+              fontWeight="500"
+              fill={s.color}
+            >
+              {s.label}
+            </SvgText>
+          ))}
 
           {xLabels.map((lbl, i) => {
             if (i % 2 !== 0) return null;

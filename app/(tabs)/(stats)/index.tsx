@@ -236,8 +236,6 @@ export default function StatsScreen() {
     [chartData.weekdays],
   );
 
-  const firstMilestone = chartData.milestones.find((m) => m.number === 1);
-
   if (loading) {
     return (
       <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.container}>
@@ -284,8 +282,18 @@ export default function StatsScreen() {
         {isTablet ? (
           /* ── Tablet: 2-column layout ────────────────────────────────────── */
           <View style={styles.twoColRow}>
-            {/* Left column: YOUR STORY + ARTISTS */}
+            {/* Left column: ARTISTS + YOUR STORY */}
             <View style={styles.twoColLeft}>
+              <View style={styles.section}>
+                <Text style={styles.sectionLabel}>ARTISTS</Text>
+                {artistSeries.length > 0 && (
+                  <View style={styles.chartCard}>
+                    <Text style={styles.chartTitle}>TOP 5 OVER TIME</Text>
+                    <LineChart series={artistSeries} xLabels={artistXLabels} height={160} />
+                  </View>
+                )}
+              </View>
+              <View style={styles.divider} />
               <View style={styles.section}>
                 <Text style={styles.sectionLabel}>YOUR STORY</Text>
                 <View style={styles.chartCard}>
@@ -321,36 +329,6 @@ export default function StatsScreen() {
                       {totalCountries}
                     </Text>
                     <Text style={styles.statLabel}>countries visited</Text>
-                  </View>
-                </View>
-              </View>
-              <View style={styles.divider} />
-              <View style={styles.section}>
-                <Text style={styles.sectionLabel}>ARTISTS</Text>
-                {artistSeries.length > 0 && (
-                  <View style={styles.chartCard}>
-                    <Text style={styles.chartTitle}>TOP 5 OVER TIME</Text>
-                    <LineChart series={artistSeries} xLabels={artistXLabels} height={110} />
-                  </View>
-                )}
-                <View style={styles.cardRow}>
-                  <View style={styles.statCard}>
-                    <Text style={[styles.statValue, { color: colors.chartPurple }]}>
-                      {firstMilestone ? firstMilestone.artistName.split(' ')[0] : '—'}
-                    </Text>
-                    <Text style={styles.statLabel}>
-                      {firstMilestone
-                        ? `1st show · ${formatDate(firstMilestone.eventDate)}`
-                        : 'first show'}
-                    </Text>
-                  </View>
-                  <View style={styles.statCard}>
-                    <Text style={[styles.statValue, { color: colors.chartCoral }]}>
-                      {chartData.milestones
-                        .find((m) => m.number === 100)
-                        ?.artistName?.split(' ')[0] ?? '—'}
-                    </Text>
-                    <Text style={styles.statLabel}>100th show artist</Text>
                   </View>
                 </View>
               </View>
@@ -430,6 +408,18 @@ export default function StatsScreen() {
           /* ── Phone: single-column layout ────────────────────────────────── */
           <>
             <View style={styles.section}>
+              <Text style={styles.sectionLabel}>ARTISTS</Text>
+              {artistSeries.length > 0 && (
+                <View style={styles.chartCard}>
+                  <Text style={styles.chartTitle}>TOP 5 OVER TIME</Text>
+                  <LineChart series={artistSeries} xLabels={artistXLabels} height={160} />
+                </View>
+              )}
+            </View>
+
+            <View style={styles.divider} />
+
+            <View style={styles.section}>
               <Text style={styles.sectionLabel}>YOUR STORY</Text>
               <View style={styles.chartCard}>
                 <Text style={styles.chartTitle}>MILESTONES</Text>
@@ -494,38 +484,6 @@ export default function StatsScreen() {
                     {busiestWeekday ?? '—'}
                   </Text>
                   <Text style={styles.statLabel}>most common day</Text>
-                </View>
-              </View>
-            </View>
-
-            <View style={styles.divider} />
-
-            <View style={styles.section}>
-              <Text style={styles.sectionLabel}>ARTISTS</Text>
-              {artistSeries.length > 0 && (
-                <View style={styles.chartCard}>
-                  <Text style={styles.chartTitle}>TOP 5 OVER TIME</Text>
-                  <LineChart series={artistSeries} xLabels={artistXLabels} height={110} />
-                </View>
-              )}
-              <View style={styles.cardRow}>
-                <View style={styles.statCard}>
-                  <Text style={[styles.statValue, { color: colors.chartPurple }]}>
-                    {firstMilestone ? firstMilestone.artistName.split(' ')[0] : '—'}
-                  </Text>
-                  <Text style={styles.statLabel}>
-                    {firstMilestone
-                      ? `1st show · ${formatDate(firstMilestone.eventDate)}`
-                      : 'first show'}
-                  </Text>
-                </View>
-                <View style={styles.statCard}>
-                  <Text style={[styles.statValue, { color: colors.chartCoral }]}>
-                    {chartData.milestones
-                      .find((m) => m.number === 100)
-                      ?.artistName?.split(' ')[0] ?? '—'}
-                  </Text>
-                  <Text style={styles.statLabel}>100th show artist</Text>
                 </View>
               </View>
             </View>
