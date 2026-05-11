@@ -40,7 +40,6 @@ export default function VenuesMapScreen() {
         },
         mapWrapper: {
           flex: 1,
-          marginBottom: 100,
         },
       }),
     [colors],
