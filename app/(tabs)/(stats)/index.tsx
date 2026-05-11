@@ -10,7 +10,6 @@ import { formatDate } from '@/utils/date';
 import { EmptyState } from '@/components/ui';
 import BarChart from '@/components/charts/BarChart';
 import LineChart, { type LineSeries } from '@/components/charts/LineChart';
-import AreaChart, { type Milestone } from '@/components/charts/AreaChart';
 import { useTabletLayout } from '@/utils/tablet';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -139,6 +138,32 @@ export default function StatsScreen() {
         mapInner: { alignItems: 'center', gap: 6 },
         mapLabel: { ...Type.title, color: colors.textSecondary },
         mapSub: { ...Type.body, color: colors.textMuted },
+        // ── Milestone list ────────────────────────────────────────────────
+        milestoneRow: {
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          gap: 12,
+          paddingVertical: 10,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        },
+        milestoneOrdinal: {
+          ...Type.label,
+          color: colors.accent,
+          width: 36,
+          textAlign: 'right',
+          paddingTop: 1,
+        },
+        milestoneInfo: { flex: 1 },
+        milestoneTopRow: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'baseline',
+          gap: 8,
+        },
+        milestoneArtist: { ...Type.body, color: colors.textPrimary, fontWeight: '600', flex: 1 },
+        milestoneDate: { ...Type.label, color: colors.accent },
+        milestoneVenue: { ...Type.label, color: colors.textMuted, marginTop: 2 },
         // ── Tablet 2-column ───────────────────────────────────────────────
         twoColRow: { flexDirection: 'row', alignItems: 'flex-start' },
         twoColLeft: { flex: 1 },
@@ -147,6 +172,10 @@ export default function StatsScreen() {
       }),
     [colors],
   );
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  const ordinal = (n: number) => (n === 1 ? '1st' : n === 2 ? '2nd' : n === 3 ? '3rd' : `${n}th`);
 
   // ── Derived chart data ─────────────────────────────────────────────────────
 
@@ -157,35 +186,6 @@ export default function StatsScreen() {
         .map((r) => ({ label: r.year.slice(2), value: r.shows })),
     [yearSummaries],
   );
-
-  const cumulativeData = useMemo(() => {
-    const sorted = [...yearSummaries].sort((a, b) => a.year.localeCompare(b.year));
-    let running = 0;
-    return sorted.map((r) => {
-      running += r.shows;
-      return running;
-    });
-  }, [yearSummaries]);
-
-  const milestoneAnnotations: Milestone[] = useMemo(() => {
-    const sorted = [...yearSummaries].sort((a, b) => a.year.localeCompare(b.year));
-    return chartData.milestones.map((m) => {
-      // Find which year index this milestone falls in
-      let cumul = 0;
-      let idx = 0;
-      for (let i = 0; i < sorted.length; i++) {
-        cumul += sorted[i].shows;
-        if (cumul >= m.number) {
-          idx = i;
-          break;
-        }
-      }
-      return {
-        index: idx,
-        label: `${m.number}${m.number === 1 ? 'st' : m.number === 2 ? 'nd' : m.number === 3 ? 'rd' : 'th'}`,
-      };
-    });
-  }, [chartData.milestones, yearSummaries]);
 
   const artistSeries: LineSeries[] = useMemo(() => {
     const sorted = [...yearSummaries].sort((a, b) => a.year.localeCompare(b.year));
@@ -289,8 +289,27 @@ export default function StatsScreen() {
               <View style={styles.section}>
                 <Text style={styles.sectionLabel}>YOUR STORY</Text>
                 <View style={styles.chartCard}>
-                  <Text style={styles.chartTitle}>GROWTH OVER TIME</Text>
-                  <AreaChart data={cumulativeData} milestones={milestoneAnnotations} height={120} />
+                  <Text style={styles.chartTitle}>MILESTONES</Text>
+                  {chartData.milestones.map((m, i) => (
+                    <View
+                      key={m.number}
+                      style={[
+                        styles.milestoneRow,
+                        i === chartData.milestones.length - 1 && { borderBottomWidth: 0 },
+                      ]}
+                    >
+                      <Text style={styles.milestoneOrdinal}>{ordinal(m.number)}</Text>
+                      <View style={styles.milestoneInfo}>
+                        <View style={styles.milestoneTopRow}>
+                          <Text style={styles.milestoneArtist}>{m.artistName}</Text>
+                          <Text style={styles.milestoneDate}>{formatDate(m.eventDate)}</Text>
+                        </View>
+                        <Text style={styles.milestoneVenue}>
+                          {[m.venueName, m.cityName].filter(Boolean).join(' · ')}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
                 </View>
                 <View style={styles.cardRow}>
                   <View style={styles.statCard}>
@@ -381,7 +400,12 @@ export default function StatsScreen() {
                 accessibilityLabel="Open world map"
               >
                 <View style={styles.mapInner}>
-                  <Ionicons name="map-outline" size={36} color={colors.accent} style={{ opacity: 0.6 }} />
+                  <Ionicons
+                    name="map-outline"
+                    size={36}
+                    color={colors.accent}
+                    style={{ opacity: 0.6 }}
+                  />
                   <Text style={styles.mapLabel}>World Map</Text>
                   <Text style={styles.mapSub}>{totalCountries} countries · tap to explore</Text>
                 </View>
@@ -408,8 +432,27 @@ export default function StatsScreen() {
             <View style={styles.section}>
               <Text style={styles.sectionLabel}>YOUR STORY</Text>
               <View style={styles.chartCard}>
-                <Text style={styles.chartTitle}>GROWTH OVER TIME</Text>
-                <AreaChart data={cumulativeData} milestones={milestoneAnnotations} height={120} />
+                <Text style={styles.chartTitle}>MILESTONES</Text>
+                {chartData.milestones.map((m, i) => (
+                  <View
+                    key={m.number}
+                    style={[
+                      styles.milestoneRow,
+                      i === chartData.milestones.length - 1 && { borderBottomWidth: 0 },
+                    ]}
+                  >
+                    <Text style={styles.milestoneOrdinal}>{ordinal(m.number)}</Text>
+                    <View style={styles.milestoneInfo}>
+                      <View style={styles.milestoneTopRow}>
+                        <Text style={styles.milestoneArtist}>{m.artistName}</Text>
+                        <Text style={styles.milestoneDate}>{formatDate(m.eventDate)}</Text>
+                      </View>
+                      <Text style={styles.milestoneVenue}>
+                        {[m.venueName, m.cityName].filter(Boolean).join(' · ')}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
               </View>
               <View style={styles.cardRow}>
                 <View style={styles.statCard}>
@@ -500,7 +543,12 @@ export default function StatsScreen() {
               accessibilityLabel="Open world map"
             >
               <View style={styles.mapInner}>
-                <Ionicons name="map-outline" size={36} color={colors.accent} style={{ opacity: 0.6 }} />
+                <Ionicons
+                  name="map-outline"
+                  size={36}
+                  color={colors.accent}
+                  style={{ opacity: 0.6 }}
+                />
                 <Text style={styles.mapLabel}>World Map</Text>
                 <Text style={styles.mapSub}>{totalCountries} countries · tap to explore</Text>
               </View>
