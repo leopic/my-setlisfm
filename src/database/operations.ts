@@ -1316,7 +1316,7 @@ export class DatabaseOperations {
        LEFT JOIN artists a ON sl.artistMbid = a.mbid
        LEFT JOIN venues v ON sl.venueId = v.id
        WHERE substr(sl.eventDate, 7, 4) = ?
-       ORDER BY ${ISO} ASC
+       ORDER BY ${ISO} DESC
        LIMIT ?`,
       [year, limit],
     )) as Array<{
