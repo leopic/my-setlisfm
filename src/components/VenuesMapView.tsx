@@ -37,7 +37,7 @@ function buildHtml(venues: VenueWithCoords[], centerLat: number, centerLng: numb
       ]
         .filter(Boolean)
         .join('<br/>');
-      return `L.circleMarker([${v.coordsLat},${v.coordsLong}],{radius:${Math.min(6 + v.concertCount * 2, 18)},color:'${color}',fillColor:'${color}',fillOpacity:0.8,weight:2}).bindPopup('${popup.replace(/'/g, "\\'")}').addTo(map);`;
+      return `L.circleMarker([${v.coordsLat},${v.coordsLong}],{radius:${Math.min(6 + v.concertCount * 2, 18)},color:'${color}',fillColor:'${color}',fillOpacity:0.8,weight:2}).bindPopup('${popup.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}').addTo(map);`;
     })
     .join('\n');
 
