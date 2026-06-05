@@ -1,10 +1,10 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
   KeyboardAvoidingView,
   Platform,
   Animated,
@@ -72,9 +72,7 @@ export default function OnboardingScreen() {
     });
   }, [progress?.quip, quipOpacity]);
 
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         outer: {
           flex: 1,
           backgroundColor: colors.background,
@@ -232,9 +230,7 @@ export default function OnboardingScreen() {
           ...Type.title,
           color: colors.danger,
         },
-      }),
-    [colors],
-  );
+      });
 
   // ── Step status derivation ─────────────────────────────────────────────────
   const step1Status: StepStatus =
@@ -523,27 +519,27 @@ export default function OnboardingScreen() {
               onSubmitEditing={handleStart}
               accessibilityLabel={t('onboarding.usernamePlaceholder')}
             />
-            <TouchableOpacity
-              style={[styles.button, !username.trim() && styles.buttonDisabled]}
+            <Pressable
+              style={({ pressed }) => [styles.button, !username.trim() && styles.buttonDisabled, { opacity: pressed ? 0.7 : 1 }]}
               onPress={handleStart}
               disabled={!username.trim()}
               accessibilityRole="button"
               accessibilityLabel={t('onboarding.getStarted')}
             >
               <Text style={styles.buttonText}>{t('onboarding.getStarted')}</Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
         )}
 
         {phase === 'error' && (
-          <TouchableOpacity
-            style={styles.errorButton}
+          <Pressable
+            style={({ pressed }) => [styles.errorButton, { opacity: pressed ? 0.7 : 1 }]}
             onPress={handleRetry}
             accessibilityRole="button"
             accessibilityLabel={t('onboarding.retry')}
           >
             <Text style={styles.errorButtonText}>{t('onboarding.retry')}</Text>
-          </TouchableOpacity>
+          </Pressable>
         )}
       </KeyboardAvoidingView>
     </SafeAreaView>

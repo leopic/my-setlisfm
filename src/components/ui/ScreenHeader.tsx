@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, {} from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColors } from '@/utils/colors';
 
@@ -18,9 +18,7 @@ export default function ScreenHeader({
 }: ScreenHeaderProps) {
   const { t } = useTranslation();
   const colors = useColors();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           paddingHorizontal: 20,
           paddingTop: 10,
@@ -48,22 +46,20 @@ export default function ScreenHeader({
           color: colors.textSecondary,
           marginTop: 4,
         },
-      }),
-    [colors],
-  );
+      });
 
   return (
     <View style={styles.container}>
       {showBack && (
-        <TouchableOpacity
-          style={styles.backButton}
+        <Pressable
+          style={({ pressed }) => [styles.backButton, { opacity: pressed ? 0.7 : 1 }]}
           testID="back-button"
           onPress={onBackPress}
           accessibilityRole="button"
           accessibilityLabel={t('common.back')}
         >
           <Text style={styles.backButtonText}>{t('common.back')}</Text>
-        </TouchableOpacity>
+        </Pressable>
       )}
       <Text style={styles.title} accessibilityRole="header">
         {title}

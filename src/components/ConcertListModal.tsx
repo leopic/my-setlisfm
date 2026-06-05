@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import React, {} from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView, Modal } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { SetlistWithDetails } from '@/types/database';
@@ -33,9 +33,7 @@ export default function ConcertListModal({
 }: ConcertListModalProps) {
   const { t } = useTranslation();
   const colors = useColors();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         modalContainer: {
           flex: 1,
           backgroundColor: colors.background,
@@ -132,9 +130,7 @@ export default function ConcertListModal({
           color: colors.textSecondary,
           textAlign: 'center',
         },
-      }),
-    [colors],
-  );
+      });
 
   return (
     <Modal
@@ -146,14 +142,14 @@ export default function ConcertListModal({
       <SafeAreaView style={styles.modalContainer} accessibilityViewIsModal={true}>
         {/* Modal Header */}
         <View style={styles.modalHeader}>
-          <TouchableOpacity
+          <Pressable
             onPress={onClose}
-            style={styles.closeButton}
+            style={({ pressed }) => [styles.closeButton, { opacity: pressed ? 0.7 : 1 }]}
             accessibilityRole="button"
             accessibilityLabel={t('common.close')}
           >
             <Text style={styles.closeButtonText}>X</Text>
-          </TouchableOpacity>
+          </Pressable>
           <Text style={styles.modalTitle}>{title}</Text>
           <View style={styles.placeholder} />
         </View>
@@ -171,9 +167,9 @@ export default function ConcertListModal({
               </View>
             ) : (
               concerts.map((concert) => (
-                <TouchableOpacity
+                <Pressable
                   key={concert.id}
-                  style={styles.concertItem}
+                  style={({ pressed }) => [styles.concertItem, { opacity: pressed ? 0.7 : 1 }]}
                   onPress={() => onConcertPress(concert)}
                   accessibilityRole="button"
                   accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
@@ -194,7 +190,7 @@ export default function ConcertListModal({
                   </View>
 
                   {concert.tour?.name && <Text style={styles.tourName}>{concert.tour.name}</Text>}
-                </TouchableOpacity>
+                </Pressable>
               ))
             )}
           </ScrollView>

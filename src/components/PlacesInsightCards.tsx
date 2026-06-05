@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import {} from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
@@ -29,9 +29,7 @@ const MONTH_NAMES = [
 export default function PlacesInsightCards({ insights }: Props) {
   const colors = useChronicleColors();
 
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         wrapper: {
           paddingHorizontal: 20,
           paddingTop: 16,
@@ -79,9 +77,7 @@ export default function PlacesInsightCards({ insights }: Props) {
           color: colors.textMuted,
           marginTop: 2,
         },
-      }),
-    [colors],
-  );
+      });
 
   const { countryTimeline, venueRelationships, cityMonthCombos } = insights;
   const bestVenue = venueRelationships[0];

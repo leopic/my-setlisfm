@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -20,9 +20,7 @@ interface CityWithStats {
 export default function CountryDetailScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flex: 1,
           backgroundColor: colors.background,
@@ -47,9 +45,7 @@ export default function CountryDetailScreen() {
           color: colors.textSecondary,
           marginTop: 2,
         },
-      }),
-    [colors],
-  );
+      });
 
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -57,12 +53,6 @@ export default function CountryDetailScreen() {
 
   const [cities, setCities] = useState<CityWithStats[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (country) {
-      loadCitiesForCountry(country as string);
-    }
-  }, [country]);
 
   const loadCitiesForCountry = async (countryName: string) => {
     try {
@@ -81,6 +71,12 @@ export default function CountryDetailScreen() {
     }
   };
 
+  useEffect(() => {
+    if (country) {
+      loadCitiesForCountry(country as string);
+    }
+  }, [country]);
+
   const handleCityPress = (city: CityWithStats) => {
     router.push({
       pathname: '/(venues)/city-detail',
@@ -95,13 +91,15 @@ export default function CountryDetailScreen() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
+        <Pressable
+          
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+         onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >
           <Text style={styles.backBtn}>← Back</Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text style={styles.title}>{country as string}</Text>
         <Text style={styles.subtitle}>{t('common.city', { count: cities.length })}</Text>
       </View>

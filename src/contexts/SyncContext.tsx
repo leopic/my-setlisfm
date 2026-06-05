@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 
 interface SyncContextValue {
   lastSyncTimestamp: number;
@@ -13,9 +13,9 @@ const SyncContext = createContext<SyncContextValue>({
 export function SyncProvider({ children }: { children: ReactNode }) {
   const [lastSyncTimestamp, setLastSyncTimestamp] = useState(Date.now());
 
-  const notifySyncComplete = useCallback(() => {
+  const notifySyncComplete = () => {
     setLastSyncTimestamp(Date.now());
-  }, []);
+  };
 
   return <SyncContext value={{ lastSyncTimestamp, notifySyncComplete }}>{children}</SyncContext>;
 }

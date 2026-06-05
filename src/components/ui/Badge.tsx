@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, {} from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useColors } from '@/utils/colors';
 
@@ -9,9 +9,7 @@ interface BadgeProps {
 
 export default function Badge({ count, label }: BadgeProps) {
   const colors = useColors();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         badge: {
           backgroundColor: colors.success,
           borderRadius: 10,
@@ -25,9 +23,7 @@ export default function Badge({ count, label }: BadgeProps) {
           fontWeight: 'bold',
           fontVariant: ['tabular-nums'] as const,
         },
-      }),
-    [colors],
-  );
+      });
 
   return (
     <View style={styles.badge}>

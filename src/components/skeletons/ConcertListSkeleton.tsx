@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import {} from 'react';
 import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '@/components/SkeletonBox';
@@ -84,7 +84,7 @@ function YearChapter({
 
 export default function ConcertListSkeleton({ showHeader = true }: Props) {
   const colors = useChronicleColors();
-  const styles = useMemo(() => buildStyles(colors), [colors]);
+  const styles = buildStyles(colors);
 
   return (
     <SafeAreaView

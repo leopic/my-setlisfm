@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, {} from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
@@ -22,9 +22,7 @@ interface CountryListProps {
 export default function CountryList({ countries, onCountryPress, emptyMessage }: CountryListProps) {
   const { t } = useTranslation();
   const colors = useChronicleColors();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         list: {
           flex: 1,
         },
@@ -77,16 +75,13 @@ export default function CountryList({ countries, onCountryPress, emptyMessage }:
           color: colors.textSecondary,
           textAlign: 'center',
         },
-      }),
-    [colors],
-  );
+      });
 
   const getCountryRow = (country: CountryWithStats) => (
-    <TouchableOpacity
+    <Pressable
       key={country.name}
-      style={styles.row}
+      style={({ pressed }) => [styles.row, { opacity: pressed ? 0.7 : 1 }]}
       onPress={() => onCountryPress(country)}
-      activeOpacity={0.7}
       accessibilityRole="button"
       accessibilityLabel={country.name}
     >
@@ -110,7 +105,7 @@ export default function CountryList({ countries, onCountryPress, emptyMessage }:
         <Text style={styles.countNumber}>{country.venueCount}</Text>
         <Text style={styles.countLabel}>venues</Text>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 
   return (

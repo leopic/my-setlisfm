@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 import Svg, {
   Polyline,
@@ -37,7 +37,7 @@ export default function LineChart({ series, xLabels = [], height = 100 }: LineCh
   const totalHeight = height + LABEL_HEIGHT + 4;
   const chartW = Math.max(0, chartWidth - RIGHT_PAD);
 
-  const points = useMemo(() => {
+  const points = (() => {
     if (chartWidth === 0 || chartW === 0) return [];
     const allVals = series.flatMap((s) => s.data);
     const maxY = Math.max(...allVals, 1);
@@ -50,12 +50,12 @@ export default function LineChart({ series, xLabels = [], height = 100 }: LineCh
         y: TOP_PAD + drawH * (1 - v / maxY),
       })),
     }));
-  }, [series, height, chartW, chartWidth]);
+  })();
 
   const nPts = Math.max(...series.map((s) => s.data.length), 2);
 
   // Spread end-labels so they don't overlap when lines converge
-  const labelYs = useMemo(() => {
+  const labelYs = (() => {
     if (points.length === 0) return new Map<string, number>();
     const sorted = [...points].sort(
       (a, b) => (a.pts[a.pts.length - 1]?.y ?? 0) - (b.pts[b.pts.length - 1]?.y ?? 0),
@@ -69,7 +69,7 @@ export default function LineChart({ series, xLabels = [], height = 100 }: LineCh
       prevY = y;
     }
     return map;
-  }, [points]);
+  })();
 
   return (
     <View

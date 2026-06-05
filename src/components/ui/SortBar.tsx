@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, {} from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColors } from '@/utils/colors';
 
@@ -24,9 +24,7 @@ export default function SortBar({
 }: SortBarProps) {
   const { t } = useTranslation();
   const colors = useColors();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flexDirection: 'row',
           alignItems: 'center',
@@ -62,18 +60,16 @@ export default function SortBar({
         pillTextActive: {
           color: colors.textInverse,
         },
-      }),
-    [colors],
-  );
+      });
 
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{t('sort.sortBy')}</Text>
       <View style={styles.pills}>
         {options.map((option) => (
-          <TouchableOpacity
+          <Pressable
             key={option}
-            style={[styles.pill, value === option && styles.pillActive]}
+            style={({ pressed }) => [styles.pill, value === option && styles.pillActive, { opacity: pressed ? 0.7 : 1 }]}
             onPress={() => onChange(option)}
             accessibilityRole="button"
             accessibilityState={{ selected: value === option }}
@@ -82,7 +78,7 @@ export default function SortBar({
             <Text style={[styles.pillText, value === option && styles.pillTextActive]}>
               {t(LABEL_KEYS[option])}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         ))}
       </View>
     </View>

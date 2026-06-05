@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -10,9 +10,7 @@ import SetlistSkeleton from '@/components/skeletons/SetlistSkeleton';
 
 export default function SetlistDetailScreen() {
   const colors = useChronicleColors();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: { flex: 1, backgroundColor: colors.background },
         loadingText: {
           fontSize: 18,
@@ -26,19 +24,13 @@ export default function SetlistDetailScreen() {
           textAlign: 'center',
           marginTop: 100,
         },
-      }),
-    [colors],
-  );
+      });
 
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [setlist, setSetlist] = useState<SetlistWithDetails | null>(null);
   const [sets, setSets] = useState<SetWithSongs[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (id) loadSetlistDetails();
-  }, [id]);
 
   const loadSetlistDetails = async () => {
     try {
@@ -54,6 +46,10 @@ export default function SetlistDetailScreen() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (id) loadSetlistDetails();
+  }, [id]);
 
   if (loading) {
     return <SetlistSkeleton />;

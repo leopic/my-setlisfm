@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   RefreshControl,
-  TouchableOpacity,
+  Pressable,
   Alert,
   ScrollView,
   useWindowDimensions,
@@ -47,9 +47,7 @@ export default function DashboardScreen() {
   const { isTablet } = useTabletLayout();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const isLandscape = windowWidth > windowHeight;
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flex: 1,
           backgroundColor: colors.background,
@@ -513,9 +511,7 @@ export default function DashboardScreen() {
           color: colors.accent,
           marginLeft: 8,
         },
-      }),
-    [colors],
-  );
+      });
 
   const { lastSyncTimestamp, notifySyncComplete } = useSyncContext();
   const [stats, setStats] = useState<DashboardStats>(emptyStats);
@@ -543,26 +539,6 @@ export default function DashboardScreen() {
   const [username, setUsername] = useState('');
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
 
-  useEffect(() => {
-    const init = async () => {
-      const stored = await getStoredUsername();
-      if (stored) setUsername(stored);
-      await loadDashboard();
-    };
-    init();
-  }, [lastSyncTimestamp]);
-
-  const [yearConcerts, setYearConcerts] = useState<
-    Awaited<ReturnType<typeof dbOperations.getSetlistsByYear>>
-  >([]);
-
-  // Load panel OTD and year concerts whenever selected year changes (tablet only)
-  useEffect(() => {
-    if (!isTablet || !selectedYear) return;
-    dbOperations.getOnThisDayConcertForYear(selectedYear).then(setPanelOnThisDay);
-    dbOperations.getSetlistsByYear(selectedYear).then(setYearConcerts);
-  }, [selectedYear, isTablet]);
-
   const loadDashboard = async () => {
     try {
       const [dashStats, fetchedAt, onThisDayResult, monthly, summaries, insights] =
@@ -589,6 +565,27 @@ export default function DashboardScreen() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const init = async () => {
+      const stored = await getStoredUsername();
+      if (stored) setUsername(stored);
+      await loadDashboard();
+    };
+    init();
+  }, [lastSyncTimestamp]);
+
+  const [yearConcerts, setYearConcerts] = useState<
+    Awaited<ReturnType<typeof dbOperations.getSetlistsByYear>>
+  >([]);
+
+  // Load panel OTD and year concerts whenever selected year changes (tablet only)
+  useEffect(() => {
+    if (!isTablet || !selectedYear) return;
+    dbOperations.getOnThisDayConcertForYear(selectedYear).then(setPanelOnThisDay);
+    dbOperations.getSetlistsByYear(selectedYear).then(setYearConcerts);
+  }, [selectedYear, isTablet]);
+
 
   const handleSync = async () => {
     const trimmed = username.trim();
@@ -620,9 +617,9 @@ export default function DashboardScreen() {
     setRefreshing(false);
   };
 
-  const selectYear = useCallback((year: string) => {
+  const selectYear = (year: string) => {
     setSelectedYear(year);
-  }, []);
+  };
 
   if (loading) {
     return <DashboardSkeleton />;
@@ -640,8 +637,10 @@ export default function DashboardScreen() {
           <View style={styles.topBarRow}>
             <Text style={styles.appTitle}>Chronicles</Text>
             <View style={styles.topBarActions}>
-              <TouchableOpacity
-                onPress={handleSync}
+              <Pressable
+                
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+         onPress={handleSync}
                 accessibilityRole="button"
                 accessibilityLabel="Sync concert data"
               >
@@ -651,14 +650,16 @@ export default function DashboardScreen() {
                   size={20}
                   color={colors.textMuted}
                 />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => router.push('/(home)/settings')}
+              </Pressable>
+              <Pressable
+                
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+         onPress={() => router.push('/(home)/settings')}
                 accessibilityRole="button"
                 accessibilityLabel="Open settings"
               >
                 <Icon sf="gearshape" md="settings-outline" size={20} color={colors.textMuted} />
-              </TouchableOpacity>
+              </Pressable>
             </View>
           </View>
         </View>
@@ -726,8 +727,8 @@ export default function DashboardScreen() {
   // ── Phone: shared JSX ──────────────────────────────────────────────────────
 
   const onThisDayCardJSX = onThisDay ? (
-    <TouchableOpacity
-      style={styles.onThisDayCard}
+    <Pressable
+      style={({ pressed }) => [styles.onThisDayCard, { opacity: pressed ? 0.7 : 1 }]}
       onPress={() =>
         router.push({ pathname: '/(home)/concert/[id]', params: { id: onThisDay.setlistId } })
       }
@@ -757,7 +758,7 @@ export default function DashboardScreen() {
         </View>
         <Text style={styles.onThisDayChevron}>›</Text>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   ) : null;
 
   const timelineContent = yearsSorted.map((yearItem, yearIndex) => {
@@ -844,8 +845,8 @@ export default function DashboardScreen() {
           milestonesInYear.length > 0) && (
           <View style={styles.spineContainer}>
             {isLastConcertYear && stats.lastConcert && (
-              <TouchableOpacity
-                style={styles.concertEntry}
+              <Pressable
+                style={({ pressed }) => [styles.concertEntry, { opacity: pressed ? 0.7 : 1 }]}
                 onPress={() =>
                   router.push({
                     pathname: '/(home)/concert/[id]',
@@ -874,7 +875,7 @@ export default function DashboardScreen() {
                   <Text style={styles.entryArtist}>{stats.lastConcert.artistName}</Text>
                 </View>
                 <Text style={styles.entryChevron}>›</Text>
-              </TouchableOpacity>
+              </Pressable>
             )}
 
             {milestonesInYear.map((m) => {
@@ -882,9 +883,9 @@ export default function DashboardScreen() {
               const suffix = n === 1 ? 'ST' : n === 2 ? 'ND' : n === 3 ? 'RD' : 'TH';
               const label = `${n}${suffix} SHOW`;
               return (
-                <TouchableOpacity
+                <Pressable
                   key={m.number}
-                  style={styles.concertEntry}
+                  style={({ pressed }) => [styles.concertEntry, { opacity: pressed ? 0.7 : 1 }]}
                   onPress={() =>
                     router.push({
                       pathname: '/(home)/concert/[id]',
@@ -910,13 +911,13 @@ export default function DashboardScreen() {
                     )}
                   </View>
                   <Text style={styles.entryChevron}>›</Text>
-                </TouchableOpacity>
+                </Pressable>
               );
             })}
 
             {isOnThisDayYear && onThisDay && (
-              <TouchableOpacity
-                style={styles.concertEntry}
+              <Pressable
+                style={({ pressed }) => [styles.concertEntry, { opacity: pressed ? 0.7 : 1 }]}
                 onPress={() =>
                   router.push({
                     pathname: '/(home)/concert/[id]',
@@ -946,12 +947,12 @@ export default function DashboardScreen() {
                   <Text style={styles.entryVenue}>{onThisDay.venueName}</Text>
                 </View>
                 <Text style={styles.entryChevron}>›</Text>
-              </TouchableOpacity>
+              </Pressable>
             )}
 
             {isFirstConcertYear && stats.firstConcert && (
-              <TouchableOpacity
-                style={styles.concertEntry}
+              <Pressable
+                style={({ pressed }) => [styles.concertEntry, { opacity: pressed ? 0.7 : 1 }]}
                 onPress={() =>
                   router.push({
                     pathname: '/(home)/concert/[id]',
@@ -980,7 +981,7 @@ export default function DashboardScreen() {
                   <Text style={styles.entryArtist}>{stats.firstConcert.artistName}</Text>
                 </View>
                 <Text style={styles.entryChevron}>›</Text>
-              </TouchableOpacity>
+              </Pressable>
             )}
           </View>
         )}
@@ -1024,8 +1025,8 @@ export default function DashboardScreen() {
         <View style={styles.detailYearRow}>
           <Text style={styles.detailYearHeading}>{selectedYearStr}</Text>
           {showAlsoOnThisDay && panelOnThisDay && (
-            <TouchableOpacity
-              style={styles.alsoOnThisDayCard}
+            <Pressable
+              style={({ pressed }) => [styles.alsoOnThisDayCard, { opacity: pressed ? 0.7 : 1 }]}
               onPress={() =>
                 router.push({
                   pathname: '/(home)/concert/[id]',
@@ -1048,7 +1049,7 @@ export default function DashboardScreen() {
                 <Text style={styles.alsoOtdName}>{panelOnThisDay.artistName}</Text>
                 <Text style={styles.alsoOtdMeta}>{panelOnThisDay.venueName}</Text>
               </View>
-            </TouchableOpacity>
+            </Pressable>
           )}
         </View>
 
@@ -1101,8 +1102,8 @@ export default function DashboardScreen() {
             <Text style={styles.detailHighlightsLabel}>HIGHLIGHTS</Text>
 
             {isSelectedLastYear && stats.lastConcert && (
-              <TouchableOpacity
-                style={styles.detailHighlightEntry}
+              <Pressable
+                style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
                 onPress={() =>
                   router.push({
                     pathname: '/(home)/concert/[id]',
@@ -1124,16 +1125,16 @@ export default function DashboardScreen() {
                   <Text style={styles.detailMeta}>{formatDate(stats.lastConcert.eventDate)}</Text>
                 </View>
                 <Text style={styles.detailChevron}>›</Text>
-              </TouchableOpacity>
+              </Pressable>
             )}
 
             {selectedMilestones.map((m) => {
               const n = m.number;
               const suffix = n === 1 ? 'ST' : n === 2 ? 'ND' : n === 3 ? 'RD' : 'TH';
               return (
-                <TouchableOpacity
+                <Pressable
                   key={m.number}
-                  style={styles.detailHighlightEntry}
+                  style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
                   onPress={() =>
                     router.push({
                       pathname: '/(home)/concert/[id]',
@@ -1151,13 +1152,13 @@ export default function DashboardScreen() {
                     </Text>
                   </View>
                   <Text style={styles.detailChevron}>›</Text>
-                </TouchableOpacity>
+                </Pressable>
               );
             })}
 
             {isSelectedOnThisDayYear && onThisDay && (
-              <TouchableOpacity
-                style={styles.detailHighlightEntry}
+              <Pressable
+                style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
                 onPress={() =>
                   router.push({
                     pathname: '/(home)/concert/[id]',
@@ -1181,12 +1182,12 @@ export default function DashboardScreen() {
                   </Text>
                 </View>
                 <Text style={styles.detailChevron}>›</Text>
-              </TouchableOpacity>
+              </Pressable>
             )}
 
             {isSelectedFirstYear && stats.firstConcert && (
-              <TouchableOpacity
-                style={styles.detailHighlightEntry}
+              <Pressable
+                style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
                 onPress={() =>
                   router.push({
                     pathname: '/(home)/concert/[id]',
@@ -1208,7 +1209,7 @@ export default function DashboardScreen() {
                   <Text style={styles.detailMeta}>{formatDate(stats.firstConcert.eventDate)}</Text>
                 </View>
                 <Text style={styles.detailChevron}>›</Text>
-              </TouchableOpacity>
+              </Pressable>
             )}
           </>
         )}
@@ -1218,9 +1219,9 @@ export default function DashboardScreen() {
           <>
             <Text style={styles.detailHighlightsLabel}>SHOWS</Text>
             {yearConcerts.map((c) => (
-              <TouchableOpacity
+              <Pressable
                 key={c.setlistId}
-                style={styles.detailHighlightEntry}
+                style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
                 onPress={() =>
                   router.push({ pathname: '/(home)/concert/[id]', params: { id: c.setlistId } })
                 }
@@ -1242,7 +1243,7 @@ export default function DashboardScreen() {
                   </Text>
                 </View>
                 <Text style={styles.detailChevron}>›</Text>
-              </TouchableOpacity>
+              </Pressable>
             ))}
           </>
         )}
@@ -1271,8 +1272,8 @@ export default function DashboardScreen() {
             </View>
             <View style={styles.tabletTopBarRight}>
               {onThisDay && (
-                <TouchableOpacity
-                  style={styles.headerOtdCard}
+                <Pressable
+                  style={({ pressed }) => [styles.headerOtdCard, { opacity: pressed ? 0.7 : 1 }]}
                   onPress={() =>
                     router.push({
                       pathname: '/(home)/concert/[id]',
@@ -1299,11 +1300,13 @@ export default function DashboardScreen() {
                       {onThisDay.venueName} · {formatDate(onThisDay.eventDate)}
                     </Text>
                   </View>
-                </TouchableOpacity>
+                </Pressable>
               )}
               <View style={[styles.topBarActions, { marginLeft: 'auto' }]}>
-                <TouchableOpacity
-                  onPress={handleSync}
+                <Pressable
+                  
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+         onPress={handleSync}
                   accessibilityRole="button"
                   accessibilityLabel="Sync concert data"
                 >
@@ -1313,14 +1316,16 @@ export default function DashboardScreen() {
                     size={20}
                     color={colors.textMuted}
                   />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => router.push('/(home)/settings')}
+                </Pressable>
+                <Pressable
+                  
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+         onPress={() => router.push('/(home)/settings')}
                   accessibilityRole="button"
                   accessibilityLabel="Open settings"
                 >
                   <Icon sf="gearshape" md="settings-outline" size={20} color={colors.textMuted} />
-                </TouchableOpacity>
+                </Pressable>
               </View>
             </View>
           </View>
@@ -1339,14 +1344,14 @@ export default function DashboardScreen() {
                   const yr = String(y.year);
                   const isSelected = yr === selectedYearStr;
                   return (
-                    <TouchableOpacity
+                    <Pressable
                       key={yr}
-                      style={[
+                      style={({ pressed }) => [
                         styles.yearTile,
                         // 4 per row in landscape, 3 in portrait
                         { flexBasis: isLandscape ? '23%' : '30%' },
                         isSelected && styles.yearTileSelected,
-                      ]}
+                      , { opacity: pressed ? 0.7 : 1 }]}
                       onPress={() => selectYear(yr)}
                       accessibilityRole="button"
                       accessibilityLabel={`${yr}, ${y.count} shows`}
@@ -1362,7 +1367,7 @@ export default function DashboardScreen() {
                       >
                         {`${y.count} show${y.count !== 1 ? 's' : ''}`}
                       </Text>
-                    </TouchableOpacity>
+                    </Pressable>
                   );
                 })}
               </View>
@@ -1379,8 +1384,10 @@ export default function DashboardScreen() {
             <View style={styles.topBarRow}>
               <Text style={styles.appTitle}>Chronicles</Text>
               <View style={styles.topBarActions}>
-                <TouchableOpacity
-                  onPress={handleSync}
+                <Pressable
+                  
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+         onPress={handleSync}
                   accessibilityRole="button"
                   accessibilityLabel="Sync concert data"
                 >
@@ -1390,14 +1397,16 @@ export default function DashboardScreen() {
                     size={20}
                     color={colors.textMuted}
                   />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => router.push('/(home)/settings')}
+                </Pressable>
+                <Pressable
+                  
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+         onPress={() => router.push('/(home)/settings')}
                   accessibilityRole="button"
                   accessibilityLabel="Open settings"
                 >
                   <Icon sf="gearshape" md="settings-outline" size={20} color={colors.textMuted} />
-                </TouchableOpacity>
+                </Pressable>
               </View>
             </View>
             <Text style={styles.statsLine}>

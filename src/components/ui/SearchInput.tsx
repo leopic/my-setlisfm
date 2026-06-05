@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import {
   View,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   type TextInputProps,
   type ViewStyle,
@@ -65,8 +65,8 @@ export default function SearchInput({ value, onChangeText, style, ...rest }: Sea
         {...rest}
       />
       {value.length > 0 && (
-        <TouchableOpacity
-          style={styles.clearButton}
+        <Pressable
+          style={({ pressed }) => [styles.clearButton, { opacity: pressed ? 0.7 : 1 }]}
           onPress={() => {
             onChangeText('');
             inputRef.current?.focus();
@@ -76,7 +76,7 @@ export default function SearchInput({ value, onChangeText, style, ...rest }: Sea
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Ionicons name="close-circle" size={16} color={colors.textMuted} />
-        </TouchableOpacity>
+        </Pressable>
       )}
     </View>
   );

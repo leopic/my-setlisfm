@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 import Svg, { Rect, Text as SvgText, G } from 'react-native-svg';
 import { useChronicleColors } from '@/utils/colors';
@@ -19,7 +19,7 @@ export default function BarChart({ data, color, height = 80, showLabels = true }
   const totalHeight = height + (showLabels ? LABEL_HEIGHT + 4 : 0);
   const [chartWidth, setChartWidth] = useState(0);
 
-  const max = useMemo(() => Math.max(...data.map((d) => d.value), 1), [data]);
+  const max = Math.max(...data.map((d) => d.value), 1);
 
   if (!data.length) return null;
 

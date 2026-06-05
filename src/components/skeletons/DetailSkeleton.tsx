@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import {} from 'react';
 import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '@/components/SkeletonBox';
@@ -39,7 +39,7 @@ function buildStyles(colors: ReturnType<typeof useChronicleColors>) {
 
 export default function DetailSkeleton({ cardCount = 3 }: Props) {
   const colors = useChronicleColors();
-  const styles = useMemo(() => buildStyles(colors), [colors]);
+  const styles = buildStyles(colors);
 
   return (
     <SafeAreaView

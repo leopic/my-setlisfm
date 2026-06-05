@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -27,9 +27,7 @@ interface YearGroup {
 export default function VenueConcertsListScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flex: 1,
           backgroundColor: colors.background,
@@ -48,7 +46,7 @@ export default function VenueConcertsListScreen() {
           marginBottom: 6,
         },
         backButton: {
-          // TouchableOpacity wrapper — no extra styles needed
+          // Pressable wrapper — no extra styles needed
         },
         backText: {
           ...Type.body,
@@ -157,9 +155,7 @@ export default function VenueConcertsListScreen() {
           color: colors.textSecondary,
           textAlign: 'center',
         },
-      }),
-    [colors],
-  );
+      });
 
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -172,11 +168,16 @@ export default function VenueConcertsListScreen() {
   // Get venue parameter from navigation
   const venueId = params.venue as string;
 
-  useEffect(() => {
-    if (venueId) {
-      loadVenueConcerts(venueId);
-    }
-  }, [venueId]);
+  const transformConcerts = (rawConcerts: SetlistWithDetails[]): ConcertWithDetails[] => {
+    return rawConcerts.map((concert) => ({
+      ...concert,
+      artistName: concert.artist?.name || 'Unknown Artist',
+      venueName: concert.venue?.name || 'Unknown Venue',
+      cityName: concert.city?.name,
+      stateName: concert.city?.state,
+      countryName: concert.country?.name,
+    }));
+  };
 
   const loadVenueConcerts = async (id: string) => {
     try {
@@ -200,16 +201,11 @@ export default function VenueConcertsListScreen() {
     }
   };
 
-  const transformConcerts = (rawConcerts: SetlistWithDetails[]): ConcertWithDetails[] => {
-    return rawConcerts.map((concert) => ({
-      ...concert,
-      artistName: concert.artist?.name || 'Unknown Artist',
-      venueName: concert.venue?.name || 'Unknown Venue',
-      cityName: concert.city?.name,
-      stateName: concert.city?.state,
-      countryName: concert.country?.name,
-    }));
-  };
+  useEffect(() => {
+    if (venueId) {
+      loadVenueConcerts(venueId);
+    }
+  }, [venueId]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -224,7 +220,7 @@ export default function VenueConcertsListScreen() {
     });
   };
 
-  const yearGroups = useMemo((): YearGroup[] => {
+  const yearGroups = ((): YearGroup[] => {
     const groups: { [year: string]: ConcertWithDetails[] } = {};
 
     concerts.forEach((concert) => {
@@ -239,7 +235,7 @@ export default function VenueConcertsListScreen() {
     return Object.entries(groups)
       .map(([year, groupConcerts]) => ({ year, concerts: groupConcerts }))
       .sort((a, b) => parseInt(b.year) - parseInt(a.year));
-  }, [concerts]);
+  })();
 
   if (loading) {
     return <ConcertListSkeleton />;
@@ -261,13 +257,13 @@ export default function VenueConcertsListScreen() {
       {/* Inline header */}
       <View style={styles.inlineHeader}>
         <View style={styles.backRow}>
-          <TouchableOpacity
-            style={styles.backButton}
+          <Pressable
+            style={({ pressed }) => [styles.backButton, { opacity: pressed ? 0.7 : 1 }]}
             onPress={() => router.back()}
             accessibilityRole="button"
           >
             <Text style={styles.backText}>← Back</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
         <Text style={styles.headerTitle}>{venueName}</Text>
         <Text style={styles.headerSubtitle}>{subtitleParts.join(' · ')}</Text>
@@ -301,9 +297,9 @@ export default function VenueConcertsListScreen() {
                     .join(', ');
 
                   return (
-                    <TouchableOpacity
+                    <Pressable
                       key={concert.id}
-                      style={styles.riverEntry}
+                      style={({ pressed }) => [styles.riverEntry, { opacity: pressed ? 0.7 : 1 }]}
                       testID={`venue-concert-${concert.id}`}
                       onPress={() => handleConcertPress(concert)}
                       accessibilityRole="button"
@@ -327,7 +323,7 @@ export default function VenueConcertsListScreen() {
                         </View>
                         <Text style={styles.entryChevron}>›</Text>
                       </View>
-                    </TouchableOpacity>
+                    </Pressable>
                   );
                 })}
               </View>

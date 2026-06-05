@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
   TextInput,
   Alert,
   KeyboardAvoidingView,
@@ -30,9 +30,7 @@ export default function SettingsScreen() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSynced, setLastSynced] = useState<string | null>(null);
 
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: { flex: 1, backgroundColor: colors.background },
         header: {
           flexDirection: 'row',
@@ -108,13 +106,7 @@ export default function SettingsScreen() {
         },
         syncText: { ...Type.title, color: colors.accent, flex: 1 },
         syncTextDisabled: { ...Type.title, color: colors.textMuted, flex: 1 },
-      }),
-    [colors],
-  );
-
-  useEffect(() => {
-    load();
-  }, []);
+      });
 
   const load = async () => {
     const stored = await getStoredUsername();
@@ -122,6 +114,10 @@ export default function SettingsScreen() {
     const fetchedAt = await dbOperations.getLastFetchedAt();
     setLastSynced(fetchedAt ? fetchedAt.toLocaleString() : null);
   };
+
+  useEffect(() => {
+    load();
+  }, []);
 
   const handleStartEdit = () => {
     setEditingUsername(username);
@@ -193,14 +189,14 @@ export default function SettingsScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
+          <Pressable
+            style={({ pressed }) => [styles.backButton, { opacity: pressed ? 0.7 : 1 }]}
             onPress={() => router.back()}
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
             <Icon sf="chevron.left" md="chevron-back-outline" size={20} color={colors.accent} />
-          </TouchableOpacity>
+          </Pressable>
           <Text style={styles.headerTitle}>Settings</Text>
         </View>
 
@@ -223,23 +219,25 @@ export default function SettingsScreen() {
                   onSubmitEditing={handleSaveUsername}
                   placeholderTextColor={colors.textMuted}
                 />
-                <TouchableOpacity style={styles.saveButton} onPress={handleSaveUsername}>
+                <Pressable style={({ pressed }) => [styles.saveButton, { opacity: pressed ? 0.7 : 1 }]} onPress={handleSaveUsername}>
                   <Text style={styles.saveButtonText}>Save</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.cancelButton}
+                </Pressable>
+                <Pressable
+                  style={({ pressed }) => [styles.cancelButton, { opacity: pressed ? 0.7 : 1 }]}
                   onPress={() => setIsEditing(false)}
                   accessibilityRole="button"
                 >
                   <Icon sf="xmark" md="close-outline" size={18} color={colors.textMuted} />
-                </TouchableOpacity>
+                </Pressable>
               </>
             ) : (
               <>
                 <Text style={styles.rowValue}>{username || '—'}</Text>
-                <TouchableOpacity onPress={handleStartEdit} accessibilityRole="button">
+                <Pressable 
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+         onPress={handleStartEdit} accessibilityRole="button">
                   <Text style={styles.rowAction}>Change</Text>
-                </TouchableOpacity>
+                </Pressable>
               </>
             )}
           </View>
@@ -252,8 +250,8 @@ export default function SettingsScreen() {
             <Text style={styles.rowValue}>{lastSynced ?? 'Never'}</Text>
           </View>
 
-          <TouchableOpacity
-            style={styles.syncRow}
+          <Pressable
+            style={({ pressed }) => [styles.syncRow, { opacity: pressed ? 0.7 : 1 }]}
             onPress={() => handleSync()}
             disabled={isSyncing || !username}
             accessibilityRole="button"
@@ -268,7 +266,7 @@ export default function SettingsScreen() {
             <Text style={isSyncing || !username ? styles.syncTextDisabled : styles.syncText}>
               {isSyncing ? 'Syncing…' : 'Sync Now'}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
 
           {/* ── About ───────────────────────────────────────────────────── */}
           <Text style={styles.sectionLabel}>About</Text>
@@ -285,8 +283,8 @@ export default function SettingsScreen() {
           {/* ── Danger zone ─────────────────────────────────────────────── */}
           <Text style={styles.sectionLabel}>Data</Text>
 
-          <TouchableOpacity
-            style={[styles.row, styles.rowFirst]}
+          <Pressable
+            style={({ pressed }) => [styles.row, styles.rowFirst, { opacity: pressed ? 0.7 : 1 }]}
             onPress={handleClearData}
             accessibilityRole="button"
             accessibilityLabel="Clear all data"
@@ -298,7 +296,7 @@ export default function SettingsScreen() {
               size={16}
               color={colors.textDisabled}
             />
-          </TouchableOpacity>
+          </Pressable>
         </TabScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

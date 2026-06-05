@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import {} from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '@/components/SkeletonBox';
@@ -70,9 +70,7 @@ const chapterStyles = StyleSheet.create({
 
 export default function DashboardSkeleton() {
   const colors = useChronicleColors();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flex: 1,
           backgroundColor: colors.background,
@@ -94,9 +92,7 @@ export default function DashboardSkeleton() {
         statsLine: {
           marginTop: 6,
         },
-      }),
-    [colors],
-  );
+      });
 
   return (
     <SafeAreaView

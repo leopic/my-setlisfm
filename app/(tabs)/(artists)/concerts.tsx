@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '@/database/operations';
@@ -28,9 +28,7 @@ interface YearGroup {
 export default function ArtistConcertsListScreen() {
   const { t } = useTranslation();
   const colors = useChronicleColors();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flex: 1,
           backgroundColor: colors.background,
@@ -49,7 +47,7 @@ export default function ArtistConcertsListScreen() {
           marginBottom: 6,
         },
         backButton: {
-          // TouchableOpacity wrapper — no extra styles needed
+          // Pressable wrapper — no extra styles needed
         },
         backText: {
           ...Type.body,
@@ -167,9 +165,7 @@ export default function ArtistConcertsListScreen() {
           color: colors.textSecondary,
           textAlign: 'center',
         },
-      }),
-    [colors],
-  );
+      });
 
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -183,11 +179,16 @@ export default function ArtistConcertsListScreen() {
   // Get artist parameter from navigation
   const artistMbid = params.artist as string;
 
-  useEffect(() => {
-    if (artistMbid) {
-      loadArtistConcerts(artistMbid);
-    }
-  }, [artistMbid]);
+  const transformConcerts = (rawConcerts: SetlistWithDetails[]): ConcertWithDetails[] => {
+    return rawConcerts.map((concert) => ({
+      ...concert,
+      artistName: concert.artist?.name || 'Unknown Artist',
+      venueName: concert.venue?.name || 'Unknown Venue',
+      cityName: concert.city?.name,
+      stateName: concert.city?.state,
+      countryName: concert.country?.name,
+    }));
+  };
 
   const loadArtistConcerts = async (mbid: string) => {
     try {
@@ -212,16 +213,11 @@ export default function ArtistConcertsListScreen() {
     }
   };
 
-  const transformConcerts = (rawConcerts: SetlistWithDetails[]): ConcertWithDetails[] => {
-    return rawConcerts.map((concert) => ({
-      ...concert,
-      artistName: concert.artist?.name || 'Unknown Artist',
-      venueName: concert.venue?.name || 'Unknown Venue',
-      cityName: concert.city?.name,
-      stateName: concert.city?.state,
-      countryName: concert.country?.name,
-    }));
-  };
+  useEffect(() => {
+    if (artistMbid) {
+      loadArtistConcerts(artistMbid);
+    }
+  }, [artistMbid]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -236,7 +232,7 @@ export default function ArtistConcertsListScreen() {
     });
   };
 
-  const yearGroups = useMemo((): YearGroup[] => {
+  const yearGroups = ((): YearGroup[] => {
     const groups: { [year: string]: ConcertWithDetails[] } = {};
 
     concerts.forEach((concert) => {
@@ -251,7 +247,7 @@ export default function ArtistConcertsListScreen() {
     return Object.entries(groups)
       .map(([year, groupConcerts]) => ({ year, concerts: groupConcerts }))
       .sort((a, b) => parseInt(b.year) - parseInt(a.year));
-  }, [concerts]);
+  })();
 
   if (loading) {
     return <ConcertListSkeleton />;
@@ -274,13 +270,13 @@ export default function ArtistConcertsListScreen() {
       {/* Inline header */}
       <View style={styles.inlineHeader}>
         <View style={styles.backRow}>
-          <TouchableOpacity
-            style={styles.backButton}
+          <Pressable
+            style={({ pressed }) => [styles.backButton, { opacity: pressed ? 0.7 : 1 }]}
             onPress={() => router.back()}
             accessibilityRole="button"
           >
             <Text style={styles.backText}>← Back</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
         <View style={styles.artistRow}>
           <ArtistImage mbid={artistMbid} imageUrl={artistImageUrl} size={56} name={artistName} />
@@ -319,9 +315,9 @@ export default function ArtistConcertsListScreen() {
                     .join(', ');
 
                   return (
-                    <TouchableOpacity
+                    <Pressable
                       key={concert.id}
-                      style={styles.riverEntry}
+                      style={({ pressed }) => [styles.riverEntry, { opacity: pressed ? 0.7 : 1 }]}
                       testID={`artist-concert-${concert.id}`}
                       onPress={() => handleConcertPress(concert)}
                       accessibilityRole="button"
@@ -345,7 +341,7 @@ export default function ArtistConcertsListScreen() {
                         </View>
                         <Text style={styles.entryChevron}>›</Text>
                       </View>
-                    </TouchableOpacity>
+                    </Pressable>
                   );
                 })}
               </View>

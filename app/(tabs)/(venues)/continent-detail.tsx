@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -20,9 +20,7 @@ interface CountryWithStats {
 export default function ContinentDetailScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flex: 1,
           backgroundColor: colors.background,
@@ -47,9 +45,7 @@ export default function ContinentDetailScreen() {
           color: colors.textSecondary,
           marginTop: 2,
         },
-      }),
-    [colors],
-  );
+      });
 
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -57,12 +53,6 @@ export default function ContinentDetailScreen() {
 
   const [countries, setCountries] = useState<CountryWithStats[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (continentName) {
-      loadCountriesForContinent(continentName as string);
-    }
-  }, [continentName]);
 
   const loadCountriesForContinent = async (continent: string) => {
     try {
@@ -84,6 +74,12 @@ export default function ContinentDetailScreen() {
     }
   };
 
+  useEffect(() => {
+    if (continentName) {
+      loadCountriesForContinent(continentName as string);
+    }
+  }, [continentName]);
+
   const handleCountryPress = (country: CountryWithStats) => {
     router.push({
       pathname: '/(venues)/country-detail',
@@ -98,13 +94,15 @@ export default function ContinentDetailScreen() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
+        <Pressable
+          
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+         onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >
           <Text style={styles.backBtn}>← Back</Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text style={styles.title}>{continentName as string}</Text>
         <Text style={styles.subtitle}>{t('common.country', { count: countries.length })}</Text>
       </View>

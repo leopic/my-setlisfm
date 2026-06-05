@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import React, {} from 'react';
+import { View, StyleSheet, Pressable } from 'react-native';
 import type { ViewStyle } from 'react-native';
 import { useColors } from '@/utils/colors';
 
@@ -12,24 +12,20 @@ interface CardProps {
 
 export default function Card({ children, style, onPress, testID }: CardProps) {
   const colors = useColors();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         card: {
           backgroundColor: colors.backgroundCard,
           borderRadius: 12,
           borderCurve: 'continuous' as const,
           padding: 16,
         },
-      }),
-    [colors],
-  );
+      });
 
   if (onPress) {
     return (
-      <TouchableOpacity style={[styles.card, style]} onPress={onPress} testID={testID}>
+      <Pressable style={({ pressed }) => [styles.card, style, { opacity: pressed ? 0.7 : 1 }]} onPress={onPress} testID={testID}>
         {children}
-      </TouchableOpacity>
+      </Pressable>
     );
   }
 

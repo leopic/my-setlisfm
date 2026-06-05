@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -30,9 +30,7 @@ interface VenueWithStats {
 export default function CityDetailScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flex: 1,
           backgroundColor: colors.background,
@@ -113,9 +111,7 @@ export default function CityDetailScreen() {
           color: colors.textSecondary,
           textAlign: 'center',
         },
-      }),
-    [colors],
-  );
+      });
 
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -124,12 +120,6 @@ export default function CityDetailScreen() {
   const [venues, setVenues] = useState<VenueWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
-  useEffect(() => {
-    if (city && country) {
-      loadVenuesForCity(city as string, country as string);
-    }
-  }, [city, country]);
 
   const loadVenuesForCity = async (cityName: string, countryName: string) => {
     try {
@@ -150,6 +140,12 @@ export default function CityDetailScreen() {
     }
   };
 
+  useEffect(() => {
+    if (city && country) {
+      loadVenuesForCity(city as string, country as string);
+    }
+  }, [city, country]);
+
   const onRefresh = async () => {
     setRefreshing(true);
     await loadVenuesForCity(city as string, country as string);
@@ -166,11 +162,10 @@ export default function CityDetailScreen() {
   };
 
   const getVenueCard = (venue: VenueWithStats) => (
-    <TouchableOpacity
+    <Pressable
       key={venue.id}
-      style={styles.venueRow}
+      style={({ pressed }) => [styles.venueRow, { opacity: pressed ? 0.7 : 1 }]}
       onPress={() => handleVenuePress(venue)}
-      activeOpacity={0.7}
       accessibilityRole="button"
       accessibilityLabel={`${venue.name}, ${venue.concertCount} ${t('venues.visits')}`}
     >
@@ -199,7 +194,7 @@ export default function CityDetailScreen() {
         <Text style={styles.concertCountText}>{venue.concertCount}</Text>
         <Text style={styles.concertCountLabel}>{t('venues.visits')}</Text>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 
   if (loading) {
@@ -209,13 +204,15 @@ export default function CityDetailScreen() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
+        <Pressable
+          
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+         onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >
           <Text style={styles.backBtn}>← Back</Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text style={styles.title}>{city as string}</Text>
         <Text style={styles.subtitle}>
           {`${country} · ${t('common.venue', { count: venues.length })}`}

@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useColorScheme } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useSyncContext } from '@/contexts/SyncContext';
@@ -46,10 +46,6 @@ export default function StatsScreen() {
   const [topCity, setTopCity] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    load();
-  }, [lastSyncTimestamp]);
-
   const load = async () => {
     try {
       setLoading(true);
@@ -75,9 +71,11 @@ export default function StatsScreen() {
     }
   };
 
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  useEffect(() => {
+    load();
+  }, [lastSyncTimestamp]);
+
+  const styles = StyleSheet.create({
         container: { flex: 1, backgroundColor: colors.background },
         header: {
           paddingHorizontal: 20,
@@ -178,9 +176,7 @@ export default function StatsScreen() {
         twoColLeft: { flex: 1 },
         twoColRight: { flex: 1 },
         twoColDivider: { width: 1, backgroundColor: colors.border, alignSelf: 'stretch' },
-      }),
-    [colors],
-  );
+      });
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -188,15 +184,11 @@ export default function StatsScreen() {
 
   // ── Derived chart data ─────────────────────────────────────────────────────
 
-  const yearBarData = useMemo(
-    () =>
-      [...yearSummaries]
-        .sort((a, b) => a.year.localeCompare(b.year))
-        .map((r) => ({ label: r.year.slice(2), value: r.shows })),
-    [yearSummaries],
-  );
+  const yearBarData = [...yearSummaries]
+    .sort((a, b) => a.year.localeCompare(b.year))
+    .map((r) => ({ label: r.year.slice(2), value: r.shows }));
 
-  const artistSeries: LineSeries[] = useMemo(() => {
+  const artistSeries: LineSeries[] = (() => {
     const sorted = [...yearSummaries].sort((a, b) => a.year.localeCompare(b.year));
     const allYears = sorted.map((r) => r.year);
 
@@ -215,36 +207,28 @@ export default function StatsScreen() {
       });
       return { label: name, color: artistColors[i % artistColors.length], data };
     });
-  }, [chartData.topArtistsPerYear, yearSummaries, artistColors]);
+  })();
 
-  const artistXLabels = useMemo(
-    () =>
-      [...yearSummaries]
-        .sort((a, b) => a.year.localeCompare(b.year))
-        .map((r) => `'${r.year.slice(2)}`),
-    [yearSummaries],
-  );
+  const artistXLabels = [...yearSummaries]
+    .sort((a, b) => a.year.localeCompare(b.year))
+    .map((r) => `'${r.year.slice(2)}`);
 
-  const busiestYear = useMemo(() => {
+  const busiestYear = (() => {
     if (!yearSummaries.length) return null;
     return yearSummaries.reduce((a, b) => (a.shows > b.shows ? a : b));
-  }, [yearSummaries]);
+  })();
 
-  const busiestWeekday = useMemo(() => {
+  const busiestWeekday = (() => {
     if (!chartData.weekdays.length) return null;
     const top = chartData.weekdays.reduce((a, b) => (a.concertDays > b.concertDays ? a : b));
     const name = DAY_FULL_LABELS[top.weekday];
     return name ? { name, count: top.concertDays } : null;
-  }, [chartData.weekdays]);
+  })();
 
-  const weekdayBarData = useMemo(
-    () =>
-      DAY_LABELS.map((label, i) => ({
+  const weekdayBarData = DAY_LABELS.map((label, i) => ({
         label,
         value: chartData.weekdays.find((w) => w.weekday === i)?.concertDays ?? 0,
-      })),
-    [chartData.weekdays],
-  );
+      }));
 
   if (loading) {
     return (
@@ -383,10 +367,9 @@ export default function StatsScreen() {
               <View style={styles.section}>
                 <Text style={styles.sectionLabel}>PLACES</Text>
               </View>
-              <TouchableOpacity
-                style={styles.mapCard}
+              <Pressable
+                style={({ pressed }) => [styles.mapCard, { opacity: pressed ? 0.8 : 1 }]}
                 onPress={() => router.push('/(stats)/map')}
-                activeOpacity={0.8}
                 accessibilityRole="button"
                 accessibilityLabel="Open world map"
               >
@@ -400,7 +383,7 @@ export default function StatsScreen() {
                   <Text style={styles.mapLabel}>World Map</Text>
                   <Text style={styles.mapSub}>{totalCountries} countries · tap to explore</Text>
                 </View>
-              </TouchableOpacity>
+              </Pressable>
               <View style={[styles.cardRow, { paddingHorizontal: 20, marginBottom: 20 }]}>
                 <View style={styles.statCard}>
                   <Text style={[styles.statValue, { color: colors.chartGreen }]}>
@@ -508,10 +491,9 @@ export default function StatsScreen() {
             <View style={styles.section}>
               <Text style={styles.sectionLabel}>PLACES</Text>
             </View>
-            <TouchableOpacity
-              style={styles.mapCard}
+            <Pressable
+              style={({ pressed }) => [styles.mapCard, { opacity: pressed ? 0.8 : 1 }]}
               onPress={() => router.push('/(stats)/map')}
-              activeOpacity={0.8}
               accessibilityRole="button"
               accessibilityLabel="Open world map"
             >
@@ -525,7 +507,7 @@ export default function StatsScreen() {
                 <Text style={styles.mapLabel}>World Map</Text>
                 <Text style={styles.mapSub}>{totalCountries} countries · tap to explore</Text>
               </View>
-            </TouchableOpacity>
+            </Pressable>
             <View style={[styles.cardRow, { paddingHorizontal: 20, marginBottom: 20 }]}>
               <View style={styles.statCard}>
                 <Text style={[styles.statValue, { color: colors.chartGreen }]}>

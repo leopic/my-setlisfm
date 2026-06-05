@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -27,9 +27,7 @@ export default function ArtistImage({
   const [imageUri, setImageUri] = useState<string | null>(hasPreloaded ? preloaded || null : null);
   const [loaded, setLoaded] = useState(hasPreloaded);
 
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           width: size,
           height: size,
@@ -43,9 +41,7 @@ export default function ArtistImage({
           width: size,
           height: size,
         },
-      }),
-    [colors, size],
-  );
+      });
 
   useEffect(() => {
     if (hasPreloaded) {

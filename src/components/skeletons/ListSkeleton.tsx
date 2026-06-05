@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import {} from 'react';
 import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '@/components/SkeletonBox';
@@ -27,9 +27,7 @@ export default function ListSkeleton({
 }: Props) {
   const colors = useChronicleColors();
   const { isTablet, sidebarWidth } = useTabletLayout();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flex: 1,
           backgroundColor: colors.background,
@@ -121,9 +119,7 @@ export default function ListSkeleton({
         masterDetail: { flex: 1, flexDirection: 'row' },
         sidebar: { borderRightWidth: 1, borderRightColor: colors.border },
         detailPane: { flex: 1, backgroundColor: colors.background },
-      }),
-    [colors],
-  );
+      });
 
   const sidebarContent = (
     <>

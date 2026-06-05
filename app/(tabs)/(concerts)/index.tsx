@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   Alert,
   RefreshControl,
   Modal,
@@ -51,9 +50,7 @@ export default function ConcertsScreen() {
   const { t } = useTranslation();
   const colors = useChronicleColors();
   const { isTablet, sidebarWidth } = useTabletLayout();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flex: 1,
           backgroundColor: colors.background,
@@ -289,9 +286,7 @@ export default function ConcertsScreen() {
           flex: 1,
           marginRight: 8,
         },
-      }),
-    [colors],
-  );
+      });
 
   const { lastSyncTimestamp } = useSyncContext();
   const router = useRouter();
@@ -304,35 +299,6 @@ export default function ConcertsScreen() {
   const [selectedConcertId, setSelectedConcertId] = useState<string | null>(null);
   const [yearFilter, setYearFilter] = useState<string | null>(null);
   const [yearDropdownOpen, setYearDropdownOpen] = useState(false);
-
-  useEffect(() => {
-    loadConcerts();
-  }, [lastSyncTimestamp]);
-
-  const loadConcerts = async () => {
-    try {
-      setLoading(true);
-      const rawConcerts = await dbOperations.getAllSetlists();
-
-      const concertsWithDetails: ConcertWithDetails[] = rawConcerts.map((concert) => ({
-        ...concert,
-        artistName: concert.artist?.name || 'Unknown Artist',
-        venueName: concert.venue?.name || 'Unknown Venue',
-        cityName: concert.city?.name,
-        stateName: concert.city?.state,
-        countryName: concert.country?.name,
-      }));
-
-      const sortedConcerts = sortConcerts(concertsWithDetails, sortOption);
-      setConcerts(sortedConcerts);
-      setYearGroups(groupConcertsByYear(sortedConcerts));
-    } catch (error) {
-      console.error('Failed to load concerts:', error);
-      Alert.alert(t('common.error'), t('concerts.failedToLoad'));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const groupConcertsByYear = (concertsToGroup: ConcertWithDetails[]): YearGroup[] => {
     const groups: { [year: string]: ConcertWithDetails[] } = {};
@@ -379,6 +345,35 @@ export default function ConcertsScreen() {
     });
   };
 
+  const loadConcerts = async () => {
+    try {
+      setLoading(true);
+      const rawConcerts = await dbOperations.getAllSetlists();
+
+      const concertsWithDetails: ConcertWithDetails[] = rawConcerts.map((concert) => ({
+        ...concert,
+        artistName: concert.artist?.name || 'Unknown Artist',
+        venueName: concert.venue?.name || 'Unknown Venue',
+        cityName: concert.city?.name,
+        stateName: concert.city?.state,
+        countryName: concert.country?.name,
+      }));
+
+      const sortedConcerts = sortConcerts(concertsWithDetails, sortOption);
+      setConcerts(sortedConcerts);
+      setYearGroups(groupConcertsByYear(sortedConcerts));
+    } catch (error) {
+      console.error('Failed to load concerts:', error);
+      Alert.alert(t('common.error'), t('concerts.failedToLoad'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadConcerts();
+  }, [lastSyncTimestamp]);
+
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
     const sortedConcerts = sortConcerts(concerts, newSortOption);
@@ -392,7 +387,7 @@ export default function ConcertsScreen() {
     setRefreshing(false);
   };
 
-  const filteredYearGroups = useMemo(() => {
+  const filteredYearGroups = (() => {
     const groups = yearFilter ? yearGroups.filter((g) => g.year === yearFilter) : yearGroups;
     if (!searchQuery.trim()) return groups;
     const q = searchQuery.toLowerCase();
@@ -408,9 +403,9 @@ export default function ConcertsScreen() {
         ),
       }))
       .filter((group) => group.concerts.length > 0);
-  }, [yearGroups, searchQuery, yearFilter]);
+  })();
 
-  const listData = useMemo((): ConcertListItem[] => {
+  const listData = ((): ConcertListItem[] => {
     if (sortOption === 'alphabetical') {
       return filteredYearGroups
         .flatMap((g) => g.concerts)
@@ -422,7 +417,7 @@ export default function ConcertsScreen() {
       yearGroup,
       yearIndex,
     }));
-  }, [filteredYearGroups, sortOption]);
+  })();
 
   const totalConcerts = yearGroups.reduce((sum, g) => sum + g.totalConcerts, 0);
 
@@ -445,9 +440,9 @@ export default function ConcertsScreen() {
           const isFirstOfMostRecentYear = yearIndex === 0 && concertIndex === 0;
           const isSelected = isTablet && selectedConcertId === concert.id;
           return (
-            <TouchableOpacity
+            <Pressable
               key={concert.id}
-              style={[styles.riverEntry, isSelected && styles.riverEntrySelected]}
+              style={({ pressed }) => [styles.riverEntry, isSelected && styles.riverEntrySelected, { opacity: pressed ? 0.7 : 1 }]}
               testID={`concert-${concert.id}`}
               onPress={() => handleConcertPress(concert)}
               accessibilityRole="button"
@@ -467,7 +462,7 @@ export default function ConcertsScreen() {
                 </View>
                 <Text style={styles.entryChevron}>›</Text>
               </View>
-            </TouchableOpacity>
+            </Pressable>
           );
         })}
       </View>
@@ -477,8 +472,8 @@ export default function ConcertsScreen() {
   const renderFlatConcert = (concert: ConcertWithDetails) => {
     const isSelected = isTablet && selectedConcertId === concert.id;
     return (
-      <TouchableOpacity
-        style={[styles.alphabeticalEntry, isSelected && styles.riverEntrySelected]}
+      <Pressable
+        style={({ pressed }) => [styles.alphabeticalEntry, isSelected && styles.riverEntrySelected, { opacity: pressed ? 0.7 : 1 }]}
         testID={`concert-${concert.id}`}
         onPress={() => handleConcertPress(concert)}
         accessibilityRole="button"
@@ -497,7 +492,7 @@ export default function ConcertsScreen() {
           </View>
           <Text style={styles.entryChevron}>›</Text>
         </View>
-      </TouchableOpacity>
+      </Pressable>
     );
   };
 
@@ -575,8 +570,8 @@ export default function ConcertsScreen() {
                   const label = year ?? t('common.all');
                   const isLast = index === yearGroups.length;
                   return (
-                    <TouchableOpacity
-                      style={[styles.dropdownItem, isLast && styles.dropdownItemLast]}
+                    <Pressable
+                      style={({ pressed }) => [styles.dropdownItem, isLast && styles.dropdownItemLast, { opacity: pressed ? 0.7 : 1 }]}
                       onPress={() => {
                         setYearFilter(year);
                         setYearDropdownOpen(false);
@@ -589,7 +584,7 @@ export default function ConcertsScreen() {
                       >
                         {label}
                       </Text>
-                    </TouchableOpacity>
+                    </Pressable>
                   );
                 }}
               />
@@ -599,8 +594,8 @@ export default function ConcertsScreen() {
 
         <View style={styles.sortContainer}>
           {/* Year filter — grouped with sort pills */}
-          <TouchableOpacity
-            style={[styles.yearDropdownTrigger, yearFilter && styles.yearDropdownTriggerActive]}
+          <Pressable
+            style={({ pressed }) => [styles.yearDropdownTrigger, yearFilter && styles.yearDropdownTriggerActive, { opacity: pressed ? 0.7 : 1 }]}
             onPress={() => setYearDropdownOpen(true)}
             accessibilityRole="button"
             accessibilityLabel={yearFilter ? `Filtered by ${yearFilter}` : 'Filter by year'}
@@ -619,16 +614,16 @@ export default function ConcertsScreen() {
             >
               ▾
             </Text>
-          </TouchableOpacity>
+          </Pressable>
 
           {(['recent', 'alphabetical'] as SortOption[]).map((option) => {
             const isActive = sortOption === option;
             const label =
               option === 'recent' ? t('concerts.mostRecent') : t('concerts.alphabetical');
             return (
-              <TouchableOpacity
+              <Pressable
                 key={option}
-                style={[styles.sortPill, isActive && styles.sortPillActive]}
+                style={({ pressed }) => [styles.sortPill, isActive && styles.sortPillActive, { opacity: pressed ? 0.7 : 1 }]}
                 onPress={() => handleSortChange(option)}
                 accessibilityRole="button"
                 accessibilityState={{ selected: isActive }}
@@ -637,7 +632,7 @@ export default function ConcertsScreen() {
                 <Text style={[styles.sortPillText, isActive && styles.sortPillTextActive]}>
                   {label}
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             );
           })}
         </View>

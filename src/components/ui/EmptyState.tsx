@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import {} from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { SFSymbol } from 'sf-symbols-typescript';
 import type { Ionicons } from '@expo/vector-icons';
@@ -32,9 +32,7 @@ export default function EmptyState({
   const colors = useChronicleColors();
   const description = body ?? subtitle;
 
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         page: {
           flex: 1,
           justifyContent: 'center',
@@ -63,9 +61,7 @@ export default function EmptyState({
           textAlign: 'center',
           lineHeight: 20,
         },
-      }),
-    [colors],
-  );
+      });
 
   return (
     <View style={variant === 'page' ? styles.page : styles.inline} accessibilityRole="text">

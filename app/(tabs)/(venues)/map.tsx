@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, {} from 'react';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -12,9 +12,7 @@ export default function VenuesMapScreen() {
   const { t } = useTranslation();
   const router = useRouter();
 
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flex: 1,
           backgroundColor: colors.background,
@@ -42,20 +40,20 @@ export default function VenuesMapScreen() {
           flex: 1,
           marginBottom: 100,
         },
-      }),
-    [colors],
-  );
+      });
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
+        <Pressable
+          
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+         onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >
           <Text style={styles.back}>← Back</Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text style={styles.title}>{t('map.title')}</Text>
         <Text style={styles.subtitle}>{t('map.subtitle')}</Text>
       </View>

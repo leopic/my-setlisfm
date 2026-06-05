@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LegendList } from '@legendapp/list';
@@ -35,9 +35,7 @@ export default function ArtistsScreen() {
   const { t } = useTranslation();
   const colors = useChronicleColors();
   const { isTablet, sidebarWidth } = useTabletLayout();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flex: 1,
           backgroundColor: colors.background,
@@ -188,9 +186,7 @@ export default function ArtistsScreen() {
         sidebar: { borderRightWidth: 1, borderRightColor: colors.border },
         detailPane: { flex: 1 },
         artistRowSelected: { backgroundColor: colors.accentSoft },
-      }),
-    [colors],
-  );
+      });
 
   const { lastSyncTimestamp } = useSyncContext();
   const router = useRouter();
@@ -201,14 +197,6 @@ export default function ArtistsScreen() {
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [refreshing, setRefreshing] = useState(false);
   const [selectedArtistMbid, setSelectedArtistMbid] = useState<string | null>(null);
-
-  useEffect(() => {
-    loadArtists();
-  }, [lastSyncTimestamp]);
-
-  useEffect(() => {
-    filterArtists();
-  }, [artists, searchQuery]);
 
   const loadArtists = async () => {
     try {
@@ -229,20 +217,6 @@ export default function ArtistsScreen() {
     }
   };
 
-  const handleViewConcerts = (artist: ArtistWithStats) => {
-    if (isTablet) {
-      setSelectedArtistMbid(artist.mbid);
-    } else {
-      router.push({ pathname: '/(artists)/concerts', params: { artist: artist.mbid } });
-    }
-  };
-
-  const handleSortChange = (newSortOption: SortOption) => {
-    setSortOption(newSortOption);
-    const sortedArtists = sortByOption(artists, newSortOption, undefined, (a) => a.concertCount);
-    setArtists(sortedArtists);
-  };
-
   const filterArtists = () => {
     if (!searchQuery.trim()) {
       setFilteredArtists(artists);
@@ -260,6 +234,28 @@ export default function ArtistsScreen() {
     setFilteredArtists(filtered);
   };
 
+  useEffect(() => {
+    loadArtists();
+  }, [lastSyncTimestamp]);
+
+  useEffect(() => {
+    filterArtists();
+  }, [artists, searchQuery]);
+
+  const handleViewConcerts = (artist: ArtistWithStats) => {
+    if (isTablet) {
+      setSelectedArtistMbid(artist.mbid);
+    } else {
+      router.push({ pathname: '/(artists)/concerts', params: { artist: artist.mbid } });
+    }
+  };
+
+  const handleSortChange = (newSortOption: SortOption) => {
+    setSortOption(newSortOption);
+    const sortedArtists = sortByOption(artists, newSortOption, undefined, (a) => a.concertCount);
+    setArtists(sortedArtists);
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
     await loadArtists();
@@ -271,14 +267,13 @@ export default function ArtistsScreen() {
     const isSelected = isTablet && selectedArtistMbid === artist.mbid;
 
     return (
-      <TouchableOpacity
-        style={[
+      <Pressable
+        style={({ pressed }) => [
           styles.artistRow,
           hasAccentBar ? styles.artistRowAccent : styles.artistRowNoAccent,
           isSelected && styles.artistRowSelected,
-        ]}
+        , { opacity: pressed ? 0.7 : 1 }]}
         testID={`artist-${artist.mbid}`}
-        activeOpacity={0.7}
         onPress={() => handleViewConcerts(artist)}
         accessibilityRole="button"
         accessibilityLabel={`${artist.name}, ${t('common.show', { count: artist.concertCount })}`}
@@ -307,7 +302,7 @@ export default function ArtistsScreen() {
           {artist.concertCount}
         </Text>
         <Text style={styles.chevron}>›</Text>
-      </TouchableOpacity>
+      </Pressable>
     );
   };
 
@@ -366,12 +361,12 @@ export default function ArtistsScreen() {
                   ? t('sort.top')
                   : t('sort.byName');
             return (
-              <TouchableOpacity
+              <Pressable
                 key={option}
-                style={[
+                style={({ pressed }) => [
                   styles.sortPill,
                   isActive ? styles.sortPillActive : styles.sortPillInactive,
-                ]}
+                , { opacity: pressed ? 0.7 : 1 }]}
                 onPress={() => handleSortChange(option)}
                 accessibilityRole="button"
                 accessibilityState={{ selected: isActive }}
@@ -385,7 +380,7 @@ export default function ArtistsScreen() {
                 >
                   {label}
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             );
           })}
         </View>

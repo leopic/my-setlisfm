@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -22,9 +22,7 @@ interface CityWithStats {
 export default function CitiesScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flex: 1,
           backgroundColor: colors.background,
@@ -83,18 +81,12 @@ export default function CitiesScreen() {
           ...Type.label,
           color: colors.textMuted,
         },
-      }),
-    [colors],
-  );
+      });
 
   const router = useRouter();
   const [cities, setCities] = useState<CityWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<SortOption>('alphabetical');
-
-  useEffect(() => {
-    loadCities();
-  }, []);
 
   const loadCities = async () => {
     try {
@@ -114,6 +106,10 @@ export default function CitiesScreen() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadCities();
+  }, []);
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
@@ -145,13 +141,15 @@ export default function CitiesScreen() {
       {/* Inline header */}
       <View style={styles.inlineHeader}>
         <View style={styles.backRow}>
-          <TouchableOpacity
-            onPress={() => router.back()}
+          <Pressable
+            
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+         onPress={() => router.back()}
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
             <Text style={styles.backButton}>← Back</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
         <Text style={styles.headerTitle}>{t('geo.citiesTitle')}</Text>
         <Text style={styles.headerSubtitle}>
@@ -164,12 +162,12 @@ export default function CitiesScreen() {
       {/* Sort pills */}
       <View style={styles.sortPills}>
         {sortOptions.map((option) => (
-          <TouchableOpacity
+          <Pressable
             key={option.value}
-            style={[
+            style={({ pressed }) => [
               styles.pill,
               sortOption === option.value ? styles.pillActive : styles.pillInactive,
-            ]}
+            , { opacity: pressed ? 0.7 : 1 }]}
             onPress={() => handleSortChange(option.value)}
           >
             <Text
@@ -177,7 +175,7 @@ export default function CitiesScreen() {
             >
               {option.label}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         ))}
       </View>
 

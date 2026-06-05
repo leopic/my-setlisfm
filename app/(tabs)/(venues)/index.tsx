@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -48,9 +48,7 @@ export default function VenuesScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
   const { isTablet, sidebarWidth } = useTabletLayout();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flex: 1,
           backgroundColor: colors.background,
@@ -218,9 +216,7 @@ export default function VenuesScreen() {
         sidebar: { borderRightWidth: 1, borderRightColor: colors.border },
         detailPane: { flex: 1 },
         venueRowSelected: { backgroundColor: colors.accentSoft },
-      }),
-    [colors],
-  );
+      });
 
   const { lastSyncTimestamp } = useSyncContext();
   const router = useRouter();
@@ -232,14 +228,6 @@ export default function VenuesScreen() {
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [refreshing, setRefreshing] = useState(false);
   const [selectedVenue, setSelectedVenue] = useState<VenueWithStats | null>(null);
-
-  useEffect(() => {
-    loadVenues();
-  }, [lastSyncTimestamp]);
-
-  useEffect(() => {
-    filterVenues();
-  }, [venues, searchQuery]);
 
   const loadVenues = async () => {
     try {
@@ -265,20 +253,6 @@ export default function VenuesScreen() {
     }
   };
 
-  const handleViewConcerts = (venue: VenueWithStats) => {
-    if (isTablet) {
-      setSelectedVenue(venue);
-    } else {
-      router.push({ pathname: '/(venues)/concerts', params: { venue: venue.id } });
-    }
-  };
-
-  const handleSortChange = (newSortOption: SortOption) => {
-    setSortOption(newSortOption);
-    const sortedVenues = sortByOption(venues, newSortOption, undefined, (v) => v.concertCount);
-    setVenues(sortedVenues);
-  };
-
   const filterVenues = () => {
     if (!searchQuery.trim()) {
       setFilteredVenues(venues);
@@ -295,6 +269,28 @@ export default function VenuesScreen() {
     );
 
     setFilteredVenues(filtered);
+  };
+
+  useEffect(() => {
+    loadVenues();
+  }, [lastSyncTimestamp]);
+
+  useEffect(() => {
+    filterVenues();
+  }, [venues, searchQuery]);
+
+  const handleViewConcerts = (venue: VenueWithStats) => {
+    if (isTablet) {
+      setSelectedVenue(venue);
+    } else {
+      router.push({ pathname: '/(venues)/concerts', params: { venue: venue.id } });
+    }
+  };
+
+  const handleSortChange = (newSortOption: SortOption) => {
+    setSortOption(newSortOption);
+    const sortedVenues = sortByOption(venues, newSortOption, undefined, (v) => v.concertCount);
+    setVenues(sortedVenues);
   };
 
   const onRefresh = async () => {
@@ -318,10 +314,9 @@ export default function VenuesScreen() {
     const isSelected = isTablet && selectedVenue?.id === venue.id;
 
     return (
-      <TouchableOpacity
-        style={[styles.venueRow, isSelected && styles.venueRowSelected]}
+      <Pressable
+        style={({ pressed }) => [styles.venueRow, isSelected && styles.venueRowSelected, { opacity: pressed ? 0.7 : 1 }]}
         testID={`venue-${venue.id}`}
-        activeOpacity={0.7}
         onPress={() => handleViewConcerts(venue)}
         accessibilityRole="button"
         accessibilityLabel={`${venue.name}, ${venue.concertCount} ${t('venues.visits')}`}
@@ -340,7 +335,7 @@ export default function VenuesScreen() {
           <Text style={styles.visitCount}>{venue.concertCount}</Text>
           <Text style={styles.visitLabel}>{t('venues.visits')}</Text>
         </View>
-      </TouchableOpacity>
+      </Pressable>
     );
   };
 
@@ -386,33 +381,33 @@ export default function VenuesScreen() {
 
       {/* Geo navigation strip */}
       <View style={styles.geoStrip}>
-        <TouchableOpacity
-          style={styles.geoButton}
+        <Pressable
+          style={({ pressed }) => [styles.geoButton, { opacity: pressed ? 0.7 : 1 }]}
           testID="nav-continents"
           onPress={() => router.push('/(venues)/continents')}
           accessibilityRole="button"
           accessibilityLabel={t('common.continent', { count: geoStats?.totalContinents ?? 0 })}
         >
           <Text style={styles.geoButtonLabel}>Continents</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.geoButton}
+        </Pressable>
+        <Pressable
+          style={({ pressed }) => [styles.geoButton, { opacity: pressed ? 0.7 : 1 }]}
           testID="nav-countries"
           onPress={() => router.push('/(venues)/countries')}
           accessibilityRole="button"
           accessibilityLabel={t('common.country', { count: geoStats?.totalCountries ?? 0 })}
         >
           <Text style={styles.geoButtonLabel}>Countries</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.geoButton}
+        </Pressable>
+        <Pressable
+          style={({ pressed }) => [styles.geoButton, { opacity: pressed ? 0.7 : 1 }]}
           testID="nav-cities"
           onPress={() => router.push('/(venues)/cities')}
           accessibilityRole="button"
           accessibilityLabel={t('common.city', { count: geoStats?.totalCities ?? 0 })}
         >
           <Text style={styles.geoButtonLabel}>Cities</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       {/* Search + sort */}
@@ -434,9 +429,9 @@ export default function VenuesScreen() {
                   ? t('sort.top')
                   : t('sort.byName');
             return (
-              <TouchableOpacity
+              <Pressable
                 key={option}
-                style={[styles.sortPill, isActive && styles.sortPillActive]}
+                style={({ pressed }) => [styles.sortPill, isActive && styles.sortPillActive, { opacity: pressed ? 0.7 : 1 }]}
                 onPress={() => handleSortChange(option)}
                 accessibilityRole="button"
                 accessibilityState={{ selected: isActive }}
@@ -444,7 +439,7 @@ export default function VenuesScreen() {
                 <Text style={[styles.sortPillText, isActive && styles.sortPillTextActive]}>
                   {label}
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             );
           })}
         </View>

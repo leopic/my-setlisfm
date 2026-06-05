@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -24,9 +24,7 @@ interface ContinentWithStats {
 export default function ContinentsScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flex: 1,
           backgroundColor: colors.background,
@@ -147,19 +145,13 @@ export default function ContinentsScreen() {
           ...Type.label,
           color: colors.accent,
         },
-      }),
-    [colors],
-  );
+      });
 
   const router = useRouter();
   const [continents, setContinents] = useState<ContinentWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [refreshing, setRefreshing] = useState(false);
-
-  useEffect(() => {
-    loadContinents();
-  }, []);
 
   const loadContinents = async () => {
     try {
@@ -179,6 +171,10 @@ export default function ContinentsScreen() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadContinents();
+  }, []);
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
@@ -212,12 +208,11 @@ export default function ContinentsScreen() {
   ];
 
   const getContinentRow = (continent: ContinentWithStats) => (
-    <TouchableOpacity
+    <Pressable
       key={continent.name}
-      style={styles.row}
+      style={({ pressed }) => [styles.row, { opacity: pressed ? 0.7 : 1 }]}
       testID={`continent-${continent.name}`}
       onPress={() => handleContinentPress(continent)}
-      activeOpacity={0.7}
       accessibilityRole="button"
       accessibilityLabel={`${continent.name}, ${t('common.country', { count: continent.countryCount })}, ${t('common.city', { count: continent.cityCount })}, ${continent.venueCount} ${t('venues.visits')}`}
     >
@@ -245,7 +240,7 @@ export default function ContinentsScreen() {
         <Text style={styles.countNumber}>{continent.venueCount}</Text>
         <Text style={styles.countLabel}>venues</Text>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 
   if (loading) {
@@ -261,13 +256,15 @@ export default function ContinentsScreen() {
       {/* Inline header */}
       <View style={styles.inlineHeader}>
         <View style={styles.backRow}>
-          <TouchableOpacity
-            onPress={() => router.back()}
+          <Pressable
+            
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+         onPress={() => router.back()}
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
             <Text style={styles.backButton}>← Back</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
         <Text style={styles.headerTitle}>{t('geo.continentsTitle')}</Text>
         <Text style={styles.headerSubtitle}>
@@ -280,12 +277,12 @@ export default function ContinentsScreen() {
       {/* Sort pills */}
       <View style={styles.sortPills}>
         {sortOptions.map((option) => (
-          <TouchableOpacity
+          <Pressable
             key={option.value}
-            style={[
+            style={({ pressed }) => [
               styles.pill,
               sortOption === option.value ? styles.pillActive : styles.pillInactive,
-            ]}
+            , { opacity: pressed ? 0.7 : 1 }]}
             onPress={() => handleSortChange(option.value)}
           >
             <Text
@@ -293,7 +290,7 @@ export default function ContinentsScreen() {
             >
               {option.label}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         ))}
       </View>
 
@@ -304,13 +301,13 @@ export default function ContinentsScreen() {
         {continents.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>{t('geo.noContinentsFound')}</Text>
-            <TouchableOpacity
-              style={styles.refreshButton}
+            <Pressable
+              style={({ pressed }) => [styles.refreshButton, { opacity: pressed ? 0.7 : 1 }]}
               onPress={loadContinents}
               accessibilityRole="button"
             >
               <Text style={styles.refreshButtonText}>{t('common.refresh')}</Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
         ) : (
           continents.map(getContinentRow)

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { dbOperations } from '@/database/operations';
 import type { SetlistWithDetails, SetWithSongs } from '@/types/database';
@@ -16,15 +16,6 @@ export default function SetlistDetailPane({ concertId }: Props) {
   const [sets, setSets] = useState<SetWithSongs[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!concertId) {
-      setSetlist(null);
-      setSets([]);
-      return;
-    }
-    load(concertId);
-  }, [concertId]);
-
   const load = async (id: string) => {
     setLoading(true);
     try {
@@ -41,9 +32,16 @@ export default function SetlistDetailPane({ concertId }: Props) {
     }
   };
 
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  useEffect(() => {
+    if (!concertId) {
+      setSetlist(null);
+      setSets([]);
+      return;
+    }
+    load(concertId);
+  }, [concertId]);
+
+  const styles = StyleSheet.create({
         container: { flex: 1, backgroundColor: colors.background },
         placeholder: {
           flex: 1,
@@ -51,9 +49,7 @@ export default function SetlistDetailPane({ concertId }: Props) {
           justifyContent: 'center',
         },
         placeholderText: { ...Type.body, color: colors.textMuted },
-      }),
-    [colors],
-  );
+      });
 
   if (!concertId) {
     return (

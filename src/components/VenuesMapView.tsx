@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Alert, ActivityIndicator, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 import MapView, { Marker } from 'react-native-maps';
@@ -69,9 +69,7 @@ ${markers}
 export default function VenuesMapView() {
   const { t } = useTranslation();
   const colors = useColors();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: { flex: 1, backgroundColor: colors.background },
         loadingContainer: {
           flex: 1,
@@ -124,17 +122,11 @@ export default function VenuesMapView() {
         legendItem: { flexDirection: 'row', alignItems: 'center' },
         legendDot: { width: 12, height: 12, borderRadius: 6, marginRight: 5 },
         legendText: { fontSize: 12, color: colors.textSecondary },
-      }),
-    [colors],
-  );
+      });
 
   const [venues, setVenues] = useState<VenueWithCoords[]>([]);
   const [loading, setLoading] = useState(true);
   const [center, setCenter] = useState({ lat: 51.0, lng: 10.0 });
-
-  useEffect(() => {
-    loadVenuesWithCoordinates();
-  }, []);
 
   const loadVenuesWithCoordinates = async () => {
     try {
@@ -156,6 +148,10 @@ export default function VenuesMapView() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadVenuesWithCoordinates();
+  }, []);
 
   if (loading) {
     return (

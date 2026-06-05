@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import {} from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
@@ -14,9 +14,7 @@ interface Props {
 export default function InsightCards({ stats }: Props) {
   const colors = useChronicleColors();
 
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         section: {
           marginTop: 24,
           marginHorizontal: 20,
@@ -64,9 +62,7 @@ export default function InsightCards({ stats }: Props) {
           marginTop: 3,
           lineHeight: 18,
         },
-      }),
-    [colors],
-  );
+      });
 
   const { weekdayDistribution, busiest7Days } = stats;
   const topWeekday = [...weekdayDistribution].sort((a, b) => b.concertDays - a.concertDays)[0];

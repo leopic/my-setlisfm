@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import React, {} from 'react';
+import { View, Text, StyleSheet, Pressable, TextInput } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { SortOption } from '@/utils/sort';
 import { useColors } from '@/utils/colors';
@@ -27,9 +27,7 @@ export default function SortAndSearch({
 }: SortAndSearchProps) {
   const { t } = useTranslation();
   const colors = useColors();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         sortContainer: {
           flexDirection: 'column',
           marginTop: 20,
@@ -82,17 +80,15 @@ export default function SortAndSearch({
           borderColor: colors.border,
           marginTop: 15,
         },
-      }),
-    [colors],
-  );
+      });
 
   return (
     <View style={styles.sortContainer}>
       <View style={styles.sortRow}>
         <Text style={styles.sortLabel}>{t('sort.sortBy')}</Text>
         <View style={styles.sortButtons}>
-          <TouchableOpacity
-            style={[styles.sortButton, sortOption === 'recent' && styles.sortButtonActive]}
+          <Pressable
+            style={({ pressed }) => [styles.sortButton, sortOption === 'recent' && styles.sortButtonActive, { opacity: pressed ? 0.7 : 1 }]}
             onPress={() => onSortChange('recent')}
             accessibilityRole="button"
             accessibilityState={{ selected: sortOption === 'recent' }}
@@ -106,9 +102,9 @@ export default function SortAndSearch({
             >
               {sortOptions?.recent ?? t('sort.mostRecent')}
             </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.sortButton, sortOption === 'top' && styles.sortButtonActive]}
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [styles.sortButton, sortOption === 'top' && styles.sortButtonActive, { opacity: pressed ? 0.7 : 1 }]}
             onPress={() => onSortChange('top')}
             accessibilityRole="button"
             accessibilityState={{ selected: sortOption === 'top' }}
@@ -119,9 +115,9 @@ export default function SortAndSearch({
             >
               {sortOptions?.top ?? t('sort.top')}
             </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive]}
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [styles.sortButton, sortOption === 'alphabetical' && styles.sortButtonActive, { opacity: pressed ? 0.7 : 1 }]}
             onPress={() => onSortChange('alphabetical')}
             accessibilityRole="button"
             accessibilityState={{ selected: sortOption === 'alphabetical' }}
@@ -135,7 +131,7 @@ export default function SortAndSearch({
             >
               {sortOptions?.alphabetical ?? t('sort.byName')}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </View>
 

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 import Svg, { Polyline, Polygon, Circle, Line, Text as SvgText, G } from 'react-native-svg';
 import { useChronicleColors } from '@/utils/colors';
@@ -25,16 +25,16 @@ export default function AreaChart({ data, milestones = [], color, height = 110 }
   const [chartWidth, setChartWidth] = useState(0);
   const totalHeight = height + LABEL_HEIGHT + 4;
 
-  const max = useMemo(() => Math.max(...data, 1), [data]);
+  const max = Math.max(...data, 1);
   const n = data.length;
 
-  const pts = useMemo(() => {
+  const pts = (() => {
     if (chartWidth === 0) return [];
     return data.map((v, i) => ({
       x: n <= 1 ? chartWidth / 2 : (i / (n - 1)) * chartWidth,
       y: height - (v / max) * height,
     }));
-  }, [data, height, max, n, chartWidth]);
+  })();
 
   const linePts = pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
   const fillPts = `0,${height} ${linePts} ${chartWidth},${height}`;

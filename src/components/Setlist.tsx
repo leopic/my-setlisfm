@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, {} from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { TabScrollView, Icon } from '@/components/ui';
 import ArtistImage from '@/components/ArtistImage';
@@ -17,9 +17,7 @@ interface SetlistProps {
 export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   const { t } = useTranslation();
   const colors = useChronicleColors();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         backBar: {
           paddingHorizontal: 16,
           paddingTop: 12,
@@ -139,9 +137,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
           color: colors.textSecondary,
           textAlign: 'center',
         },
-      }),
-    [colors],
-  );
+      });
 
   const getSetTitle = (set: SetWithSongs, index: number): string => {
     if (set.encore) {

@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { dbOperations } from '@/database/operations';
@@ -32,14 +32,6 @@ export default function VenueDetailPane({ venue }: Props) {
   const [concerts, setConcerts] = useState<SetlistWithDetails[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!venue) {
-      setConcerts([]);
-      return;
-    }
-    load(venue.id);
-  }, [venue?.id]);
-
   const load = async (id: string) => {
     setLoading(true);
     try {
@@ -50,7 +42,15 @@ export default function VenueDetailPane({ venue }: Props) {
     }
   };
 
-  const yearGroups = useMemo((): YearGroup[] => {
+  useEffect(() => {
+    if (!venue) {
+      setConcerts([]);
+      return;
+    }
+    load(venue.id);
+  }, [venue?.id]);
+
+  const yearGroups = ((): YearGroup[] => {
     const groups: Record<string, SetlistWithDetails[]> = {};
     concerts.forEach((c) => {
       if (!c.eventDate) return;
@@ -61,11 +61,9 @@ export default function VenueDetailPane({ venue }: Props) {
     return Object.entries(groups)
       .map(([year, cts]) => ({ year, concerts: cts }))
       .sort((a, b) => parseInt(b.year) - parseInt(a.year));
-  }, [concerts]);
+  })();
 
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: { flex: 1, backgroundColor: colors.background },
         placeholder: {
           flex: 1,
@@ -130,9 +128,7 @@ export default function VenueDetailPane({ venue }: Props) {
         entryTour: { ...Type.body, color: colors.accent, marginTop: 2 },
         entryChevron: { ...Type.body, color: colors.textDisabled, alignSelf: 'center' },
         bottomPad: { height: 48 },
-      }),
-    [colors],
-  );
+      });
 
   if (!venue) {
     return (
@@ -178,9 +174,9 @@ export default function VenueDetailPane({ venue }: Props) {
                   .filter(Boolean)
                   .join(', ');
                 return (
-                  <TouchableOpacity
+                  <Pressable
                     key={concert.id}
-                    style={styles.riverEntry}
+                    style={({ pressed }) => [styles.riverEntry, { opacity: pressed ? 0.7 : 1 }]}
                     onPress={() =>
                       router.push({ pathname: '/(venues)/[id]', params: { id: concert.id } })
                     }
@@ -200,7 +196,7 @@ export default function VenueDetailPane({ venue }: Props) {
                       </View>
                       <Text style={styles.entryChevron}>›</Text>
                     </View>
-                  </TouchableOpacity>
+                  </Pressable>
                 );
               })}
             </View>

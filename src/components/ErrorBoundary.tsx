@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/utils/colors';
 
@@ -36,9 +36,9 @@ export class ErrorBoundary extends React.Component<Props, State> {
         <SafeAreaView style={styles.container}>
           <Text style={styles.title}>Something went wrong</Text>
           <Text style={styles.message}>{this.state.error?.message}</Text>
-          <TouchableOpacity style={styles.button} onPress={this.handleRetry}>
+          <Pressable style={({ pressed }) => [styles.button, { opacity: pressed ? 0.7 : 1 }]} onPress={this.handleRetry}>
             <Text style={styles.buttonText}>Try Again</Text>
-          </TouchableOpacity>
+          </Pressable>
         </SafeAreaView>
       );
     }

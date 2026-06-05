@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, {} from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useColors } from '@/utils/colors';
 
@@ -9,9 +9,7 @@ interface StatBoxProps {
 
 export default function StatBox({ value, label }: StatBoxProps) {
   const colors = useColors();
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
+  const styles = StyleSheet.create({
         container: {
           flex: 1,
           backgroundColor: colors.backgroundCard,
@@ -32,9 +30,7 @@ export default function StatBox({ value, label }: StatBoxProps) {
           textTransform: 'uppercase',
           letterSpacing: 0.5,
         },
-      }),
-    [colors],
-  );
+      });
 
   return (
     <View style={styles.container}>
