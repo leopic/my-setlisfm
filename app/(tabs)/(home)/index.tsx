@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -536,7 +536,7 @@ export default function DashboardScreen() {
   const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [username, setUsername] = useState('');
+  const usernameRef = useRef('');
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
 
   const loadDashboard = async () => {
@@ -569,7 +569,7 @@ export default function DashboardScreen() {
   useEffect(() => {
     const init = async () => {
       const stored = await getStoredUsername();
-      if (stored) setUsername(stored);
+      if (stored) usernameRef.current = stored;
       await loadDashboard();
     };
     init();
@@ -588,7 +588,7 @@ export default function DashboardScreen() {
 
 
   const handleSync = async () => {
-    const trimmed = username.trim();
+    const trimmed = usernameRef.current.trim();
     if (!trimmed) {
       Alert.alert(t('dashboard.usernameRequired'), t('dashboard.usernameRequiredMessage'));
       return;
