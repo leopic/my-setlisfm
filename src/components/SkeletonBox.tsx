@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Animated, type ViewStyle } from 'react-native';
 import { useColors } from '@/utils/colors';
 
@@ -11,7 +11,7 @@ interface Props {
 
 export default function SkeletonBox({ width, height, borderRadius = 4, style }: Props) {
   const colors = useColors();
-  const opacity = useRef(new Animated.Value(0.3)).current;
+  const [opacity] = useState(() => new Animated.Value(0.3));
 
   useEffect(() => {
     const animation = Animated.loop(

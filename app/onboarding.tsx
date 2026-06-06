@@ -38,7 +38,7 @@ export default function OnboardingScreen() {
   const [errorMessage, setErrorMessage] = useState('');
 
   // Pulsing glow for whichever dot is currently active
-  const glowAnim = useRef(new Animated.Value(0.35)).current;
+  const [glowAnim] = useState(() => new Animated.Value(0.35));
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([
@@ -53,13 +53,13 @@ export default function OnboardingScreen() {
   // Per-step crossfade — Animated.Values and display states.
   // The useEffects that drive these are placed after step status derivations
   // (they reference step1Status/step2Status which are declared later).
-  const step1Fade = useRef(new Animated.Value(1)).current;
-  const step2Fade = useRef(new Animated.Value(1)).current;
+  const [step1Fade] = useState(() => new Animated.Value(1));
+  const [step2Fade] = useState(() => new Animated.Value(1));
   const [step1Display, setStep1Display] = useState<StepStatus>('waiting');
   const [step2Display, setStep2Display] = useState<StepStatus>('waiting');
 
   // Quip fade animation — same as before
-  const quipOpacity = useRef(new Animated.Value(0)).current;
+  const [quipOpacity] = useState(() => new Animated.Value(0));
   const [displayedQuip, setDisplayedQuip] = useState<string | undefined>(undefined);
   const latestQuipRef = useRef<string | undefined>(undefined);
   useEffect(() => {
@@ -263,7 +263,7 @@ export default function OnboardingScreen() {
       setStep1Display(step1Status);
       Animated.timing(step1Fade, { toValue: 1, duration: 260, useNativeDriver: true }).start();
     });
-  }, [step1Status]); // intentionally omits step1Display/step1Fade — they're stable refs/state setters
+  }, [step1Status, step1Display, step1Fade]);
 
   useEffect(() => {
     if (step2Status === step2Display) return;
@@ -274,7 +274,7 @@ export default function OnboardingScreen() {
       });
     }, 320);
     return () => clearTimeout(timer);
-  }, [step2Status]); // intentionally omits step2Display/step2Fade — they're stable refs/state setters
+  }, [step2Status, step2Display, step2Fade]);
 
   // Content derived from DISPLAY states so the crossfade carries the right text.
   // Live progress values (page numbers, counts) still read from `progress` directly
