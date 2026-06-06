@@ -33,7 +33,7 @@ export function formatIsoDate(isoDate: string, format: DateFormat = 'short'): st
   }
 }
 
-export function isoYear(isoDate: string): string {
+function isoYear(isoDate: string): string {
   return isoDate.split('-')[0] ?? isoDate;
 }
 
@@ -51,7 +51,7 @@ export function isoYear(isoDate: string): string {
  *   400 → "1 year, 1 month"
  *   880 → "2 years, 5 months"
  */
-export function formatDaySpan(days: number): string {
+function formatDaySpan(days: number): string {
   if (days <= 0) return 'same day';
   if (days === 1) return '1 day';
   if (days < 30) return `${days} days`;

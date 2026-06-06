@@ -1,6 +1,6 @@
 import type { TextStyle } from 'react-native';
 
-export const FontFamily = {
+const FontFamily = {
   light: 'SpaceGrotesk_300Light',
   regular: 'SpaceGrotesk_400Regular',
   medium: 'SpaceGrotesk_500Medium',
