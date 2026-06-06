@@ -25,6 +25,127 @@ type StepStatus = 'waiting' | 'active' | 'done' | 'error';
 const SPINE_MARGIN_LEFT = 24;
 const SPINE_PADDING_LEFT = 28;
 
+interface StepRowProps {
+  status: StepStatus;
+  title: string;
+  detail?: string;
+  progressPct?: number;
+  isLast: boolean;
+  fadeAnim: Animated.Value;
+  glowAnim: Animated.Value;
+  quipOpacity: Animated.Value;
+  displayedQuip?: string;
+}
+
+function StepRow({
+  status,
+  title,
+  detail,
+  progressPct,
+  isLast,
+  fadeAnim,
+  glowAnim,
+  quipOpacity,
+  displayedQuip,
+}: StepRowProps) {
+  const colors = useChronicleColors();
+  const styles = StyleSheet.create({
+    stepEntry: { paddingTop: 2, paddingBottom: 40, position: 'relative' },
+    stepEntryLast: { paddingBottom: 8 },
+    dotBase: { position: 'absolute', top: 6 },
+    glowHalo: { position: 'absolute', borderRadius: 25, backgroundColor: colors.accent },
+    stepTitle: { ...Type.title, color: colors.textPrimary, marginBottom: 3 },
+    stepTitleWaiting: { color: colors.textDisabled, fontWeight: '400' as const },
+    stepTitleDone: { color: colors.textMuted },
+    stepTitleError: { color: colors.danger },
+    stepDetail: { ...Type.body, color: colors.textSecondary, marginTop: 1 },
+    stepDetailWaiting: { color: colors.textDisabled },
+    progressBar: {
+      width: '100%',
+      height: 2,
+      backgroundColor: colors.border,
+      borderRadius: 1,
+      overflow: 'hidden',
+      marginTop: 10,
+    },
+    progressFill: { height: '100%', backgroundColor: colors.accent, borderRadius: 1 },
+    quipContainer: {
+      marginTop: 12,
+      height: 44,
+      overflow: 'hidden',
+      justifyContent: 'flex-start',
+    },
+    quipText: { ...Type.body, color: colors.textMuted, fontStyle: 'italic', lineHeight: 20 },
+  });
+
+  const isActive = status === 'active';
+  const isDone = status === 'done';
+  const isWaiting = status === 'waiting';
+  const isError = status === 'error';
+
+  const dotSize = isActive ? 22 : 13;
+  const dotLeft = -(SPINE_PADDING_LEFT + dotSize / 2 + 1);
+  const haloSize = 52;
+  const haloLeft = dotLeft - (haloSize - dotSize) / 2;
+  const haloTop = 6 - (haloSize - dotSize) / 2;
+  const dotBg = isError ? colors.danger : isActive || isDone ? colors.dotActive : 'transparent';
+
+  return (
+    <Animated.View
+      style={[styles.stepEntry, isLast && styles.stepEntryLast, { opacity: fadeAnim }]}
+    >
+      {isActive && (
+        <Animated.View
+          style={[
+            styles.glowHalo,
+            { width: haloSize, height: haloSize, left: haloLeft, top: haloTop, opacity: glowAnim },
+          ]}
+        />
+      )}
+      <View
+        style={[
+          styles.dotBase,
+          {
+            width: dotSize,
+            height: dotSize,
+            borderRadius: dotSize / 2,
+            left: dotLeft,
+            backgroundColor: dotBg,
+            borderWidth: isWaiting ? 1.5 : 0,
+            borderColor: colors.dotInactive,
+            opacity: isDone ? 0.55 : 1,
+          },
+        ]}
+      />
+      <Text
+        style={[
+          styles.stepTitle,
+          isWaiting && styles.stepTitleWaiting,
+          isDone && styles.stepTitleDone,
+          isError && styles.stepTitleError,
+        ]}
+      >
+        {title}
+      </Text>
+      {detail ? (
+        <Text numberOfLines={1} style={[styles.stepDetail, isWaiting && styles.stepDetailWaiting]}>
+          {detail}
+        </Text>
+      ) : null}
+      <View style={[styles.progressBar, { opacity: progressPct !== undefined ? 1 : 0 }]}>
+        <View style={[styles.progressFill, { width: `${progressPct ?? 0}%` }]} />
+      </View>
+      <View style={styles.quipContainer}>
+        {isActive && displayedQuip ? (
+          <Animated.Text style={[styles.quipText, { opacity: quipOpacity }]}>
+            {displayedQuip}
+          </Animated.Text>
+        ) : null}
+      </View>
+    </Animated.View>
+  );
+}
+
 export default function OnboardingScreen() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -361,112 +482,6 @@ export default function OnboardingScreen() {
     setDisplayedQuip(undefined);
   };
 
-  // ── Spine step renderer ───────────────────────────────────────────────────
-  const renderStep = (
-    status: StepStatus,
-    title: string,
-    detail: string | undefined,
-    progressPct: number | undefined,
-    showQuip: boolean,
-    isLast: boolean,
-    fadeAnim: Animated.Value,
-  ) => {
-    const isActive = status === 'active';
-    const isDone = status === 'done';
-    const isWaiting = status === 'waiting';
-    const isError = status === 'error';
-
-    // Dot geometry — active dot is bigger to anchor the glow
-    const dotSize = isActive ? 22 : 13;
-    const dotLeft = -(SPINE_PADDING_LEFT + dotSize / 2 + 1);
-
-    // Glow halo geometry — centred on the dot
-    const haloSize = 52;
-    const haloLeft = dotLeft - (haloSize - dotSize) / 2;
-    const haloTop = 6 - (haloSize - dotSize) / 2;
-
-    const dotBg = isError
-      ? colors.danger
-      : isActive
-        ? colors.dotActive
-        : isDone
-          ? colors.dotActive
-          : 'transparent';
-
-    return (
-      <Animated.View
-        style={[styles.stepEntry, isLast && styles.stepEntryLast, { opacity: fadeAnim }]}
-      >
-        {/* Glow halo (active only) */}
-        {isActive && (
-          <Animated.View
-            style={[
-              styles.glowHalo,
-              {
-                width: haloSize,
-                height: haloSize,
-                left: haloLeft,
-                top: haloTop,
-                opacity: glowAnim,
-              },
-            ]}
-          />
-        )}
-
-        {/* Dot */}
-        <View
-          style={[
-            styles.dotBase,
-            {
-              width: dotSize,
-              height: dotSize,
-              borderRadius: dotSize / 2,
-              left: dotLeft,
-              backgroundColor: dotBg,
-              borderWidth: isWaiting ? 1.5 : 0,
-              borderColor: colors.dotInactive,
-              opacity: isDone ? 0.55 : 1,
-            },
-          ]}
-        />
-
-        {/* Text content */}
-        <Text
-          style={[
-            styles.stepTitle,
-            isWaiting && styles.stepTitleWaiting,
-            isDone && styles.stepTitleDone,
-            isError && styles.stepTitleError,
-          ]}
-        >
-          {title}
-        </Text>
-
-        {detail ? (
-          <Text
-            numberOfLines={1}
-            style={[styles.stepDetail, isWaiting && styles.stepDetailWaiting]}
-          >
-            {detail}
-          </Text>
-        ) : null}
-
-        {/* Progress bar — always rendered so height never shifts */}
-        <View style={[styles.progressBar, { opacity: progressPct !== undefined ? 1 : 0 }]}>
-          <View style={[styles.progressFill, { width: `${progressPct ?? 0}%` }]} />
-        </View>
-
-        {/* Quip container — fixed height to absorb 0 / 1 / 2-line variance */}
-        <View style={styles.quipContainer}>
-          {showQuip && displayedQuip ? (
-            <Animated.Text style={[styles.quipText, { opacity: quipOpacity }]}>
-              {displayedQuip}
-            </Animated.Text>
-          ) : null}
-        </View>
-      </Animated.View>
-    );
-  };
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -479,24 +494,28 @@ export default function OnboardingScreen() {
       {/* Spine */}
       <View style={styles.spineArea}>
         <View style={styles.spineTrack}>
-          {renderStep(
-            step1Display,
-            step1Title,
-            step1Detail,
-            step1Progress,
-            step1Display === 'active',
-            false,
-            step1Fade,
-          )}
-          {renderStep(
-            step2Display,
-            step2Title,
-            step2Detail,
-            step2Progress,
-            step2Display === 'active',
-            true,
-            step2Fade,
-          )}
+          <StepRow
+            status={step1Display}
+            title={step1Title}
+            detail={step1Detail}
+            progressPct={step1Progress}
+            isLast={false}
+            fadeAnim={step1Fade}
+            glowAnim={glowAnim}
+            quipOpacity={quipOpacity}
+            displayedQuip={displayedQuip}
+          />
+          <StepRow
+            status={step2Display}
+            title={step2Title}
+            detail={step2Detail}
+            progressPct={step2Progress}
+            isLast
+            fadeAnim={step2Fade}
+            glowAnim={glowAnim}
+            quipOpacity={quipOpacity}
+            displayedQuip={displayedQuip}
+          />
         </View>
       </View>
 
