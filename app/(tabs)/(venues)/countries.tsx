@@ -84,37 +84,36 @@ export default function CountriesScreen() {
       });
 
   const router = useRouter();
-  const [countries, setCountries] = useState<CountryWithStats[]>([]);
+  const [rawCountries, setRawCountries] = useState<CountryWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<SortOption>('alphabetical');
 
-  const loadCountries = async () => {
-    try {
-      setLoading(true);
-      const countriesWithStats = await dbOperations.getCountriesWithStats();
-      const sortedCountries = sortByOption(
-        countriesWithStats,
-        sortOption,
-        undefined,
-        (c) => c.venueCount,
-      );
-      setCountries(sortedCountries);
-    } catch (error) {
-      console.error('Failed to load countries:', error);
-      Alert.alert(t('common.error'), t('geo.failedToLoadCountries'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const countries = sortByOption(rawCountries, sortOption, undefined, (c) => c.venueCount);
 
   useEffect(() => {
-    loadCountries();
-  }, []);
+    let cancelled = false;
+    (async () => {
+      try {
+        const countriesWithStats = await dbOperations.getCountriesWithStats();
+        if (!cancelled) {
+          setRawCountries(countriesWithStats);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to load countries:', error);
+        if (!cancelled) {
+          Alert.alert(t('common.error'), t('geo.failedToLoadCountries'));
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [t]);
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    const sortedCountries = sortByOption(countries, newSortOption, undefined, (c) => c.venueCount);
-    setCountries(sortedCountries);
   };
 
   const sortOptions: { value: SortOption; label: string }[] = [
@@ -123,7 +122,7 @@ export default function CountriesScreen() {
   ];
 
   if (loading) {
-    return <ListSkeleton showSortBar />;
+    return <ListSkeleton variant="sort" />;
   }
 
   return (

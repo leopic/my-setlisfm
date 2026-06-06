@@ -7,24 +7,14 @@ import { useTabletLayout } from '@/utils/tablet';
 
 interface Props {
   cardCount?: number;
-  showHeader?: boolean;
-  showSortBar?: boolean;
-  /** Show 2+1 insight-card placeholders above the list rows */
-  showInsightCards?: boolean;
-  /** Show the geo-navigation strip (venues tab) */
-  showGeoStrip?: boolean;
-  /** Show a circular avatar on each row (artists tab) */
-  showAvatars?: boolean;
+  /** 'sort' = sort bar only · 'artists' = sort bar + avatar rows · 'venues' = sort bar + geo strip */
+  variant?: 'sort' | 'artists' | 'venues';
 }
 
-export default function ListSkeleton({
-  cardCount = 5,
-  showHeader = true,
-  showSortBar = false,
-  showInsightCards = false,
-  showGeoStrip = false,
-  showAvatars = false,
-}: Props) {
+export default function ListSkeleton({ cardCount = 5, variant }: Props) {
+  const showSortBar = !!variant;
+  const showGeoStrip = variant === 'venues';
+  const showAvatars = variant === 'artists';
   const colors = useChronicleColors();
   const { isTablet, sidebarWidth } = useTabletLayout();
   const styles = StyleSheet.create({
@@ -124,12 +114,10 @@ export default function ListSkeleton({
   const sidebarContent = (
     <>
       {/* Header */}
-      {showHeader && (
-        <View style={styles.header}>
-          <SkeletonBox width={120} height={22} borderRadius={4} />
-          <SkeletonBox width={160} height={14} borderRadius={4} style={styles.headerSubtitle} />
-        </View>
-      )}
+      <View style={styles.header}>
+        <SkeletonBox width={120} height={22} borderRadius={4} />
+        <SkeletonBox width={160} height={14} borderRadius={4} style={styles.headerSubtitle} />
+      </View>
 
       {/* Geo strip (venues) */}
       {showGeoStrip && (
@@ -153,16 +141,6 @@ export default function ListSkeleton({
         )}
       </View>
 
-      {/* Insight card placeholders (match the 2-card row + 1 full-width card layout) */}
-      {showInsightCards && (
-        <View style={styles.insightCards}>
-          <View style={styles.insightRow}>
-            <SkeletonBox width="100%" height={90} borderRadius={12} style={styles.insightHalf} />
-            <SkeletonBox width="100%" height={90} borderRadius={12} style={styles.insightHalf} />
-          </View>
-          <SkeletonBox width="100%" height={90} borderRadius={12} />
-        </View>
-      )}
 
       {/* List rows */}
       {Array.from({ length: cardCount }).map((_, i) => (

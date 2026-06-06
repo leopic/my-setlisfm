@@ -148,43 +148,37 @@ export default function ContinentsScreen() {
       });
 
   const router = useRouter();
-  const [continents, setContinents] = useState<ContinentWithStats[]>([]);
+  const [rawContinents, setRawContinents] = useState<ContinentWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [refreshing, setRefreshing] = useState(false);
 
-  const loadContinents = async () => {
-    try {
-      setLoading(true);
-      const continentsWithStats = await dbOperations.getContinentsWithStats();
-      const sortedContinents = sortByOption(
-        continentsWithStats,
-        sortOption,
-        undefined,
-        (c) => c.venueCount,
-      );
-      setContinents(sortedContinents);
-    } catch (error) {
-      console.error('Failed to load continents:', error);
-      Alert.alert(t('common.error'), t('geo.failedToLoadContinents'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const continents = sortByOption(rawContinents, sortOption, undefined, (c) => c.venueCount);
 
   useEffect(() => {
-    loadContinents();
-  }, []);
+    let cancelled = false;
+    (async () => {
+      try {
+        const continentsWithStats = await dbOperations.getContinentsWithStats();
+        if (!cancelled) {
+          setRawContinents(continentsWithStats);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to load continents:', error);
+        if (!cancelled) {
+          Alert.alert(t('common.error'), t('geo.failedToLoadContinents'));
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [t]);
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    const sortedContinents = sortByOption(
-      continents,
-      newSortOption,
-      undefined,
-      (c) => c.venueCount,
-    );
-    setContinents(sortedContinents);
   };
 
   const handleContinentPress = (continent: ContinentWithStats) => {
@@ -198,7 +192,13 @@ export default function ContinentsScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadContinents();
+    try {
+      const continentsWithStats = await dbOperations.getContinentsWithStats();
+      setRawContinents(continentsWithStats);
+    } catch (error) {
+      console.error('Failed to load continents:', error);
+      Alert.alert(t('common.error'), t('geo.failedToLoadContinents'));
+    }
     setRefreshing(false);
   };
 
@@ -244,7 +244,7 @@ export default function ContinentsScreen() {
   );
 
   if (loading) {
-    return <ListSkeleton showSortBar />;
+    return <ListSkeleton variant="sort" />;
   }
 
   return (
@@ -303,7 +303,7 @@ export default function ContinentsScreen() {
             <Text style={styles.emptyStateText}>{t('geo.noContinentsFound')}</Text>
             <Pressable
               style={({ pressed }) => [styles.refreshButton, { opacity: pressed ? 0.7 : 1 }]}
-              onPress={loadContinents}
+              onPress={onRefresh}
               accessibilityRole="button"
             >
               <Text style={styles.refreshButtonText}>{t('common.refresh')}</Text>

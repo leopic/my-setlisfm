@@ -46,6 +46,120 @@ type ConcertListItem =
 
 const CONTENT_PADDING_BOTTOM = 100;
 
+interface YearFilterListProps {
+  years: string[];
+  selected: string | null;
+  allLabel: string;
+  onSelect: (year: string | null) => void;
+}
+
+function YearFilterItem({
+  year,
+  isLast,
+  isActive,
+  label,
+  onSelect,
+}: {
+  year: string | null;
+  isLast: boolean;
+  isActive: boolean;
+  label: string;
+  onSelect: (year: string | null) => void;
+}) {
+  const colors = useChronicleColors();
+  const styles = StyleSheet.create({
+    item: {
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderBottomWidth: isLast ? 0 : StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+    },
+    text: { ...Type.body, color: colors.textPrimary },
+    textActive: { color: colors.accent, fontWeight: '600' as const },
+  });
+  return (
+    <Pressable
+      style={({ pressed }) => [styles.item, { opacity: pressed ? 0.7 : 1 }]}
+      onPress={() => onSelect(year)}
+      accessibilityRole="button"
+      accessibilityState={{ selected: isActive }}
+    >
+      <Text style={[styles.text, isActive && styles.textActive]}>{label}</Text>
+    </Pressable>
+  );
+}
+
+function yearFilterKeyExtractor(item: string | null) {
+  return item ?? 'all';
+}
+
+function YearFilterList({ years, selected, allLabel, onSelect }: YearFilterListProps) {
+  const data: (string | null)[] = [null, ...years];
+  const renderItem = ({ item: year, index }: { item: string | null; index: number }) => (
+    <YearFilterItem
+      year={year}
+      isLast={index === data.length - 1}
+      isActive={selected === year}
+      label={year ?? allLabel}
+      onSelect={onSelect}
+    />
+  );
+  return (
+    <FlatList
+      data={data}
+      keyExtractor={yearFilterKeyExtractor}
+      keyboardShouldPersistTaps="handled"
+      renderItem={renderItem}
+    />
+  );
+}
+
+function groupConcertsByYear(concertsToGroup: ConcertWithDetails[]): YearGroup[] {
+  const groups: { [year: string]: ConcertWithDetails[] } = {};
+  concertsToGroup.forEach((concert) => {
+    if (!concert.eventDate) return;
+    const year = parseSetlistDate(concert.eventDate).getFullYear().toString();
+    if (!groups[year]) groups[year] = [];
+    groups[year].push(concert);
+  });
+  return Object.entries(groups)
+    .map(([year, cts]) => {
+      const sortedConcerts = cts.sort((a, b) => {
+        if (!a.eventDate || !b.eventDate) return 0;
+        return parseSetlistDate(b.eventDate).getTime() - parseSetlistDate(a.eventDate).getTime();
+      });
+      const monthStats: { [month: string]: number } = {};
+      sortedConcerts.forEach((concert) => {
+        if (concert.eventDate) {
+          const month = parseSetlistDate(concert.eventDate).toLocaleDateString('en-US', {
+            month: 'long',
+          });
+          monthStats[month] = (monthStats[month] || 0) + 1;
+        }
+      });
+      return { year, concerts: sortedConcerts, monthStats, totalConcerts: cts.length };
+    })
+    .sort((a, b) => parseInt(b.year) - parseInt(a.year));
+}
+
+function keyExtractor(item: ConcertListItem) {
+  if (item.type === 'year') return `year-${item.yearGroup.year}`;
+  return `concert-${item.concert.id}`;
+}
+
+function sortConcerts(
+  concertsToSort: ConcertWithDetails[],
+  sortBy: SortOption,
+): ConcertWithDetails[] {
+  if (sortBy === 'alphabetical') {
+    return [...concertsToSort].sort((a, b) => a.artistName.localeCompare(b.artistName));
+  }
+  return [...concertsToSort].sort((a, b) => {
+    if (!a.eventDate || !b.eventDate) return 0;
+    return parseSetlistDate(b.eventDate).getTime() - parseSetlistDate(a.eventDate).getTime();
+  });
+}
+
 export default function ConcertsScreen() {
   const { t } = useTranslation();
   const colors = useChronicleColors();
@@ -290,8 +404,7 @@ export default function ConcertsScreen() {
 
   const { lastSyncTimestamp } = useSyncContext();
   const router = useRouter();
-  const [concerts, setConcerts] = useState<ConcertWithDetails[]>([]);
-  const [yearGroups, setYearGroups] = useState<YearGroup[]>([]);
+  const [rawConcerts, setRawConcerts] = useState<ConcertWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [searchQuery, setSearchQuery] = useState('');
@@ -300,57 +413,48 @@ export default function ConcertsScreen() {
   const [yearFilter, setYearFilter] = useState<string | null>(null);
   const [yearDropdownOpen, setYearDropdownOpen] = useState(false);
 
-  const groupConcertsByYear = (concertsToGroup: ConcertWithDetails[]): YearGroup[] => {
-    const groups: { [year: string]: ConcertWithDetails[] } = {};
+  const concerts = sortConcerts(rawConcerts, sortOption);
+  const yearGroups = groupConcertsByYear(concerts);
 
-    concertsToGroup.forEach((concert) => {
-      if (!concert.eventDate) return;
-      const year = parseSetlistDate(concert.eventDate).getFullYear().toString();
-      if (!groups[year]) groups[year] = [];
-      groups[year].push(concert);
-    });
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const fetched = await dbOperations.getAllSetlists();
+        const concertsWithDetails: ConcertWithDetails[] = fetched.map((concert) => ({
+          ...concert,
+          artistName: concert.artist?.name || 'Unknown Artist',
+          venueName: concert.venue?.name || 'Unknown Venue',
+          cityName: concert.city?.name,
+          stateName: concert.city?.state,
+          countryName: concert.country?.name,
+        }));
+        if (!cancelled) {
+          setRawConcerts(concertsWithDetails);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to load concerts:', error);
+        if (!cancelled) {
+          Alert.alert(t('common.error'), t('concerts.failedToLoad'));
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [lastSyncTimestamp, t]);
 
-    return Object.entries(groups)
-      .map(([year, cts]) => {
-        const sortedConcerts = cts.sort((a, b) => {
-          if (!a.eventDate || !b.eventDate) return 0;
-          return parseSetlistDate(b.eventDate).getTime() - parseSetlistDate(a.eventDate).getTime();
-        });
-
-        const monthStats: { [month: string]: number } = {};
-        sortedConcerts.forEach((concert) => {
-          if (concert.eventDate) {
-            const month = parseSetlistDate(concert.eventDate).toLocaleDateString('en-US', {
-              month: 'long',
-            });
-            monthStats[month] = (monthStats[month] || 0) + 1;
-          }
-        });
-
-        return { year, concerts: sortedConcerts, monthStats, totalConcerts: cts.length };
-      })
-      .sort((a, b) => parseInt(b.year) - parseInt(a.year));
+  const handleSortChange = (newSortOption: SortOption) => {
+    setSortOption(newSortOption);
   };
 
-  const sortConcerts = (
-    concertsToSort: ConcertWithDetails[],
-    sortBy: SortOption,
-  ): ConcertWithDetails[] => {
-    if (sortBy === 'alphabetical') {
-      return [...concertsToSort].sort((a, b) => a.artistName.localeCompare(b.artistName));
-    }
-    return [...concertsToSort].sort((a, b) => {
-      if (!a.eventDate || !b.eventDate) return 0;
-      return parseSetlistDate(b.eventDate).getTime() - parseSetlistDate(a.eventDate).getTime();
-    });
-  };
-
-  const loadConcerts = async () => {
+  const onRefresh = async () => {
+    setRefreshing(true);
     try {
-      setLoading(true);
-      const rawConcerts = await dbOperations.getAllSetlists();
-
-      const concertsWithDetails: ConcertWithDetails[] = rawConcerts.map((concert) => ({
+      const fetched = await dbOperations.getAllSetlists();
+      const concertsWithDetails: ConcertWithDetails[] = fetched.map((concert) => ({
         ...concert,
         artistName: concert.artist?.name || 'Unknown Artist',
         venueName: concert.venue?.name || 'Unknown Venue',
@@ -358,32 +462,11 @@ export default function ConcertsScreen() {
         stateName: concert.city?.state,
         countryName: concert.country?.name,
       }));
-
-      const sortedConcerts = sortConcerts(concertsWithDetails, sortOption);
-      setConcerts(sortedConcerts);
-      setYearGroups(groupConcertsByYear(sortedConcerts));
+      setRawConcerts(concertsWithDetails);
     } catch (error) {
       console.error('Failed to load concerts:', error);
       Alert.alert(t('common.error'), t('concerts.failedToLoad'));
-    } finally {
-      setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    loadConcerts();
-  }, [lastSyncTimestamp]);
-
-  const handleSortChange = (newSortOption: SortOption) => {
-    setSortOption(newSortOption);
-    const sortedConcerts = sortConcerts(concerts, newSortOption);
-    setConcerts(sortedConcerts);
-    setYearGroups(groupConcertsByYear(sortedConcerts));
-  };
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await loadConcerts();
     setRefreshing(false);
   };
 
@@ -391,18 +474,16 @@ export default function ConcertsScreen() {
     const groups = yearFilter ? yearGroups.filter((g) => g.year === yearFilter) : yearGroups;
     if (!searchQuery.trim()) return groups;
     const q = searchQuery.toLowerCase();
-    return groups
-      .map((group) => ({
-        ...group,
-        concerts: group.concerts.filter(
-          (c) =>
-            c.artistName.toLowerCase().includes(q) ||
-            c.venueName.toLowerCase().includes(q) ||
-            (c.cityName && c.cityName.toLowerCase().includes(q)) ||
-            (c.countryName && c.countryName.toLowerCase().includes(q)),
-        ),
-      }))
-      .filter((group) => group.concerts.length > 0);
+    return groups.flatMap((group) => {
+      const concerts = group.concerts.filter(
+        (c) =>
+          c.artistName.toLowerCase().includes(q) ||
+          c.venueName.toLowerCase().includes(q) ||
+          (c.cityName && c.cityName.toLowerCase().includes(q)) ||
+          (c.countryName && c.countryName.toLowerCase().includes(q)),
+      );
+      return concerts.length > 0 ? [{ ...group, concerts }] : [];
+    });
   })();
 
   const listData = ((): ConcertListItem[] => {
@@ -501,13 +582,9 @@ export default function ConcertsScreen() {
     return renderFlatConcert(item.concert);
   };
 
-  const keyExtractor = (item: ConcertListItem) => {
-    if (item.type === 'year') return `year-${item.yearGroup.year}`;
-    return `concert-${item.concert.id}`;
-  };
 
   if (loading) {
-    return <ListSkeleton showSortBar />;
+    return <ListSkeleton variant="sort" />;
   }
 
   // No concerts at all — hide controls, show full-page empty state
@@ -561,32 +638,11 @@ export default function ConcertsScreen() {
         >
           <Pressable style={styles.modalOverlay} onPress={() => setYearDropdownOpen(false)}>
             <View style={styles.dropdownSheet}>
-              <FlatList
-                data={[null, ...yearGroups.map((g) => g.year)]}
-                keyExtractor={(item) => item ?? 'all'}
-                keyboardShouldPersistTaps="handled"
-                renderItem={({ item: year, index, separators: _ }) => {
-                  const isActive = yearFilter === year;
-                  const label = year ?? t('common.all');
-                  const isLast = index === yearGroups.length;
-                  return (
-                    <Pressable
-                      style={({ pressed }) => [styles.dropdownItem, isLast && styles.dropdownItemLast, { opacity: pressed ? 0.7 : 1 }]}
-                      onPress={() => {
-                        setYearFilter(year);
-                        setYearDropdownOpen(false);
-                      }}
-                      accessibilityRole="button"
-                      accessibilityState={{ selected: isActive }}
-                    >
-                      <Text
-                        style={[styles.dropdownItemText, isActive && styles.dropdownItemTextActive]}
-                      >
-                        {label}
-                      </Text>
-                    </Pressable>
-                  );
-                }}
+              <YearFilterList
+                years={yearGroups.map((g) => g.year)}
+                selected={yearFilter}
+                onSelect={(year) => { setYearFilter(year); setYearDropdownOpen(false); }}
+                allLabel={t('common.all')}
               />
             </View>
           </Pressable>

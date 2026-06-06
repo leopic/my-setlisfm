@@ -54,28 +54,29 @@ export default function CountryDetailScreen() {
   const [cities, setCities] = useState<CityWithStats[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadCitiesForCountry = async (countryName: string) => {
-    try {
-      setLoading(true);
-      const allCities = await dbOperations.getCitiesWithStats();
-
-      // Filter cities that belong to this country
-      const countryCities = allCities.filter((city) => city.countryName === countryName);
-
-      setCities(countryCities);
-    } catch (error) {
-      console.error('Failed to load cities for country:', error);
-      Alert.alert(t('common.error'), t('geo.failedToLoadCities'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    if (country) {
-      loadCitiesForCountry(country as string);
-    }
-  }, [country]);
+    if (!country) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const allCities = await dbOperations.getCitiesWithStats();
+        const countryCities = allCities.filter((city) => city.countryName === country);
+        if (!cancelled) {
+          setCities(countryCities);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to load cities for country:', error);
+        if (!cancelled) {
+          Alert.alert(t('common.error'), t('geo.failedToLoadCities'));
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [country, t]);
 
   const handleCityPress = (city: CityWithStats) => {
     router.push({

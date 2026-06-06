@@ -25,6 +25,17 @@ interface YearGroup {
   concerts: ConcertWithDetails[];
 }
 
+function transformConcerts(rawConcerts: SetlistWithDetails[]): ConcertWithDetails[] {
+  return rawConcerts.map((concert) => ({
+    ...concert,
+    artistName: concert.artist?.name || 'Unknown Artist',
+    venueName: concert.venue?.name || 'Unknown Venue',
+    cityName: concert.city?.name,
+    stateName: concert.city?.state,
+    countryName: concert.country?.name,
+  }));
+}
+
 export default function ArtistConcertsListScreen() {
   const { t } = useTranslation();
   const colors = useChronicleColors();
@@ -179,49 +190,49 @@ export default function ArtistConcertsListScreen() {
   // Get artist parameter from navigation
   const artistMbid = params.artist as string;
 
-  const transformConcerts = (rawConcerts: SetlistWithDetails[]): ConcertWithDetails[] => {
-    return rawConcerts.map((concert) => ({
-      ...concert,
-      artistName: concert.artist?.name || 'Unknown Artist',
-      venueName: concert.venue?.name || 'Unknown Venue',
-      cityName: concert.city?.name,
-      stateName: concert.city?.state,
-      countryName: concert.country?.name,
-    }));
-  };
 
-  const loadArtistConcerts = async (mbid: string) => {
+  useEffect(() => {
+    if (!artistMbid) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const artistData = await dbOperations.getArtistByMbid(artistMbid);
+        if (!cancelled && artistData?.name) {
+          setArtistName(artistData.name);
+          setArtistImageUrl(artistData.imageUrl ?? undefined);
+        }
+        const rawConcerts = await dbOperations.getSetlistsByArtist(artistMbid);
+        if (!cancelled) {
+          setConcerts(transformConcerts(rawConcerts));
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to load artist concerts:', error);
+        if (!cancelled) {
+          Alert.alert(t('common.error'), t('artists.failedToLoadConcerts'));
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [artistMbid, t]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
     try {
-      setLoading(true);
-
-      // Fetch artist name and image
-      const artistData = await dbOperations.getArtistByMbid(mbid);
+      const artistData = await dbOperations.getArtistByMbid(artistMbid);
       if (artistData?.name) {
         setArtistName(artistData.name);
         setArtistImageUrl(artistData.imageUrl ?? undefined);
       }
-
-      // Fetch concerts
-      const rawConcerts = await dbOperations.getSetlistsByArtist(mbid);
-      const concertsWithDetails = transformConcerts(rawConcerts);
-      setConcerts(concertsWithDetails);
+      const rawConcerts = await dbOperations.getSetlistsByArtist(artistMbid);
+      setConcerts(transformConcerts(rawConcerts));
     } catch (error) {
       console.error('Failed to load artist concerts:', error);
       Alert.alert(t('common.error'), t('artists.failedToLoadConcerts'));
-    } finally {
-      setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    if (artistMbid) {
-      loadArtistConcerts(artistMbid);
-    }
-  }, [artistMbid]);
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await loadArtistConcerts(artistMbid);
     setRefreshing(false);
   };
 

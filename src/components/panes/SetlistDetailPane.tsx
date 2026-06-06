@@ -14,31 +14,33 @@ export default function SetlistDetailPane({ concertId }: Props) {
   const colors = useChronicleColors();
   const [setlist, setSetlist] = useState<SetlistWithDetails | null>(null);
   const [sets, setSets] = useState<SetWithSongs[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const load = async (id: string) => {
-    setLoading(true);
-    try {
-      const data = await dbOperations.getSetlistById(id);
-      if (data) {
-        setSetlist(data);
-        setSets(data.sets ?? []);
-      } else {
-        setSetlist(null);
-        setSets([]);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [loadedId, setLoadedId] = useState<string | null>(null);
+  const loading = !!concertId && loadedId !== concertId;
 
   useEffect(() => {
-    if (!concertId) {
-      setSetlist(null);
-      setSets([]);
-      return;
-    }
-    load(concertId);
+    if (!concertId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await dbOperations.getSetlistById(concertId);
+        if (!cancelled) {
+          if (data) {
+            setSetlist(data);
+            setSets(data.sets ?? []);
+          } else {
+            setSetlist(null);
+            setSets([]);
+          }
+          setLoadedId(concertId);
+        }
+      } catch (error) {
+        console.error('Failed to load setlist:', error);
+        if (!cancelled) setLoadedId(concertId);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [concertId]);
 
   const styles = StyleSheet.create({

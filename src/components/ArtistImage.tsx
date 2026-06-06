@@ -24,8 +24,12 @@ export default function ArtistImage({
   // Only treat a string as pre-resolved: '' = tried, no image; 'https://...' = valid URL.
   // undefined and null both mean "not yet fetched" — resolve lazily via getArtistImageUri.
   const hasPreloaded = typeof preloaded === 'string';
-  const [imageUri, setImageUri] = useState<string | null>(hasPreloaded ? preloaded || null : null);
-  const [loaded, setLoaded] = useState(hasPreloaded);
+  const [fetchedUri, setFetchedUri] = useState<string | null>(null);
+  const [fetchedLoaded, setFetchedLoaded] = useState(false);
+
+  // Derive display values from prop directly so prop changes are reflected without setState in effect.
+  const imageUri = hasPreloaded ? (preloaded || null) : fetchedUri;
+  const loaded = hasPreloaded || fetchedLoaded;
 
   const styles = StyleSheet.create({
         container: {
@@ -44,22 +48,18 @@ export default function ArtistImage({
       });
 
   useEffect(() => {
-    if (hasPreloaded) {
-      setImageUri(preloaded || null);
-      setLoaded(true);
-      return;
-    }
+    if (hasPreloaded) return;
     let cancelled = false;
     getArtistImageUri(mbid).then((uri) => {
       if (!cancelled) {
-        setImageUri(uri);
-        setLoaded(true);
+        setFetchedUri(uri);
+        setFetchedLoaded(true);
       }
     });
     return () => {
       cancelled = true;
     };
-  }, [mbid, hasPreloaded, preloaded]);
+  }, [mbid, hasPreloaded]);
 
   return (
     <View

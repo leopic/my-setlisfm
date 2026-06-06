@@ -54,31 +54,32 @@ export default function ContinentDetailScreen() {
   const [countries, setCountries] = useState<CountryWithStats[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadCountriesForContinent = async (continent: string) => {
-    try {
-      setLoading(true);
-      const allCountries = await dbOperations.getCountriesWithStats();
-
-      // Filter countries that belong to this continent
-      const continentCountries = allCountries.filter((country) => {
-        const countryContinent = dbOperations.getContinent(country.name);
-        return countryContinent === continent;
-      });
-
-      setCountries(continentCountries);
-    } catch (error) {
-      console.error('Failed to load countries for continent:', error);
-      Alert.alert(t('common.error'), t('geo.failedToLoadCountries'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    if (continentName) {
-      loadCountriesForContinent(continentName as string);
-    }
-  }, [continentName]);
+    if (!continentName) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const allCountries = await dbOperations.getCountriesWithStats();
+        const continentCountries = allCountries.filter((country) => {
+          const countryContinent = dbOperations.getContinent(country.name);
+          return countryContinent === continentName;
+        });
+        if (!cancelled) {
+          setCountries(continentCountries);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to load countries for continent:', error);
+        if (!cancelled) {
+          Alert.alert(t('common.error'), t('geo.failedToLoadCountries'));
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [continentName, t]);
 
   const handleCountryPress = (country: CountryWithStats) => {
     router.push({

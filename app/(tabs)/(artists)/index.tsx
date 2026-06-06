@@ -190,57 +190,45 @@ export default function ArtistsScreen() {
 
   const { lastSyncTimestamp } = useSyncContext();
   const router = useRouter();
-  const [artists, setArtists] = useState<ArtistWithStats[]>([]);
-  const [filteredArtists, setFilteredArtists] = useState<ArtistWithStats[]>([]);
+  const [rawArtists, setRawArtists] = useState<ArtistWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('recent');
   const [refreshing, setRefreshing] = useState(false);
   const [selectedArtistMbid, setSelectedArtistMbid] = useState<string | null>(null);
 
-  const loadArtists = async () => {
-    try {
-      setLoading(true);
-      const artistsWithStats = await dbOperations.getArtistsWithStats();
-      const sortedArtists = sortByOption(
-        artistsWithStats,
-        sortOption,
-        undefined,
-        (a) => a.concertCount,
-      );
-      setArtists(sortedArtists);
-    } catch (error) {
-      console.error('Failed to load artists:', error);
-      Alert.alert(t('common.error'), t('artists.failedToLoad'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const artists = sortByOption(rawArtists, sortOption, undefined, (a) => a.concertCount);
 
-  const filterArtists = () => {
-    if (!searchQuery.trim()) {
-      setFilteredArtists(artists);
-      return;
-    }
-
-    const query = searchQuery.toLowerCase();
-    const filtered = artists.filter(
-      (artist) =>
-        artist.name.toLowerCase().includes(query) ||
-        artist.sortName?.toLowerCase().includes(query) ||
-        artist.disambiguation?.toLowerCase().includes(query),
-    );
-
-    setFilteredArtists(filtered);
-  };
+  const filteredArtists = searchQuery.trim()
+    ? artists.filter(
+        (artist) =>
+          artist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          artist.sortName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          artist.disambiguation?.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+    : artists;
 
   useEffect(() => {
-    loadArtists();
-  }, [lastSyncTimestamp]);
-
-  useEffect(() => {
-    filterArtists();
-  }, [artists, searchQuery]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const artistsWithStats = await dbOperations.getArtistsWithStats();
+        if (!cancelled) {
+          setRawArtists(artistsWithStats);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to load artists:', error);
+        if (!cancelled) {
+          Alert.alert(t('common.error'), t('artists.failedToLoad'));
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [lastSyncTimestamp, t]);
 
   const handleViewConcerts = (artist: ArtistWithStats) => {
     if (isTablet) {
@@ -252,13 +240,17 @@ export default function ArtistsScreen() {
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    const sortedArtists = sortByOption(artists, newSortOption, undefined, (a) => a.concertCount);
-    setArtists(sortedArtists);
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadArtists();
+    try {
+      const artistsWithStats = await dbOperations.getArtistsWithStats();
+      setRawArtists(artistsWithStats);
+    } catch (error) {
+      console.error('Failed to load artists:', error);
+      Alert.alert(t('common.error'), t('artists.failedToLoad'));
+    }
     setRefreshing(false);
   };
 
@@ -307,7 +299,7 @@ export default function ArtistsScreen() {
   };
 
   if (loading) {
-    return <ListSkeleton showSortBar showAvatars />;
+    return <ListSkeleton variant="artists" />;
   }
 
   // No data at all — hide all controls, show a full-page empty state

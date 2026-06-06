@@ -32,23 +32,27 @@ export default function SetlistDetailScreen() {
   const [sets, setSets] = useState<SetWithSongs[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadSetlistDetails = async () => {
-    try {
-      setLoading(true);
-      const data = await dbOperations.getSetlistById(id);
-      if (data) {
-        setSetlist(data);
-        setSets(data.sets || []);
-      }
-    } catch (error) {
-      console.error('Failed to load setlist:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    if (id) loadSetlistDetails();
+    if (!id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await dbOperations.getSetlistById(id);
+        if (!cancelled) {
+          if (data) {
+            setSetlist(data);
+            setSets(data.sets || []);
+          }
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to load setlist:', error);
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   if (loading) {

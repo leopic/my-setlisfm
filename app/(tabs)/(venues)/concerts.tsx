@@ -24,6 +24,17 @@ interface YearGroup {
   concerts: ConcertWithDetails[];
 }
 
+function transformConcerts(rawConcerts: SetlistWithDetails[]): ConcertWithDetails[] {
+  return rawConcerts.map((concert) => ({
+    ...concert,
+    artistName: concert.artist?.name || 'Unknown Artist',
+    venueName: concert.venue?.name || 'Unknown Venue',
+    cityName: concert.city?.name,
+    stateName: concert.city?.state,
+    countryName: concert.country?.name,
+  }));
+}
+
 export default function VenueConcertsListScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
@@ -168,48 +179,45 @@ export default function VenueConcertsListScreen() {
   // Get venue parameter from navigation
   const venueId = params.venue as string;
 
-  const transformConcerts = (rawConcerts: SetlistWithDetails[]): ConcertWithDetails[] => {
-    return rawConcerts.map((concert) => ({
-      ...concert,
-      artistName: concert.artist?.name || 'Unknown Artist',
-      venueName: concert.venue?.name || 'Unknown Venue',
-      cityName: concert.city?.name,
-      stateName: concert.city?.state,
-      countryName: concert.country?.name,
-    }));
-  };
-
-  const loadVenueConcerts = async (id: string) => {
-    try {
-      setLoading(true);
-
-      // Fetch venue name
-      const venueData = await dbOperations.getVenueById(id);
-      if (venueData?.name) {
-        setVenueName(venueData.name);
-      }
-
-      // Fetch concerts
-      const rawConcerts = await dbOperations.getSetlistsByVenue(id);
-      const concertsWithDetails = transformConcerts(rawConcerts);
-      setConcerts(concertsWithDetails);
-    } catch (error) {
-      console.error('Failed to load venue concerts:', error);
-      Alert.alert(t('common.error'), t('venues.failedToLoadConcerts'));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    if (venueId) {
-      loadVenueConcerts(venueId);
-    }
-  }, [venueId]);
+    if (!venueId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const venueData = await dbOperations.getVenueById(venueId);
+        if (!cancelled && venueData?.name) {
+          setVenueName(venueData.name);
+        }
+        const rawConcerts = await dbOperations.getSetlistsByVenue(venueId);
+        if (!cancelled) {
+          setConcerts(transformConcerts(rawConcerts));
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to load venue concerts:', error);
+        if (!cancelled) {
+          Alert.alert(t('common.error'), t('venues.failedToLoadConcerts'));
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [venueId, t]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadVenueConcerts(venueId);
+    try {
+      const venueData = await dbOperations.getVenueById(venueId);
+      if (venueData?.name) setVenueName(venueData.name);
+      const rawConcerts = await dbOperations.getSetlistsByVenue(venueId);
+      setConcerts(transformConcerts(rawConcerts));
+    } catch (error) {
+      console.error('Failed to load venue concerts:', error);
+      Alert.alert(t('common.error'), t('venues.failedToLoadConcerts'));
+    }
     setRefreshing(false);
   };
 

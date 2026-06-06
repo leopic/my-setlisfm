@@ -30,24 +30,28 @@ export default function VenueDetailPane({ venue }: Props) {
   const { t } = useTranslation();
 
   const [concerts, setConcerts] = useState<SetlistWithDetails[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const load = async (id: string) => {
-    setLoading(true);
-    try {
-      const rawConcerts = await dbOperations.getSetlistsByVenue(id);
-      setConcerts(rawConcerts);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [loadedId, setLoadedId] = useState<string | null>(null);
+  const loading = !!venue?.id && loadedId !== venue.id;
 
   useEffect(() => {
-    if (!venue) {
-      setConcerts([]);
-      return;
-    }
-    load(venue.id);
+    const id = venue?.id;
+    if (!id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const rawConcerts = await dbOperations.getSetlistsByVenue(id);
+        if (!cancelled) {
+          setConcerts(rawConcerts);
+          setLoadedId(id);
+        }
+      } catch (error) {
+        console.error('Failed to load venue concerts:', error);
+        if (!cancelled) setLoadedId(id);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [venue?.id]);
 
   const yearGroups = ((): YearGroup[] => {

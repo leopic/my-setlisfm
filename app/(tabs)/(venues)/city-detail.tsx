@@ -121,34 +121,44 @@ export default function CityDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const loadVenuesForCity = async (cityName: string, countryName: string) => {
+  useEffect(() => {
+    if (!city || !country) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const allVenues = await dbOperations.getVenuesWithStats();
+        const cityVenues = allVenues.filter(
+          (venue) => venue.cityName === city && venue.countryName === country,
+        );
+        if (!cancelled) {
+          setVenues(cityVenues);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to load venues for city:', error);
+        if (!cancelled) {
+          Alert.alert(t('common.error'), t('geo.failedToLoadVenues'));
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [city, country, t]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
     try {
-      setLoading(true);
       const allVenues = await dbOperations.getVenuesWithStats();
-
-      // Filter venues that belong to this city and country
       const cityVenues = allVenues.filter(
-        (venue) => venue.cityName === cityName && venue.countryName === countryName,
+        (venue) => venue.cityName === city && venue.countryName === country,
       );
-
       setVenues(cityVenues);
     } catch (error) {
       console.error('Failed to load venues for city:', error);
       Alert.alert(t('common.error'), t('geo.failedToLoadVenues'));
-    } finally {
-      setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    if (city && country) {
-      loadVenuesForCity(city as string, country as string);
-    }
-  }, [city, country]);
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await loadVenuesForCity(city as string, country as string);
     setRefreshing(false);
   };
 

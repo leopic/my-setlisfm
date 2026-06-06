@@ -26,33 +26,34 @@ export default function ArtistDetailPane({ artistMbid }: Props) {
   const [artistName, setArtistName] = useState('');
   const [artistImageUrl, setArtistImageUrl] = useState<string | undefined>();
   const [concerts, setConcerts] = useState<SetlistWithDetails[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const load = async (mbid: string) => {
-    setLoading(true);
-    try {
-      const [artistData, rawConcerts] = await Promise.all([
-        dbOperations.getArtistByMbid(mbid),
-        dbOperations.getSetlistsByArtist(mbid),
-      ]);
-      if (artistData) {
-        setArtistName(artistData.name ?? '');
-        setArtistImageUrl(artistData.imageUrl ?? undefined);
-      }
-      setConcerts(rawConcerts);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [loadedId, setLoadedId] = useState<string | null>(null);
+  const loading = !!artistMbid && loadedId !== artistMbid;
 
   useEffect(() => {
-    if (!artistMbid) {
-      setArtistName('');
-      setArtistImageUrl(undefined);
-      setConcerts([]);
-      return;
-    }
-    load(artistMbid);
+    if (!artistMbid) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [artistData, rawConcerts] = await Promise.all([
+          dbOperations.getArtistByMbid(artistMbid),
+          dbOperations.getSetlistsByArtist(artistMbid),
+        ]);
+        if (!cancelled) {
+          if (artistData) {
+            setArtistName(artistData.name ?? '');
+            setArtistImageUrl(artistData.imageUrl ?? undefined);
+          }
+          setConcerts(rawConcerts);
+          setLoadedId(artistMbid);
+        }
+      } catch (error) {
+        console.error('Failed to load artist detail:', error);
+        if (!cancelled) setLoadedId(artistMbid);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [artistMbid]);
 
   const yearGroups = ((): YearGroup[] => {

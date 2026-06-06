@@ -220,8 +220,7 @@ export default function VenuesScreen() {
 
   const { lastSyncTimestamp } = useSyncContext();
   const router = useRouter();
-  const [venues, setVenues] = useState<VenueWithStats[]>([]);
-  const [filteredVenues, setFilteredVenues] = useState<VenueWithStats[]>([]);
+  const [rawVenues, setRawVenues] = useState<VenueWithStats[]>([]);
   const [geoStats, setGeoStats] = useState<GeoStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -229,55 +228,43 @@ export default function VenuesScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedVenue, setSelectedVenue] = useState<VenueWithStats | null>(null);
 
-  const loadVenues = async () => {
-    try {
-      setLoading(true);
-      const [venuesWithStats, geoData] = await Promise.all([
-        dbOperations.getVenuesWithStats(),
-        dbOperations.getGeographicBreakdown(),
-      ]);
+  const venues = sortByOption(rawVenues, sortOption, undefined, (v) => v.concertCount);
 
-      const sortedVenues = sortByOption(
-        venuesWithStats,
-        sortOption,
-        undefined,
-        (v) => v.concertCount,
-      );
-      setVenues(sortedVenues);
-      setGeoStats(geoData);
-    } catch (error) {
-      console.error('Failed to load venues:', error);
-      Alert.alert(t('common.error'), t('venues.failedToLoad'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filterVenues = () => {
-    if (!searchQuery.trim()) {
-      setFilteredVenues(venues);
-      return;
-    }
-
-    const query = searchQuery.toLowerCase();
-    const filtered = venues.filter(
-      (venue) =>
-        venue.name.toLowerCase().includes(query) ||
-        venue.cityName?.toLowerCase().includes(query) ||
-        venue.state?.toLowerCase().includes(query) ||
-        venue.countryName?.toLowerCase().includes(query),
-    );
-
-    setFilteredVenues(filtered);
-  };
+  const filteredVenues = searchQuery.trim()
+    ? venues.filter(
+        (venue) =>
+          venue.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          venue.cityName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          venue.state?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          venue.countryName?.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+    : venues;
 
   useEffect(() => {
-    loadVenues();
-  }, [lastSyncTimestamp]);
-
-  useEffect(() => {
-    filterVenues();
-  }, [venues, searchQuery]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const [venuesWithStats, geoData] = await Promise.all([
+          dbOperations.getVenuesWithStats(),
+          dbOperations.getGeographicBreakdown(),
+        ]);
+        if (!cancelled) {
+          setRawVenues(venuesWithStats);
+          setGeoStats(geoData);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to load venues:', error);
+        if (!cancelled) {
+          Alert.alert(t('common.error'), t('venues.failedToLoad'));
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [lastSyncTimestamp, t]);
 
   const handleViewConcerts = (venue: VenueWithStats) => {
     if (isTablet) {
@@ -289,13 +276,21 @@ export default function VenuesScreen() {
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    const sortedVenues = sortByOption(venues, newSortOption, undefined, (v) => v.concertCount);
-    setVenues(sortedVenues);
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadVenues();
+    try {
+      const [venuesWithStats, geoData] = await Promise.all([
+        dbOperations.getVenuesWithStats(),
+        dbOperations.getGeographicBreakdown(),
+      ]);
+      setRawVenues(venuesWithStats);
+      setGeoStats(geoData);
+    } catch (error) {
+      console.error('Failed to load venues:', error);
+      Alert.alert(t('common.error'), t('venues.failedToLoad'));
+    }
     setRefreshing(false);
   };
 
@@ -340,7 +335,7 @@ export default function VenuesScreen() {
   };
 
   if (loading) {
-    return <ListSkeleton showSortBar showGeoStrip />;
+    return <ListSkeleton variant="venues" />;
   }
 
   // No venues at all — hide geo strip and controls, show full-page empty state

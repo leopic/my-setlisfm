@@ -84,37 +84,36 @@ export default function CitiesScreen() {
       });
 
   const router = useRouter();
-  const [cities, setCities] = useState<CityWithStats[]>([]);
+  const [rawCities, setRawCities] = useState<CityWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<SortOption>('alphabetical');
 
-  const loadCities = async () => {
-    try {
-      setLoading(true);
-      const citiesWithStats = await dbOperations.getCitiesWithStats();
-      const sortedCities = sortByOption(
-        citiesWithStats,
-        sortOption,
-        undefined,
-        (c) => c.venueCount,
-      );
-      setCities(sortedCities);
-    } catch (error) {
-      console.error('Failed to load cities:', error);
-      Alert.alert(t('common.error'), t('geo.failedToLoadCities'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const cities = sortByOption(rawCities, sortOption, undefined, (c) => c.venueCount);
 
   useEffect(() => {
-    loadCities();
-  }, []);
+    let cancelled = false;
+    (async () => {
+      try {
+        const citiesWithStats = await dbOperations.getCitiesWithStats();
+        if (!cancelled) {
+          setRawCities(citiesWithStats);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to load cities:', error);
+        if (!cancelled) {
+          Alert.alert(t('common.error'), t('geo.failedToLoadCities'));
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [t]);
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    const sortedCities = sortByOption(cities, newSortOption, undefined, (c) => c.venueCount);
-    setCities(sortedCities);
   };
 
   const handleCityPress = (city: CityWithStats) => {
@@ -133,7 +132,7 @@ export default function CitiesScreen() {
   ];
 
   if (loading) {
-    return <ListSkeleton showSortBar />;
+    return <ListSkeleton variant="sort" />;
   }
 
   return (

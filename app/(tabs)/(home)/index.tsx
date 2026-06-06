@@ -559,9 +559,9 @@ export default function DashboardScreen() {
       // Default to the most recent year on first load
       const sorted = [...dashStats.concertsByYear].sort((a, b) => Number(b.year) - Number(a.year));
       setSelectedYear((prev) => prev ?? sorted[0]?.year ?? null);
+      setLoading(false);
     } catch (error) {
       console.error('Failed to load dashboard:', error);
-    } finally {
       setLoading(false);
     }
   };

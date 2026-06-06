@@ -16,6 +16,10 @@ import { Ionicons } from '@expo/vector-icons';
 const ARTIST_COLORS_DARK = ['#00e8ff', '#ff9f0a', '#30d158', '#bf5af2', '#ff6b6b'];
 const ARTIST_COLORS_LIGHT = ['#0066bb', '#b45309', '#16a34a', '#7c3aed', '#dc2626'];
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function ordinal(n: number) {
+  return n === 1 ? '1st' : n === 2 ? '2nd' : n === 3 ? '3rd' : `${n}th`;
+}
 const DAY_FULL_LABELS = [
   'Sunday',
   'Monday',
@@ -46,33 +50,32 @@ export default function StatsScreen() {
   const [topCity, setTopCity] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const load = async () => {
-    try {
-      setLoading(true);
-      const [summaries, charts, placesInsights] = await Promise.all([
-        dbOperations.getYearSummaries(),
-        dbOperations.getStatsChartData(),
-        dbOperations.getPlacesInsights(),
-      ]);
-      setYearSummaries(summaries);
-      setChartData(charts);
-
-      const total = summaries.reduce((s, r) => s + r.shows, 0);
-      setTotalShows(total);
-
-      // Places stats
-      setTotalCountries(placesInsights.countryTimeline.total);
-      setTopCountry(charts.topCountry);
-      setTopCity(charts.topCity);
-    } catch (e) {
-      console.error('Stats load error:', e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    load();
+    let cancelled = false;
+    (async () => {
+      try {
+        const [summaries, charts, placesInsights] = await Promise.all([
+          dbOperations.getYearSummaries(),
+          dbOperations.getStatsChartData(),
+          dbOperations.getPlacesInsights(),
+        ]);
+        if (!cancelled) {
+          setYearSummaries(summaries);
+          setChartData(charts);
+          setTotalShows(summaries.reduce((s, r) => s + r.shows, 0));
+          setTotalCountries(placesInsights.countryTimeline.total);
+          setTopCountry(charts.topCountry);
+          setTopCity(charts.topCity);
+          setLoading(false);
+        }
+      } catch (e) {
+        console.error('Stats load error:', e);
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [lastSyncTimestamp]);
 
   const styles = StyleSheet.create({
@@ -180,7 +183,6 @@ export default function StatsScreen() {
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
-  const ordinal = (n: number) => (n === 1 ? '1st' : n === 2 ? '2nd' : n === 3 ? '3rd' : `${n}th`);
 
   // ── Derived chart data ─────────────────────────────────────────────────────
 

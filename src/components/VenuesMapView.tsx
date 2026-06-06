@@ -128,30 +128,34 @@ export default function VenuesMapView() {
   const [loading, setLoading] = useState(true);
   const [center, setCenter] = useState({ lat: 51.0, lng: 10.0 });
 
-  const loadVenuesWithCoordinates = async () => {
-    try {
-      setLoading(true);
-      const allVenues = await dbOperations.getVenuesWithStats();
-      const venuesWithCoords = allVenues.filter((v) => v.coordsLat != null && v.coordsLong != null);
-      setVenues(venuesWithCoords);
-
-      if (venuesWithCoords.length > 0) {
-        const mostVisited = venuesWithCoords.reduce((best, v) =>
-          v.concertCount > best.concertCount ? v : best,
-        );
-        setCenter({ lat: mostVisited.coordsLat ?? 51.0, lng: mostVisited.coordsLong ?? 10.0 });
-      }
-    } catch (error) {
-      console.error('Failed to load venues for map:', error);
-      Alert.alert(t('common.error'), 'Failed to load venue locations');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadVenuesWithCoordinates();
-  }, []);
+    let cancelled = false;
+    (async () => {
+      try {
+        const allVenues = await dbOperations.getVenuesWithStats();
+        const venuesWithCoords = allVenues.filter((v) => v.coordsLat != null && v.coordsLong != null);
+        if (!cancelled) {
+          setVenues(venuesWithCoords);
+          if (venuesWithCoords.length > 0) {
+            const mostVisited = venuesWithCoords.reduce((best, v) =>
+              v.concertCount > best.concertCount ? v : best,
+            );
+            setCenter({ lat: mostVisited.coordsLat ?? 51.0, lng: mostVisited.coordsLong ?? 10.0 });
+          }
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to load venues for map:', error);
+        if (!cancelled) {
+          Alert.alert(t('common.error'), 'Failed to load venue locations');
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [t]);
 
   if (loading) {
     return (

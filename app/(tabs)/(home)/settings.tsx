@@ -108,15 +108,13 @@ export default function SettingsScreen() {
         syncTextDisabled: { ...Type.title, color: colors.textMuted, flex: 1 },
       });
 
-  const load = async () => {
-    const stored = await getStoredUsername();
-    setUsername(stored ?? '');
-    const fetchedAt = await dbOperations.getLastFetchedAt();
-    setLastSynced(fetchedAt ? fetchedAt.toLocaleString() : null);
-  };
-
   useEffect(() => {
-    load();
+    (async () => {
+      const stored = await getStoredUsername();
+      setUsername(stored ?? '');
+      const fetchedAt = await dbOperations.getLastFetchedAt();
+      setLastSynced(fetchedAt ? fetchedAt.toLocaleString() : null);
+    })();
   }, []);
 
   const handleStartEdit = () => {
@@ -155,7 +153,8 @@ export default function SettingsScreen() {
       } else {
         Alert.alert('Sync Failed', result.error ?? 'Unknown error');
       }
-    } finally {
+      setIsSyncing(false);
+    } catch (error) {
       setIsSyncing(false);
     }
   };

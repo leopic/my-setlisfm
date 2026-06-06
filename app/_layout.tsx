@@ -124,7 +124,7 @@ export default function Layout() {
     };
 
     init();
-  }, []);
+  }, [router]);
 
   // Always open the dashboard on launch.
   //
