@@ -1,5 +1,13 @@
-import { useEffect, useState } from 'react';
-import { Animated, type ViewStyle } from 'react-native';
+import { useEffect } from 'react';
+import { type ViewStyle } from 'react-native';
+import Animated, {
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+  useAnimatedStyle,
+  cancelAnimation,
+} from 'react-native-reanimated';
 import { useColors } from '@/utils/colors';
 
 interface Props {
@@ -11,18 +19,20 @@ interface Props {
 
 export default function SkeletonBox({ width, height, borderRadius = 4, style }: Props) {
   const colors = useColors();
-  const [opacity] = useState(() => new Animated.Value(0.3));
+  const opacity = useSharedValue(0.3);
 
   useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(opacity, { toValue: 0.7, duration: 800, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 0.3, duration: 800, useNativeDriver: true }),
-      ]),
+    opacity.set(
+      withRepeat(
+        withSequence(withTiming(0.7, { duration: 800 }), withTiming(0.3, { duration: 800 })),
+        -1,
+        false,
+      ),
     );
-    animation.start();
-    return () => animation.stop();
+    return () => cancelAnimation(opacity);
   }, [opacity]);
+
+  const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.get() }));
 
   return (
     <Animated.View
@@ -33,8 +43,8 @@ export default function SkeletonBox({ width, height, borderRadius = 4, style }: 
           borderRadius,
           borderCurve: 'continuous',
           backgroundColor: colors.backgroundPill,
-          opacity,
         },
+        animatedStyle,
         style,
       ]}
     />
