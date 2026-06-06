@@ -47,8 +47,14 @@ function loyaltyQuip(setlists: Setlist[]): string {
 }
 
 function geoQuip(setlists: Setlist[]): string {
-  const countries = new Set(setlists.map((s) => s.venue?.city?.country?.name).filter(Boolean));
-  const cities = setlists.map((s) => s.venue?.city?.name).filter(Boolean);
+  const countries = new Set(setlists.flatMap((s) => {
+    const name = s.venue?.city?.country?.name;
+    return name ? [name] : [];
+  }));
+  const cities = setlists.flatMap((s) => {
+    const name = s.venue?.city?.name;
+    return name ? [name] : [];
+  });
   const uniqueCities = new Set(cities);
 
   if (countries.size >= 3) {
@@ -72,11 +78,11 @@ function geoQuip(setlists: Setlist[]): string {
 }
 
 function historyQuip(setlists: Setlist[]): string {
-  const dates = setlists.map((s) => s.eventDate).filter(Boolean) as string[];
+  const dates = setlists.flatMap((s) => (s.eventDate ? [s.eventDate] : []));
   if (!dates.length) return concertQuip(setlists);
 
   // eventDate format from API: "DD-MM-YYYY"
-  const years = dates.map((d) => d.split('-')[2]).filter(Boolean);
+  const years = dates.flatMap((d) => { const y = d.split('-')[2]; return y ? [y] : []; });
   const earliest = years.reduce((a, b) => (a < b ? a : b));
   const total = setlists.length;
 

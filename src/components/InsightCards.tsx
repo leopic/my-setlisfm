@@ -65,7 +65,10 @@ export default function InsightCards({ stats }: Props) {
       });
 
   const { weekdayDistribution, busiest7Days } = stats;
-  const topWeekday = [...weekdayDistribution].sort((a, b) => b.concertDays - a.concertDays)[0];
+  const topWeekday = weekdayDistribution.reduce<(typeof weekdayDistribution)[0] | undefined>(
+    (max, cur) => (!max || cur.concertDays > max.concertDays ? cur : max),
+    undefined,
+  );
 
   if (!topWeekday && !busiest7Days) return null;
 

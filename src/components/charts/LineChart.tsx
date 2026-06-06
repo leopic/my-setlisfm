@@ -30,8 +30,9 @@ const RIGHT_PAD = 80;
 const LABEL_MIN_SPACING = 13;
 const LABEL_MIN_Y = 12;
 const TOP_PAD = 10; // prevent highest data point from hitting the clip boundary
+const EMPTY_LABELS: string[] = [];
 
-export default function LineChart({ series, xLabels = [], height = 100 }: LineChartProps) {
+export default function LineChart({ series, xLabels = EMPTY_LABELS, height = 100 }: LineChartProps) {
   const colors = useChronicleColors();
   const [chartWidth, setChartWidth] = useState(0);
   const totalHeight = height + LABEL_HEIGHT + 4;
