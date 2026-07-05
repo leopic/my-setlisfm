@@ -42,7 +42,7 @@ export default function BarChart({ data, color, height = 80, showLabels = true }
               const by = height - bh;
               const opacity = ratio === 1 ? 1 : ratio > 0.5 ? 0.55 : 0.25;
               return (
-                <G key={d.label}>
+                <G key={i}>
                   <Rect
                     x={bx}
                     y={by}
