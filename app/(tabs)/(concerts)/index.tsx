@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { LegendList } from '@legendapp/list';
 import { dbOperations } from '@/database/operations';
@@ -416,35 +416,37 @@ export default function ConcertsScreen() {
   const concerts = sortConcerts(rawConcerts, sortOption);
   const yearGroups = groupConcertsByYear(concerts);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const fetched = await dbOperations.getAllSetlists();
-        const concertsWithDetails: ConcertWithDetails[] = fetched.map((concert) => ({
-          ...concert,
-          artistName: concert.artist?.name || 'Unknown Artist',
-          venueName: concert.venue?.name || 'Unknown Venue',
-          cityName: concert.city?.name,
-          stateName: concert.city?.state,
-          countryName: concert.country?.name,
-        }));
-        if (!cancelled) {
-          setRawConcerts(concertsWithDetails);
-          setLoading(false);
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      (async () => {
+        try {
+          const fetched = await dbOperations.getAllSetlists();
+          const concertsWithDetails: ConcertWithDetails[] = fetched.map((concert) => ({
+            ...concert,
+            artistName: concert.artist?.name || 'Unknown Artist',
+            venueName: concert.venue?.name || 'Unknown Venue',
+            cityName: concert.city?.name,
+            stateName: concert.city?.state,
+            countryName: concert.country?.name,
+          }));
+          if (!cancelled) {
+            setRawConcerts(concertsWithDetails);
+            setLoading(false);
+          }
+        } catch (error) {
+          console.error('Failed to load concerts:', error);
+          if (!cancelled) {
+            Alert.alert(t('common.error'), t('concerts.failedToLoad'));
+            setLoading(false);
+          }
         }
-      } catch (error) {
-        console.error('Failed to load concerts:', error);
-        if (!cancelled) {
-          Alert.alert(t('common.error'), t('concerts.failedToLoad'));
-          setLoading(false);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [lastSyncTimestamp, t]);
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }, [lastSyncTimestamp, t])
+  );
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);

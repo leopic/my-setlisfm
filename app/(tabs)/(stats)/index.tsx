@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useSyncContext } from '@/contexts/SyncContext';
 import { dbOperations } from '@/database/operations';
 import { useChronicleColors } from '@/utils/colors';
@@ -50,33 +50,35 @@ export default function StatsScreen() {
   const [topCity, setTopCity] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const [summaries, charts, placesInsights] = await Promise.all([
-          dbOperations.getYearSummaries(),
-          dbOperations.getStatsChartData(),
-          dbOperations.getPlacesInsights(),
-        ]);
-        if (!cancelled) {
-          setYearSummaries(summaries);
-          setChartData(charts);
-          setTotalShows(summaries.reduce((s, r) => s + r.shows, 0));
-          setTotalCountries(placesInsights.countryTimeline.total);
-          setTopCountry(charts.topCountry);
-          setTopCity(charts.topCity);
-          setLoading(false);
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      (async () => {
+        try {
+          const [summaries, charts, placesInsights] = await Promise.all([
+            dbOperations.getYearSummaries(),
+            dbOperations.getStatsChartData(),
+            dbOperations.getPlacesInsights(),
+          ]);
+          if (!cancelled) {
+            setYearSummaries(summaries);
+            setChartData(charts);
+            setTotalShows(summaries.reduce((s, r) => s + r.shows, 0));
+            setTotalCountries(placesInsights.countryTimeline.total);
+            setTopCountry(charts.topCountry);
+            setTopCity(charts.topCity);
+            setLoading(false);
+          }
+        } catch (e) {
+          console.error('Stats load error:', e);
+          if (!cancelled) setLoading(false);
         }
-      } catch (e) {
-        console.error('Stats load error:', e);
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [lastSyncTimestamp]);
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }, [lastSyncTimestamp])
+  );
 
   const styles = StyleSheet.create({
         container: { flex: 1, backgroundColor: colors.background },

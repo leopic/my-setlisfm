@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Pressable, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { LegendList } from '@legendapp/list';
 import { dbOperations } from '@/database/operations';
@@ -240,31 +240,33 @@ export default function VenuesScreen() {
       )
     : venues;
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const [venuesWithStats, geoData] = await Promise.all([
-          dbOperations.getVenuesWithStats(),
-          dbOperations.getGeographicBreakdown(),
-        ]);
-        if (!cancelled) {
-          setRawVenues(venuesWithStats);
-          setGeoStats(geoData);
-          setLoading(false);
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      (async () => {
+        try {
+          const [venuesWithStats, geoData] = await Promise.all([
+            dbOperations.getVenuesWithStats(),
+            dbOperations.getGeographicBreakdown(),
+          ]);
+          if (!cancelled) {
+            setRawVenues(venuesWithStats);
+            setGeoStats(geoData);
+            setLoading(false);
+          }
+        } catch (error) {
+          console.error('Failed to load venues:', error);
+          if (!cancelled) {
+            Alert.alert(t('common.error'), t('venues.failedToLoad'));
+            setLoading(false);
+          }
         }
-      } catch (error) {
-        console.error('Failed to load venues:', error);
-        if (!cancelled) {
-          Alert.alert(t('common.error'), t('venues.failedToLoad'));
-          setLoading(false);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [lastSyncTimestamp, t]);
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }, [lastSyncTimestamp, t])
+  );
 
   const handleViewConcerts = (venue: VenueWithStats) => {
     if (isTablet) {
