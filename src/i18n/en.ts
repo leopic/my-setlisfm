@@ -244,4 +244,133 @@ export default {
     retry: 'Try Again',
     usernameRequired: 'Please enter your setlist.fm username',
   },
+
+  // Chat / ask
+  chat: {
+    title: 'Ask',
+    placeholder: 'Ask about your concerts…',
+    send: 'Send',
+    examplesLabel: 'Try asking:',
+    notUnderstood: "I'm not sure how to answer that yet — try one of the examples below.",
+    noMatch: {
+      artist: 'I couldn’t find an artist matching "{{query}}" in your collection.',
+      city: 'I couldn’t find a city matching "{{query}}" in your collection.',
+      country: 'I couldn’t find a country matching "{{query}}" in your collection.',
+    },
+    clarify: {
+      artist: 'Which one did you mean?',
+      city: 'Which city did you mean?',
+      country: 'Which country did you mean?',
+    },
+
+    answers: {
+      noData: "I don't have enough data to answer that yet.",
+      neverSeen: "Looks like you haven't seen {{artist}} yet.",
+
+      firstTimeSeen: 'You first saw {{artist}} on {{date}} at {{venue}}.',
+      firstTimeSeenNoVenue: 'You first saw {{artist}} on {{date}}.',
+      lastTimeSeen: 'You last saw {{artist}} on {{date}} at {{venue}}.',
+      lastTimeSeenNoVenue: 'You last saw {{artist}} on {{date}}.',
+      countTimesSeen_one: "You've seen {{artist}} {{count}} time.",
+      countTimesSeen_other: "You've seen {{artist}} {{count}} times.",
+
+      listTimesSeenIntro_one: "Here's the {{count}} time you've seen {{artist}}:",
+      listTimesSeenIntro_other: "Here are the {{count}} times you've seen {{artist}}:",
+      listTimesSeenEntry: '{{date}} — {{venue}}',
+
+      venuesSeenAt_one: "You've seen {{artist}} at {{count}} venue: {{venues}}.",
+      venuesSeenAt_other: "You've seen {{artist}} at {{count}} venues: {{venues}}.",
+
+      toursSeenOn: "You've seen {{artist}} on: {{tours}}.",
+      toursSeenOnNone: "I don't have tour info for the {{artist}} shows you've seen.",
+
+      compareArtists:
+        "You've seen {{artistA}} {{countA}} time(s), and {{artistB}} {{countB}} time(s).",
+
+      longestGap:
+        'Your longest gap between {{artist}} shows was {{days}} days, between {{from}} and {{to}}.',
+      longestGapNone: "You've only seen {{artist}} once, so there's no gap to measure.",
+
+      artistSeenInYear_one: 'Yes — you saw {{artist}} {{count}} time in {{year}}:',
+      artistSeenInYear_other: 'Yes — you saw {{artist}} {{count}} times in {{year}}:',
+      artistSeenInYearNone: "No, you didn't see {{artist}} in {{year}}.",
+
+      totalConcertsLogged_one: "You've logged {{count}} concert.",
+      totalConcertsLogged_other: "You've logged {{count}} concerts.",
+
+      topArtist_one: "{{artist}} is the artist you've seen the most, with {{count}} show.",
+      topArtist_other: "{{artist}} is the artist you've seen the most, with {{count}} shows.",
+
+      topArtistInASingleYear_one:
+        "{{artist}} is the artist you've seen the most in a single year — {{count}} time in {{year}}.",
+      topArtistInASingleYear_other:
+        "{{artist}} is the artist you've seen the most in a single year — {{count}} times in {{year}}.",
+
+      top5Artists: 'Your top 5 most-seen artists: {{list}}.',
+
+      uniqueArtistsCount_one: "You've seen {{count}} unique artist overall.",
+      uniqueArtistsCount_other: "You've seen {{count}} unique artists overall.",
+
+      artistsSeenMoreThanOnce_one: "{{count}} artist you've seen more than once.",
+      artistsSeenMoreThanOnce_other: "{{count}} artists you've seen more than once.",
+
+      artistsSeenOnlyOnce_one: "{{count}} artist you've only seen once.",
+      artistsSeenOnlyOnce_other: "{{count}} artists you've only seen once.",
+
+      artistsSeenAtLeastN_one: "{{count}} artist you've seen {{n}}+ times: {{list}}.",
+      artistsSeenAtLeastN_other: "{{count}} artists you've seen {{n}}+ times: {{list}}.",
+      artistsSeenAtLeastNNone: "You haven't seen any artist {{n}}+ times yet.",
+
+      concertsInYear_one: 'You went to {{count}} concert in {{year}}.',
+      concertsInYear_other: 'You went to {{count}} concerts in {{year}}.',
+
+      averageConcertsPerYear: "You've averaged {{count}} concerts per year.",
+
+      daysSinceLastConcert_one: "It's been {{count}} day since your last concert.",
+      daysSinceLastConcert_other: "It's been {{count}} days since your last concert.",
+
+      yearWithMostConcerts_one: '{{year}} was your busiest year, with {{count}} concert.',
+      yearWithMostConcerts_other: '{{year}} was your busiest year, with {{count}} concerts.',
+
+      firstConcertEver: 'Your very first concert was {{artist}}, on {{date}}.',
+      mostRecentConcert: 'Your most recent concert was {{artist}}, on {{date}}.',
+
+      countriesSeenCount_one: "You've seen live music in {{count}} country.",
+      countriesSeenCount_other: "You've seen live music in {{count}} countries.",
+
+      citiesSeenList_one: "You've seen concerts in {{count}} city: {{list}}.",
+      citiesSeenList_other: "You've seen concerts in {{count}} cities: {{list}}.",
+
+      showsInCountry_one: "You've seen {{count}} concert in {{country}}.",
+      showsInCountry_other: "You've seen {{count}} concerts in {{country}}.",
+      showsInCountryNone: "Looks like you haven't seen any concerts in {{country}} yet.",
+
+      mostVisitedCountry_one:
+        '{{country}} is the country you’ve visited most, with {{count}} concert.',
+      mostVisitedCountry_other:
+        '{{country}} is the country you’ve visited most, with {{count}} concerts.',
+
+      mostVisitedCity_one: '{{city}} is the city you’ve visited most, with {{count}} concert.',
+      mostVisitedCity_other: '{{city}} is the city you’ve visited most, with {{count}} concerts.',
+
+      bandsSeenInCountry: "Bands you've seen in {{country}}: {{list}}.",
+      bandsSeenInCountryNone: "You haven't seen any concerts in {{country}} yet.",
+
+      bandsSeenInCityYear_one: 'You saw {{count}} artist in {{city}} in {{year}}: {{list}}.',
+      bandsSeenInCityYear_other: 'You saw {{count}} artists in {{city}} in {{year}}: {{list}}.',
+      bandsSeenInCityYearNone: "You didn't see any concerts in {{city}} in {{year}}.",
+
+      countriesSeenInYear: 'Countries you saw concerts in during {{year}}: {{list}}.',
+      countriesSeenInYearNone: "You didn't log any concerts in {{year}}.",
+    },
+
+    examples: [
+      'When was the first time I saw Bad Religion?',
+      'How many times have I seen NOFX?',
+      'What was my most recent concert?',
+      'Which artists have I seen 5 or more times?',
+      'How many countries have I seen live music in?',
+      'What was my very first concert ever?',
+    ],
+  },
 };

@@ -48,470 +48,470 @@ export default function DashboardScreen() {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const isLandscape = windowWidth > windowHeight;
   const styles = StyleSheet.create({
-        container: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
-        // ── Phone top bar ─────────────────────────────────────────────────────
-        topBar: {
-          paddingHorizontal: 20,
-          paddingTop: 12,
-          paddingBottom: 14,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        topBarRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 6,
-        },
-        appTitle: {
-          ...Type.display,
-          color: colors.textPrimary,
-        },
-        topBarActions: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 14,
-        },
-        statsLine: {
-          ...Type.body,
-          color: colors.textSecondary,
-        },
-        lastSynced: {
-          ...Type.label,
-          color: colors.textMuted,
-          marginTop: 4,
-        },
-        // ── Tablet top bar ────────────────────────────────────────────────────
-        tabletTopBar: {
-          flexDirection: 'row',
-          alignItems: 'stretch',
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        tabletTopBarLeft: {
-          flex: 1,
-          paddingHorizontal: 16,
-          paddingVertical: 10,
-          justifyContent: 'center',
-        },
-        tabletTopBarRight: {
-          flex: 2,
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 14,
-          paddingVertical: 8,
-          gap: 12,
-          borderLeftWidth: 1,
-          borderLeftColor: colors.border,
-        },
-        // ── Header OTD card (compact, tablet only) ────────────────────────────
-        headerOtdCard: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 8,
-          backgroundColor: colors.accentSoft,
-          borderWidth: 1,
-          borderColor: colors.accent,
-          borderRadius: 10,
-          paddingHorizontal: 10,
-          paddingVertical: 6,
-        },
-        headerOtdLabel: {
-          ...Type.label,
-          fontSize: 9,
-          color: colors.accent,
-          letterSpacing: 0.8,
-          marginBottom: 1,
-        },
-        headerOtdName: {
-          ...Type.body,
-          fontWeight: '600',
-          color: colors.textPrimary,
-          fontSize: 12,
-        },
-        headerOtdMeta: {
-          ...Type.label,
-          fontSize: 10,
-          color: colors.textSecondary,
-        },
-        // ── Tablet body ───────────────────────────────────────────────────────
-        tabletBody: {
-          flex: 1,
-          flexDirection: 'row',
-        },
-        // ── Year grid (left column) ───────────────────────────────────────────
-        yearGridCol: {
-          flex: 1,
-          borderRightWidth: 1,
-          borderRightColor: colors.border,
-          backgroundColor: colors.background,
-        },
-        yearGridContent: {
-          padding: 12,
-        },
-        yearGrid: {
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          gap: 8,
-        },
-        yearTile: {
-          // flexBasis 30% + flexGrow: 3 items fill the row, 4th wraps
-          flexBasis: '30%',
-          flexGrow: 1,
-          backgroundColor: colors.surface,
-          borderWidth: 1.5,
-          borderColor: colors.border,
-          borderRadius: 14,
-          paddingVertical: 12,
-          paddingHorizontal: 8,
-          alignItems: 'center',
-        },
-        yearTileSelected: {
-          borderColor: colors.accent,
-          backgroundColor: colors.accentSoft,
-        },
-        yearTileYear: {
-          ...Type.display,
-          fontSize: 26,
-          letterSpacing: -1,
-          color: colors.textDisabled,
-          lineHeight: 30,
-        },
-        yearTileYearSelected: {
-          color: colors.accent,
-        },
-        yearTileCount: {
-          ...Type.label,
-          fontSize: 11,
-          color: colors.textMuted,
-          marginTop: 3,
-        },
-        yearTileCountSelected: {
-          color: colors.accent,
-          opacity: 0.75,
-        },
-        // ── Detail panel (right column) ───────────────────────────────────────
-        detailPanel: {
-          flex: 2,
-          backgroundColor: colors.surface,
-        },
-        detailPanelContent: {
-          padding: 16,
-        },
-        // Year row: large heading + "Also On This Day" card inline
-        detailYearRow: {
-          flexDirection: 'row',
-          alignItems: 'flex-end',
-          gap: 12,
-          marginBottom: 12,
-        },
-        detailYearHeading: {
-          ...Type.display,
-          fontSize: 52,
-          letterSpacing: -2,
-          color: colors.textPrimary,
-          lineHeight: 54,
-        },
-        // Also On This Day — same compact style as header OTD
-        alsoOnThisDayCard: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 8,
-          backgroundColor: colors.accentSoft,
-          borderWidth: 1,
-          borderColor: colors.accent,
-          borderRadius: 10,
-          paddingHorizontal: 10,
-          paddingVertical: 6,
-          marginBottom: 4,
-        },
-        alsoOtdLabel: {
-          ...Type.label,
-          fontSize: 9,
-          color: colors.accent,
-          letterSpacing: 0.8,
-          marginBottom: 1,
-        },
-        alsoOtdName: {
-          ...Type.body,
-          fontWeight: '600',
-          color: colors.textPrimary,
-          fontSize: 12,
-        },
-        alsoOtdMeta: {
-          ...Type.label,
-          fontSize: 10,
-          color: colors.textSecondary,
-        },
-        // 4-stat row
-        detailStatRow: {
-          flexDirection: 'row',
-          gap: 8,
-          marginBottom: 12,
-        },
-        detailStatCard: {
-          flex: 1,
-          backgroundColor: colors.background,
-          borderWidth: 1,
-          borderColor: colors.border,
-          borderRadius: 10,
-          paddingVertical: 8,
-          alignItems: 'center',
-        },
-        detailStatValue: {
-          fontSize: 20,
-          fontWeight: '700',
-          letterSpacing: -0.5,
-        },
-        detailStatLabel: {
-          ...Type.label,
-          fontSize: 10,
-          color: colors.textMuted,
-          marginTop: 2,
-        },
-        detailChartBox: {
-          flex: 1,
-          backgroundColor: colors.background,
-          borderWidth: 1,
-          borderColor: colors.border,
-          borderRadius: 12,
-          padding: 10,
-        },
-        detailChartLabel: {
-          ...Type.label,
-          fontSize: 10,
-          color: colors.textMuted,
-          letterSpacing: 0.8,
-          marginBottom: 6,
-        },
-        // Highlights
-        detailHighlightsLabel: {
-          ...Type.label,
-          color: colors.textMuted,
-          letterSpacing: 1,
-          marginBottom: 8,
-        },
-        detailHighlightEntry: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 10,
-          paddingVertical: 8,
-          paddingHorizontal: 10,
-          backgroundColor: colors.background,
-          borderWidth: 1,
-          borderColor: colors.border,
-          borderRadius: 10,
-          marginBottom: 6,
-        },
-        detailHighlightText: {
-          flex: 1,
-        },
-        detailMilestoneTag: {
-          ...Type.label,
-          color: colors.accent,
-          letterSpacing: 0.8,
-          marginBottom: 1,
-        },
-        detailArtistName: {
-          ...Type.title,
-          color: colors.textPrimary,
-        },
-        detailMeta: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 1,
-        },
-        detailChevron: {
-          ...Type.body,
-          color: colors.textDisabled,
-        },
-        // ── Year chapter (phone / phone-like) ─────────────────────────────────
-        yearChapter: {
-          marginTop: 28,
-          marginHorizontal: 20,
-          marginBottom: 8,
-        },
-        yearGhost: {
-          ...Type.display,
-          fontSize: 64,
-          lineHeight: 68,
-          color: colors.textPrimary,
-          opacity: 0.18,
-        },
-        yearMeta: {
-          ...Type.label,
-          color: colors.textMuted,
-          marginTop: 2,
-        },
-        yearStatRow: {
-          flexDirection: 'row',
-          gap: 10,
-          marginTop: 4,
-          flexWrap: 'wrap',
-        },
-        yearStatChip: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 4,
-        },
-        yearStatValue: {
-          ...Type.label,
-          color: colors.textSecondary,
-          fontWeight: '600',
-        },
-        yearStatLabel: {
-          ...Type.label,
-          color: colors.textMuted,
-        },
-        monthGrid: {
-          flexDirection: 'row',
-          marginTop: 6,
-          marginBottom: 4,
-          gap: 4,
-        },
-        monthCell: {
-          alignItems: 'center',
-          flex: 1,
-        },
-        monthLabel: {
-          ...Type.label,
-          fontSize: 8,
-          color: colors.textDisabled,
-          marginBottom: 3,
-        },
-        monthDotEmpty: {
-          width: 7,
-          height: 7,
-          borderRadius: 3.5,
-          backgroundColor: colors.border,
-        },
-        monthDotFull: {
-          width: 7,
-          height: 7,
-          borderRadius: 3.5,
-          backgroundColor: colors.accent,
-          opacity: 0.45,
-        },
-        monthDotPeak: {
-          width: 8,
-          height: 8,
-          borderRadius: 4,
-          backgroundColor: colors.accent,
-        },
-        // ── Timeline spine ────────────────────────────────────────────────────
-        spineContainer: {
-          borderLeftWidth: 1.5,
-          borderLeftColor: colors.spineColor,
-          marginLeft: 36,
-          paddingLeft: 20,
-          marginBottom: 4,
-        },
-        concertEntry: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingVertical: 10,
-        },
-        dotWrapper: {
-          position: 'absolute',
-          left: -25,
-          top: 14,
-        },
-        dotActive: {
-          width: 9,
-          height: 9,
-          borderRadius: 4.5,
-          backgroundColor: colors.dotActive,
-          borderWidth: 2,
-          borderColor: colors.background,
-        },
-        dotInactive: {
-          width: 9,
-          height: 9,
-          borderRadius: 4.5,
-          backgroundColor: colors.dotInactive,
-          borderWidth: 2,
-          borderColor: colors.background,
-        },
-        entryContent: {
-          flex: 1,
-        },
-        entryDate: {
-          ...Type.label,
-          color: colors.accent,
-          letterSpacing: 0.8,
-          marginBottom: 2,
-        },
-        entryArtist: {
-          ...Type.title,
-          color: colors.textPrimary,
-        },
-        entryVenue: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 1,
-        },
-        entryChevron: {
-          ...Type.body,
-          color: colors.textDisabled,
-          marginLeft: 8,
-        },
-        entryImageWrapper: {
-          marginRight: 10,
-        },
-        milestoneMarker: {
-          width: 9,
-          height: 9,
-          borderRadius: 2,
-          backgroundColor: colors.accent,
-          transform: [{ rotate: '45deg' }],
-        },
-        milestoneTag: {
-          ...Type.label,
-          color: colors.accent,
-          letterSpacing: 0.8,
-          marginBottom: 1,
-        },
-        // ── On this day (phone) ───────────────────────────────────────────────
-        onThisDayCard: {
-          marginHorizontal: 20,
-          marginTop: 16,
-          marginBottom: 4,
-          backgroundColor: colors.accentSoft,
-          borderWidth: 1,
-          borderColor: colors.accent,
-          borderRadius: 12,
-          padding: 14,
-        },
-        onThisDayLabel: {
-          ...Type.label,
-          color: colors.accent,
-          letterSpacing: 0.8,
-          marginBottom: 6,
-        },
-        onThisDayRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        },
-        onThisDayArtist: {
-          ...Type.title,
-          color: colors.textPrimary,
-          flex: 1,
-        },
-        onThisDayMeta: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 3,
-        },
-        onThisDayChevron: {
-          ...Type.body,
-          color: colors.accent,
-          marginLeft: 8,
-        },
-      });
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    // ── Phone top bar ─────────────────────────────────────────────────────
+    topBar: {
+      paddingHorizontal: 20,
+      paddingTop: 12,
+      paddingBottom: 14,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    topBarRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 6,
+    },
+    appTitle: {
+      ...Type.display,
+      color: colors.textPrimary,
+    },
+    topBarActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 14,
+    },
+    statsLine: {
+      ...Type.body,
+      color: colors.textSecondary,
+    },
+    lastSynced: {
+      ...Type.label,
+      color: colors.textMuted,
+      marginTop: 4,
+    },
+    // ── Tablet top bar ────────────────────────────────────────────────────
+    tabletTopBar: {
+      flexDirection: 'row',
+      alignItems: 'stretch',
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    tabletTopBarLeft: {
+      flex: 1,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      justifyContent: 'center',
+    },
+    tabletTopBarRight: {
+      flex: 2,
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      gap: 12,
+      borderLeftWidth: 1,
+      borderLeftColor: colors.border,
+    },
+    // ── Header OTD card (compact, tablet only) ────────────────────────────
+    headerOtdCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      backgroundColor: colors.accentSoft,
+      borderWidth: 1,
+      borderColor: colors.accent,
+      borderRadius: 10,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+    },
+    headerOtdLabel: {
+      ...Type.label,
+      fontSize: 9,
+      color: colors.accent,
+      letterSpacing: 0.8,
+      marginBottom: 1,
+    },
+    headerOtdName: {
+      ...Type.body,
+      fontWeight: '600',
+      color: colors.textPrimary,
+      fontSize: 12,
+    },
+    headerOtdMeta: {
+      ...Type.label,
+      fontSize: 10,
+      color: colors.textSecondary,
+    },
+    // ── Tablet body ───────────────────────────────────────────────────────
+    tabletBody: {
+      flex: 1,
+      flexDirection: 'row',
+    },
+    // ── Year grid (left column) ───────────────────────────────────────────
+    yearGridCol: {
+      flex: 1,
+      borderRightWidth: 1,
+      borderRightColor: colors.border,
+      backgroundColor: colors.background,
+    },
+    yearGridContent: {
+      padding: 12,
+    },
+    yearGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    yearTile: {
+      // flexBasis 30% + flexGrow: 3 items fill the row, 4th wraps
+      flexBasis: '30%',
+      flexGrow: 1,
+      backgroundColor: colors.surface,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      borderRadius: 14,
+      paddingVertical: 12,
+      paddingHorizontal: 8,
+      alignItems: 'center',
+    },
+    yearTileSelected: {
+      borderColor: colors.accent,
+      backgroundColor: colors.accentSoft,
+    },
+    yearTileYear: {
+      ...Type.display,
+      fontSize: 26,
+      letterSpacing: -1,
+      color: colors.textDisabled,
+      lineHeight: 30,
+    },
+    yearTileYearSelected: {
+      color: colors.accent,
+    },
+    yearTileCount: {
+      ...Type.label,
+      fontSize: 11,
+      color: colors.textMuted,
+      marginTop: 3,
+    },
+    yearTileCountSelected: {
+      color: colors.accent,
+      opacity: 0.75,
+    },
+    // ── Detail panel (right column) ───────────────────────────────────────
+    detailPanel: {
+      flex: 2,
+      backgroundColor: colors.surface,
+    },
+    detailPanelContent: {
+      padding: 16,
+    },
+    // Year row: large heading + "Also On This Day" card inline
+    detailYearRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      gap: 12,
+      marginBottom: 12,
+    },
+    detailYearHeading: {
+      ...Type.display,
+      fontSize: 52,
+      letterSpacing: -2,
+      color: colors.textPrimary,
+      lineHeight: 54,
+    },
+    // Also On This Day — same compact style as header OTD
+    alsoOnThisDayCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      backgroundColor: colors.accentSoft,
+      borderWidth: 1,
+      borderColor: colors.accent,
+      borderRadius: 10,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      marginBottom: 4,
+    },
+    alsoOtdLabel: {
+      ...Type.label,
+      fontSize: 9,
+      color: colors.accent,
+      letterSpacing: 0.8,
+      marginBottom: 1,
+    },
+    alsoOtdName: {
+      ...Type.body,
+      fontWeight: '600',
+      color: colors.textPrimary,
+      fontSize: 12,
+    },
+    alsoOtdMeta: {
+      ...Type.label,
+      fontSize: 10,
+      color: colors.textSecondary,
+    },
+    // 4-stat row
+    detailStatRow: {
+      flexDirection: 'row',
+      gap: 8,
+      marginBottom: 12,
+    },
+    detailStatCard: {
+      flex: 1,
+      backgroundColor: colors.background,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 10,
+      paddingVertical: 8,
+      alignItems: 'center',
+    },
+    detailStatValue: {
+      fontSize: 20,
+      fontWeight: '700',
+      letterSpacing: -0.5,
+    },
+    detailStatLabel: {
+      ...Type.label,
+      fontSize: 10,
+      color: colors.textMuted,
+      marginTop: 2,
+    },
+    detailChartBox: {
+      flex: 1,
+      backgroundColor: colors.background,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 12,
+      padding: 10,
+    },
+    detailChartLabel: {
+      ...Type.label,
+      fontSize: 10,
+      color: colors.textMuted,
+      letterSpacing: 0.8,
+      marginBottom: 6,
+    },
+    // Highlights
+    detailHighlightsLabel: {
+      ...Type.label,
+      color: colors.textMuted,
+      letterSpacing: 1,
+      marginBottom: 8,
+    },
+    detailHighlightEntry: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      paddingVertical: 8,
+      paddingHorizontal: 10,
+      backgroundColor: colors.background,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 10,
+      marginBottom: 6,
+    },
+    detailHighlightText: {
+      flex: 1,
+    },
+    detailMilestoneTag: {
+      ...Type.label,
+      color: colors.accent,
+      letterSpacing: 0.8,
+      marginBottom: 1,
+    },
+    detailArtistName: {
+      ...Type.title,
+      color: colors.textPrimary,
+    },
+    detailMeta: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 1,
+    },
+    detailChevron: {
+      ...Type.body,
+      color: colors.textDisabled,
+    },
+    // ── Year chapter (phone / phone-like) ─────────────────────────────────
+    yearChapter: {
+      marginTop: 28,
+      marginHorizontal: 20,
+      marginBottom: 8,
+    },
+    yearGhost: {
+      ...Type.display,
+      fontSize: 64,
+      lineHeight: 68,
+      color: colors.textPrimary,
+      opacity: 0.18,
+    },
+    yearMeta: {
+      ...Type.label,
+      color: colors.textMuted,
+      marginTop: 2,
+    },
+    yearStatRow: {
+      flexDirection: 'row',
+      gap: 10,
+      marginTop: 4,
+      flexWrap: 'wrap',
+    },
+    yearStatChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    yearStatValue: {
+      ...Type.label,
+      color: colors.textSecondary,
+      fontWeight: '600',
+    },
+    yearStatLabel: {
+      ...Type.label,
+      color: colors.textMuted,
+    },
+    monthGrid: {
+      flexDirection: 'row',
+      marginTop: 6,
+      marginBottom: 4,
+      gap: 4,
+    },
+    monthCell: {
+      alignItems: 'center',
+      flex: 1,
+    },
+    monthLabel: {
+      ...Type.label,
+      fontSize: 8,
+      color: colors.textDisabled,
+      marginBottom: 3,
+    },
+    monthDotEmpty: {
+      width: 7,
+      height: 7,
+      borderRadius: 3.5,
+      backgroundColor: colors.border,
+    },
+    monthDotFull: {
+      width: 7,
+      height: 7,
+      borderRadius: 3.5,
+      backgroundColor: colors.accent,
+      opacity: 0.45,
+    },
+    monthDotPeak: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.accent,
+    },
+    // ── Timeline spine ────────────────────────────────────────────────────
+    spineContainer: {
+      borderLeftWidth: 1.5,
+      borderLeftColor: colors.spineColor,
+      marginLeft: 36,
+      paddingLeft: 20,
+      marginBottom: 4,
+    },
+    concertEntry: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 10,
+    },
+    dotWrapper: {
+      position: 'absolute',
+      left: -25,
+      top: 14,
+    },
+    dotActive: {
+      width: 9,
+      height: 9,
+      borderRadius: 4.5,
+      backgroundColor: colors.dotActive,
+      borderWidth: 2,
+      borderColor: colors.background,
+    },
+    dotInactive: {
+      width: 9,
+      height: 9,
+      borderRadius: 4.5,
+      backgroundColor: colors.dotInactive,
+      borderWidth: 2,
+      borderColor: colors.background,
+    },
+    entryContent: {
+      flex: 1,
+    },
+    entryDate: {
+      ...Type.label,
+      color: colors.accent,
+      letterSpacing: 0.8,
+      marginBottom: 2,
+    },
+    entryArtist: {
+      ...Type.title,
+      color: colors.textPrimary,
+    },
+    entryVenue: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 1,
+    },
+    entryChevron: {
+      ...Type.body,
+      color: colors.textDisabled,
+      marginLeft: 8,
+    },
+    entryImageWrapper: {
+      marginRight: 10,
+    },
+    milestoneMarker: {
+      width: 9,
+      height: 9,
+      borderRadius: 2,
+      backgroundColor: colors.accent,
+      transform: [{ rotate: '45deg' }],
+    },
+    milestoneTag: {
+      ...Type.label,
+      color: colors.accent,
+      letterSpacing: 0.8,
+      marginBottom: 1,
+    },
+    // ── On this day (phone) ───────────────────────────────────────────────
+    onThisDayCard: {
+      marginHorizontal: 20,
+      marginTop: 16,
+      marginBottom: 4,
+      backgroundColor: colors.accentSoft,
+      borderWidth: 1,
+      borderColor: colors.accent,
+      borderRadius: 12,
+      padding: 14,
+    },
+    onThisDayLabel: {
+      ...Type.label,
+      color: colors.accent,
+      letterSpacing: 0.8,
+      marginBottom: 6,
+    },
+    onThisDayRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    onThisDayArtist: {
+      ...Type.title,
+      color: colors.textPrimary,
+      flex: 1,
+    },
+    onThisDayMeta: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 3,
+    },
+    onThisDayChevron: {
+      ...Type.body,
+      color: colors.accent,
+      marginLeft: 8,
+    },
+  });
 
   const { lastSyncTimestamp, notifySyncComplete } = useSyncContext();
   const [stats, setStats] = useState<DashboardStats>(emptyStats);
@@ -586,7 +586,6 @@ export default function DashboardScreen() {
     dbOperations.getSetlistsByYear(selectedYear).then(setYearConcerts);
   }, [selectedYear, isTablet]);
 
-
   const handleSync = async () => {
     const trimmed = usernameRef.current.trim();
     if (!trimmed) {
@@ -638,9 +637,8 @@ export default function DashboardScreen() {
             <Text style={styles.appTitle}>Chronicles</Text>
             <View style={styles.topBarActions}>
               <Pressable
-                
-          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-         onPress={handleSync}
+                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                onPress={handleSync}
                 accessibilityRole="button"
                 accessibilityLabel="Sync concert data"
               >
@@ -652,9 +650,8 @@ export default function DashboardScreen() {
                 />
               </Pressable>
               <Pressable
-                
-          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-         onPress={() => router.push('/(home)/settings')}
+                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                onPress={() => router.push('/(home)/settings')}
                 accessibilityRole="button"
                 accessibilityLabel="Open settings"
               >
@@ -1103,7 +1100,10 @@ export default function DashboardScreen() {
 
             {isSelectedLastYear && stats.lastConcert && (
               <Pressable
-                style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
+                style={({ pressed }) => [
+                  styles.detailHighlightEntry,
+                  { opacity: pressed ? 0.7 : 1 },
+                ]}
                 onPress={() =>
                   router.push({
                     pathname: '/(home)/concert/[id]',
@@ -1134,7 +1134,10 @@ export default function DashboardScreen() {
               return (
                 <Pressable
                   key={m.number}
-                  style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
+                  style={({ pressed }) => [
+                    styles.detailHighlightEntry,
+                    { opacity: pressed ? 0.7 : 1 },
+                  ]}
                   onPress={() =>
                     router.push({
                       pathname: '/(home)/concert/[id]',
@@ -1158,7 +1161,10 @@ export default function DashboardScreen() {
 
             {isSelectedOnThisDayYear && onThisDay && (
               <Pressable
-                style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
+                style={({ pressed }) => [
+                  styles.detailHighlightEntry,
+                  { opacity: pressed ? 0.7 : 1 },
+                ]}
                 onPress={() =>
                   router.push({
                     pathname: '/(home)/concert/[id]',
@@ -1187,7 +1193,10 @@ export default function DashboardScreen() {
 
             {isSelectedFirstYear && stats.firstConcert && (
               <Pressable
-                style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
+                style={({ pressed }) => [
+                  styles.detailHighlightEntry,
+                  { opacity: pressed ? 0.7 : 1 },
+                ]}
                 onPress={() =>
                   router.push({
                     pathname: '/(home)/concert/[id]',
@@ -1221,7 +1230,10 @@ export default function DashboardScreen() {
             {yearConcerts.map((c) => (
               <Pressable
                 key={c.setlistId}
-                style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
+                style={({ pressed }) => [
+                  styles.detailHighlightEntry,
+                  { opacity: pressed ? 0.7 : 1 },
+                ]}
                 onPress={() =>
                   router.push({ pathname: '/(home)/concert/[id]', params: { id: c.setlistId } })
                 }
@@ -1304,9 +1316,21 @@ export default function DashboardScreen() {
               )}
               <View style={[styles.topBarActions, { marginLeft: 'auto' }]}>
                 <Pressable
-                  
-          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-         onPress={handleSync}
+                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                  onPress={() => router.push('/(home)/ask')}
+                  accessibilityRole="button"
+                  accessibilityLabel="Ask about your concerts"
+                >
+                  <Icon
+                    sf="bubble.left"
+                    md="chatbubble-outline"
+                    size={20}
+                    color={colors.textMuted}
+                  />
+                </Pressable>
+                <Pressable
+                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                  onPress={handleSync}
                   accessibilityRole="button"
                   accessibilityLabel="Sync concert data"
                 >
@@ -1318,9 +1342,8 @@ export default function DashboardScreen() {
                   />
                 </Pressable>
                 <Pressable
-                  
-          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-         onPress={() => router.push('/(home)/settings')}
+                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                  onPress={() => router.push('/(home)/settings')}
                   accessibilityRole="button"
                   accessibilityLabel="Open settings"
                 >
@@ -1351,7 +1374,8 @@ export default function DashboardScreen() {
                         // 4 per row in landscape, 3 in portrait
                         { flexBasis: isLandscape ? '23%' : '30%' },
                         isSelected && styles.yearTileSelected,
-                      , { opacity: pressed ? 0.7 : 1 }]}
+                        { opacity: pressed ? 0.7 : 1 },
+                      ]}
                       onPress={() => selectYear(yr)}
                       accessibilityRole="button"
                       accessibilityLabel={`${yr}, ${y.count} shows`}
@@ -1385,9 +1409,21 @@ export default function DashboardScreen() {
               <Text style={styles.appTitle}>Chronicles</Text>
               <View style={styles.topBarActions}>
                 <Pressable
-                  
-          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-         onPress={handleSync}
+                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                  onPress={() => router.push('/(home)/ask')}
+                  accessibilityRole="button"
+                  accessibilityLabel="Ask about your concerts"
+                >
+                  <Icon
+                    sf="bubble.left"
+                    md="chatbubble-outline"
+                    size={20}
+                    color={colors.textMuted}
+                  />
+                </Pressable>
+                <Pressable
+                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                  onPress={handleSync}
                   accessibilityRole="button"
                   accessibilityLabel="Sync concert data"
                 >
@@ -1399,9 +1435,8 @@ export default function DashboardScreen() {
                   />
                 </Pressable>
                 <Pressable
-                  
-          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-         onPress={() => router.push('/(home)/settings')}
+                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                  onPress={() => router.push('/(home)/settings')}
                   accessibilityRole="button"
                   accessibilityLabel="Open settings"
                 >

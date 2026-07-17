@@ -38,6 +38,23 @@ function isoYear(isoDate: string): string {
 }
 
 /**
+ * Converts a DD-MM-YYYY date string (setlist.fm format) to ISO YYYY-MM-DD.
+ * Mirrors the `substr(eventDate,7,4)||'-'||substr(eventDate,4,2)||'-'||substr(eventDate,1,2)`
+ * SQL expression used across operations.ts, for JS-side callers (e.g. chat query formatting).
+ */
+export function toIsoDate(dateString: string): string {
+  const [day, month, year] = dateString.split('-');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Extracts the year (as a string) from a DD-MM-YYYY event date.
+ */
+export function getEventYear(dateString: string): string {
+  return dateString.split('-')[2] ?? '';
+}
+
+/**
  * Converts a raw day count into a human-readable duration string.
  * Intended for gaps and spans between dates, not event counts.
  *
