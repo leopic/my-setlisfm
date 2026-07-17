@@ -265,6 +265,7 @@ export default {
 
     answers: {
       noData: "I don't have enough data to answer that yet.",
+      rankingExhausted: "That's all I've got for this one — no more results to show.",
       neverSeen: "Looks like you haven't seen {{artist}} yet.",
 
       firstTimeSeen: 'You first saw {{artist}} on {{date}} at {{venue}}.',

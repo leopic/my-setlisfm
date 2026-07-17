@@ -5,6 +5,7 @@ import i18n from '@/i18n';
 import { dbOperations } from '@/database/operations';
 import * as chatQueries from '@/database/chatQueries';
 import { formatDate, formatIsoDate, monthDisplayName, monthNameToNumber } from '@/utils/date';
+import { findArtists, findCountries, findCities } from '@/services/chat/entityResolver';
 import type { ChatIntent } from '@/services/chat/types';
 import type { ArtistShowSummary } from '@/database/chatQueries';
 
@@ -14,6 +15,28 @@ function requireArtist(resolved: { artist?: { mbid: string; name?: string } }): 
 } {
   if (!resolved.artist) throw new Error('artist slot not resolved');
   return { mbid: resolved.artist.mbid, name: resolved.artist.name ?? 'that artist' };
+}
+
+// Named-exclusion resolution for ranking intents ("...other than Foo Fighters?"). Best
+// effort only — an unresolved or ambiguous name just means no exclusion is applied,
+// rather than blocking the whole answer on a clarification for what's a modifier clause,
+// not the primary subject of the question.
+async function resolveExcludeMbids(rawName?: string): Promise<string[]> {
+  if (!rawName) return [];
+  const candidates = await findArtists(rawName);
+  return candidates[0] ? [candidates[0].record.mbid] : [];
+}
+
+async function resolveExcludeCountryCodes(rawName?: string): Promise<string[]> {
+  if (!rawName) return [];
+  const candidates = await findCountries(rawName);
+  return candidates[0] ? [candidates[0].record.code] : [];
+}
+
+async function resolveExcludeCityIds(rawName?: string): Promise<string[]> {
+  if (!rawName) return [];
+  const candidates = await findCities(rawName);
+  return candidates[0] ? [candidates[0].record.id] : [];
 }
 
 function formatBusiestPeriodShows(shows: ArtistShowSummary[]): string {
@@ -213,14 +236,19 @@ export const CHAT_INTENTS: ChatIntent[] = [
   },
   {
     id: 'top_artist',
-    patterns: [/^who(?:'s| is) the artist i(?:'ve| have) seen the most\??$/i],
-    handle: async () => {
-      const stats = await dbOperations.getDashboardStats();
-      if (!stats.topArtist) return i18n.t('chat.answers.noData');
-      return i18n.t('chat.answers.topArtist', {
-        artist: stats.topArtist.name,
-        count: stats.topArtist.count,
-      });
+    patterns: [
+      /^who(?:'s| is) the artist i(?:'ve| have) seen the most\??$/i,
+      /^who(?:'s| is) the artist i(?:'ve| have) seen the most,? (?:other than|besides|excluding|not counting) (?<excludeArtist>.+?)\??$/i,
+    ],
+    rankingId: 'top_artist',
+    resolveNamedExclusion: async (raw) => resolveExcludeMbids(raw.excludeArtist),
+    getRanked: async (excludeKeys) => {
+      const top = await chatQueries.topArtist(excludeKeys);
+      if (!top) return null;
+      return {
+        text: i18n.t('chat.answers.topArtist', { artist: top.name, count: top.count }),
+        key: top.mbid,
+      };
     },
   },
   {
@@ -229,14 +257,23 @@ export const CHAT_INTENTS: ChatIntent[] = [
       /^(?:which|who)(?:'s| is)? (?:is )?the artist (?:that )?i(?:'ve| have) seen the most in a single year\??$/i,
       /^which artist have i seen the most in a single year\??$/i,
     ],
-    handle: async () => {
-      const top = await chatQueries.topArtistInASingleYear();
-      if (!top) return i18n.t('chat.answers.noData');
-      return i18n.t('chat.answers.topArtistInASingleYear', {
-        artist: top.name,
-        count: top.count,
-        year: top.year,
-      });
+    rankingId: 'top_artist_in_a_single_year',
+    getRanked: async (excludeKeys) => {
+      const top = await chatQueries.topArtistInASingleYear(
+        excludeKeys.map((k) => {
+          const [mbid, year] = k.split('|');
+          return { mbid, year };
+        }),
+      );
+      if (!top) return null;
+      return {
+        text: i18n.t('chat.answers.topArtistInASingleYear', {
+          artist: top.name,
+          count: top.count,
+          year: top.year,
+        }),
+        key: `${top.mbid}|${top.year}`,
+      };
     },
   },
   {
@@ -375,48 +412,71 @@ export const CHAT_INTENTS: ChatIntent[] = [
   {
     id: 'busiest_year_with_shows',
     patterns: [
-      /^(?:which|what) was my busiest year,? and (?:which|what) concerts did i (?:see|go to)\??$/i,
+      /^(?:which|what) was my busiest year(?:,? (?:outside|excluding|other than|besides|not counting) (?<exYear>\d{4}))?(?:,? and (?:which|what) concerts did i (?:see|go to))?\??$/i,
     ],
-    handle: async () => {
-      const busiest = await dbOperations.getBusiestYear();
-      if (!busiest) return i18n.t('chat.answers.noData');
+    rankingId: 'busiest_year',
+    resolveNamedExclusion: async (raw) => (raw.exYear ? [raw.exYear] : []),
+    getRanked: async (excludeKeys) => {
+      const busiest = await chatQueries.busiestYear(excludeKeys);
+      if (!busiest) return null;
       const shows = await chatQueries.showsInYear(busiest.year);
       const list = formatBusiestPeriodShows(shows);
-      return `${i18n.t('chat.answers.busiestYearWithShows', { year: busiest.year, count: busiest.count })}\n${list}`;
+      return {
+        text: `${i18n.t('chat.answers.busiestYearWithShows', { year: busiest.year, count: busiest.count })}\n${list}`,
+        key: busiest.year,
+      };
     },
   },
   {
     id: 'busiest_month_with_shows',
     patterns: [
-      /^(?:which|what) was my busiest month,? and (?:which|what) concerts did i (?:see|go to)\??$/i,
+      new RegExp(
+        `^(?:which|what) was my busiest month(?:,? (?:outside|excluding|other than|besides|not counting) (?<exMonth>${MONTH_NAMES}) (?<exYear>\\d{4}))?(?:,? and (?:which|what) concerts did i (?:see|go to))?\\??$`,
+        'i',
+      ),
     ],
-    handle: async () => {
-      const busiest = await chatQueries.busiestMonth();
-      if (!busiest) return i18n.t('chat.answers.noData');
+    rankingId: 'busiest_month',
+    resolveNamedExclusion: async (raw) =>
+      raw.exMonth && raw.exYear ? [`${monthNameToNumber(raw.exMonth)}|${raw.exYear}`] : [],
+    getRanked: async (excludeKeys) => {
+      const busiest = await chatQueries.busiestMonth(
+        excludeKeys.map((k) => {
+          const [month, year] = k.split('|');
+          return { month, year };
+        }),
+      );
+      if (!busiest) return null;
       const shows = await chatQueries.showsInMonthYear(busiest.month, busiest.year);
       const list = formatBusiestPeriodShows(shows);
-      return `${i18n.t('chat.answers.busiestMonthWithShows', {
-        month: monthDisplayName(busiest.month),
-        year: busiest.year,
-        count: busiest.count,
-      })}\n${list}`;
+      return {
+        text: `${i18n.t('chat.answers.busiestMonthWithShows', {
+          month: monthDisplayName(busiest.month),
+          year: busiest.year,
+          count: busiest.count,
+        })}\n${list}`,
+        key: `${busiest.month}|${busiest.year}`,
+      };
     },
   },
   {
     id: 'busiest_week_with_shows',
     patterns: [
-      /^(?:which|what) was my busiest week,? and (?:which|what) concerts did i (?:see|go to)\??$/i,
+      /^(?:which|what) was my busiest week(?:,? and (?:which|what) concerts did i (?:see|go to))?\??$/i,
     ],
-    handle: async () => {
-      const busiest = await chatQueries.busiestWeek();
-      if (!busiest) return i18n.t('chat.answers.noData');
+    rankingId: 'busiest_week',
+    getRanked: async (excludeKeys) => {
+      const busiest = await chatQueries.busiestWeek(excludeKeys);
+      if (!busiest) return null;
       const shows = await chatQueries.showsInWeek(busiest.weekStart);
       const list = formatBusiestPeriodShows(shows);
-      return `${i18n.t('chat.answers.busiestWeekWithShows', {
-        start: formatIsoDate(busiest.weekStart),
-        end: formatIsoDate(busiest.weekEnd),
-        count: busiest.count,
-      })}\n${list}`;
+      return {
+        text: `${i18n.t('chat.answers.busiestWeekWithShows', {
+          start: formatIsoDate(busiest.weekStart),
+          end: formatIsoDate(busiest.weekEnd),
+          count: busiest.count,
+        })}\n${list}`,
+        key: busiest.weekStart,
+      };
     },
   },
   {
@@ -479,11 +539,19 @@ export const CHAT_INTENTS: ChatIntent[] = [
   },
   {
     id: 'most_visited_country',
-    patterns: [/^which country have i seen the most concerts in\??$/i],
-    handle: async () => {
-      const top = await chatQueries.mostVisitedCountry();
-      if (!top) return i18n.t('chat.answers.noData');
-      return i18n.t('chat.answers.mostVisitedCountry', { country: top.name, count: top.count });
+    patterns: [
+      /^which country have i seen the most concerts in\??$/i,
+      /^which country have i seen the most concerts in,? (?:other than|besides|excluding|not counting) (?<excludeCountry>.+?)\??$/i,
+    ],
+    rankingId: 'most_visited_country',
+    resolveNamedExclusion: async (raw) => resolveExcludeCountryCodes(raw.excludeCountry),
+    getRanked: async (excludeKeys) => {
+      const top = await chatQueries.mostVisitedCountry(excludeKeys);
+      if (!top) return null;
+      return {
+        text: i18n.t('chat.answers.mostVisitedCountry', { country: top.name, count: top.count }),
+        key: top.code,
+      };
     },
   },
   {
@@ -542,11 +610,19 @@ export const CHAT_INTENTS: ChatIntent[] = [
   },
   {
     id: 'most_visited_city',
-    patterns: [/^which city have i seen the most concerts in\??$/i],
-    handle: async () => {
-      const top = await chatQueries.mostVisitedCity();
-      if (!top) return i18n.t('chat.answers.noData');
-      return i18n.t('chat.answers.mostVisitedCity', { city: top.name, count: top.count });
+    patterns: [
+      /^which city have i seen the most concerts in\??$/i,
+      /^which city have i seen the most concerts in,? (?:other than|besides|excluding|not counting) (?<excludeCity>.+?)\??$/i,
+    ],
+    rankingId: 'most_visited_city',
+    resolveNamedExclusion: async (raw) => resolveExcludeCityIds(raw.excludeCity),
+    getRanked: async (excludeKeys) => {
+      const top = await chatQueries.mostVisitedCity(excludeKeys);
+      if (!top) return null;
+      return {
+        text: i18n.t('chat.answers.mostVisitedCity', { city: top.name, count: top.count }),
+        key: top.id,
+      };
     },
   },
 ];

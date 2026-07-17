@@ -121,8 +121,14 @@ describe('aggregates', () => {
   });
 
   it('topArtistInASingleYear returns the top artist/year/count row', async () => {
-    mockDb.getFirstAsync.mockResolvedValue({ name: 'Bad Religion', year: '2019', count: 4 });
+    mockDb.getFirstAsync.mockResolvedValue({
+      mbid: 'mbid-1',
+      name: 'Bad Religion',
+      year: '2019',
+      count: 4,
+    });
     expect(await chatQueries.topArtistInASingleYear()).toEqual({
+      mbid: 'mbid-1',
       name: 'Bad Religion',
       year: '2019',
       count: 4,
@@ -132,6 +138,73 @@ describe('aggregates', () => {
   it('topArtistInASingleYear returns null with no data', async () => {
     mockDb.getFirstAsync.mockResolvedValue(null);
     expect(await chatQueries.topArtistInASingleYear()).toBeNull();
+  });
+
+  it('topArtistInASingleYear passes exclusion keys through as params', async () => {
+    mockDb.getFirstAsync.mockResolvedValue(null);
+    await chatQueries.topArtistInASingleYear([{ mbid: 'mbid-1', year: '2019' }]);
+    expect(mockDb.getFirstAsync).toHaveBeenCalledWith(expect.any(String), ['mbid-1', '2019']);
+  });
+
+  it('topArtist returns the top artist/mbid/count row', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ mbid: 'mbid-1', name: 'Bad Religion', count: 10 });
+    expect(await chatQueries.topArtist()).toEqual({
+      mbid: 'mbid-1',
+      name: 'Bad Religion',
+      count: 10,
+    });
+  });
+
+  it('topArtist excludes the given mbids', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ mbid: 'mbid-2', name: 'NOFX', count: 8 });
+    const result = await chatQueries.topArtist(['mbid-1']);
+    expect(result?.mbid).toBe('mbid-2');
+    expect(mockDb.getFirstAsync).toHaveBeenCalledWith(expect.any(String), ['mbid-1']);
+  });
+
+  it('mostVisitedCountry returns the top country/code/count row', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ name: 'Mexico', code: 'MX', count: 6 });
+    expect(await chatQueries.mostVisitedCountry()).toEqual({
+      name: 'Mexico',
+      code: 'MX',
+      count: 6,
+    });
+  });
+
+  it('mostVisitedCountry excludes the given codes', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ name: 'Argentina', code: 'AR', count: 3 });
+    const result = await chatQueries.mostVisitedCountry(['MX']);
+    expect(result?.code).toBe('AR');
+    expect(mockDb.getFirstAsync).toHaveBeenCalledWith(expect.any(String), ['MX']);
+  });
+
+  it('mostVisitedCity returns the top city/id/count row', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ name: 'Berlin', id: 'city-1', count: 6 });
+    expect(await chatQueries.mostVisitedCity()).toEqual({ name: 'Berlin', id: 'city-1', count: 6 });
+  });
+
+  it('mostVisitedCity excludes the given city ids', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ name: 'Paris', id: 'city-2', count: 4 });
+    const result = await chatQueries.mostVisitedCity(['city-1']);
+    expect(result?.id).toBe('city-2');
+    expect(mockDb.getFirstAsync).toHaveBeenCalledWith(expect.any(String), ['city-1']);
+  });
+
+  it('busiestYear returns the year/count row', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ year: '2022', count: 58 });
+    expect(await chatQueries.busiestYear()).toEqual({ year: '2022', count: 58 });
+  });
+
+  it('busiestYear excludes the given years', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ year: '2019', count: 33 });
+    const result = await chatQueries.busiestYear(['2022']);
+    expect(result?.year).toBe('2019');
+    expect(mockDb.getFirstAsync).toHaveBeenCalledWith(expect.any(String), ['2022']);
+  });
+
+  it('busiestYear returns null with no data', async () => {
+    mockDb.getFirstAsync.mockResolvedValue(null);
+    expect(await chatQueries.busiestYear()).toBeNull();
   });
 });
 
@@ -193,6 +266,13 @@ describe('time-based', () => {
     expect(await chatQueries.busiestMonth()).toBeNull();
   });
 
+  it('busiestMonth excludes the given month/year pairs', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ month: '09', year: '2018', count: 14 });
+    const result = await chatQueries.busiestMonth([{ month: '06', year: '2025' }]);
+    expect(result).toEqual({ month: '09', year: '2018', count: 14 });
+    expect(mockDb.getFirstAsync).toHaveBeenCalledWith(expect.any(String), ['06', '2025']);
+  });
+
   it('busiestWeek returns the week start/end/count with the most shows', async () => {
     mockDb.getFirstAsync.mockResolvedValue({
       weekStart: '2025-03-03',
@@ -204,6 +284,17 @@ describe('time-based', () => {
       weekEnd: '2025-03-09',
       count: 3,
     });
+  });
+
+  it('busiestWeek excludes the given week-start dates', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({
+      weekStart: '2018-09-10',
+      weekEnd: '2018-09-16',
+      count: 13,
+    });
+    const result = await chatQueries.busiestWeek(['2025-03-03']);
+    expect(result?.weekStart).toBe('2018-09-10');
+    expect(mockDb.getFirstAsync).toHaveBeenCalledWith(expect.any(String), ['2025-03-03']);
   });
 
   it('busiestWeek returns null with no logged concerts', async () => {

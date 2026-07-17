@@ -38,17 +38,7 @@ describe('answerQuestion — no match', () => {
 
 describe('answerQuestion — smart-quote normalization', () => {
   it('matches a question typed with iOS smart-quote apostrophes', async () => {
-    jest.spyOn(dbOperations, 'getDashboardStats').mockResolvedValue({
-      totalConcerts: 0,
-      totalArtists: 0,
-      totalVenues: 0,
-      totalCountries: 0,
-      topArtist: { mbid: 'mbid-1', name: 'Bad Religion', count: 5 },
-      topVenue: null,
-      firstConcert: null,
-      lastConcert: null,
-      concertsByYear: [],
-    });
+    mockDb.getFirstAsync.mockResolvedValueOnce({ mbid: 'mbid-1', name: 'Bad Religion', count: 5 });
 
     const result = await answerQuestion('Who’s the artist I’ve seen the most?');
     expect(result.type).toBe('answer');
@@ -86,7 +76,7 @@ describe('answerQuestion — no-entity intents', () => {
 
 describe('answerQuestion — busiest period with shows', () => {
   it('answers busiest year with the list of concerts that year', async () => {
-    jest.spyOn(dbOperations, 'getBusiestYear').mockResolvedValue({ year: '2025', count: 2 });
+    mockDb.getFirstAsync.mockResolvedValueOnce({ year: '2025', count: 2 });
     mockDb.getAllAsync.mockResolvedValueOnce([
       {
         eventDate: '03-06-2025',
@@ -150,12 +140,156 @@ describe('answerQuestion — busiest period with shows', () => {
   });
 
   it('reports no data when there are no logged concerts at all', async () => {
-    jest.spyOn(dbOperations, 'getBusiestYear').mockResolvedValue(null);
-
     const result = await answerQuestion('Which was my busiest year and which concerts did I see?');
 
     expect(result.type).toBe('answer');
     expect(result.type === 'answer' && result.text).toContain("don't have enough data");
+  });
+});
+
+describe('answerQuestion — ranking named exclusion', () => {
+  it('excludes a named artist from top_artist', async () => {
+    mockDb.getAllAsync.mockResolvedValueOnce([{ mbid: 'mbid-1', name: 'Foo Fighters' }]); // findArtists
+    mockDb.getFirstAsync.mockResolvedValueOnce({ mbid: 'mbid-2', name: 'NOFX', count: 8 }); // topArtist
+
+    const result = await answerQuestion(
+      "Who's the artist I've seen the most, other than Foo Fighters?",
+    );
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('NOFX');
+    expect(result.type === 'answer' && result.context?.lastRanking).toEqual({
+      rankingId: 'top_artist',
+      excludedKeys: ['mbid-1', 'mbid-2'],
+    });
+  });
+
+  it('excludes a named country from most_visited_country', async () => {
+    mockDb.getAllAsync.mockResolvedValueOnce([{ code: 'MX', name: 'Mexico' }]); // findCountries
+    mockDb.getFirstAsync.mockResolvedValueOnce({ code: 'AR', name: 'Argentina', count: 3 }); // mostVisitedCountry
+
+    const result = await answerQuestion(
+      'Which country have I seen the most concerts in, excluding Mexico?',
+    );
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('Argentina');
+  });
+
+  it('excludes a named city from most_visited_city', async () => {
+    mockDb.getAllAsync.mockResolvedValueOnce([{ id: 'city-1', name: 'Berlin' }]); // findCities
+    mockDb.getFirstAsync.mockResolvedValueOnce({ id: 'city-2', name: 'Paris', count: 4 }); // mostVisitedCity
+
+    const result = await answerQuestion(
+      'Which city have I seen the most concerts in, other than Berlin?',
+    );
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('Paris');
+  });
+
+  it('excludes a named year from busiest_year_with_shows', async () => {
+    mockDb.getFirstAsync.mockResolvedValueOnce({ year: '2019', count: 33 }); // busiestYear
+    mockDb.getAllAsync.mockResolvedValueOnce([
+      {
+        eventDate: '10-03-2019',
+        artistName: 'Bad Religion',
+        venueName: 'The Fillmore',
+        cityName: 'San Francisco',
+      },
+    ]); // showsInYear
+
+    const result = await answerQuestion('Which was my busiest year, outside 2022?');
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('2019');
+    expect(mockDb.getFirstAsync).toHaveBeenCalledWith(expect.any(String), ['2022']);
+  });
+
+  it('excludes a named month from busiest_month_with_shows', async () => {
+    mockDb.getFirstAsync.mockResolvedValueOnce({ month: '09', year: '2018', count: 14 }); // busiestMonth
+    mockDb.getAllAsync.mockResolvedValueOnce([
+      {
+        eventDate: '08-09-2018',
+        artistName: 'Childish Gambino',
+        venueName: 'United Center',
+        cityName: 'Chicago',
+      },
+    ]); // showsInMonthYear
+
+    const result = await answerQuestion('Which was my busiest month, outside June 2025?');
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('September 2018');
+    expect(result.type === 'answer' && result.text).toContain('Childish Gambino');
+    expect(mockDb.getFirstAsync).toHaveBeenCalledWith(expect.any(String), ['06', '2025']);
+  });
+});
+
+describe('answerQuestion — "which was the next one?" ranking follow-up', () => {
+  it('continues a top_artist ranking to the next entry', async () => {
+    mockDb.getFirstAsync.mockResolvedValueOnce({ mbid: 'mbid-1', name: 'Foo Fighters', count: 20 });
+    const first = await answerQuestion("Who's the artist I've seen the most?");
+    expect(first.type === 'answer' && first.text).toContain('Foo Fighters');
+    const contextAfterFirst = first.type === 'answer' ? first.context : undefined;
+    expect(contextAfterFirst?.lastRanking).toEqual({
+      rankingId: 'top_artist',
+      excludedKeys: ['mbid-1'],
+    });
+
+    mockDb.getFirstAsync.mockResolvedValueOnce({ mbid: 'mbid-2', name: 'NOFX', count: 15 });
+    const second = await answerQuestion('Which was the next one after that?', contextAfterFirst);
+
+    expect(second.type).toBe('answer');
+    expect(second.type === 'answer' && second.text).toContain('NOFX');
+    expect(second.type === 'answer' && second.context?.lastRanking).toEqual({
+      rankingId: 'top_artist',
+      excludedKeys: ['mbid-1', 'mbid-2'],
+    });
+  });
+
+  it('keeps chaining across multiple "next one" turns, accumulating exclusions', async () => {
+    const context = {
+      lastRanking: { rankingId: 'top_artist', excludedKeys: ['mbid-1', 'mbid-2'] },
+    };
+    mockDb.getFirstAsync.mockResolvedValueOnce({ mbid: 'mbid-3', name: 'Bad Religion', count: 10 });
+
+    const result = await answerQuestion('What about the next one?', context);
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('Bad Religion');
+    expect(result.type === 'answer' && result.context?.lastRanking?.excludedKeys).toEqual([
+      'mbid-1',
+      'mbid-2',
+      'mbid-3',
+    ]);
+  });
+
+  it('recognizes "who\'s next?" as a shorter equivalent phrasing', async () => {
+    const context = { lastRanking: { rankingId: 'top_artist', excludedKeys: ['mbid-1'] } };
+    mockDb.getFirstAsync.mockResolvedValueOnce({ mbid: 'mbid-2', name: 'NOFX', count: 15 });
+
+    const result = await answerQuestion("Who's next?", context);
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('NOFX');
+  });
+
+  it('reports a graceful message once the ranking is exhausted', async () => {
+    const context = {
+      lastRanking: { rankingId: 'top_artist', excludedKeys: ['mbid-1', 'mbid-2'] },
+    };
+    mockDb.getFirstAsync.mockResolvedValueOnce(undefined);
+
+    const result = await answerQuestion('Which was the next one after that?', context);
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('no more results');
+  });
+
+  it('falls through to no_match when there is no remembered ranking to continue', async () => {
+    const result = await answerQuestion('Which was the next one after that?');
+    expect(result.type).toBe('no_match');
   });
 });
 

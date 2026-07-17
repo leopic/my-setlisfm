@@ -11,6 +11,8 @@ export interface ChatContext {
   year?: string;
   city?: { id: string; name: string };
   country?: { code: string; name: string };
+  /** The last ranking-style answer given, so "which was the next one?" can continue it. */
+  lastRanking?: { rankingId: string; excludedKeys: string[] };
 }
 
 export interface ChatAnswer {
@@ -51,11 +53,23 @@ export interface ResolvedEntities {
   country?: DBCountry;
 }
 
+/**
+ * Every intent defines EITHER `handle` (the normal case) OR `rankingId`+`getRanked` (a
+ * "top N" style aggregate that supports "which was the next one?" follow-ups) — never
+ * neither. Ranking intents skip entitySlots/handle entirely; answerQuestion dispatches
+ * to getRanked directly.
+ */
 export interface ChatIntent {
   id: string;
   /** Each pattern must use named capture groups matching the slot keys it declares. */
   patterns: RegExp[];
   /** Which named capture groups need fuzzy entity resolution, and against which table. */
   entitySlots?: Partial<Record<'artist' | 'artist2' | 'city' | 'country', EntityKind>>;
-  handle: (raw: RawSlots, resolved: ResolvedEntities) => Promise<string>;
+  handle?: (raw: RawSlots, resolved: ResolvedEntities) => Promise<string>;
+  /** Identifies this intent as ranking-style; must be paired with getRanked. */
+  rankingId?: string;
+  /** Re-runs this ranking excluding already-shown keys; returns null once exhausted. */
+  getRanked?: (excludeKeys: string[]) => Promise<{ text: string; key: string } | null>;
+  /** Resolves an optional "excluding X" clause captured in raw into ranking-specific keys. */
+  resolveNamedExclusion?: (raw: RawSlots) => Promise<string[]>;
 }

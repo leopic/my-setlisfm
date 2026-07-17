@@ -179,6 +179,37 @@ async function resolveFollowUp(
   return null;
 }
 
+const NEXT_RANKING_PATTERN =
+  /(?:which|what|who)(?:'s| is| was)?(?: about)? (?:the )?next(?: one)?(?: after that)?\??$/i;
+
+/** Continues the last ranking-style answer ("which was the next one (after that)?"). */
+async function resolveRankingFollowUp(
+  text: string,
+  context: ChatContext,
+): Promise<{ text: string; context: ChatContext } | null> {
+  if (!context.lastRanking) return null;
+  if (!NEXT_RANKING_PATTERN.test(text)) return null;
+
+  const intent = CHAT_INTENTS.find((i) => i.rankingId === context.lastRanking?.rankingId);
+  if (!intent?.getRanked) return null;
+
+  const result = await intent.getRanked(context.lastRanking.excludedKeys);
+  if (!result) {
+    return { text: i18n.t('chat.answers.rankingExhausted'), context };
+  }
+
+  return {
+    text: result.text,
+    context: {
+      ...context,
+      lastRanking: {
+        rankingId: context.lastRanking.rankingId,
+        excludedKeys: [...context.lastRanking.excludedKeys, result.key],
+      },
+    },
+  };
+}
+
 function mergeContext(
   previous: ChatContext,
   raw: RawSlots,
@@ -279,6 +310,12 @@ export async function answerQuestion(
   context: ChatContext = {},
 ): Promise<ChatResult> {
   const text = normalizeInput(input);
+
+  const rankingFollowUp = await resolveRankingFollowUp(text, context);
+  if (rankingFollowUp) {
+    return { type: 'answer', text: rankingFollowUp.text, context: rankingFollowUp.context };
+  }
+
   const matched = matchIntent(text) ?? (await resolveFollowUp(text, context));
 
   if (!matched) {
@@ -286,10 +323,30 @@ export async function answerQuestion(
   }
 
   const { intent, raw } = matched;
+
+  if (intent.rankingId && intent.getRanked) {
+    const namedExclusion = (await intent.resolveNamedExclusion?.(raw)) ?? [];
+    const result = await intent.getRanked(namedExclusion);
+    if (!result) {
+      return { type: 'answer', text: i18n.t('chat.answers.noData') };
+    }
+    return {
+      type: 'answer',
+      text: result.text,
+      context: {
+        ...context,
+        lastRanking: { rankingId: intent.rankingId, excludedKeys: [...namedExclusion, result.key] },
+      },
+    };
+  }
+
+  const { handle } = intent;
+  if (!handle) return { type: 'no_match', text: i18n.t('chat.notUnderstood') };
+
   const outcome = await resolveEntitySlots(intent, raw);
   if ('type' in outcome) return outcome;
 
-  const answerText = await intent.handle(raw, outcome.resolved);
+  const answerText = await handle(raw, outcome.resolved);
   return {
     type: 'answer',
     text: answerText,
@@ -307,8 +364,9 @@ export async function resumeWithChoice(
   const entitySlots = intent?.entitySlots ?? {};
   const slotKey = resume.slotKey as EntitySlotKey;
   const kind = entitySlots[slotKey];
+  const { handle } = intent ?? {};
 
-  if (!intent || !kind) {
+  if (!intent || !kind || !handle) {
     return { type: 'no_match', text: i18n.t('chat.notUnderstood') };
   }
 
@@ -321,7 +379,7 @@ export async function resumeWithChoice(
   if ('type' in outcome) return outcome;
 
   setResolvedEntity(outcome.resolved, slotKey, record);
-  const answerText = await intent.handle(resume.rawSlots, outcome.resolved);
+  const answerText = await handle(resume.rawSlots, outcome.resolved);
   return {
     type: 'answer',
     text: answerText,
