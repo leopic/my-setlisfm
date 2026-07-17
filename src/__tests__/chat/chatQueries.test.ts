@@ -410,3 +410,104 @@ describe('geographic', () => {
     expect(await chatQueries.countriesSeenInYear('2025')).toEqual(['Germany']);
   });
 });
+
+describe('venues', () => {
+  it('venueVisitCount counts shows at a venue', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ count: 3 });
+    expect(await chatQueries.venueVisitCount('venue-1')).toBe(3);
+    expect(mockDb.getFirstAsync).toHaveBeenCalledWith(expect.any(String), ['venue-1']);
+  });
+
+  it('bandsSeenAtVenue returns distinct artist names', async () => {
+    mockDb.getAllAsync.mockResolvedValue([{ name: 'Bad Religion' }, { name: 'NOFX' }]);
+    expect(await chatQueries.bandsSeenAtVenue('venue-1')).toEqual(['Bad Religion', 'NOFX']);
+  });
+
+  it('firstTimeAtVenue returns the earliest show', async () => {
+    mockDb.getAllAsync.mockResolvedValue(SHOWS);
+    const result = await chatQueries.firstTimeAtVenue('venue-1');
+    expect(result?.eventDate).toBe('10-03-2019');
+  });
+
+  it('firstTimeAtVenue returns null with no shows', async () => {
+    mockDb.getAllAsync.mockResolvedValue([]);
+    expect(await chatQueries.firstTimeAtVenue('venue-1')).toBeNull();
+  });
+
+  it('lastTimeAtVenue returns the latest show', async () => {
+    mockDb.getAllAsync.mockResolvedValue(SHOWS);
+    const result = await chatQueries.lastTimeAtVenue('venue-1');
+    expect(result?.eventDate).toBe('01-01-2024');
+  });
+
+  it('venuesSeenCount reads the distinct venue count', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ count: 12 });
+    expect(await chatQueries.venuesSeenCount()).toBe(12);
+  });
+
+  it('mostVisitedVenue returns the top venue/id/count row', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ name: 'The Fillmore', id: 'venue-1', count: 5 });
+    expect(await chatQueries.mostVisitedVenue()).toEqual({
+      name: 'The Fillmore',
+      id: 'venue-1',
+      count: 5,
+    });
+  });
+
+  it('mostVisitedVenue excludes the given venue ids', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ name: 'Red Rocks', id: 'venue-2', count: 3 });
+    const result = await chatQueries.mostVisitedVenue(['venue-1']);
+    expect(result?.id).toBe('venue-2');
+    expect(mockDb.getFirstAsync).toHaveBeenCalledWith(expect.any(String), ['venue-1']);
+  });
+});
+
+describe('songs / setlist detail', () => {
+  it('songPlayCount counts matching songs scoped to the artist', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ count: 4 });
+    const result = await chatQueries.songPlayCount('mbid-1', 'American Jesus');
+    expect(result).toBe(4);
+    expect(mockDb.getFirstAsync).toHaveBeenCalledWith(expect.any(String), [
+      'mbid-1',
+      '%American Jesus%',
+    ]);
+  });
+
+  it('songPlayCount returns 0 when never played', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ count: 0 });
+    expect(await chatQueries.songPlayCount('mbid-1', 'Nonexistent Song')).toBe(0);
+  });
+
+  it('mostPlayedSongByArtist returns the top song/count row', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ name: 'American Jesus', count: 20 });
+    expect(await chatQueries.mostPlayedSongByArtist('mbid-1')).toEqual({
+      name: 'American Jesus',
+      count: 20,
+    });
+  });
+
+  it('mostPlayedSongByArtist returns null with no setlist detail', async () => {
+    mockDb.getFirstAsync.mockResolvedValue(null);
+    expect(await chatQueries.mostPlayedSongByArtist('mbid-1')).toBeNull();
+  });
+
+  it('coversPlayedByArtist returns song name and original artist pairs', async () => {
+    mockDb.getAllAsync.mockResolvedValue([
+      { songName: 'Fortunate Son', originalArtist: 'Creedence Clearwater Revival' },
+    ]);
+    const result = await chatQueries.coversPlayedByArtist('mbid-1');
+    expect(result).toEqual([
+      { songName: 'Fortunate Son', originalArtist: 'Creedence Clearwater Revival' },
+    ]);
+  });
+
+  it('coversPlayedByArtist returns an empty list when none played', async () => {
+    mockDb.getAllAsync.mockResolvedValue([]);
+    expect(await chatQueries.coversPlayedByArtist('mbid-1')).toEqual([]);
+  });
+
+  it('guestArtistsWithArtist returns distinct guest artist names', async () => {
+    mockDb.getAllAsync.mockResolvedValue([{ name: 'Brett Gurewitz' }]);
+    expect(await chatQueries.guestArtistsWithArtist('mbid-1')).toEqual(['Brett Gurewitz']);
+  });
+});

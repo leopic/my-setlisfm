@@ -5,7 +5,7 @@ import i18n from '@/i18n';
 import { dbOperations } from '@/database/operations';
 import * as chatQueries from '@/database/chatQueries';
 import { formatDate, formatIsoDate, monthDisplayName, monthNameToNumber } from '@/utils/date';
-import { findArtists, findCountries, findCities } from '@/services/chat/entityResolver';
+import { findArtists, findCountries, findCities, findVenues } from '@/services/chat/entityResolver';
 import type { ChatIntent } from '@/services/chat/types';
 import type { ArtistShowSummary } from '@/database/chatQueries';
 
@@ -36,6 +36,12 @@ async function resolveExcludeCountryCodes(rawName?: string): Promise<string[]> {
 async function resolveExcludeCityIds(rawName?: string): Promise<string[]> {
   if (!rawName) return [];
   const candidates = await findCities(rawName);
+  return candidates[0] ? [candidates[0].record.id] : [];
+}
+
+async function resolveExcludeVenueIds(rawName?: string): Promise<string[]> {
+  if (!rawName) return [];
+  const candidates = await findVenues(rawName);
   return candidates[0] ? [candidates[0].record.id] : [];
 }
 
@@ -237,8 +243,10 @@ export const CHAT_INTENTS: ChatIntent[] = [
   {
     id: 'top_artist',
     patterns: [
-      /^who(?:'s| is) the artist i(?:'ve| have) seen the most\??$/i,
-      /^who(?:'s| is) the artist i(?:'ve| have) seen the most,? (?:other than|besides|excluding|not counting) (?<excludeArtist>.+?)\??$/i,
+      /^who(?:'s| is) the (?:artist|band) i(?:'ve| have) seen the most\??$/i,
+      /^who(?:'s| is) the (?:artist|band) i(?:'ve| have) seen the most,? (?:other than|besides|excluding|not counting) (?<excludeArtist>.+?)\??$/i,
+      /^which (?:artists?|bands?) have i seen the most\??$/i,
+      /^which (?:artists?|bands?) have i seen the most,? (?:other than|besides|excluding|not counting) (?<excludeArtist>.+?)\??$/i,
     ],
     rankingId: 'top_artist',
     resolveNamedExclusion: async (raw) => resolveExcludeMbids(raw.excludeArtist),
@@ -254,8 +262,8 @@ export const CHAT_INTENTS: ChatIntent[] = [
   {
     id: 'top_artist_in_a_single_year',
     patterns: [
-      /^(?:which|who)(?:'s| is)? (?:is )?the artist (?:that )?i(?:'ve| have) seen the most in a single year\??$/i,
-      /^which artist have i seen the most in a single year\??$/i,
+      /^(?:which|who)(?:'s| is)? (?:is )?the (?:artist|band) (?:that )?i(?:'ve| have) seen the most in a single year\??$/i,
+      /^which (?:artist|band) have i seen the most in a single year\??$/i,
     ],
     rankingId: 'top_artist_in_a_single_year',
     getRanked: async (excludeKeys) => {
@@ -278,7 +286,10 @@ export const CHAT_INTENTS: ChatIntent[] = [
   },
   {
     id: 'top5_artists',
-    patterns: [/^what are my top 5(?: most-seen)? artists\??$/i, /^who are my top 5 artists\??$/i],
+    patterns: [
+      /^what are my top 5(?: most-seen)? (?:artists|bands)\??$/i,
+      /^who are my top 5 (?:artists|bands)\??$/i,
+    ],
     handle: async () => {
       const artists = await chatQueries.top5Artists();
       if (artists.length === 0) return i18n.t('chat.answers.noData');
@@ -288,7 +299,7 @@ export const CHAT_INTENTS: ChatIntent[] = [
   },
   {
     id: 'unique_artists_count',
-    patterns: [/^how many (?:unique )?artists have i seen(?: overall)?\??$/i],
+    patterns: [/^how many (?:unique )?(?:artists|bands) have i seen(?: overall)?\??$/i],
     handle: async () => {
       const stats = await dbOperations.getDashboardStats();
       return i18n.t('chat.answers.uniqueArtistsCount', { count: stats.totalArtists });
@@ -296,7 +307,7 @@ export const CHAT_INTENTS: ChatIntent[] = [
   },
   {
     id: 'artists_seen_more_than_once',
-    patterns: [/^how many artists have i seen more than once\??$/i],
+    patterns: [/^how many (?:artists|bands) have i seen more than once\??$/i],
     handle: async () => {
       const count = await chatQueries.artistsSeenMoreThanOnceCount();
       return i18n.t('chat.answers.artistsSeenMoreThanOnce', { count });
@@ -304,7 +315,9 @@ export const CHAT_INTENTS: ChatIntent[] = [
   },
   {
     id: 'artists_seen_only_once',
-    patterns: [/^how many artists have i (?:only )?seen (?:only )?(?:a single time|once)\??$/i],
+    patterns: [
+      /^how many (?:artists|bands) have i (?:only )?seen (?:only )?(?:a single time|once)\??$/i,
+    ],
     handle: async () => {
       const count = await chatQueries.artistsSeenOnlyOnceCount();
       return i18n.t('chat.answers.artistsSeenOnlyOnce', { count });
@@ -312,7 +325,7 @@ export const CHAT_INTENTS: ChatIntent[] = [
   },
   {
     id: 'artists_seen_at_least_n',
-    patterns: [/^which artists have i seen (?<n>\d+)\+? ?(?:or more )?times\??$/i],
+    patterns: [/^which (?:artists|bands) have i seen (?<n>\d+)\+? ?(?:or more )?times\??$/i],
     handle: async (raw) => {
       const n = Number(raw.n ?? 5);
       const artists = await chatQueries.artistsSeenAtLeastNTimes(n);
@@ -623,6 +636,170 @@ export const CHAT_INTENTS: ChatIntent[] = [
         text: i18n.t('chat.answers.mostVisitedCity', { city: top.name, count: top.count }),
         key: top.id,
       };
+    },
+  },
+
+  // ── H. Venues ────────────────────────────────────────────────────────────
+  {
+    id: 'venue_visit_count',
+    patterns: [/^how many times have i (?:been to|visited|gone to) (?<venue>.+?)\??$/i],
+    entitySlots: { venue: 'venue' },
+    handle: async (_raw, resolved) => {
+      if (!resolved.venue) throw new Error('venue slot not resolved');
+      const count = await chatQueries.venueVisitCount(resolved.venue.id);
+      return i18n.t('chat.answers.venueVisitCount', {
+        venue: resolved.venue.name,
+        count,
+      });
+    },
+  },
+  {
+    id: 'bands_seen_at_venue',
+    patterns: [/^(?:which|what) (?:artists|bands) have i seen at (?<venue>.+?)\??$/i],
+    entitySlots: { venue: 'venue' },
+    handle: async (_raw, resolved) => {
+      if (!resolved.venue) throw new Error('venue slot not resolved');
+      const bands = await chatQueries.bandsSeenAtVenue(resolved.venue.id);
+      if (bands.length === 0) {
+        return i18n.t('chat.answers.bandsSeenAtVenueNone', { venue: resolved.venue.name });
+      }
+      return i18n.t('chat.answers.bandsSeenAtVenue', {
+        venue: resolved.venue.name,
+        list: bands.join(', '),
+      });
+    },
+  },
+  {
+    id: 'first_time_at_venue',
+    patterns: [/^when was the first time i (?:was at|went to|visited) (?<venue>.+?)\??$/i],
+    entitySlots: { venue: 'venue' },
+    handle: async (_raw, resolved) => {
+      if (!resolved.venue) throw new Error('venue slot not resolved');
+      const show = await chatQueries.firstTimeAtVenue(resolved.venue.id);
+      if (!show) return i18n.t('chat.answers.noData');
+      return i18n.t('chat.answers.firstTimeAtVenue', {
+        venue: resolved.venue.name,
+        date: formatDate(show.eventDate),
+      });
+    },
+  },
+  {
+    id: 'last_time_at_venue',
+    patterns: [/^when was the last time i (?:was at|went to|visited) (?<venue>.+?)\??$/i],
+    entitySlots: { venue: 'venue' },
+    handle: async (_raw, resolved) => {
+      if (!resolved.venue) throw new Error('venue slot not resolved');
+      const show = await chatQueries.lastTimeAtVenue(resolved.venue.id);
+      if (!show) return i18n.t('chat.answers.noData');
+      return i18n.t('chat.answers.lastTimeAtVenue', {
+        venue: resolved.venue.name,
+        date: formatDate(show.eventDate),
+      });
+    },
+  },
+  {
+    id: 'venues_seen_count',
+    patterns: [/^how many (?:different )?venues have i (?:been to|visited)\??$/i],
+    handle: async () => {
+      const count = await chatQueries.venuesSeenCount();
+      return i18n.t('chat.answers.venuesSeenCount', { count });
+    },
+  },
+  {
+    id: 'most_visited_venue',
+    patterns: [
+      /^which venues? have i (?:been to|visited) the most\??$/i,
+      /^which venues? have i (?:been to|visited) the most,? (?:other than|besides|excluding|not counting) (?<excludeVenue>.+?)\??$/i,
+    ],
+    rankingId: 'most_visited_venue',
+    resolveNamedExclusion: async (raw) => resolveExcludeVenueIds(raw.excludeVenue),
+    getRanked: async (excludeKeys) => {
+      const top = await chatQueries.mostVisitedVenue(excludeKeys);
+      if (!top) return null;
+      return {
+        text: i18n.t('chat.answers.mostVisitedVenue', { venue: top.name, count: top.count }),
+        key: top.id,
+      };
+    },
+  },
+
+  // ── I. Songs / setlist detail ────────────────────────────────────────────
+  // covers_played_by_artist is listed before the more general song_play_count so its
+  // "has X played any covers?" phrasing is matched first — song_play_count's own
+  // "has X played Y?" pattern would otherwise greedily capture "any covers" as a song title.
+  {
+    id: 'covers_played_by_artist',
+    patterns: [
+      /^what covers has (?<artist>.+?) played\??$/i,
+      /^has (?<artist>.+?) played any covers\??$/i,
+    ],
+    entitySlots: { artist: 'artist' },
+    handle: async (_raw, resolved) => {
+      const artist = requireArtist(resolved);
+      const covers = await chatQueries.coversPlayedByArtist(artist.mbid);
+      if (covers.length === 0) {
+        return i18n.t('chat.answers.coversPlayedByArtistNone', { artist: artist.name });
+      }
+      const list = covers
+        .map((c) =>
+          c.originalArtist ? `${c.songName} (originally by ${c.originalArtist})` : c.songName,
+        )
+        .join(', ');
+      return i18n.t('chat.answers.coversPlayedByArtist', { artist: artist.name, list });
+    },
+  },
+  {
+    id: 'song_play_count',
+    patterns: [
+      /^how many times has (?<artist>.+?) played (?<song>.+?)\??$/i,
+      /^has (?<artist>.+?) (?:ever )?played (?<song>.+?)\??$/i,
+      /^did (?<artist>.+?) play (?<song>.+?)\??$/i,
+    ],
+    entitySlots: { artist: 'artist' },
+    handle: async (raw, resolved) => {
+      const artist = requireArtist(resolved);
+      const count = await chatQueries.songPlayCount(artist.mbid, raw.song);
+      if (count === 0) {
+        return i18n.t('chat.answers.songPlayCountNone', { artist: artist.name, song: raw.song });
+      }
+      return i18n.t('chat.answers.songPlayCount', { artist: artist.name, song: raw.song, count });
+    },
+  },
+  {
+    id: 'most_played_song_by_artist',
+    patterns: [
+      /^what(?:'s| is) (?<artist>.+?)(?:'s)? most[- ]played song\??$/i,
+      /^what song does (?<artist>.+?) play the most\??$/i,
+    ],
+    entitySlots: { artist: 'artist' },
+    handle: async (_raw, resolved) => {
+      const artist = requireArtist(resolved);
+      const top = await chatQueries.mostPlayedSongByArtist(artist.mbid);
+      if (!top) return i18n.t('chat.answers.mostPlayedSongByArtistNone', { artist: artist.name });
+      return i18n.t('chat.answers.mostPlayedSongByArtist', {
+        artist: artist.name,
+        song: top.name,
+        count: top.count,
+      });
+    },
+  },
+  {
+    id: 'guest_artists_with',
+    patterns: [
+      /^which artists has (?<artist>.+?) brought (?:on ?stage|out)\??$/i,
+      /^who has (?<artist>.+?) performed with\??$/i,
+    ],
+    entitySlots: { artist: 'artist' },
+    handle: async (_raw, resolved) => {
+      const artist = requireArtist(resolved);
+      const guests = await chatQueries.guestArtistsWithArtist(artist.mbid);
+      if (guests.length === 0) {
+        return i18n.t('chat.answers.guestArtistsWithArtistNone', { artist: artist.name });
+      }
+      return i18n.t('chat.answers.guestArtistsWithArtist', {
+        artist: artist.name,
+        list: guests.join(', '),
+      });
     },
   },
 ];

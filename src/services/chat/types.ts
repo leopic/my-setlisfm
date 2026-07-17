@@ -1,6 +1,6 @@
-import type { DBArtist, DBCity, DBCountry } from '@/types/database';
+import type { DBArtist, DBCity, DBCountry, DBVenue } from '@/types/database';
 
-export type EntityKind = 'artist' | 'city' | 'country';
+export type EntityKind = 'artist' | 'city' | 'country' | 'venue';
 
 /** Raw slots captured by a regex match, before entity resolution. */
 export type RawSlots = Record<string, string>;
@@ -11,6 +11,7 @@ export interface ChatContext {
   year?: string;
   city?: { id: string; name: string };
   country?: { code: string; name: string };
+  venue?: { id: string; name: string };
   /** The last ranking-style answer given, so "which was the next one?" can continue it. */
   lastRanking?: { rankingId: string; excludedKeys: string[] };
 }
@@ -51,6 +52,7 @@ export interface ResolvedEntities {
   artist2?: DBArtist;
   city?: DBCity;
   country?: DBCountry;
+  venue?: DBVenue;
 }
 
 /**
@@ -64,7 +66,7 @@ export interface ChatIntent {
   /** Each pattern must use named capture groups matching the slot keys it declares. */
   patterns: RegExp[];
   /** Which named capture groups need fuzzy entity resolution, and against which table. */
-  entitySlots?: Partial<Record<'artist' | 'artist2' | 'city' | 'country', EntityKind>>;
+  entitySlots?: Partial<Record<'artist' | 'artist2' | 'city' | 'country' | 'venue', EntityKind>>;
   handle?: (raw: RawSlots, resolved: ResolvedEntities) => Promise<string>;
   /** Identifies this intent as ranking-style; must be paired with getRanked. */
   rankingId?: string;

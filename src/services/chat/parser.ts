@@ -18,9 +18,11 @@ import {
   findArtists,
   findCities,
   findCountries,
+  findVenues,
   isAmbiguous,
   getCityById,
   getCountryByCode,
+  getVenueById,
   type EntityMatch,
 } from '@/services/chat/entityResolver';
 import { CHAT_INTENTS } from '@/services/chat/intents';
@@ -34,7 +36,7 @@ import type {
   ResolvedEntities,
 } from '@/services/chat/types';
 
-type EntitySlotKey = 'artist' | 'artist2' | 'city' | 'country';
+type EntitySlotKey = 'artist' | 'artist2' | 'city' | 'country' | 'venue';
 
 function normalizeInput(text: string): string {
   return text
@@ -63,7 +65,7 @@ function substituteReferences(text: string, resolved: ResolvedReferences): strin
   if (resolved.artist) {
     result = result.replace(/\b(?:them|it)\b/gi, resolved.artist);
   }
-  const place = resolved.city ?? resolved.country;
+  const place = resolved.city ?? resolved.country ?? resolved.venue;
   if (place) {
     result = result.replace(/\bthere\b/gi, `in ${place}`);
   }
@@ -99,6 +101,7 @@ function contextAsResolved(context: ChatContext): ResolvedReferences {
     year: context.year,
     city: context.city?.name,
     country: context.country?.name,
+    venue: context.venue?.name,
   };
 }
 
@@ -118,6 +121,7 @@ async function resolveOverrideValue(
   if (context.artist) anchoredKinds.push('artist');
   if (context.city) anchoredKinds.push('city');
   if (context.country) anchoredKinds.push('country');
+  if (context.venue) anchoredKinds.push('venue');
 
   for (const kind of anchoredKinds) {
     const candidates = await findByKind(kind, value);
@@ -128,6 +132,7 @@ async function resolveOverrideValue(
     if (kind === 'artist') resolved.artist = name;
     if (kind === 'city') resolved.city = name;
     if (kind === 'country') resolved.country = name;
+    if (kind === 'venue') resolved.venue = name;
     return resolved;
   }
   return null;
@@ -160,7 +165,9 @@ async function resolveFollowUp(
   text: string,
   context: ChatContext,
 ): Promise<{ intent: ChatIntent; raw: RawSlots } | null> {
-  const hasContext = Boolean(context.artist || context.year || context.city || context.country);
+  const hasContext = Boolean(
+    context.artist || context.year || context.city || context.country || context.venue,
+  );
   if (!hasContext) return null;
 
   const resolved =
@@ -225,6 +232,9 @@ function mergeContext(
   if (resolved.country) {
     next.country = { code: resolved.country.code, name: resolved.country.name ?? '' };
   }
+  if (resolved.venue) {
+    next.venue = { id: resolved.venue.id, name: resolved.venue.name ?? '' };
+  }
   if (raw.year) next.year = raw.year;
   return next;
 }
@@ -237,6 +247,8 @@ async function findByKind(kind: EntityKind, query: string): Promise<EntityMatch<
       return findCities(query);
     case 'country':
       return findCountries(query);
+    case 'venue':
+      return findVenues(query);
   }
 }
 
@@ -248,12 +260,14 @@ async function lookupById(kind: EntityKind, id: string): Promise<unknown | null>
       return getCityById(id);
     case 'country':
       return getCountryByCode(id);
+    case 'venue':
+      return getVenueById(id);
   }
 }
 
 function entityId(kind: EntityKind, record: unknown): string {
   if (kind === 'artist') return (record as { mbid: string }).mbid;
-  if (kind === 'city') return (record as { id: string }).id;
+  if (kind === 'city' || kind === 'venue') return (record as { id: string }).id;
   return (record as { code: string }).code;
 }
 
@@ -266,6 +280,8 @@ function setResolvedEntity(
     resolved[slotKey] = record as ResolvedEntities['artist'];
   } else if (slotKey === 'city') {
     resolved.city = record as ResolvedEntities['city'];
+  } else if (slotKey === 'venue') {
+    resolved.venue = record as ResolvedEntities['venue'];
   } else {
     resolved.country = record as ResolvedEntities['country'];
   }

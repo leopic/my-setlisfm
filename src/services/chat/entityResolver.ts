@@ -145,3 +145,8 @@ export async function getCountryByCode(code: string): Promise<DBCountry | null> 
   const db = databaseManager.getDatabase();
   return db.getFirstAsync<DBCountry>('SELECT * FROM countries WHERE code = ?', [code]);
 }
+
+export async function getVenueById(id: string): Promise<DBVenue | null> {
+  const db = databaseManager.getDatabase();
+  return db.getFirstAsync<DBVenue>('SELECT * FROM venues WHERE id = ?', [id]);
+}

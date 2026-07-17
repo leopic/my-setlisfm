@@ -83,6 +83,8 @@ export interface ResolvedReferences {
   year?: string;
   city?: string;
   country?: string;
+  /** Never populated by the on-device model — only deterministic venue resolution sets this. */
+  venue?: string;
 }
 
 function buildPrompt(text: string, contextParts: string[]): string {

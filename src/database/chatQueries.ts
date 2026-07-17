@@ -489,6 +489,80 @@ export async function bandsSeenInCityYear(cityId: string, year: string): Promise
   return rows.map((r) => r.name);
 }
 
+export async function venueVisitCount(venueId: string): Promise<number> {
+  const row = await db().getFirstAsync<{ count: number }>(
+    `SELECT COUNT(*) AS count FROM setlists WHERE venueId = ?`,
+    [venueId],
+  );
+  return row?.count ?? 0;
+}
+
+export async function bandsSeenAtVenue(venueId: string): Promise<string[]> {
+  const rows = await db().getAllAsync<{ name: string }>(
+    `
+    SELECT DISTINCT a.name AS name
+    FROM setlists sl
+    JOIN artists a ON sl.artistMbid = a.mbid
+    WHERE sl.venueId = ?
+    ORDER BY a.name ASC
+    `,
+    [venueId],
+  );
+  return rows.map((r) => r.name);
+}
+
+async function showsAtVenue(venueId: string): Promise<ShowSummary[]> {
+  return db().getAllAsync<ShowSummary>(
+    `
+    SELECT sl.eventDate, v.name AS venueName, c.name AS cityName
+    FROM setlists sl
+    LEFT JOIN venues v ON sl.venueId = v.id
+    LEFT JOIN cities c ON v.cityId = c.id
+    WHERE sl.venueId = ?
+    ORDER BY ${ISO} ASC
+    `,
+    [venueId],
+  );
+}
+
+export async function firstTimeAtVenue(venueId: string): Promise<ShowSummary | null> {
+  const shows = await showsAtVenue(venueId);
+  return shows[0] ?? null;
+}
+
+export async function lastTimeAtVenue(venueId: string): Promise<ShowSummary | null> {
+  const shows = await showsAtVenue(venueId);
+  return shows[shows.length - 1] ?? null;
+}
+
+export async function venuesSeenCount(): Promise<number> {
+  const row = await db().getFirstAsync<{ count: number }>(`
+    SELECT COUNT(DISTINCT venueId) AS count FROM setlists WHERE venueId IS NOT NULL
+  `);
+  return row?.count ?? 0;
+}
+
+export async function mostVisitedVenue(
+  excludeVenueIds: string[] = [],
+): Promise<{ name: string; id: string; count: number } | null> {
+  const exclusion = excludeVenueIds.length
+    ? `WHERE v.id NOT IN (${excludeVenueIds.map(() => '?').join(',')})`
+    : '';
+  const row = await db().getFirstAsync<{ name: string; id: string; count: number }>(
+    `
+    SELECT v.name AS name, v.id AS id, COUNT(*) AS count
+    FROM setlists sl
+    JOIN venues v ON sl.venueId = v.id
+    ${exclusion}
+    GROUP BY v.id
+    ORDER BY count DESC
+    LIMIT 1
+    `,
+    excludeVenueIds,
+  );
+  return row ?? null;
+}
+
 export async function countriesSeenInYear(year: string): Promise<string[]> {
   const rows = await db().getAllAsync<{ name: string }>(
     `
@@ -501,6 +575,80 @@ export async function countriesSeenInYear(year: string): Promise<string[]> {
     ORDER BY co.name ASC
     `,
     [year],
+  );
+  return rows.map((r) => r.name);
+}
+
+// ── Songs / setlist detail ──────────────────────────────────────────────────
+// Song titles aren't unique across artists (many bands cover the same song), so these
+// match song names directly with a case-insensitive substring search scoped to the
+// already-resolved artist's own setlists — no separate fuzzy entity resolution needed,
+// since the artist scoping already disambiguates.
+
+export async function songPlayCount(artistMbid: string, songQuery: string): Promise<number> {
+  const row = await db().getFirstAsync<{ count: number }>(
+    `
+    SELECT COUNT(*) AS count
+    FROM songs s
+    JOIN sets se ON s.setId = se.id
+    JOIN setlists sl ON se.setlistId = sl.id
+    WHERE sl.artistMbid = ? AND s.name LIKE ?
+    `,
+    [artistMbid, `%${songQuery}%`],
+  );
+  return row?.count ?? 0;
+}
+
+export async function mostPlayedSongByArtist(artistMbid: string): Promise<NamedCount | null> {
+  const row = await db().getFirstAsync<NamedCount>(
+    `
+    SELECT s.name AS name, COUNT(*) AS count
+    FROM songs s
+    JOIN sets se ON s.setId = se.id
+    JOIN setlists sl ON se.setlistId = sl.id
+    WHERE sl.artistMbid = ? AND s.name IS NOT NULL
+    GROUP BY s.name
+    ORDER BY count DESC
+    LIMIT 1
+    `,
+    [artistMbid],
+  );
+  return row ?? null;
+}
+
+export interface CoverSong {
+  songName: string;
+  originalArtist: string | null;
+}
+
+export async function coversPlayedByArtist(artistMbid: string): Promise<CoverSong[]> {
+  const rows = await db().getAllAsync<CoverSong>(
+    `
+    SELECT DISTINCT s.name AS songName, ca.name AS originalArtist
+    FROM songs s
+    JOIN sets se ON s.setId = se.id
+    JOIN setlists sl ON se.setlistId = sl.id
+    LEFT JOIN artists ca ON s.coverArtistMbid = ca.mbid
+    WHERE sl.artistMbid = ? AND s.coverArtistMbid IS NOT NULL
+    ORDER BY s.name ASC
+    `,
+    [artistMbid],
+  );
+  return rows;
+}
+
+export async function guestArtistsWithArtist(artistMbid: string): Promise<string[]> {
+  const rows = await db().getAllAsync<{ name: string }>(
+    `
+    SELECT DISTINCT wa.name AS name
+    FROM songs s
+    JOIN sets se ON s.setId = se.id
+    JOIN setlists sl ON se.setlistId = sl.id
+    JOIN artists wa ON s.withArtistMbid = wa.mbid
+    WHERE sl.artistMbid = ?
+    ORDER BY wa.name ASC
+    `,
+    [artistMbid],
   );
   return rows.map((r) => r.name);
 }

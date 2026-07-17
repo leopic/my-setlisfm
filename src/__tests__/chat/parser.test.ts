@@ -293,6 +293,105 @@ describe('answerQuestion — "which was the next one?" ranking follow-up', () =>
   });
 });
 
+describe('answerQuestion — venue intents', () => {
+  it('resolves a venue entity and answers a visit-count question', async () => {
+    mockDb.getAllAsync.mockResolvedValueOnce([{ id: 'venue-1', name: 'The Fillmore' }]); // findVenues
+    mockDb.getFirstAsync.mockResolvedValueOnce({ count: 3 }); // venueVisitCount
+
+    const result = await answerQuestion('How many times have I been to The Fillmore?');
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('The Fillmore');
+    expect(result.type === 'answer' && result.text).toContain('3');
+  });
+
+  it('excludes a named venue from most_visited_venue', async () => {
+    mockDb.getAllAsync.mockResolvedValueOnce([{ id: 'venue-1', name: 'Red Rocks' }]); // findVenues
+    mockDb.getFirstAsync.mockResolvedValueOnce({ id: 'venue-2', name: 'The Fillmore', count: 5 }); // mostVisitedVenue
+
+    const result = await answerQuestion(
+      'Which venue have I been to the most, other than Red Rocks?',
+    );
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('The Fillmore');
+    expect(result.type === 'answer' && result.context?.lastRanking).toEqual({
+      rankingId: 'most_visited_venue',
+      excludedKeys: ['venue-1', 'venue-2'],
+    });
+  });
+
+  it('continues a most_visited_venue ranking to the next entry', async () => {
+    mockDb.getFirstAsync.mockResolvedValueOnce({ id: 'venue-1', name: 'Red Rocks', count: 5 });
+    const first = await answerQuestion('Which venue have I been to the most?');
+    const contextAfterFirst = first.type === 'answer' ? first.context : undefined;
+
+    mockDb.getFirstAsync.mockResolvedValueOnce({ id: 'venue-2', name: 'The Fillmore', count: 4 });
+    const second = await answerQuestion('Which was the next one after that?', contextAfterFirst);
+
+    expect(second.type).toBe('answer');
+    expect(second.type === 'answer' && second.text).toContain('The Fillmore');
+  });
+});
+
+describe('answerQuestion — song intents', () => {
+  it('answers how many times an artist played a given song', async () => {
+    mockDb.getAllAsync.mockResolvedValueOnce([{ mbid: 'mbid-1', name: 'Bad Religion' }]); // findArtists
+    mockDb.getFirstAsync.mockResolvedValueOnce({ count: 4 }); // songPlayCount
+
+    const result = await answerQuestion('How many times has Bad Religion played American Jesus?');
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('Bad Religion');
+    expect(result.type === 'answer' && result.text).toContain('4');
+  });
+
+  it('reports the song was never played when the count is zero', async () => {
+    mockDb.getAllAsync.mockResolvedValueOnce([{ mbid: 'mbid-1', name: 'Bad Religion' }]);
+    mockDb.getFirstAsync.mockResolvedValueOnce({ count: 0 });
+
+    const result = await answerQuestion('Has Bad Religion ever played Some Rare B-Side?');
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain("haven't heard");
+  });
+
+  it('answers the most played song for an artist', async () => {
+    mockDb.getAllAsync.mockResolvedValueOnce([{ mbid: 'mbid-1', name: 'Bad Religion' }]); // findArtists
+    mockDb.getFirstAsync.mockResolvedValueOnce({ name: 'American Jesus', count: 20 }); // mostPlayedSongByArtist
+
+    const result = await answerQuestion("What's Bad Religion's most played song?");
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('American Jesus');
+  });
+
+  it('answers covers played by an artist', async () => {
+    mockDb.getAllAsync
+      .mockResolvedValueOnce([{ mbid: 'mbid-1', name: 'Bad Religion' }]) // findArtists
+      .mockResolvedValueOnce([
+        { songName: 'Fortunate Son', originalArtist: 'Creedence Clearwater Revival' },
+      ]); // coversPlayedByArtist
+
+    const result = await answerQuestion('What covers has Bad Religion played?');
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('Fortunate Son');
+    expect(result.type === 'answer' && result.text).toContain('Creedence Clearwater Revival');
+  });
+
+  it('answers guest artists brought on stage', async () => {
+    mockDb.getAllAsync
+      .mockResolvedValueOnce([{ mbid: 'mbid-1', name: 'Bad Religion' }]) // findArtists
+      .mockResolvedValueOnce([{ name: 'Brett Gurewitz' }]); // guestArtistsWithArtist
+
+    const result = await answerQuestion('Which artists has Bad Religion brought on stage?');
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('Brett Gurewitz');
+  });
+});
+
 describe('answerQuestion — month-level intents', () => {
   it('answers which artists were seen in a given month and year', async () => {
     mockDb.getAllAsync.mockResolvedValueOnce([{ name: 'Foo Fighters' }, { name: 'IDLES' }]);

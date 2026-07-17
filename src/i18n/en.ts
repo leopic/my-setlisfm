@@ -256,11 +256,13 @@ export default {
       artist: 'I couldn’t find an artist matching "{{query}}" in your collection.',
       city: 'I couldn’t find a city matching "{{query}}" in your collection.',
       country: 'I couldn’t find a country matching "{{query}}" in your collection.',
+      venue: 'I couldn’t find a venue matching "{{query}}" in your collection.',
     },
     clarify: {
       artist: 'Which one did you mean?',
       city: 'Which city did you mean?',
       country: 'Which country did you mean?',
+      venue: 'Which venue did you mean?',
     },
 
     answers: {
@@ -384,6 +386,36 @@ export default {
 
       countriesSeenInYear: 'Countries you saw concerts in during {{year}}: {{list}}.',
       countriesSeenInYearNone: "You didn't log any concerts in {{year}}.",
+
+      venueVisitCount_one: "You've been to {{venue}} {{count}} time.",
+      venueVisitCount_other: "You've been to {{venue}} {{count}} times.",
+
+      bandsSeenAtVenue: "Artists you've seen at {{venue}}: {{list}}.",
+      bandsSeenAtVenueNone: "You haven't seen any concerts at {{venue}} yet.",
+
+      firstTimeAtVenue: 'You first went to {{venue}} on {{date}}.',
+      lastTimeAtVenue: 'You last went to {{venue}} on {{date}}.',
+
+      venuesSeenCount_one: "You've been to {{count}} venue.",
+      venuesSeenCount_other: "You've been to {{count}} venues.",
+
+      mostVisitedVenue_one: '{{venue}} is the venue you’ve visited most, with {{count}} concert.',
+      mostVisitedVenue_other:
+        '{{venue}} is the venue you’ve visited most, with {{count}} concerts.',
+
+      songPlayCount_one: "{{artist}} has played {{song}} {{count}} time that you've seen.",
+      songPlayCount_other: "{{artist}} has played {{song}} {{count}} times that you've seen.",
+      songPlayCountNone: "You haven't heard {{artist}} play {{song}}.",
+
+      mostPlayedSongByArtist:
+        "The song you've heard {{artist}} play the most is {{song}} ({{count}} times).",
+      mostPlayedSongByArtistNone: "I don't have setlist detail for {{artist}} yet.",
+
+      coversPlayedByArtist: "Covers you've heard {{artist}} play: {{list}}.",
+      coversPlayedByArtistNone: "You haven't heard {{artist}} play any covers.",
+
+      guestArtistsWithArtist: 'Artists {{artist}} has brought on stage: {{list}}.',
+      guestArtistsWithArtistNone: "You haven't seen {{artist}} bring anyone else on stage.",
     },
 
     examples: [
