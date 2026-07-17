@@ -7,10 +7,19 @@ import { parseSetlistDate } from '@/utils/date';
 
 const ISO = `substr(eventDate,7,4)||'-'||substr(eventDate,4,2)||'-'||substr(eventDate,1,2)`;
 
+// Monday of the week containing a given date, as an ISO YYYY-MM-DD string. Grouping by
+// this computed date (rather than a week-of-year number) sidesteps ISO week-numbering's
+// year-boundary edge cases entirely — every group is a concrete, unambiguous calendar date.
+const WEEK_START = `date(${ISO}, '-' || ((CAST(strftime('%w', ${ISO}) AS INTEGER) + 6) % 7) || ' days')`;
+
 export interface ShowSummary {
   eventDate: string;
   venueName: string | null;
   cityName: string | null;
+}
+
+export interface ArtistShowSummary extends ShowSummary {
+  artistName: string | null;
 }
 
 interface NamedCount {
@@ -220,6 +229,84 @@ export async function artistsSeenInMonthYear(month: string, year: string): Promi
     [month, year],
   );
   return rows.map((r) => r.name);
+}
+
+export async function showsInYear(year: string): Promise<ArtistShowSummary[]> {
+  return db().getAllAsync<ArtistShowSummary>(
+    `
+    SELECT sl.eventDate, a.name AS artistName, v.name AS venueName, c.name AS cityName
+    FROM setlists sl
+    JOIN artists a ON sl.artistMbid = a.mbid
+    LEFT JOIN venues v ON sl.venueId = v.id
+    LEFT JOIN cities c ON v.cityId = c.id
+    WHERE substr(sl.eventDate, 7, 4) = ?
+    ORDER BY ${ISO} ASC
+    `,
+    [year],
+  );
+}
+
+export async function showsInMonthYear(month: string, year: string): Promise<ArtistShowSummary[]> {
+  return db().getAllAsync<ArtistShowSummary>(
+    `
+    SELECT sl.eventDate, a.name AS artistName, v.name AS venueName, c.name AS cityName
+    FROM setlists sl
+    JOIN artists a ON sl.artistMbid = a.mbid
+    LEFT JOIN venues v ON sl.venueId = v.id
+    LEFT JOIN cities c ON v.cityId = c.id
+    WHERE substr(sl.eventDate, 4, 2) = ? AND substr(sl.eventDate, 7, 4) = ?
+    ORDER BY ${ISO} ASC
+    `,
+    [month, year],
+  );
+}
+
+export async function busiestMonth(): Promise<{
+  month: string;
+  year: string;
+  count: number;
+} | null> {
+  const row = await db().getFirstAsync<{ month: string; year: string; count: number }>(`
+    SELECT substr(eventDate, 4, 2) AS month, substr(eventDate, 7, 4) AS year, COUNT(*) AS count
+    FROM setlists
+    GROUP BY month, year
+    ORDER BY count DESC
+    LIMIT 1
+  `);
+  return row ?? null;
+}
+
+export async function busiestWeek(): Promise<{
+  weekStart: string;
+  weekEnd: string;
+  count: number;
+} | null> {
+  const row = await db().getFirstAsync<{ weekStart: string; weekEnd: string; count: number }>(`
+    SELECT
+      ${WEEK_START} AS weekStart,
+      date(${WEEK_START}, '+6 days') AS weekEnd,
+      COUNT(*) AS count
+    FROM setlists
+    GROUP BY weekStart
+    ORDER BY count DESC
+    LIMIT 1
+  `);
+  return row ?? null;
+}
+
+export async function showsInWeek(weekStartIso: string): Promise<ArtistShowSummary[]> {
+  return db().getAllAsync<ArtistShowSummary>(
+    `
+    SELECT sl.eventDate, a.name AS artistName, v.name AS venueName, c.name AS cityName
+    FROM setlists sl
+    JOIN artists a ON sl.artistMbid = a.mbid
+    LEFT JOIN venues v ON sl.venueId = v.id
+    LEFT JOIN cities c ON v.cityId = c.id
+    WHERE ${WEEK_START} = ?
+    ORDER BY ${ISO} ASC
+    `,
+    [weekStartIso],
+  );
 }
 
 export async function averageConcertsPerYear(): Promise<number> {

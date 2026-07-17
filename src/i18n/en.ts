@@ -339,6 +339,20 @@ export default {
       yearWithMostConcerts_one: '{{year}} was your busiest year, with {{count}} concert.',
       yearWithMostConcerts_other: '{{year}} was your busiest year, with {{count}} concerts.',
 
+      busiestYearWithShows_one: 'Your busiest year was {{year}}, with {{count}} concert:',
+      busiestYearWithShows_other: 'Your busiest year was {{year}}, with {{count}} concerts:',
+
+      busiestMonthWithShows_one:
+        'Your busiest month was {{month}} {{year}}, with {{count}} concert:',
+      busiestMonthWithShows_other:
+        'Your busiest month was {{month}} {{year}}, with {{count}} concerts:',
+
+      busiestWeekWithShows_one: 'Your busiest week was {{start}}–{{end}}, with {{count}} concert:',
+      busiestWeekWithShows_other:
+        'Your busiest week was {{start}}–{{end}}, with {{count}} concerts:',
+
+      busiestPeriodEntry: '{{artist}} — {{date}} — {{venue}}',
+
       firstConcertEver: 'Your very first concert was {{artist}}, on {{date}}.',
       mostRecentConcert: 'Your most recent concert was {{artist}}, on {{date}}.',
 

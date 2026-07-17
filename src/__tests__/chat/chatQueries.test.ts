@@ -155,6 +155,76 @@ describe('time-based', () => {
     expect(mockDb.getAllAsync).toHaveBeenCalledWith(expect.any(String), ['06', '2025']);
   });
 
+  it('showsInYear returns every show across all artists for that year', async () => {
+    mockDb.getAllAsync.mockResolvedValue([
+      {
+        eventDate: '10-03-2019',
+        artistName: 'Bad Religion',
+        venueName: 'The Fillmore',
+        cityName: 'San Francisco',
+      },
+    ]);
+    const result = await chatQueries.showsInYear('2019');
+    expect(result).toHaveLength(1);
+    expect(result[0].artistName).toBe('Bad Religion');
+  });
+
+  it('showsInMonthYear returns every show across all artists for that month and year', async () => {
+    mockDb.getAllAsync.mockResolvedValue([
+      {
+        eventDate: '03-06-2025',
+        artistName: 'Foo Fighters',
+        venueName: 'Ernst Happel Stadion',
+        cityName: 'Vienna',
+      },
+    ]);
+    const result = await chatQueries.showsInMonthYear('06', '2025');
+    expect(result).toHaveLength(1);
+    expect(result[0].artistName).toBe('Foo Fighters');
+  });
+
+  it('busiestMonth returns the month/year/count with the most shows', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ month: '06', year: '2025', count: 5 });
+    expect(await chatQueries.busiestMonth()).toEqual({ month: '06', year: '2025', count: 5 });
+  });
+
+  it('busiestMonth returns null with no logged concerts', async () => {
+    mockDb.getFirstAsync.mockResolvedValue(undefined);
+    expect(await chatQueries.busiestMonth()).toBeNull();
+  });
+
+  it('busiestWeek returns the week start/end/count with the most shows', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({
+      weekStart: '2025-03-03',
+      weekEnd: '2025-03-09',
+      count: 3,
+    });
+    expect(await chatQueries.busiestWeek()).toEqual({
+      weekStart: '2025-03-03',
+      weekEnd: '2025-03-09',
+      count: 3,
+    });
+  });
+
+  it('busiestWeek returns null with no logged concerts', async () => {
+    mockDb.getFirstAsync.mockResolvedValue(undefined);
+    expect(await chatQueries.busiestWeek()).toBeNull();
+  });
+
+  it('showsInWeek returns every show within that week', async () => {
+    mockDb.getAllAsync.mockResolvedValue([
+      {
+        eventDate: '04-03-2025',
+        artistName: 'IDLES',
+        venueName: 'Some Venue',
+        cityName: 'Some City',
+      },
+    ]);
+    const result = await chatQueries.showsInWeek('2025-03-03');
+    expect(result).toHaveLength(1);
+    expect(result[0].artistName).toBe('IDLES');
+  });
+
   it('artistsSeenInMonthYear returns an empty list when nothing matches', async () => {
     mockDb.getAllAsync.mockResolvedValue([]);
     expect(await chatQueries.artistsSeenInMonthYear('06', '2025')).toEqual([]);

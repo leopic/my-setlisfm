@@ -84,6 +84,81 @@ describe('answerQuestion — no-entity intents', () => {
   });
 });
 
+describe('answerQuestion — busiest period with shows', () => {
+  it('answers busiest year with the list of concerts that year', async () => {
+    jest.spyOn(dbOperations, 'getBusiestYear').mockResolvedValue({ year: '2025', count: 2 });
+    mockDb.getAllAsync.mockResolvedValueOnce([
+      {
+        eventDate: '03-06-2025',
+        artistName: 'Foo Fighters',
+        venueName: 'Ernst Happel Stadion',
+        cityName: 'Vienna',
+      },
+      {
+        eventDate: '03-06-2025',
+        artistName: 'IDLES',
+        venueName: 'Ernst Happel Stadion',
+        cityName: 'Vienna',
+      },
+    ]);
+
+    const result = await answerQuestion('Which was my busiest year and which concerts did I see?');
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('2025');
+    expect(result.type === 'answer' && result.text).toContain('Foo Fighters');
+    expect(result.type === 'answer' && result.text).toContain('IDLES');
+  });
+
+  it('answers busiest month with the list of concerts that month', async () => {
+    mockDb.getFirstAsync.mockResolvedValueOnce({ month: '06', year: '2025', count: 1 });
+    mockDb.getAllAsync.mockResolvedValueOnce([
+      {
+        eventDate: '03-06-2025',
+        artistName: 'Foo Fighters',
+        venueName: 'Ernst Happel Stadion',
+        cityName: 'Vienna',
+      },
+    ]);
+
+    const result = await answerQuestion('What was my busiest month and what concerts did I go to?');
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('June 2025');
+    expect(result.type === 'answer' && result.text).toContain('Foo Fighters');
+  });
+
+  it('answers busiest week with the list of concerts that week', async () => {
+    mockDb.getFirstAsync.mockResolvedValueOnce({
+      weekStart: '2025-03-03',
+      weekEnd: '2025-03-09',
+      count: 1,
+    });
+    mockDb.getAllAsync.mockResolvedValueOnce([
+      {
+        eventDate: '04-03-2025',
+        artistName: 'IDLES',
+        venueName: 'Some Venue',
+        cityName: 'Some City',
+      },
+    ]);
+
+    const result = await answerQuestion('Which was my busiest week and which concerts did I see?');
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('IDLES');
+  });
+
+  it('reports no data when there are no logged concerts at all', async () => {
+    jest.spyOn(dbOperations, 'getBusiestYear').mockResolvedValue(null);
+
+    const result = await answerQuestion('Which was my busiest year and which concerts did I see?');
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain("don't have enough data");
+  });
+});
+
 describe('answerQuestion — month-level intents', () => {
   it('answers which artists were seen in a given month and year', async () => {
     mockDb.getAllAsync.mockResolvedValueOnce([{ name: 'Foo Fighters' }, { name: 'IDLES' }]);

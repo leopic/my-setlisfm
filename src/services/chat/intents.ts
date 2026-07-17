@@ -4,8 +4,9 @@
 import i18n from '@/i18n';
 import { dbOperations } from '@/database/operations';
 import * as chatQueries from '@/database/chatQueries';
-import { formatDate, monthDisplayName, monthNameToNumber } from '@/utils/date';
+import { formatDate, formatIsoDate, monthDisplayName, monthNameToNumber } from '@/utils/date';
 import type { ChatIntent } from '@/services/chat/types';
+import type { ArtistShowSummary } from '@/database/chatQueries';
 
 function requireArtist(resolved: { artist?: { mbid: string; name?: string } }): {
   mbid: string;
@@ -13,6 +14,18 @@ function requireArtist(resolved: { artist?: { mbid: string; name?: string } }): 
 } {
   if (!resolved.artist) throw new Error('artist slot not resolved');
   return { mbid: resolved.artist.mbid, name: resolved.artist.name ?? 'that artist' };
+}
+
+function formatBusiestPeriodShows(shows: ArtistShowSummary[]): string {
+  return shows
+    .map((s) =>
+      i18n.t('chat.answers.busiestPeriodEntry', {
+        artist: s.artistName ?? 'Unknown artist',
+        date: formatDate(s.eventDate),
+        venue: s.venueName ?? '—',
+      }),
+    )
+    .join('\n');
 }
 
 // Shared month-name vocabulary for the month-level time-based intents below.
@@ -357,6 +370,53 @@ export const CHAT_INTENTS: ChatIntent[] = [
         year: busiest.year,
         count: busiest.count,
       });
+    },
+  },
+  {
+    id: 'busiest_year_with_shows',
+    patterns: [
+      /^(?:which|what) was my busiest year,? and (?:which|what) concerts did i (?:see|go to)\??$/i,
+    ],
+    handle: async () => {
+      const busiest = await dbOperations.getBusiestYear();
+      if (!busiest) return i18n.t('chat.answers.noData');
+      const shows = await chatQueries.showsInYear(busiest.year);
+      const list = formatBusiestPeriodShows(shows);
+      return `${i18n.t('chat.answers.busiestYearWithShows', { year: busiest.year, count: busiest.count })}\n${list}`;
+    },
+  },
+  {
+    id: 'busiest_month_with_shows',
+    patterns: [
+      /^(?:which|what) was my busiest month,? and (?:which|what) concerts did i (?:see|go to)\??$/i,
+    ],
+    handle: async () => {
+      const busiest = await chatQueries.busiestMonth();
+      if (!busiest) return i18n.t('chat.answers.noData');
+      const shows = await chatQueries.showsInMonthYear(busiest.month, busiest.year);
+      const list = formatBusiestPeriodShows(shows);
+      return `${i18n.t('chat.answers.busiestMonthWithShows', {
+        month: monthDisplayName(busiest.month),
+        year: busiest.year,
+        count: busiest.count,
+      })}\n${list}`;
+    },
+  },
+  {
+    id: 'busiest_week_with_shows',
+    patterns: [
+      /^(?:which|what) was my busiest week,? and (?:which|what) concerts did i (?:see|go to)\??$/i,
+    ],
+    handle: async () => {
+      const busiest = await chatQueries.busiestWeek();
+      if (!busiest) return i18n.t('chat.answers.noData');
+      const shows = await chatQueries.showsInWeek(busiest.weekStart);
+      const list = formatBusiestPeriodShows(shows);
+      return `${i18n.t('chat.answers.busiestWeekWithShows', {
+        start: formatIsoDate(busiest.weekStart),
+        end: formatIsoDate(busiest.weekEnd),
+        count: busiest.count,
+      })}\n${list}`;
     },
   },
   {
