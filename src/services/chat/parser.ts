@@ -37,7 +37,12 @@ import type {
 type EntitySlotKey = 'artist' | 'artist2' | 'city' | 'country';
 
 function normalizeInput(text: string): string {
-  return text.trim().replace(/\s+/g, ' ').replace(/[‘’]/g, "'").replace(/[“”]/g, '"');
+  return text
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/^(?:(?:please|can you)\s+)*tell me\s+/i, '');
 }
 
 function matchIntent(text: string): { intent: ChatIntent; raw: RawSlots } | null {

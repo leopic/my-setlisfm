@@ -4,7 +4,7 @@
 import i18n from '@/i18n';
 import { dbOperations } from '@/database/operations';
 import * as chatQueries from '@/database/chatQueries';
-import { formatDate } from '@/utils/date';
+import { formatDate, monthDisplayName, monthNameToNumber } from '@/utils/date';
 import type { ChatIntent } from '@/services/chat/types';
 
 function requireArtist(resolved: { artist?: { mbid: string; name?: string } }): {
@@ -14,6 +14,10 @@ function requireArtist(resolved: { artist?: { mbid: string; name?: string } }): 
   if (!resolved.artist) throw new Error('artist slot not resolved');
   return { mbid: resolved.artist.mbid, name: resolved.artist.name ?? 'that artist' };
 }
+
+// Shared month-name vocabulary for the month-level time-based intents below.
+const MONTH_NAMES =
+  'january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec';
 
 export const CHAT_INTENTS: ChatIntent[] = [
   // ── A. Single-artist history ────────────────────────────────────────────
@@ -278,6 +282,50 @@ export const CHAT_INTENTS: ChatIntent[] = [
     handle: async (raw) => {
       const count = await chatQueries.concertsInYear(raw.year);
       return i18n.t('chat.answers.concertsInYear', { year: raw.year, count });
+    },
+  },
+  {
+    id: 'concerts_in_month_year',
+    patterns: [
+      new RegExp(
+        `^how many concerts did i go to in (?<month>${MONTH_NAMES}) (?<year>\\d{4})\\??$`,
+        'i',
+      ),
+    ],
+    handle: async (raw) => {
+      const month = monthNameToNumber(raw.month);
+      const count = await chatQueries.concertsInMonthYear(month, raw.year);
+      return i18n.t('chat.answers.concertsInMonthYear', {
+        month: monthDisplayName(month),
+        year: raw.year,
+        count,
+      });
+    },
+  },
+  {
+    id: 'artists_seen_in_month_year',
+    patterns: [
+      new RegExp(
+        `^(?:which|what) (?:artists|bands) (?:did i see|have i seen|i saw) in (?<month>${MONTH_NAMES}) (?<year>\\d{4})\\??$`,
+        'i',
+      ),
+    ],
+    handle: async (raw) => {
+      const month = monthNameToNumber(raw.month);
+      const monthLabel = monthDisplayName(month);
+      const artists = await chatQueries.artistsSeenInMonthYear(month, raw.year);
+      if (artists.length === 0) {
+        return i18n.t('chat.answers.artistsSeenInMonthYearNone', {
+          month: monthLabel,
+          year: raw.year,
+        });
+      }
+      return i18n.t('chat.answers.artistsSeenInMonthYear', {
+        month: monthLabel,
+        year: raw.year,
+        count: artists.length,
+        list: artists.join(', '),
+      });
     },
   },
   {

@@ -1,4 +1,4 @@
-import { toIsoDate, getEventYear } from '@/utils/date';
+import { toIsoDate, getEventYear, monthNameToNumber, monthDisplayName } from '@/utils/date';
 
 describe('toIsoDate', () => {
   it('converts a DD-MM-YYYY string to ISO YYYY-MM-DD', () => {
@@ -17,5 +17,30 @@ describe('getEventYear', () => {
 
   it('returns an empty string for malformed input', () => {
     expect(getEventYear('')).toBe('');
+  });
+});
+
+describe('monthNameToNumber', () => {
+  it('maps full month names to zero-padded numbers', () => {
+    expect(monthNameToNumber('June')).toBe('06');
+    expect(monthNameToNumber('december')).toBe('12');
+  });
+
+  it('maps common abbreviations to the same number as the full name', () => {
+    expect(monthNameToNumber('jun')).toBe('06');
+    expect(monthNameToNumber('Sept')).toBe('09');
+    expect(monthNameToNumber('sep')).toBe('09');
+  });
+
+  it('is case-insensitive and trims whitespace', () => {
+    expect(monthNameToNumber('  JANUARY  ')).toBe('01');
+  });
+});
+
+describe('monthDisplayName', () => {
+  it('returns the full display name for a zero-padded month number', () => {
+    expect(monthDisplayName('06')).toBe('June');
+    expect(monthDisplayName('01')).toBe('January');
+    expect(monthDisplayName('12')).toBe('December');
   });
 });

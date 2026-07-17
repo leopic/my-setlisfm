@@ -324,6 +324,13 @@ export default {
       concertsInYear_one: 'You went to {{count}} concert in {{year}}.',
       concertsInYear_other: 'You went to {{count}} concerts in {{year}}.',
 
+      concertsInMonthYear_one: 'You went to {{count}} concert in {{month}} {{year}}.',
+      concertsInMonthYear_other: 'You went to {{count}} concerts in {{month}} {{year}}.',
+
+      artistsSeenInMonthYear_one: 'You saw {{count}} artist in {{month}} {{year}}: {{list}}.',
+      artistsSeenInMonthYear_other: 'You saw {{count}} artists in {{month}} {{year}}: {{list}}.',
+      artistsSeenInMonthYearNone: "You didn't see any concerts in {{month}} {{year}}.",
+
       averageConcertsPerYear: "You've averaged {{count}} concerts per year.",
 
       daysSinceLastConcert_one: "It's been {{count}} day since your last concert.",

@@ -84,6 +84,57 @@ describe('answerQuestion — no-entity intents', () => {
   });
 });
 
+describe('answerQuestion — month-level intents', () => {
+  it('answers which artists were seen in a given month and year', async () => {
+    mockDb.getAllAsync.mockResolvedValueOnce([{ name: 'Foo Fighters' }, { name: 'IDLES' }]);
+
+    const result = await answerQuestion('Which artists did I see in June 2025?');
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('Foo Fighters');
+    expect(result.type === 'answer' && result.text).toContain('June 2025');
+  });
+
+  it('answers a concerts-in-month-year count question', async () => {
+    mockDb.getFirstAsync.mockResolvedValueOnce({ count: 3 });
+
+    const result = await answerQuestion('How many concerts did I go to in June 2025?');
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('3');
+    expect(result.type === 'answer' && result.text).toContain('June 2025');
+  });
+
+  it('reports no artists when nothing matches that month/year', async () => {
+    mockDb.getAllAsync.mockResolvedValueOnce([]);
+
+    const result = await answerQuestion('What bands have I seen in Jan 2025?');
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain("didn't see any concerts");
+  });
+
+  it('strips a "tell me" lead-in so the underlying question still matches', async () => {
+    mockDb.getAllAsync.mockResolvedValueOnce([{ name: 'Foo Fighters' }]);
+
+    const result = await answerQuestion('Tell me which artists I saw in June 2025?');
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('Foo Fighters');
+  });
+
+  it('strips "please"/"can you" combined with "tell me"', async () => {
+    mockDb.getFirstAsync.mockResolvedValueOnce({ count: 1 });
+
+    const result = await answerQuestion(
+      'Can you please tell me how many concerts did I go to in June 2025?',
+    );
+
+    expect(result.type).toBe('answer');
+    expect(result.type === 'answer' && result.text).toContain('June 2025');
+  });
+});
+
 describe('answerQuestion — single-artist intent with entity resolution', () => {
   it('resolves a clean artist match and answers directly', async () => {
     mockDb.getAllAsync

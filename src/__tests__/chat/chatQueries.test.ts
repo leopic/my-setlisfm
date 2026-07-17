@@ -141,6 +141,25 @@ describe('time-based', () => {
     expect(await chatQueries.concertsInYear('2019')).toBe(4);
   });
 
+  it('concertsInMonthYear counts shows for the given month and year', async () => {
+    mockDb.getFirstAsync.mockResolvedValue({ count: 2 });
+    const result = await chatQueries.concertsInMonthYear('06', '2025');
+    expect(result).toBe(2);
+    expect(mockDb.getFirstAsync).toHaveBeenCalledWith(expect.any(String), ['06', '2025']);
+  });
+
+  it('artistsSeenInMonthYear returns distinct artist names for that month and year', async () => {
+    mockDb.getAllAsync.mockResolvedValue([{ name: 'Foo Fighters' }, { name: 'IDLES' }]);
+    const result = await chatQueries.artistsSeenInMonthYear('06', '2025');
+    expect(result).toEqual(['Foo Fighters', 'IDLES']);
+    expect(mockDb.getAllAsync).toHaveBeenCalledWith(expect.any(String), ['06', '2025']);
+  });
+
+  it('artistsSeenInMonthYear returns an empty list when nothing matches', async () => {
+    mockDb.getAllAsync.mockResolvedValue([]);
+    expect(await chatQueries.artistsSeenInMonthYear('06', '2025')).toEqual([]);
+  });
+
   it('averageConcertsPerYear divides total by distinct years', async () => {
     mockDb.getFirstAsync.mockResolvedValue({ total: 20, years: 4 });
     expect(await chatQueries.averageConcertsPerYear()).toBe(5);

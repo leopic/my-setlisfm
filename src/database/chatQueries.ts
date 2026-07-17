@@ -200,6 +200,28 @@ export async function concertsInYear(year: string): Promise<number> {
   return row?.count ?? 0;
 }
 
+export async function concertsInMonthYear(month: string, year: string): Promise<number> {
+  const row = await db().getFirstAsync<{ count: number }>(
+    `SELECT COUNT(*) AS count FROM setlists WHERE substr(eventDate, 4, 2) = ? AND substr(eventDate, 7, 4) = ?`,
+    [month, year],
+  );
+  return row?.count ?? 0;
+}
+
+export async function artistsSeenInMonthYear(month: string, year: string): Promise<string[]> {
+  const rows = await db().getAllAsync<{ name: string }>(
+    `
+    SELECT DISTINCT a.name AS name
+    FROM setlists sl
+    JOIN artists a ON sl.artistMbid = a.mbid
+    WHERE substr(sl.eventDate, 4, 2) = ? AND substr(sl.eventDate, 7, 4) = ?
+    ORDER BY a.name ASC
+    `,
+    [month, year],
+  );
+  return rows.map((r) => r.name);
+}
+
 export async function averageConcertsPerYear(): Promise<number> {
   const row = await db().getFirstAsync<{ total: number; years: number }>(`
     SELECT COUNT(*) AS total, COUNT(DISTINCT substr(eventDate, 7, 4)) AS years

@@ -54,6 +54,58 @@ export function getEventYear(dateString: string): string {
   return dateString.split('-')[2] ?? '';
 }
 
+const MONTH_DISPLAY_NAMES = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+const MONTH_NAME_TO_NUMBER: Record<string, string> = {
+  jan: '01',
+  january: '01',
+  feb: '02',
+  february: '02',
+  mar: '03',
+  march: '03',
+  apr: '04',
+  april: '04',
+  may: '05',
+  jun: '06',
+  june: '06',
+  jul: '07',
+  july: '07',
+  aug: '08',
+  august: '08',
+  sep: '09',
+  sept: '09',
+  september: '09',
+  oct: '10',
+  october: '10',
+  nov: '11',
+  november: '11',
+  dec: '12',
+  december: '12',
+};
+
+/** Maps a month name or abbreviation (case-insensitive) to its zero-padded number, e.g. "June" → "06". */
+export function monthNameToNumber(name: string): string {
+  return MONTH_NAME_TO_NUMBER[name.trim().toLowerCase()];
+}
+
+/** Full display name for a zero-padded month number, e.g. "06" → "June". */
+export function monthDisplayName(monthNumber: string): string {
+  return MONTH_DISPLAY_NAMES[Number(monthNumber) - 1] ?? monthNumber;
+}
+
 /**
  * Converts a raw day count into a human-readable duration string.
  * Intended for gaps and spans between dates, not event counts.
