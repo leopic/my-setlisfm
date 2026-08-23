@@ -1,6 +1,6 @@
-// Hand-written, parameterized queries backing the chat intents (Tier 1), and now also
-// the concert-detail recognition facts (see getConcertRecognitionFacts below).
-// No SQL is ever generated from user input — this is a fixed, vetted query surface;
+// Hand-written, parameterized queries answering specific facts about a single artist,
+// venue, or city — first/last seen, gaps, counts, geographic diversity, recognition
+// facts for the concert-detail screen, etc. No SQL is ever generated from user input;
 // callers only ever choose which of these functions to call and with what args.
 import { databaseManager } from '@/database/database';
 import { dbOperations } from '@/database/operations';

@@ -5,7 +5,7 @@ import ArtistImage from '@/components/ArtistImage';
 import RecognitionSheet from '@/components/RecognitionSheet';
 import { useTranslation } from 'react-i18next';
 import type { SetlistWithDetails, SetWithSongs } from '@/types/database';
-import { getConcertRecognitionFacts, type ConcertRecognitionFacts } from '@/database/chatQueries';
+import { getConcertRecognitionFacts, type ConcertRecognitionFacts } from '@/database/factQueries';
 import { isLandmarkVisit } from '@/utils/recognition';
 import { formatDate } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';

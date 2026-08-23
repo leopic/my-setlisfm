@@ -1,4 +1,4 @@
-import type { ConcertRecognitionFacts } from '@/database/chatQueries';
+import type { ConcertRecognitionFacts } from '@/database/factQueries';
 
 /** Every 5th show for an artist (5th, 10th, 15th, ...) is a milestone worth calling out. */
 const MILESTONE_INTERVAL = 5;
