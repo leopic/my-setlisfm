@@ -1,9 +1,12 @@
-import React, {} from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { TabScrollView, Icon } from '@/components/ui';
 import ArtistImage from '@/components/ArtistImage';
+import RecognitionSheet from '@/components/RecognitionSheet';
 import { useTranslation } from 'react-i18next';
 import type { SetlistWithDetails, SetWithSongs } from '@/types/database';
+import { getConcertRecognitionFacts, type ConcertRecognitionFacts } from '@/database/chatQueries';
+import { isLandmarkVisit } from '@/utils/recognition';
 import { formatDate } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
@@ -17,6 +20,29 @@ interface SetlistProps {
 export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   const { t } = useTranslation();
   const colors = useChronicleColors();
+
+  const [facts, setFacts] = useState<ConcertRecognitionFacts | null>(null);
+  const [sheetVisible, setSheetVisible] = useState(false);
+
+  useEffect(() => {
+    if (!setlist.id) return;
+    let cancelled = false;
+    setFacts(null);
+    (async () => {
+      try {
+        const result = await getConcertRecognitionFacts(setlist.id);
+        if (!cancelled) setFacts(result);
+      } catch (error) {
+        console.error('Failed to load recognition facts:', error);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [setlist.id]);
+
+  const isLandmark = facts ? isLandmarkVisit(facts) : false;
+
   const styles = StyleSheet.create({
         backBar: {
           paddingHorizontal: 16,
@@ -38,6 +64,20 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
           ...Type.heading,
           color: colors.textPrimary,
           flex: 1,
+        },
+        navBadge: {
+          width: 30,
+          height: 30,
+          borderRadius: 15,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: colors.surfaceRaised,
+          borderWidth: 1,
+          borderColor: colors.border,
+        },
+        navBadgeLandmark: {
+          backgroundColor: colors.goldSoft,
+          borderColor: colors.gold,
         },
         hero: {
           paddingHorizontal: 16,
@@ -185,6 +225,22 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
           <Text style={styles.artistName} numberOfLines={1}>
             {setlist.artist?.name || 'Unknown Artist'}
           </Text>
+          {facts && (
+            <Pressable
+              testID="recognition-badge"
+              style={[styles.navBadge, isLandmark && styles.navBadgeLandmark]}
+              onPress={() => setSheetVisible(true)}
+              accessibilityRole="button"
+              accessibilityLabel={t('recognition.badgeAccessibilityLabel')}
+            >
+              <Icon
+                sf={isLandmark ? 'trophy.fill' : 'sparkles'}
+                md={isLandmark ? 'trophy' : 'sparkles-outline'}
+                size={14}
+                color={isLandmark ? colors.gold : colors.accent}
+              />
+            </Pressable>
+          )}
         </View>
       </View>
 
@@ -248,6 +304,18 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
           </View>
         )}
       </TabScrollView>
+
+      {facts && (
+        <RecognitionSheet
+          visible={sheetVisible}
+          onClose={() => setSheetVisible(false)}
+          artistName={setlist.artist?.name || 'Unknown Artist'}
+          currentCityName={setlist.city?.name}
+          currentCountryName={setlist.country?.name}
+          facts={facts}
+          isLandmark={isLandmark}
+        />
+      )}
     </>
   );
 }

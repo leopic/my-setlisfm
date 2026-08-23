@@ -191,6 +191,24 @@ export default {
     top: 'Top',
   },
 
+  // Concert-detail recognition sheet
+  recognition: {
+    badgeAccessibilityLabel: 'Show recognition for this concert',
+    ordinalShow: '{{ordinal}} {{artist}} show',
+    heroSubtitle: 'A show worth remembering',
+    lastSeen: 'Last seen {{timeAgo}}, in {{location}}',
+    lastSeenNoLocation: 'Last seen {{timeAgo}}',
+    firstVisitToVenue: 'First time at this venue',
+    venueVisitOrdinal: '{{ordinal}} time at this venue',
+    newCountryForArtist: 'First time seeing {{artist}} in {{country}}',
+    countriesForArtist_one: '{{count}} country you’ve seen {{artist}} in',
+    countriesForArtist_other: '{{count}} different countries you’ve seen {{artist}} in',
+    newCityForArtist: 'First time seeing {{artist}} in {{city}}',
+    citiesForArtist_one: '{{count}} city you’ve seen {{artist}} in',
+    citiesForArtist_other: '{{count}} different cities you’ve seen {{artist}} in',
+    done: 'Done',
+  },
+
   // Concert list modal
   concertListModal: {
     loading: 'Loading concerts...',
