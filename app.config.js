@@ -40,6 +40,8 @@ module.exports = {
       "expo-sqlite",
       "expo-image",
       "expo-localization",
+      "expo-status-bar",
+      "expo-font",
       ["expo-build-properties", { ios: { useHermesV1: true }, android: { useHermesV1: true } }]
     ],
     extra: {
