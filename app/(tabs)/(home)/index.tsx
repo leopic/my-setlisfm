@@ -1317,19 +1317,6 @@ export default function DashboardScreen() {
               <View style={[styles.topBarActions, { marginLeft: 'auto' }]}>
                 <Pressable
                   style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                  onPress={() => router.push('/(home)/ask')}
-                  accessibilityRole="button"
-                  accessibilityLabel="Ask about your concerts"
-                >
-                  <Icon
-                    sf="bubble.left"
-                    md="chatbubble-outline"
-                    size={20}
-                    color={colors.textMuted}
-                  />
-                </Pressable>
-                <Pressable
-                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                   onPress={handleSync}
                   accessibilityRole="button"
                   accessibilityLabel="Sync concert data"
@@ -1408,19 +1395,6 @@ export default function DashboardScreen() {
             <View style={styles.topBarRow}>
               <Text style={styles.appTitle}>Chronicles</Text>
               <View style={styles.topBarActions}>
-                <Pressable
-                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                  onPress={() => router.push('/(home)/ask')}
-                  accessibilityRole="button"
-                  accessibilityLabel="Ask about your concerts"
-                >
-                  <Icon
-                    sf="bubble.left"
-                    md="chatbubble-outline"
-                    size={20}
-                    color={colors.textMuted}
-                  />
-                </Pressable>
                 <Pressable
                   style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                   onPress={handleSync}

@@ -5,7 +5,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { formatTimeAgo } from '@/utils/date';
 import { toOrdinal } from '@/utils/ordinal';
-import type { ConcertRecognitionFacts } from '@/database/chatQueries';
+import type { ConcertRecognitionFacts } from '@/database/factQueries';
 
 interface Props {
   visible: boolean;
