@@ -119,6 +119,12 @@ const chronicleDark = {
   // Cyan is light (high luminance) — text ON it must be near-black, not white
   textOnAccent: '#020d12',
 
+  // Landmark recognition (e.g. a 10th-show milestone) — gold instead of the routine accent
+  gold: '#ffc94d',
+  goldSoft: 'rgba(255, 201, 77, 0.14)',
+  goldGlow: 'rgba(255, 201, 77, 0.55)',
+  textOnGold: '#1a1300',
+
   danger: '#ff453a', // iOS dark mode red
 
   chartGreen: '#30d158',
@@ -154,6 +160,12 @@ const chronicleLight = {
   accentGlow: 'rgba(0, 119, 204, 0.4)',
   // Cobalt is dark — white text is fine
   textOnAccent: '#ffffff',
+
+  // Landmark recognition — a deeper gold than dark mode's, dark enough to read on white
+  gold: '#8a6d00',
+  goldSoft: 'rgba(138, 109, 0, 0.1)',
+  goldGlow: 'rgba(138, 109, 0, 0.4)',
+  textOnGold: '#ffffff',
 
   danger: '#c0392b', // readable red on light bg
 

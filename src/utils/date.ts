@@ -120,7 +120,7 @@ export function monthDisplayName(monthNumber: string): string {
  *   400 → "1 year, 1 month"
  *   880 → "2 years, 5 months"
  */
-function formatDaySpan(days: number): string {
+export function formatDaySpan(days: number): string {
   if (days <= 0) return 'same day';
   if (days === 1) return '1 day';
   if (days < 30) return `${days} days`;
@@ -135,6 +135,14 @@ function formatDaySpan(days: number): string {
     return `${years} year${years !== 1 ? 's' : ''}`;
   }
   return `${months} month${months !== 1 ? 's' : ''}`;
+}
+
+/**
+ * Formats a day gap as a relative "time ago" phrase, e.g. "8 years ago", "3 months ago", "today".
+ */
+export function formatTimeAgo(days: number): string {
+  if (days <= 0) return 'today';
+  return `${formatDaySpan(days)} ago`;
 }
 
 /**
