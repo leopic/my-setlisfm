@@ -62,7 +62,7 @@
     "typescript-eslint": "^8.57.1"
   },
   "resolutions": {
-    "@xmldom/xmldom@^0.8.8": "0.8.13",
+    "@xmldom/xmldom@^0.8.8": "0.8.15",
     "minimatch@^9.0.4": "9.0.9",
     "picomatch@^4.0.2": "4.0.4",
     "picomatch@^4.0.3": "4.0.4",
