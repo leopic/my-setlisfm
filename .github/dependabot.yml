@@ -1,0 +1,49 @@
+version: 2
+
+updates:
+  # Without this file Dependabot only ever opened security PRs, so routine
+  # freshness drifted silently — the Expo SDK sat nine patches behind with
+  # nothing reporting it.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: chore(deps)
+      prefix-development: chore(deps-dev)
+    groups:
+      # One PR a week for the low-risk bumps rather than one per package.
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # SDK-aligned packages have to move together, via `expo install --fix`
+      # or a full SDK upgrade. A lone major bump here desynchronises the SDK,
+      # so majors are left out and handled deliberately.
+      - dependency-name: expo
+        update-types: [version-update:semver-major]
+      - dependency-name: expo-*
+        update-types: [version-update:semver-major]
+      - dependency-name: react-native
+        update-types: [version-update:semver-major]
+      - dependency-name: react
+        update-types: [version-update:semver-major]
+      - dependency-name: react-dom
+        update-types: [version-update:semver-major]
+
+  # The workflow actions had gone three majors stale and were running on a
+  # deprecated Node runtime before anything flagged it.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns:
+          - "*"
