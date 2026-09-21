@@ -266,7 +266,7 @@ export default function ArtistsScreen() {
           styles.artistRow,
           hasAccentBar ? styles.artistRowAccent : styles.artistRowNoAccent,
           isSelected && styles.artistRowSelected,
-        , { opacity: pressed ? 0.7 : 1 }]}
+        { opacity: pressed ? 0.7 : 1 }]}
         testID={`artist-${artist.mbid}`}
         onPress={() => handleViewConcerts(artist)}
         accessibilityRole="button"
@@ -360,7 +360,7 @@ export default function ArtistsScreen() {
                 style={({ pressed }) => [
                   styles.sortPill,
                   isActive ? styles.sortPillActive : styles.sortPillInactive,
-                , { opacity: pressed ? 0.7 : 1 }]}
+                { opacity: pressed ? 0.7 : 1 }]}
                 onPress={() => handleSortChange(option)}
                 accessibilityRole="button"
                 accessibilityState={{ selected: isActive }}

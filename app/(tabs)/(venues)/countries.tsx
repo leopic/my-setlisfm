@@ -160,7 +160,7 @@ export default function CountriesScreen() {
             style={({ pressed }) => [
               styles.pill,
               sortOption === option.value ? styles.pillActive : styles.pillInactive,
-            , { opacity: pressed ? 0.7 : 1 }]}
+            { opacity: pressed ? 0.7 : 1 }]}
             onPress={() => handleSortChange(option.value)}
           >
             <Text
