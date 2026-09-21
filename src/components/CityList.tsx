@@ -1,4 +1,4 @@
-import React, {} from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '@/utils/date';
@@ -23,59 +23,59 @@ export default function CityList({ cities, onCityPress, emptyMessage }: CityList
   const { t } = useTranslation();
   const colors = useChronicleColors();
   const styles = StyleSheet.create({
-        list: {
-          flex: 1,
-        },
-        row: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingVertical: 12,
-          paddingHorizontal: 16,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        leftContent: {
-          flex: 1,
-          marginRight: 12,
-        },
-        name: {
-          ...Type.title,
-          color: colors.textPrimary,
-        },
-        subtitle: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 2,
-        },
-        meta: {
-          ...Type.body,
-          color: colors.textMuted,
-          marginTop: 2,
-        },
-        rightContent: {
-          alignItems: 'center',
-          minWidth: 44,
-        },
-        countNumber: {
-          ...Type.count,
-          color: colors.accent,
-        },
-        countLabel: {
-          ...Type.label,
-          color: colors.textMuted,
-          marginTop: 1,
-        },
-        emptyState: {
-          alignItems: 'center',
-          paddingVertical: 60,
-          paddingHorizontal: 16,
-        },
-        emptyStateText: {
-          ...Type.body,
-          color: colors.textSecondary,
-          textAlign: 'center',
-        },
-      });
+    list: {
+      flex: 1,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    leftContent: {
+      flex: 1,
+      marginRight: 12,
+    },
+    name: {
+      ...Type.title,
+      color: colors.textPrimary,
+    },
+    subtitle: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    meta: {
+      ...Type.body,
+      color: colors.textMuted,
+      marginTop: 2,
+    },
+    rightContent: {
+      alignItems: 'center',
+      minWidth: 44,
+    },
+    countNumber: {
+      ...Type.count,
+      color: colors.accent,
+    },
+    countLabel: {
+      ...Type.label,
+      color: colors.textMuted,
+      marginTop: 1,
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 60,
+      paddingHorizontal: 16,
+    },
+    emptyStateText: {
+      ...Type.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+  });
 
   const getCityRow = (city: CityWithStats) => (
     <Pressable

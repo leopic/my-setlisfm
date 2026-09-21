@@ -36,7 +36,10 @@ export class ErrorBoundary extends React.Component<Props, State> {
         <SafeAreaView style={styles.container}>
           <Text style={styles.title}>Something went wrong</Text>
           <Text style={styles.message}>{this.state.error?.message}</Text>
-          <Pressable style={({ pressed }) => [styles.button, { opacity: pressed ? 0.7 : 1 }]} onPress={this.handleRetry}>
+          <Pressable
+            style={({ pressed }) => [styles.button, { opacity: pressed ? 0.7 : 1 }]}
+            onPress={this.handleRetry}
+          >
             <Text style={styles.buttonText}>Try Again</Text>
           </Pressable>
         </SafeAreaView>

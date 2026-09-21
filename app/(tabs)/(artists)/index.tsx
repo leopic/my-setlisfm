@@ -36,157 +36,157 @@ export default function ArtistsScreen() {
   const colors = useChronicleColors();
   const { isTablet, sidebarWidth } = useTabletLayout();
   const styles = StyleSheet.create({
-        container: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
-        header: {
-          paddingHorizontal: 20,
-          paddingTop: 16,
-          paddingBottom: 14,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        headerTitle: {
-          ...Type.heading,
-          color: colors.textPrimary,
-        },
-        headerSubtitle: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 2,
-        },
-        controls: {
-          backgroundColor: colors.background,
-          paddingTop: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        searchRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: colors.surface,
-          borderWidth: 1,
-          borderColor: colors.border,
-          borderRadius: 10,
-          paddingHorizontal: 14,
-          paddingVertical: 10,
-          marginHorizontal: 20,
-          marginBottom: 8,
-        },
-        searchInput: {
-          flex: 1,
-          ...Type.body,
-          color: colors.textPrimary,
-          padding: 0,
-        },
-        sortStrip: {
-          flexDirection: 'row',
-          gap: 8,
-          paddingHorizontal: 20,
-          paddingBottom: 10,
-        },
-        sortPill: {
-          borderRadius: 16,
-          paddingHorizontal: 12,
-          paddingVertical: 5,
-          borderWidth: 1,
-        },
-        sortPillActive: {
-          backgroundColor: colors.accentSoft,
-          borderColor: colors.accent,
-        },
-        sortPillInactive: {
-          backgroundColor: 'transparent',
-          borderColor: colors.border,
-        },
-        sortPillText: {
-          ...Type.label,
-        },
-        sortPillTextActive: {
-          color: colors.accent,
-        },
-        sortPillTextInactive: {
-          color: colors.textMuted,
-        },
-        artistRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingVertical: 12,
-          paddingRight: 16,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        artistRowAccent: {
-          borderLeftWidth: 2.5,
-          borderLeftColor: colors.accent,
-          paddingLeft: 13.5,
-        },
-        artistRowNoAccent: {
-          paddingLeft: 16,
-        },
-        artistImageWrapper: {
-          marginRight: 12,
-        },
-        artistCenter: {
-          flex: 1,
-          paddingRight: 12,
-        },
-        artistName: {
-          ...Type.title,
-          color: colors.textPrimary,
-        },
-        lastSeenText: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 2,
-        },
-        venuesText: {
-          ...Type.body,
-          color: colors.textMuted,
-          marginTop: 1,
-        },
-        countText: {
-          ...Type.count,
-        },
-        countTextTop: {
-          color: colors.accent,
-        },
-        countTextDefault: {
-          color: colors.textMuted,
-        },
-        chevron: {
-          ...Type.body,
-          color: colors.textDisabled,
-          marginLeft: 8,
-        },
-        emptyState: {
-          alignItems: 'center',
-          paddingVertical: 60,
-          paddingHorizontal: 20,
-        },
-        emptyStateText: {
-          ...Type.body,
-          color: colors.textSecondary,
-          textAlign: 'center',
-          marginBottom: 20,
-        },
-        refreshButton: {
-          backgroundColor: colors.accent,
-          paddingHorizontal: 20,
-          paddingVertical: 12,
-          borderRadius: 20,
-        },
-        refreshButtonText: {
-          ...Type.label,
-          color: colors.textOnAccent,
-        },
-        // ── Tablet master-detail ─────────────────────────────────────────
-        masterDetail: { flex: 1, flexDirection: 'row' },
-        sidebar: { borderRightWidth: 1, borderRightColor: colors.border },
-        detailPane: { flex: 1 },
-        artistRowSelected: { backgroundColor: colors.accentSoft },
-      });
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      paddingHorizontal: 20,
+      paddingTop: 16,
+      paddingBottom: 14,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    headerTitle: {
+      ...Type.heading,
+      color: colors.textPrimary,
+    },
+    headerSubtitle: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    controls: {
+      backgroundColor: colors.background,
+      paddingTop: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    searchRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 10,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      marginHorizontal: 20,
+      marginBottom: 8,
+    },
+    searchInput: {
+      flex: 1,
+      ...Type.body,
+      color: colors.textPrimary,
+      padding: 0,
+    },
+    sortStrip: {
+      flexDirection: 'row',
+      gap: 8,
+      paddingHorizontal: 20,
+      paddingBottom: 10,
+    },
+    sortPill: {
+      borderRadius: 16,
+      paddingHorizontal: 12,
+      paddingVertical: 5,
+      borderWidth: 1,
+    },
+    sortPillActive: {
+      backgroundColor: colors.accentSoft,
+      borderColor: colors.accent,
+    },
+    sortPillInactive: {
+      backgroundColor: 'transparent',
+      borderColor: colors.border,
+    },
+    sortPillText: {
+      ...Type.label,
+    },
+    sortPillTextActive: {
+      color: colors.accent,
+    },
+    sortPillTextInactive: {
+      color: colors.textMuted,
+    },
+    artistRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 12,
+      paddingRight: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    artistRowAccent: {
+      borderLeftWidth: 2.5,
+      borderLeftColor: colors.accent,
+      paddingLeft: 13.5,
+    },
+    artistRowNoAccent: {
+      paddingLeft: 16,
+    },
+    artistImageWrapper: {
+      marginRight: 12,
+    },
+    artistCenter: {
+      flex: 1,
+      paddingRight: 12,
+    },
+    artistName: {
+      ...Type.title,
+      color: colors.textPrimary,
+    },
+    lastSeenText: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    venuesText: {
+      ...Type.body,
+      color: colors.textMuted,
+      marginTop: 1,
+    },
+    countText: {
+      ...Type.count,
+    },
+    countTextTop: {
+      color: colors.accent,
+    },
+    countTextDefault: {
+      color: colors.textMuted,
+    },
+    chevron: {
+      ...Type.body,
+      color: colors.textDisabled,
+      marginLeft: 8,
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 60,
+      paddingHorizontal: 20,
+    },
+    emptyStateText: {
+      ...Type.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    refreshButton: {
+      backgroundColor: colors.accent,
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderRadius: 20,
+    },
+    refreshButtonText: {
+      ...Type.label,
+      color: colors.textOnAccent,
+    },
+    // ── Tablet master-detail ─────────────────────────────────────────
+    masterDetail: { flex: 1, flexDirection: 'row' },
+    sidebar: { borderRightWidth: 1, borderRightColor: colors.border },
+    detailPane: { flex: 1 },
+    artistRowSelected: { backgroundColor: colors.accentSoft },
+  });
 
   const { lastSyncTimestamp } = useSyncContext();
   const router = useRouter();
@@ -229,7 +229,7 @@ export default function ArtistsScreen() {
       return () => {
         cancelled = true;
       };
-    }, [lastSyncTimestamp, t])
+    }, [lastSyncTimestamp, t]),
   );
 
   const handleViewConcerts = (artist: ArtistWithStats) => {
@@ -266,7 +266,8 @@ export default function ArtistsScreen() {
           styles.artistRow,
           hasAccentBar ? styles.artistRowAccent : styles.artistRowNoAccent,
           isSelected && styles.artistRowSelected,
-        { opacity: pressed ? 0.7 : 1 }]}
+          { opacity: pressed ? 0.7 : 1 },
+        ]}
         testID={`artist-${artist.mbid}`}
         onPress={() => handleViewConcerts(artist)}
         accessibilityRole="button"
@@ -360,7 +361,8 @@ export default function ArtistsScreen() {
                 style={({ pressed }) => [
                   styles.sortPill,
                   isActive ? styles.sortPillActive : styles.sortPillInactive,
-                { opacity: pressed ? 0.7 : 1 }]}
+                  { opacity: pressed ? 0.7 : 1 },
+                ]}
                 onPress={() => handleSortChange(option)}
                 accessibilityRole="button"
                 accessibilityState={{ selected: isActive }}

@@ -734,11 +734,31 @@ export async function getConcertRecognitionFacts(
   if (index === -1) return null;
 
   const current = shows[index];
-  const priorCountries = new Set(shows.slice(0, index).map((s) => s.countryCode).filter(Boolean));
-  const priorCities = new Set(shows.slice(0, index).map((s) => s.cityId).filter(Boolean));
+  const priorCountries = new Set(
+    shows
+      .slice(0, index)
+      .map((s) => s.countryCode)
+      .filter(Boolean),
+  );
+  const priorCities = new Set(
+    shows
+      .slice(0, index)
+      .map((s) => s.cityId)
+      .filter(Boolean),
+  );
 
-  const seenCountries = new Set(shows.slice(0, index + 1).map((s) => s.countryCode).filter(Boolean));
-  const seenCities = new Set(shows.slice(0, index + 1).map((s) => s.cityId).filter(Boolean));
+  const seenCountries = new Set(
+    shows
+      .slice(0, index + 1)
+      .map((s) => s.countryCode)
+      .filter(Boolean),
+  );
+  const seenCities = new Set(
+    shows
+      .slice(0, index + 1)
+      .map((s) => s.cityId)
+      .filter(Boolean),
+  );
 
   const previous = index > 0 ? shows[index - 1] : null;
   let daysSincePreviousShowForArtist: number | null = null;
@@ -773,7 +793,8 @@ export async function getConcertRecognitionFacts(
     daysSincePreviousShowForArtist,
     distinctCountriesForArtistSoFar: seenCountries.size,
     distinctCitiesForArtistSoFar: seenCities.size,
-    isNewCountryForArtist: index > 0 && !!current.countryCode && !priorCountries.has(current.countryCode),
+    isNewCountryForArtist:
+      index > 0 && !!current.countryCode && !priorCountries.has(current.countryCode),
     isNewCityForArtist: index > 0 && !!current.cityId && !priorCities.has(current.cityId),
     isFirstVisitToVenue,
     venueVisitOrdinal,

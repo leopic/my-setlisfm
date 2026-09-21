@@ -28,24 +28,24 @@ export default function ArtistImage({
   const [fetchedLoaded, setFetchedLoaded] = useState(false);
 
   // Derive display values from prop directly so prop changes are reflected without setState in effect.
-  const imageUri = hasPreloaded ? (preloaded || null) : fetchedUri;
+  const imageUri = hasPreloaded ? preloaded || null : fetchedUri;
   const loaded = hasPreloaded || fetchedLoaded;
 
   const styles = StyleSheet.create({
-        container: {
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          backgroundColor: colors.backgroundPill,
-          overflow: 'hidden',
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        image: {
-          width: size,
-          height: size,
-        },
-      });
+    container: {
+      width: size,
+      height: size,
+      borderRadius: size / 2,
+      backgroundColor: colors.backgroundPill,
+      overflow: 'hidden',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    image: {
+      width: size,
+      height: size,
+    },
+  });
 
   useEffect(() => {
     if (hasPreloaded) return;

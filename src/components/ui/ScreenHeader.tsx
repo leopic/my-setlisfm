@@ -1,4 +1,4 @@
-import React, {} from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColors } from '@/utils/colors';
@@ -19,34 +19,34 @@ export default function ScreenHeader({
   const { t } = useTranslation();
   const colors = useColors();
   const styles = StyleSheet.create({
-        container: {
-          paddingHorizontal: 20,
-          paddingTop: 10,
-          paddingBottom: 10,
-        },
-        backButton: {
-          padding: 10,
-          marginBottom: 10,
-          minHeight: 44,
-          minWidth: 44,
-          justifyContent: 'center' as const,
-        },
-        backButtonText: {
-          color: colors.primary,
-          fontSize: 16,
-          fontWeight: '600',
-        },
-        title: {
-          fontSize: 28,
-          fontWeight: 'bold',
-          color: colors.textPrimary,
-        },
-        subtitle: {
-          fontSize: 16,
-          color: colors.textSecondary,
-          marginTop: 4,
-        },
-      });
+    container: {
+      paddingHorizontal: 20,
+      paddingTop: 10,
+      paddingBottom: 10,
+    },
+    backButton: {
+      padding: 10,
+      marginBottom: 10,
+      minHeight: 44,
+      minWidth: 44,
+      justifyContent: 'center' as const,
+    },
+    backButtonText: {
+      color: colors.primary,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.textPrimary,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      marginTop: 4,
+    },
+  });
 
   return (
     <View style={styles.container}>
