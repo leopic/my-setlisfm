@@ -1,4 +1,4 @@
-import React, {} from 'react';
+import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -13,42 +13,41 @@ export default function VenuesMapScreen() {
   const router = useRouter();
 
   const styles = StyleSheet.create({
-        container: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
-        header: {
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        back: {
-          ...Type.body,
-          color: colors.accent,
-          marginBottom: 4,
-        },
-        title: {
-          ...Type.heading,
-          color: colors.textPrimary,
-        },
-        subtitle: {
-          ...Type.body,
-          color: colors.textSecondary,
-        },
-        mapWrapper: {
-          flex: 1,
-          marginBottom: 100,
-        },
-      });
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    back: {
+      ...Type.body,
+      color: colors.accent,
+      marginBottom: 4,
+    },
+    title: {
+      ...Type.heading,
+      color: colors.textPrimary,
+    },
+    subtitle: {
+      ...Type.body,
+      color: colors.textSecondary,
+    },
+    mapWrapper: {
+      flex: 1,
+      marginBottom: 100,
+    },
+  });
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.header}>
         <Pressable
-          
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-         onPress={() => router.back()}
+          onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >

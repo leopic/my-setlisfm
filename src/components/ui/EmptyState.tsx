@@ -33,35 +33,35 @@ export default function EmptyState({
   const description = body ?? subtitle;
 
   const styles = StyleSheet.create({
-        page: {
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          paddingHorizontal: 52,
-          paddingVertical: 64,
-        },
-        inline: {
-          alignItems: 'center',
-          paddingHorizontal: 40,
-          paddingVertical: 48,
-        },
-        iconWrap: {
-          marginBottom: 20,
-          opacity: 0.22,
-        },
-        title: {
-          ...Type.title,
-          color: colors.textMuted,
-          textAlign: 'center',
-          marginBottom: 8,
-        },
-        body: {
-          ...Type.body,
-          color: colors.textDisabled,
-          textAlign: 'center',
-          lineHeight: 20,
-        },
-      });
+    page: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: 52,
+      paddingVertical: 64,
+    },
+    inline: {
+      alignItems: 'center',
+      paddingHorizontal: 40,
+      paddingVertical: 48,
+    },
+    iconWrap: {
+      marginBottom: 20,
+      opacity: 0.22,
+    },
+    title: {
+      ...Type.title,
+      color: colors.textMuted,
+      textAlign: 'center',
+      marginBottom: 8,
+    },
+    body: {
+      ...Type.body,
+      color: colors.textDisabled,
+      textAlign: 'center',
+      lineHeight: 20,
+    },
+  });
 
   return (
     <View style={variant === 'page' ? styles.page : styles.inline} accessibilityRole="text">

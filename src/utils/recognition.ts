@@ -10,6 +10,7 @@ const MILESTONE_INTERVAL = 5;
  */
 export function isLandmarkVisit(facts: ConcertRecognitionFacts): boolean {
   const isMilestoneCount =
-    facts.ordinalForArtist >= MILESTONE_INTERVAL && facts.ordinalForArtist % MILESTONE_INTERVAL === 0;
+    facts.ordinalForArtist >= MILESTONE_INTERVAL &&
+    facts.ordinalForArtist % MILESTONE_INTERVAL === 0;
   return isMilestoneCount || facts.isNewCountryForArtist;
 }

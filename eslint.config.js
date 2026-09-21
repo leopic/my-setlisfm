@@ -12,11 +12,22 @@ module.exports = tseslint.config(
       prettier: prettierPlugin,
     },
     rules: {
-      'prettier/prettier': 'warn',
+      // Formatting is an error, not a warning: ESLint exits 0 on warnings, so
+      // as a warning this rule let ~2500 violations accumulate unnoticed.
+      'prettier/prettier': 'error',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/consistent-type-imports': 'error',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
+    },
+  },
+  {
+    // Test doubles mock only the fields under test, so a partial object cast
+    // is deliberate here — widening the fixtures to satisfy the type would
+    // couple each test to fields it does not exercise.
+    files: ['src/__tests__/**/*.ts', 'src/__tests__/**/*.tsx'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   {

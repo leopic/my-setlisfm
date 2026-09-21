@@ -25,127 +25,127 @@ export default function ContinentsScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
   const styles = StyleSheet.create({
-        container: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
-        inlineHeader: {
-          paddingHorizontal: 16,
-          paddingTop: 12,
-          paddingBottom: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        backRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginBottom: 6,
-        },
-        backButton: {
-          ...Type.body,
-          color: colors.accent,
-        },
-        headerTitle: {
-          ...Type.heading,
-          color: colors.textPrimary,
-        },
-        headerSubtitle: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 2,
-        },
-        sortPills: {
-          flexDirection: 'row',
-          gap: 8,
-          paddingHorizontal: 16,
-          paddingBottom: 10,
-          paddingTop: 10,
-        },
-        pill: {
-          borderRadius: 20,
-          paddingHorizontal: 12,
-          paddingVertical: 6,
-          borderWidth: 1,
-        },
-        pillActive: {
-          backgroundColor: colors.accentSoft,
-          borderColor: colors.accent,
-        },
-        pillInactive: {
-          backgroundColor: 'transparent',
-          borderColor: colors.border,
-        },
-        pillTextActive: {
-          ...Type.label,
-          color: colors.accent,
-        },
-        pillTextInactive: {
-          ...Type.label,
-          color: colors.textMuted,
-        },
-        row: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingVertical: 12,
-          paddingHorizontal: 16,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        leftContent: {
-          flex: 1,
-          marginRight: 12,
-        },
-        name: {
-          ...Type.title,
-          color: colors.textPrimary,
-        },
-        subtitle: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 2,
-        },
-        meta: {
-          ...Type.body,
-          color: colors.textMuted,
-          marginTop: 2,
-        },
-        rightContent: {
-          alignItems: 'center',
-          minWidth: 44,
-        },
-        countNumber: {
-          ...Type.count,
-          color: colors.accent,
-        },
-        countLabel: {
-          ...Type.label,
-          color: colors.textMuted,
-          marginTop: 1,
-        },
-        emptyState: {
-          alignItems: 'center',
-          paddingVertical: 60,
-          paddingHorizontal: 16,
-        },
-        emptyStateText: {
-          ...Type.body,
-          color: colors.textSecondary,
-          textAlign: 'center',
-          marginBottom: 20,
-        },
-        refreshButton: {
-          borderRadius: 20,
-          paddingHorizontal: 20,
-          paddingVertical: 12,
-          backgroundColor: colors.accentSoft,
-          borderWidth: 1,
-          borderColor: colors.accent,
-        },
-        refreshButtonText: {
-          ...Type.label,
-          color: colors.accent,
-        },
-      });
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    inlineHeader: {
+      paddingHorizontal: 16,
+      paddingTop: 12,
+      paddingBottom: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    backRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 6,
+    },
+    backButton: {
+      ...Type.body,
+      color: colors.accent,
+    },
+    headerTitle: {
+      ...Type.heading,
+      color: colors.textPrimary,
+    },
+    headerSubtitle: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    sortPills: {
+      flexDirection: 'row',
+      gap: 8,
+      paddingHorizontal: 16,
+      paddingBottom: 10,
+      paddingTop: 10,
+    },
+    pill: {
+      borderRadius: 20,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderWidth: 1,
+    },
+    pillActive: {
+      backgroundColor: colors.accentSoft,
+      borderColor: colors.accent,
+    },
+    pillInactive: {
+      backgroundColor: 'transparent',
+      borderColor: colors.border,
+    },
+    pillTextActive: {
+      ...Type.label,
+      color: colors.accent,
+    },
+    pillTextInactive: {
+      ...Type.label,
+      color: colors.textMuted,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    leftContent: {
+      flex: 1,
+      marginRight: 12,
+    },
+    name: {
+      ...Type.title,
+      color: colors.textPrimary,
+    },
+    subtitle: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    meta: {
+      ...Type.body,
+      color: colors.textMuted,
+      marginTop: 2,
+    },
+    rightContent: {
+      alignItems: 'center',
+      minWidth: 44,
+    },
+    countNumber: {
+      ...Type.count,
+      color: colors.accent,
+    },
+    countLabel: {
+      ...Type.label,
+      color: colors.textMuted,
+      marginTop: 1,
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 60,
+      paddingHorizontal: 16,
+    },
+    emptyStateText: {
+      ...Type.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    refreshButton: {
+      borderRadius: 20,
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      backgroundColor: colors.accentSoft,
+      borderWidth: 1,
+      borderColor: colors.accent,
+    },
+    refreshButtonText: {
+      ...Type.label,
+      color: colors.accent,
+    },
+  });
 
   const router = useRouter();
   const [rawContinents, setRawContinents] = useState<ContinentWithStats[]>([]);
@@ -257,9 +257,8 @@ export default function ContinentsScreen() {
       <View style={styles.inlineHeader}>
         <View style={styles.backRow}>
           <Pressable
-            
-          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-         onPress={() => router.back()}
+            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+            onPress={() => router.back()}
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
@@ -282,7 +281,8 @@ export default function ContinentsScreen() {
             style={({ pressed }) => [
               styles.pill,
               sortOption === option.value ? styles.pillActive : styles.pillInactive,
-            { opacity: pressed ? 0.7 : 1 }]}
+              { opacity: pressed ? 0.7 : 1 },
+            ]}
             onPress={() => handleSortChange(option.value)}
           >
             <Text

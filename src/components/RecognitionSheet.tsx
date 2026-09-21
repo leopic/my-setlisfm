@@ -18,7 +18,10 @@ interface Props {
 }
 
 interface Chip {
-  icon: { sf: React.ComponentProps<typeof Icon>['sf']; md: React.ComponentProps<typeof Icon>['md'] };
+  icon: {
+    sf: React.ComponentProps<typeof Icon>['sf'];
+    md: React.ComponentProps<typeof Icon>['md'];
+  };
   text: string;
 }
 
@@ -36,79 +39,79 @@ export default function RecognitionSheet({
   const accent = isLandmark ? colors.gold : colors.accent;
 
   const styles = StyleSheet.create({
-        overlay: {
-          flex: 1,
-          justifyContent: 'flex-end',
-          backgroundColor: 'rgba(0,0,0,0.55)',
-        },
-        sheet: {
-          backgroundColor: colors.surface,
-          borderTopLeftRadius: 22,
-          borderTopRightRadius: 22,
-          borderTopWidth: 1,
-          borderColor: colors.border,
-          paddingHorizontal: 18,
-          paddingTop: 10,
-          paddingBottom: 34,
-        },
-        grip: {
-          alignSelf: 'center',
-          width: 36,
-          height: 4,
-          borderRadius: 3,
-          backgroundColor: colors.borderLight,
-          marginBottom: 14,
-        },
-        hero: {
-          alignItems: 'center',
-          paddingBottom: 16,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-          marginBottom: 14,
-        },
-        heroIcon: { marginBottom: 8 },
-        heroCount: {
-          ...Type.display,
-          color: accent,
-        },
-        heroLabel: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 2,
-        },
-        grid: {
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          gap: 8,
-          marginBottom: 18,
-        },
-        chip: {
-          flexBasis: '48%',
-          flexGrow: 1,
-          backgroundColor: colors.surfaceRaised,
-          borderWidth: 1,
-          borderColor: colors.border,
-          borderRadius: 10,
-          padding: 10,
-        },
-        chipIcon: { marginBottom: 6 },
-        chipText: {
-          ...Type.body,
-          color: colors.textSecondary,
-        },
-        doneButton: {
-          alignItems: 'center',
-          paddingVertical: 12,
-          borderRadius: 10,
-          backgroundColor: colors.surfaceRaised,
-          borderWidth: 1,
-          borderColor: colors.border,
-        },
-        doneText: {
-          ...Type.title,
-          color: colors.textPrimary,
-        },
-      });
+    overlay: {
+      flex: 1,
+      justifyContent: 'flex-end',
+      backgroundColor: 'rgba(0,0,0,0.55)',
+    },
+    sheet: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: 22,
+      borderTopRightRadius: 22,
+      borderTopWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: 18,
+      paddingTop: 10,
+      paddingBottom: 34,
+    },
+    grip: {
+      alignSelf: 'center',
+      width: 36,
+      height: 4,
+      borderRadius: 3,
+      backgroundColor: colors.borderLight,
+      marginBottom: 14,
+    },
+    hero: {
+      alignItems: 'center',
+      paddingBottom: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      marginBottom: 14,
+    },
+    heroIcon: { marginBottom: 8 },
+    heroCount: {
+      ...Type.display,
+      color: accent,
+    },
+    heroLabel: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginBottom: 18,
+    },
+    chip: {
+      flexBasis: '48%',
+      flexGrow: 1,
+      backgroundColor: colors.surfaceRaised,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 10,
+      padding: 10,
+    },
+    chipIcon: { marginBottom: 6 },
+    chipText: {
+      ...Type.body,
+      color: colors.textSecondary,
+    },
+    doneButton: {
+      alignItems: 'center',
+      paddingVertical: 12,
+      borderRadius: 10,
+      backgroundColor: colors.surfaceRaised,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    doneText: {
+      ...Type.title,
+      color: colors.textPrimary,
+    },
+  });
 
   const location = [currentCityName, currentCountryName].filter(Boolean).join(', ');
   const heroLabel = location || t('recognition.heroSubtitle');
@@ -147,7 +150,10 @@ export default function RecognitionSheet({
   if (facts.isNewCountryForArtist && currentCountryName) {
     chips.push({
       icon: { sf: 'globe', md: 'globe-outline' },
-      text: t('recognition.newCountryForArtist', { artist: artistName, country: currentCountryName }),
+      text: t('recognition.newCountryForArtist', {
+        artist: artistName,
+        country: currentCountryName,
+      }),
     });
   } else if (facts.distinctCountriesForArtistSoFar > 1) {
     chips.push({

@@ -44,14 +44,14 @@ export default function SetlistDetailPane({ concertId }: Props) {
   }, [concertId]);
 
   const styles = StyleSheet.create({
-        container: { flex: 1, backgroundColor: colors.background },
-        placeholder: {
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        placeholderText: { ...Type.body, color: colors.textMuted },
-      });
+    container: { flex: 1, backgroundColor: colors.background },
+    placeholder: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    placeholderText: { ...Type.body, color: colors.textMuted },
+  });
 
   if (!concertId) {
     return (

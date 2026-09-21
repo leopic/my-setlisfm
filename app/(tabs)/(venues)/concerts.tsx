@@ -39,134 +39,134 @@ export default function VenueConcertsListScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
   const styles = StyleSheet.create({
-        container: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
-        // ── Inline header ──────────────────────────────────────────────────
-        inlineHeader: {
-          paddingHorizontal: 16,
-          paddingTop: 12,
-          paddingBottom: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        backRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginBottom: 6,
-        },
-        backButton: {
-          // Pressable wrapper — no extra styles needed
-        },
-        backText: {
-          ...Type.body,
-          color: colors.accent,
-        },
-        headerTitle: {
-          ...Type.heading,
-          color: colors.textPrimary,
-        },
-        headerSubtitle: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 2,
-        },
-        // ── Timeline river ──────────────────────────────────────────────────
-        scrollView: {
-          flex: 1,
-        },
-        yearSection: {
-          paddingHorizontal: 0,
-          marginTop: 16,
-        },
-        yearGhost: {
-          ...Type.display,
-          fontSize: 56,
-          opacity: 0.18,
-          color: colors.textPrimary,
-          letterSpacing: -2,
-          lineHeight: 56,
-          paddingHorizontal: 16,
-          marginTop: 0,
-        },
-        yearSubLabel: {
-          ...Type.label,
-          color: colors.textMuted,
-          paddingHorizontal: 16,
-          marginBottom: 4,
-        },
-        spineContainer: {
-          borderLeftWidth: 1.5,
-          borderLeftColor: colors.spineColor,
-          marginLeft: 28,
-          paddingLeft: 20,
-        },
-        // ── Concert entry (river) ────────────────────────────────────────────
-        riverEntry: {
-          paddingVertical: 10,
-          position: 'relative',
-        },
-        dot: {
-          position: 'absolute',
-          left: -26,
-          top: 14,
-          width: 9,
-          height: 9,
-          borderRadius: 4.5,
-          backgroundColor: colors.dotInactive,
-          borderWidth: 2,
-          borderColor: colors.background,
-        },
-        dotActive: {
-          backgroundColor: colors.dotActive,
-        },
-        entryRow: {
-          flexDirection: 'row',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-        },
-        entryContent: {
-          flex: 1,
-          marginRight: 8,
-        },
-        entryDate: {
-          ...Type.label,
-          color: colors.accent,
-          letterSpacing: 0.8,
-          marginBottom: 2,
-        },
-        entryPrimary: {
-          ...Type.title,
-          color: colors.textPrimary,
-        },
-        entrySecondary: {
-          ...Type.body,
-          color: colors.textSecondary,
-        },
-        entryTour: {
-          ...Type.body,
-          color: colors.accent,
-          marginTop: 2,
-        },
-        entryChevron: {
-          ...Type.body,
-          color: colors.textDisabled,
-          alignSelf: 'center',
-          marginLeft: 'auto',
-        },
-        // ── Empty state ──────────────────────────────────────────────────────
-        emptyState: {
-          alignItems: 'center',
-          justifyContent: 'center',
-          paddingVertical: 60,
-        },
-        emptyStateText: {
-          ...Type.body,
-          color: colors.textSecondary,
-          textAlign: 'center',
-        },
-      });
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    // ── Inline header ──────────────────────────────────────────────────
+    inlineHeader: {
+      paddingHorizontal: 16,
+      paddingTop: 12,
+      paddingBottom: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    backRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 6,
+    },
+    backButton: {
+      // Pressable wrapper — no extra styles needed
+    },
+    backText: {
+      ...Type.body,
+      color: colors.accent,
+    },
+    headerTitle: {
+      ...Type.heading,
+      color: colors.textPrimary,
+    },
+    headerSubtitle: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    // ── Timeline river ──────────────────────────────────────────────────
+    scrollView: {
+      flex: 1,
+    },
+    yearSection: {
+      paddingHorizontal: 0,
+      marginTop: 16,
+    },
+    yearGhost: {
+      ...Type.display,
+      fontSize: 56,
+      opacity: 0.18,
+      color: colors.textPrimary,
+      letterSpacing: -2,
+      lineHeight: 56,
+      paddingHorizontal: 16,
+      marginTop: 0,
+    },
+    yearSubLabel: {
+      ...Type.label,
+      color: colors.textMuted,
+      paddingHorizontal: 16,
+      marginBottom: 4,
+    },
+    spineContainer: {
+      borderLeftWidth: 1.5,
+      borderLeftColor: colors.spineColor,
+      marginLeft: 28,
+      paddingLeft: 20,
+    },
+    // ── Concert entry (river) ────────────────────────────────────────────
+    riverEntry: {
+      paddingVertical: 10,
+      position: 'relative',
+    },
+    dot: {
+      position: 'absolute',
+      left: -26,
+      top: 14,
+      width: 9,
+      height: 9,
+      borderRadius: 4.5,
+      backgroundColor: colors.dotInactive,
+      borderWidth: 2,
+      borderColor: colors.background,
+    },
+    dotActive: {
+      backgroundColor: colors.dotActive,
+    },
+    entryRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+    },
+    entryContent: {
+      flex: 1,
+      marginRight: 8,
+    },
+    entryDate: {
+      ...Type.label,
+      color: colors.accent,
+      letterSpacing: 0.8,
+      marginBottom: 2,
+    },
+    entryPrimary: {
+      ...Type.title,
+      color: colors.textPrimary,
+    },
+    entrySecondary: {
+      ...Type.body,
+      color: colors.textSecondary,
+    },
+    entryTour: {
+      ...Type.body,
+      color: colors.accent,
+      marginTop: 2,
+    },
+    entryChevron: {
+      ...Type.body,
+      color: colors.textDisabled,
+      alignSelf: 'center',
+      marginLeft: 'auto',
+    },
+    // ── Empty state ──────────────────────────────────────────────────────
+    emptyState: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 60,
+    },
+    emptyStateText: {
+      ...Type.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+  });
 
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -178,7 +178,6 @@ export default function VenueConcertsListScreen() {
 
   // Get venue parameter from navigation
   const venueId = params.venue as string;
-
 
   useEffect(() => {
     if (!venueId) return;

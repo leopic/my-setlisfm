@@ -15,54 +15,54 @@ export default function InsightCards({ stats }: Props) {
   const colors = useChronicleColors();
 
   const styles = StyleSheet.create({
-        section: {
-          marginTop: 24,
-          marginHorizontal: 20,
-        },
-        sectionLabel: {
-          ...Type.label,
-          color: colors.textMuted,
-          letterSpacing: 1.2,
-          marginBottom: 10,
-        },
-        row: {
-          flexDirection: 'row',
-          gap: 10,
-        },
-        halfCard: {
-          flex: 1,
-          backgroundColor: colors.surface,
-          borderRadius: 12,
-          borderWidth: 1,
-          borderColor: colors.border,
-          padding: 14,
-        },
-        fullCard: {
-          backgroundColor: colors.surface,
-          borderRadius: 12,
-          borderWidth: 1,
-          borderColor: colors.border,
-          padding: 14,
-          marginBottom: 10,
-        },
-        cardLabel: {
-          ...Type.label,
-          color: colors.textMuted,
-          marginBottom: 4,
-          letterSpacing: 0.6,
-        },
-        cardValue: {
-          ...Type.heading,
-          color: colors.textPrimary,
-          lineHeight: 26,
-        },
-        cardSub: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 3,
-          lineHeight: 18,
-        },
-      });
+    section: {
+      marginTop: 24,
+      marginHorizontal: 20,
+    },
+    sectionLabel: {
+      ...Type.label,
+      color: colors.textMuted,
+      letterSpacing: 1.2,
+      marginBottom: 10,
+    },
+    row: {
+      flexDirection: 'row',
+      gap: 10,
+    },
+    halfCard: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 14,
+    },
+    fullCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 14,
+      marginBottom: 10,
+    },
+    cardLabel: {
+      ...Type.label,
+      color: colors.textMuted,
+      marginBottom: 4,
+      letterSpacing: 0.6,
+    },
+    cardValue: {
+      ...Type.heading,
+      color: colors.textPrimary,
+      lineHeight: 26,
+    },
+    cardSub: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 3,
+      lineHeight: 18,
+    },
+  });
 
   const { weekdayDistribution, busiest7Days } = stats;
   const topWeekday = weekdayDistribution.reduce<(typeof weekdayDistribution)[0] | undefined>(

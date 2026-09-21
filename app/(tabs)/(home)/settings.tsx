@@ -31,82 +31,82 @@ export default function SettingsScreen() {
   const [lastSynced, setLastSynced] = useState<string | null>(null);
 
   const styles = StyleSheet.create({
-        container: { flex: 1, backgroundColor: colors.background },
-        header: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 16,
-          paddingVertical: 14,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-          gap: 10,
-        },
-        backButton: { padding: 4 },
-        headerTitle: { ...Type.heading, color: colors.textPrimary, flex: 1 },
-        // ── Section ──────────────────────────────────────────────────────────
-        sectionLabel: {
-          ...Type.label,
-          color: colors.textMuted,
-          letterSpacing: 1,
-          textTransform: 'uppercase',
-          paddingHorizontal: 20,
-          paddingTop: 28,
-          paddingBottom: 8,
-        },
-        // ── Rows ─────────────────────────────────────────────────────────────
-        row: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 20,
-          paddingVertical: 14,
-          backgroundColor: colors.surface,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        rowFirst: { borderTopWidth: 1, borderTopColor: colors.border },
-        rowLabel: { ...Type.body, color: colors.textSecondary, width: 110 },
-        rowValue: { ...Type.body, color: colors.textPrimary, flex: 1 },
-        rowAction: { ...Type.body, color: colors.accent },
-        rowDestructive: { ...Type.title, color: colors.danger ?? '#ff453a', flex: 1 },
-        // ── Username edit ─────────────────────────────────────────────────────
-        usernameInput: {
-          flex: 1,
-          ...Type.body,
-          color: colors.textPrimary,
-          borderWidth: 1,
-          borderColor: colors.accent,
-          borderRadius: 8,
-          paddingHorizontal: 10,
-          paddingVertical: 6,
-        },
-        saveButton: {
-          marginLeft: 10,
-          paddingHorizontal: 14,
-          paddingVertical: 7,
-          backgroundColor: colors.accent,
-          borderRadius: 8,
-        },
-        saveButtonText: {
-          ...Type.label,
-          color: colors.textOnAccent,
-        },
-        cancelButton: { marginLeft: 8, padding: 6 },
-        // ── Sync button ───────────────────────────────────────────────────────
-        syncRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 20,
-          paddingVertical: 14,
-          backgroundColor: colors.surface,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-          borderTopWidth: 1,
-          borderTopColor: colors.border,
-          gap: 10,
-        },
-        syncText: { ...Type.title, color: colors.accent, flex: 1 },
-        syncTextDisabled: { ...Type.title, color: colors.textMuted, flex: 1 },
-      });
+    container: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      gap: 10,
+    },
+    backButton: { padding: 4 },
+    headerTitle: { ...Type.heading, color: colors.textPrimary, flex: 1 },
+    // ── Section ──────────────────────────────────────────────────────────
+    sectionLabel: {
+      ...Type.label,
+      color: colors.textMuted,
+      letterSpacing: 1,
+      textTransform: 'uppercase',
+      paddingHorizontal: 20,
+      paddingTop: 28,
+      paddingBottom: 8,
+    },
+    // ── Rows ─────────────────────────────────────────────────────────────
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 14,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    rowFirst: { borderTopWidth: 1, borderTopColor: colors.border },
+    rowLabel: { ...Type.body, color: colors.textSecondary, width: 110 },
+    rowValue: { ...Type.body, color: colors.textPrimary, flex: 1 },
+    rowAction: { ...Type.body, color: colors.accent },
+    rowDestructive: { ...Type.title, color: colors.danger ?? '#ff453a', flex: 1 },
+    // ── Username edit ─────────────────────────────────────────────────────
+    usernameInput: {
+      flex: 1,
+      ...Type.body,
+      color: colors.textPrimary,
+      borderWidth: 1,
+      borderColor: colors.accent,
+      borderRadius: 8,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+    },
+    saveButton: {
+      marginLeft: 10,
+      paddingHorizontal: 14,
+      paddingVertical: 7,
+      backgroundColor: colors.accent,
+      borderRadius: 8,
+    },
+    saveButtonText: {
+      ...Type.label,
+      color: colors.textOnAccent,
+    },
+    cancelButton: { marginLeft: 8, padding: 6 },
+    // ── Sync button ───────────────────────────────────────────────────────
+    syncRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 14,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      gap: 10,
+    },
+    syncText: { ...Type.title, color: colors.accent, flex: 1 },
+    syncTextDisabled: { ...Type.title, color: colors.textMuted, flex: 1 },
+  });
 
   useEffect(() => {
     (async () => {
@@ -218,7 +218,10 @@ export default function SettingsScreen() {
                   onSubmitEditing={handleSaveUsername}
                   placeholderTextColor={colors.textMuted}
                 />
-                <Pressable style={({ pressed }) => [styles.saveButton, { opacity: pressed ? 0.7 : 1 }]} onPress={handleSaveUsername}>
+                <Pressable
+                  style={({ pressed }) => [styles.saveButton, { opacity: pressed ? 0.7 : 1 }]}
+                  onPress={handleSaveUsername}
+                >
                   <Text style={styles.saveButtonText}>Save</Text>
                 </Pressable>
                 <Pressable
@@ -232,9 +235,11 @@ export default function SettingsScreen() {
             ) : (
               <>
                 <Text style={styles.rowValue}>{username || '—'}</Text>
-                <Pressable 
-          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-         onPress={handleStartEdit} accessibilityRole="button">
+                <Pressable
+                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+                  onPress={handleStartEdit}
+                  accessibilityRole="button"
+                >
                   <Text style={styles.rowAction}>Change</Text>
                 </Pressable>
               </>

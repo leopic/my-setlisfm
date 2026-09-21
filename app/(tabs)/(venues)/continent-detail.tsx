@@ -21,31 +21,31 @@ export default function ContinentDetailScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
   const styles = StyleSheet.create({
-        container: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
-        header: {
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        backBtn: {
-          ...Type.body,
-          color: colors.accent,
-          marginBottom: 6,
-        },
-        title: {
-          ...Type.heading,
-          color: colors.textPrimary,
-        },
-        subtitle: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 2,
-        },
-      });
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    backBtn: {
+      ...Type.body,
+      color: colors.accent,
+      marginBottom: 6,
+    },
+    title: {
+      ...Type.heading,
+      color: colors.textPrimary,
+    },
+    subtitle: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+  });
 
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -96,9 +96,8 @@ export default function ContinentDetailScreen() {
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.header}>
         <Pressable
-          
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-         onPress={() => router.back()}
+          onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >

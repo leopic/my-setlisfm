@@ -31,87 +31,87 @@ export default function CityDetailScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
   const styles = StyleSheet.create({
-        container: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
-        header: {
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        backBtn: {
-          ...Type.body,
-          color: colors.accent,
-          marginBottom: 6,
-        },
-        title: {
-          ...Type.heading,
-          color: colors.textPrimary,
-        },
-        subtitle: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 2,
-        },
-        venuesList: {
-          flex: 1,
-        },
-        venueRow: {
-          paddingVertical: 12,
-          paddingHorizontal: 16,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-          flexDirection: 'row',
-          alignItems: 'center',
-        },
-        venueInfo: {
-          flex: 1,
-          marginRight: 12,
-        },
-        venueName: {
-          ...Type.title,
-          color: colors.textPrimary,
-        },
-        venueLocation: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 2,
-        },
-        lastConcertText: {
-          ...Type.body,
-          color: colors.textMuted,
-          marginTop: 2,
-        },
-        artistsText: {
-          ...Type.body,
-          color: colors.textMuted,
-          marginTop: 2,
-        },
-        concertCountContainer: {
-          alignItems: 'center',
-          minWidth: 44,
-        },
-        concertCountText: {
-          ...Type.count,
-          color: colors.accent,
-        },
-        concertCountLabel: {
-          ...Type.label,
-          color: colors.textMuted,
-          marginTop: 1,
-        },
-        emptyState: {
-          alignItems: 'center',
-          paddingVertical: 60,
-        },
-        emptyStateText: {
-          ...Type.body,
-          color: colors.textSecondary,
-          textAlign: 'center',
-        },
-      });
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    backBtn: {
+      ...Type.body,
+      color: colors.accent,
+      marginBottom: 6,
+    },
+    title: {
+      ...Type.heading,
+      color: colors.textPrimary,
+    },
+    subtitle: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    venuesList: {
+      flex: 1,
+    },
+    venueRow: {
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    venueInfo: {
+      flex: 1,
+      marginRight: 12,
+    },
+    venueName: {
+      ...Type.title,
+      color: colors.textPrimary,
+    },
+    venueLocation: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    lastConcertText: {
+      ...Type.body,
+      color: colors.textMuted,
+      marginTop: 2,
+    },
+    artistsText: {
+      ...Type.body,
+      color: colors.textMuted,
+      marginTop: 2,
+    },
+    concertCountContainer: {
+      alignItems: 'center',
+      minWidth: 44,
+    },
+    concertCountText: {
+      ...Type.count,
+      color: colors.accent,
+    },
+    concertCountLabel: {
+      ...Type.label,
+      color: colors.textMuted,
+      marginTop: 1,
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 60,
+    },
+    emptyStateText: {
+      ...Type.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+  });
 
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -215,9 +215,8 @@ export default function CityDetailScreen() {
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.header}>
         <Pressable
-          
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-         onPress={() => router.back()}
+          onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >

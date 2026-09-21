@@ -1,4 +1,4 @@
-import React, {} from 'react';
+import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useColors } from '@/utils/colors';
 
@@ -10,20 +10,20 @@ interface BadgeProps {
 export default function Badge({ count, label }: BadgeProps) {
   const colors = useColors();
   const styles = StyleSheet.create({
-        badge: {
-          backgroundColor: colors.success,
-          borderRadius: 10,
-          borderCurve: 'continuous' as const,
-          paddingHorizontal: 8,
-          paddingVertical: 3,
-        },
-        text: {
-          color: colors.textInverse,
-          fontSize: 12,
-          fontWeight: 'bold',
-          fontVariant: ['tabular-nums'] as const,
-        },
-      });
+    badge: {
+      backgroundColor: colors.success,
+      borderRadius: 10,
+      borderCurve: 'continuous' as const,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+    },
+    text: {
+      color: colors.textInverse,
+      fontSize: 12,
+      fontWeight: 'bold',
+      fontVariant: ['tabular-nums'] as const,
+    },
+  });
 
   return (
     <View style={styles.badge}>

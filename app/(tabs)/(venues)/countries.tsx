@@ -23,65 +23,65 @@ export default function CountriesScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
   const styles = StyleSheet.create({
-        container: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
-        inlineHeader: {
-          paddingHorizontal: 16,
-          paddingTop: 12,
-          paddingBottom: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        backRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginBottom: 6,
-        },
-        backButton: {
-          ...Type.body,
-          color: colors.accent,
-        },
-        headerTitle: {
-          ...Type.heading,
-          color: colors.textPrimary,
-        },
-        headerSubtitle: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 2,
-        },
-        sortPills: {
-          flexDirection: 'row',
-          gap: 8,
-          paddingHorizontal: 16,
-          paddingBottom: 10,
-          paddingTop: 10,
-        },
-        pill: {
-          borderRadius: 20,
-          paddingHorizontal: 12,
-          paddingVertical: 6,
-          borderWidth: 1,
-        },
-        pillActive: {
-          backgroundColor: colors.accentSoft,
-          borderColor: colors.accent,
-        },
-        pillInactive: {
-          backgroundColor: 'transparent',
-          borderColor: colors.border,
-        },
-        pillTextActive: {
-          ...Type.label,
-          color: colors.accent,
-        },
-        pillTextInactive: {
-          ...Type.label,
-          color: colors.textMuted,
-        },
-      });
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    inlineHeader: {
+      paddingHorizontal: 16,
+      paddingTop: 12,
+      paddingBottom: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    backRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 6,
+    },
+    backButton: {
+      ...Type.body,
+      color: colors.accent,
+    },
+    headerTitle: {
+      ...Type.heading,
+      color: colors.textPrimary,
+    },
+    headerSubtitle: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    sortPills: {
+      flexDirection: 'row',
+      gap: 8,
+      paddingHorizontal: 16,
+      paddingBottom: 10,
+      paddingTop: 10,
+    },
+    pill: {
+      borderRadius: 20,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderWidth: 1,
+    },
+    pillActive: {
+      backgroundColor: colors.accentSoft,
+      borderColor: colors.accent,
+    },
+    pillInactive: {
+      backgroundColor: 'transparent',
+      borderColor: colors.border,
+    },
+    pillTextActive: {
+      ...Type.label,
+      color: colors.accent,
+    },
+    pillTextInactive: {
+      ...Type.label,
+      color: colors.textMuted,
+    },
+  });
 
   const router = useRouter();
   const [rawCountries, setRawCountries] = useState<CountryWithStats[]>([]);
@@ -135,9 +135,8 @@ export default function CountriesScreen() {
       <View style={styles.inlineHeader}>
         <View style={styles.backRow}>
           <Pressable
-            
-          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-         onPress={() => router.back()}
+            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+            onPress={() => router.back()}
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
@@ -160,7 +159,8 @@ export default function CountriesScreen() {
             style={({ pressed }) => [
               styles.pill,
               sortOption === option.value ? styles.pillActive : styles.pillInactive,
-            { opacity: pressed ? 0.7 : 1 }]}
+              { opacity: pressed ? 0.7 : 1 },
+            ]}
             onPress={() => handleSortChange(option.value)}
           >
             <Text
