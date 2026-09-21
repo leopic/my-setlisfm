@@ -33,10 +33,6 @@ export function formatIsoDate(isoDate: string, format: DateFormat = 'short'): st
   }
 }
 
-function isoYear(isoDate: string): string {
-  return isoDate.split('-')[0] ?? isoDate;
-}
-
 /**
  * Converts a DD-MM-YYYY date string (setlist.fm format) to ISO YYYY-MM-DD.
  * Mirrors the `substr(eventDate,7,4)||'-'||substr(eventDate,4,2)||'-'||substr(eventDate,1,2)`

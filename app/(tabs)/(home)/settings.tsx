@@ -154,7 +154,7 @@ export default function SettingsScreen() {
         Alert.alert('Sync Failed', result.error ?? 'Unknown error');
       }
       setIsSyncing(false);
-    } catch (error) {
+    } catch {
       setIsSyncing(false);
     }
   };
