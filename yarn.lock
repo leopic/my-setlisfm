@@ -2522,15 +2522,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@legendapp/list@npm:^2.0.19":
-  version: 2.0.19
-  resolution: "@legendapp/list@npm:2.0.19"
+"@legendapp/list@npm:^3.3.11":
+  version: 3.3.11
+  resolution: "@legendapp/list@npm:3.3.11"
   dependencies:
     use-sync-external-store: "npm:^1.5.0"
   peerDependencies:
     react: "*"
-    react-native: "*"
-  checksum: 10c0/8201cd3ebf59bb885b8289e0e65df3134a3d59f9b7fce9b30884a50fab8b268ed601dec742bfa48beeb4fec45fdba8d69af56bf1e16e5afbdce0e1db7a1c56d8
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+    react-native:
+      optional: true
+  checksum: 10c0/4c417807718a1787013636f314a77a99339687a8283d5d2b46cf02d3c313476facbcb084a36976fdea417af27259945e522360e3c6ebb81b1bb1f34e60f726b2
   languageName: node
   linkType: hard
 
@@ -9431,7 +9435,7 @@ __metadata:
     "@eslint/js": "npm:^10.0.1"
     "@expo-google-fonts/space-grotesk": "npm:^0.4.1"
     "@expo/vector-icons": "npm:^15.1.1"
-    "@legendapp/list": "npm:^2.0.19"
+    "@legendapp/list": "npm:^3.3.11"
     "@types/jest": "npm:29.5.14"
     "@types/react": "npm:~19.2.10"
     "@types/react-dom": "npm:^19"
