@@ -20,19 +20,27 @@ updates:
           - minor
           - patch
     ignore:
-      # SDK-aligned packages have to move together, via `expo install --fix`
-      # or a full SDK upgrade. A lone major bump here desynchronises the SDK,
-      # so majors are left out and handled deliberately.
+      # Every package listed in expo/bundledNativeModules.json is owned by the
+      # SDK, and `expo install --fix` is the only supported way to move one.
+      # These are ignored outright rather than majors-only: the SDK pins some
+      # of them exactly (react-native-webview at 13.16.1, react-native-maps at
+      # 1.27.2), so even a patch bump desynchronises the install and turns
+      # expo-doctor red. Run `npx expo install --fix` to advance them together.
       - dependency-name: expo
-        update-types: [version-update:semver-major]
       - dependency-name: expo-*
-        update-types: [version-update:semver-major]
-      - dependency-name: react-native
-        update-types: [version-update:semver-major]
+      - dependency-name: "@expo/*"
+      - dependency-name: jest-expo
       - dependency-name: react
-        update-types: [version-update:semver-major]
       - dependency-name: react-dom
-        update-types: [version-update:semver-major]
+      - dependency-name: react-native
+      - dependency-name: react-native-gesture-handler
+      - dependency-name: react-native-maps
+      - dependency-name: react-native-reanimated
+      - dependency-name: react-native-safe-area-context
+      - dependency-name: react-native-screens
+      - dependency-name: react-native-svg
+      - dependency-name: react-native-webview
+      - dependency-name: react-native-worklets
 
   # The workflow actions had gone three majors stale and were running on a
   # deprecated Node runtime before anything flagged it.
