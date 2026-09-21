@@ -9,7 +9,7 @@ yarn start          # Expo dev server
 yarn ios            # Run on iOS simulator
 yarn android        # Run on Android emulator
 yarn test           # Jest unit tests (watch mode off by default)
-yarn lint           # ESLint check
+yarn lint           # ESLint check — fails on any warning (--max-warnings 0)
 yarn lint:fix       # ESLint auto-fix
 yarn format         # Prettier format
 
@@ -24,6 +24,21 @@ Run a single Jest test file:
 ```bash
 yarn test src/__tests__/setlistApi.test.ts
 ```
+
+## Quality gates
+
+Two layers, both required — never bypass either:
+
+- **Pre-commit** (husky + lint-staged): runs `eslint --fix` on staged `.ts`/`.tsx`.
+  Formatting is repaired in place and restaged; anything unfixable blocks the commit.
+- **CI** (`.github/workflows/ci.yml`): `yarn install --immutable`, then lint, tests and
+  `tsc --noEmit` on every PR and push to `main`.
+
+`prettier/prettier` is an `error` and `yarn lint` runs with `--max-warnings 0`, so a
+warning fails the build. That is deliberate: as a warning it let ~2500 violations
+accumulate, because ESLint exits 0 on warnings.
+
+The hook only lints staged files. Types and tests are CI's job.
 
 ## Architecture
 
