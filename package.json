@@ -62,7 +62,7 @@
     "lint-staged": "^17.5.1",
     "prettier": "^3.9.8",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.70.0"
+    "typescript-eslint": "^8.70.1"
   },
   "resolutions": {
     "@xmldom/xmldom@^0.8.8": "0.8.15",
