@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { LegendList } from '@legendapp/list';
+import { LegendList } from '@legendapp/list/react-native';
 import { dbOperations } from '@/database/operations';
 import type { SetlistWithDetails } from '@/types/database';
 import { parseSetlistDate, formatDate } from '@/utils/date';
