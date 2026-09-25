@@ -30,6 +30,13 @@ updates:
       - dependency-name: expo-*
       - dependency-name: "@expo/*"
       - dependency-name: jest-expo
+      # jest is pinned in practice by jest-expo, which depends on the jest 29
+      # family (babel-jest, jest-snapshot, jest-environment-jsdom,
+      # @jest/globals). Bumping jest alone installs both majors side by side
+      # and leaves the runner and the preset's machinery on different
+      # versions. It moves when jest-expo does, with the SDK.
+      - dependency-name: jest
+      - dependency-name: "@types/jest"
       - dependency-name: react
       - dependency-name: react-dom
       - dependency-name: react-native
