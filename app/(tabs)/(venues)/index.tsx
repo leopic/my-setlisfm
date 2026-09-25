@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Pressable, Alert, RefreshControl } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { LegendList } from '@legendapp/list';
+import { LegendList } from '@legendapp/list/react-native';
 import { dbOperations } from '@/database/operations';
 import { formatDate } from '@/utils/date';
 import type { SortOption } from '@/utils/sort';
