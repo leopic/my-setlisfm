@@ -11,20 +11,20 @@ import SetlistSkeleton from '@/components/skeletons/SetlistSkeleton';
 export default function SetlistDetailScreen() {
   const colors = useColors();
   const styles = StyleSheet.create({
-        container: { flex: 1, backgroundColor: colors.background },
-        loadingText: {
-          fontSize: 18,
-          color: colors.textSecondary,
-          textAlign: 'center',
-          marginTop: 100,
-        },
-        errorText: {
-          fontSize: 18,
-          color: colors.danger,
-          textAlign: 'center',
-          marginTop: 100,
-        },
-      });
+    container: { flex: 1, backgroundColor: colors.background },
+    loadingText: {
+      fontSize: 18,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginTop: 100,
+    },
+    errorText: {
+      fontSize: 18,
+      color: colors.danger,
+      textAlign: 'center',
+      marginTop: 100,
+    },
+  });
 
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();

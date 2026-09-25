@@ -71,28 +71,28 @@ const chapterStyles = StyleSheet.create({
 export default function DashboardSkeleton() {
   const colors = useChronicleColors();
   const styles = StyleSheet.create({
-        container: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
-        scrollContent: {
-          paddingBottom: 100,
-        },
-        topBar: {
-          paddingHorizontal: 20,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        topBarRow: {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        },
-        statsLine: {
-          marginTop: 6,
-        },
-      });
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    scrollContent: {
+      paddingBottom: 100,
+    },
+    topBar: {
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    topBarRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    statsLine: {
+      marginTop: 6,
+    },
+  });
 
   return (
     <SafeAreaView

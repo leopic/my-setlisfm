@@ -18,98 +18,98 @@ export default function ListSkeleton({ cardCount = 5, variant }: Props) {
   const colors = useChronicleColors();
   const { isTablet, sidebarWidth } = useTabletLayout();
   const styles = StyleSheet.create({
-        container: {
-          flex: 1,
-          backgroundColor: colors.background,
-        },
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
 
-        // ── Header ──────────────────────────────────────────────────────
-        header: {
-          paddingHorizontal: 20,
-          paddingTop: 16,
-          paddingBottom: 14,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        headerSubtitle: {
-          marginTop: 6,
-        },
+    // ── Header ──────────────────────────────────────────────────────
+    header: {
+      paddingHorizontal: 20,
+      paddingTop: 16,
+      paddingBottom: 14,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    headerSubtitle: {
+      marginTop: 6,
+    },
 
-        // ── Geo strip (venues) ───────────────────────────────────────────
-        geoStrip: {
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          gap: 8,
-          paddingHorizontal: 16,
-          paddingVertical: 10,
-        },
+    // ── Geo strip (venues) ───────────────────────────────────────────
+    geoStrip: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+    },
 
-        // ── Controls: search + sort ──────────────────────────────────────
-        controls: {
-          paddingTop: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        searchBar: {
-          marginHorizontal: 20,
-          marginBottom: 8,
-          height: 40,
-          borderRadius: 10,
-          overflow: 'hidden',
-        },
-        sortPills: {
-          flexDirection: 'row',
-          gap: 8,
-          paddingHorizontal: 20,
-          paddingBottom: 10,
-        },
+    // ── Controls: search + sort ──────────────────────────────────────
+    controls: {
+      paddingTop: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    searchBar: {
+      marginHorizontal: 20,
+      marginBottom: 8,
+      height: 40,
+      borderRadius: 10,
+      overflow: 'hidden',
+    },
+    sortPills: {
+      flexDirection: 'row',
+      gap: 8,
+      paddingHorizontal: 20,
+      paddingBottom: 10,
+    },
 
-        // ── Insight cards ────────────────────────────────────────────────
-        insightCards: {
-          paddingHorizontal: 20,
-          paddingTop: 16,
-          paddingBottom: 12,
-          gap: 10,
-        },
-        insightRow: {
-          flexDirection: 'row',
-          gap: 10,
-        },
-        insightHalf: {
-          flex: 1,
-        },
+    // ── Insight cards ────────────────────────────────────────────────
+    insightCards: {
+      paddingHorizontal: 20,
+      paddingTop: 16,
+      paddingBottom: 12,
+      gap: 10,
+    },
+    insightRow: {
+      flexDirection: 'row',
+      gap: 10,
+    },
+    insightHalf: {
+      flex: 1,
+    },
 
-        // ── List rows ────────────────────────────────────────────────────
-        listRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingVertical: 12,
-          paddingHorizontal: 16,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        rowAvatar: {
-          marginRight: 12,
-        },
-        rowLeft: {
-          flex: 1,
-        },
-        rowLeftSubtitle: {
-          marginTop: 5,
-        },
-        rowRight: {
-          width: 44,
-          alignItems: 'center',
-        },
-        rowRightLabel: {
-          marginTop: 3,
-        },
+    // ── List rows ────────────────────────────────────────────────────
+    listRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    rowAvatar: {
+      marginRight: 12,
+    },
+    rowLeft: {
+      flex: 1,
+    },
+    rowLeftSubtitle: {
+      marginTop: 5,
+    },
+    rowRight: {
+      width: 44,
+      alignItems: 'center',
+    },
+    rowRightLabel: {
+      marginTop: 3,
+    },
 
-        // ── Tablet master-detail ─────────────────────────────────────────
-        masterDetail: { flex: 1, flexDirection: 'row' },
-        sidebar: { borderRightWidth: 1, borderRightColor: colors.border },
-        detailPane: { flex: 1, backgroundColor: colors.background },
-      });
+    // ── Tablet master-detail ─────────────────────────────────────────
+    masterDetail: { flex: 1, flexDirection: 'row' },
+    sidebar: { borderRightWidth: 1, borderRightColor: colors.border },
+    detailPane: { flex: 1, backgroundColor: colors.background },
+  });
 
   const sidebarContent = (
     <>
@@ -140,7 +140,6 @@ export default function ListSkeleton({ cardCount = 5, variant }: Props) {
           </View>
         )}
       </View>
-
 
       {/* List rows */}
       {Array.from({ length: cardCount }).map((_, i) => (

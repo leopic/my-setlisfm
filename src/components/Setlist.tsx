@@ -44,140 +44,140 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   const isLandmark = facts ? isLandmarkVisit(facts) : false;
 
   const styles = StyleSheet.create({
-        backBar: {
-          paddingHorizontal: 16,
-          paddingTop: 12,
-          paddingBottom: 10,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        backBarRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 10,
-        },
-        backButton: {
-          ...Type.body,
-          color: colors.accent,
-        },
-        artistName: {
-          ...Type.heading,
-          color: colors.textPrimary,
-          flex: 1,
-        },
-        navBadge: {
-          width: 30,
-          height: 30,
-          borderRadius: 15,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: colors.surfaceRaised,
-          borderWidth: 1,
-          borderColor: colors.border,
-        },
-        navBadgeLandmark: {
-          backgroundColor: colors.goldSoft,
-          borderColor: colors.gold,
-        },
-        hero: {
-          paddingHorizontal: 16,
-          paddingTop: 10,
-          paddingBottom: 14,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-        },
-        venueName: {
-          ...Type.title,
-          color: colors.textPrimary,
-        },
-        locationLine: {
-          ...Type.body,
-          color: colors.textSecondary,
-          marginTop: 2,
-        },
-        dateLine: {
-          ...Type.body,
-          color: colors.textMuted,
-          marginTop: 2,
-        },
-        tourName: {
-          ...Type.label,
-          color: colors.accent,
-          letterSpacing: 0.8,
-          marginTop: 6,
-          textTransform: 'uppercase',
-        },
-        scrollView: {
-          flex: 1,
-        },
-        sectionHeader: {
-          paddingHorizontal: 16,
-          paddingTop: 20,
-          paddingBottom: 6,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 10,
-        },
-        sectionLine: {
-          flex: 1,
-          height: 1,
-          backgroundColor: colors.border,
-        },
-        sectionTitle: {
-          ...Type.label,
-          color: colors.textMuted,
-          textTransform: 'uppercase',
-        },
-        songRow: {
-          paddingVertical: 10,
-          paddingHorizontal: 16,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-          flexDirection: 'row',
-          alignItems: 'flex-start',
-          gap: 10,
-        },
-        songNumber: {
-          ...Type.label,
-          color: colors.textDisabled,
-          width: 24,
-          paddingTop: 1,
-        },
-        songInfo: {
-          flex: 1,
-        },
-        songNameRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 5,
-          flexWrap: 'wrap',
-        },
-        songName: {
-          ...Type.body,
-          color: colors.textPrimary,
-        },
-        withArtistText: {
-          ...Type.body,
-          color: colors.textSecondary,
-          fontStyle: 'italic',
-          marginTop: 2,
-        },
-        coverArtistText: {
-          ...Type.body,
-          color: colors.textSecondary,
-          fontStyle: 'italic',
-          marginTop: 2,
-        },
-        emptyState: {
-          alignItems: 'center',
-          paddingVertical: 60,
-        },
-        emptyStateText: {
-          ...Type.body,
-          color: colors.textSecondary,
-          textAlign: 'center',
-        },
-      });
+    backBar: {
+      paddingHorizontal: 16,
+      paddingTop: 12,
+      paddingBottom: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    backBarRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    backButton: {
+      ...Type.body,
+      color: colors.accent,
+    },
+    artistName: {
+      ...Type.heading,
+      color: colors.textPrimary,
+      flex: 1,
+    },
+    navBadge: {
+      width: 30,
+      height: 30,
+      borderRadius: 15,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.surfaceRaised,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    navBadgeLandmark: {
+      backgroundColor: colors.goldSoft,
+      borderColor: colors.gold,
+    },
+    hero: {
+      paddingHorizontal: 16,
+      paddingTop: 10,
+      paddingBottom: 14,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    venueName: {
+      ...Type.title,
+      color: colors.textPrimary,
+    },
+    locationLine: {
+      ...Type.body,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    dateLine: {
+      ...Type.body,
+      color: colors.textMuted,
+      marginTop: 2,
+    },
+    tourName: {
+      ...Type.label,
+      color: colors.accent,
+      letterSpacing: 0.8,
+      marginTop: 6,
+      textTransform: 'uppercase',
+    },
+    scrollView: {
+      flex: 1,
+    },
+    sectionHeader: {
+      paddingHorizontal: 16,
+      paddingTop: 20,
+      paddingBottom: 6,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    sectionLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.border,
+    },
+    sectionTitle: {
+      ...Type.label,
+      color: colors.textMuted,
+      textTransform: 'uppercase',
+    },
+    songRow: {
+      paddingVertical: 10,
+      paddingHorizontal: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: 10,
+    },
+    songNumber: {
+      ...Type.label,
+      color: colors.textDisabled,
+      width: 24,
+      paddingTop: 1,
+    },
+    songInfo: {
+      flex: 1,
+    },
+    songNameRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      flexWrap: 'wrap',
+    },
+    songName: {
+      ...Type.body,
+      color: colors.textPrimary,
+    },
+    withArtistText: {
+      ...Type.body,
+      color: colors.textSecondary,
+      fontStyle: 'italic',
+      marginTop: 2,
+    },
+    coverArtistText: {
+      ...Type.body,
+      color: colors.textSecondary,
+      fontStyle: 'italic',
+      marginTop: 2,
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 60,
+    },
+    emptyStateText: {
+      ...Type.body,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+  });
 
   const getSetTitle = (set: SetWithSongs, index: number): string => {
     if (set.encore) {

@@ -47,10 +47,12 @@ function loyaltyQuip(setlists: Setlist[]): string {
 }
 
 function geoQuip(setlists: Setlist[]): string {
-  const countries = new Set(setlists.flatMap((s) => {
-    const name = s.venue?.city?.country?.name;
-    return name ? [name] : [];
-  }));
+  const countries = new Set(
+    setlists.flatMap((s) => {
+      const name = s.venue?.city?.country?.name;
+      return name ? [name] : [];
+    }),
+  );
   const cities = setlists.flatMap((s) => {
     const name = s.venue?.city?.name;
     return name ? [name] : [];
@@ -82,7 +84,10 @@ function historyQuip(setlists: Setlist[]): string {
   if (!dates.length) return concertQuip(setlists);
 
   // eventDate format from API: "DD-MM-YYYY"
-  const years = dates.flatMap((d) => { const y = d.split('-')[2]; return y ? [y] : []; });
+  const years = dates.flatMap((d) => {
+    const y = d.split('-')[2];
+    return y ? [y] : [];
+  });
   const earliest = years.reduce((a, b) => (a < b ? a : b));
   const total = setlists.length;
 

@@ -1,21 +1,32 @@
-name: CI
+name: Expo Doctor
 
+# Scoped to dependency changes rather than every push: expo-doctor reaches out
+# to the Expo API, so running it on unrelated commits invites red builds that
+# say nothing about the change under review.
 on:
   pull_request:
     branches: [main]
+    paths:
+      - package.json
+      - yarn.lock
+      - app.config.js
   push:
     branches: [main]
+    paths:
+      - package.json
+      - yarn.lock
+      - app.config.js
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: expo-doctor-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  check:
-    name: Lint, test, typecheck
+  doctor:
+    name: Expo Doctor
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +36,6 @@ jobs:
         with:
           node-version-file: .nvmrc
 
-      # Yarn 4 ships via Corepack, pinned by the packageManager field.
       - name: Enable Corepack
         run: corepack enable
 
@@ -39,21 +49,11 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
           restore-keys: ${{ runner.os }}-yarn-
 
-      # --immutable fails the build if yarn.lock would change, which is what
-      # catches a dependency bump that was committed without a lockfile update.
       - name: Install
         run: yarn install --immutable
 
-      # Each check runs even if an earlier one failed, so a red build reports
-      # every problem at once instead of one per push.
-      - name: Lint
-        if: ${{ !cancelled() }}
-        run: yarn lint
-
-      - name: Test
-        if: ${{ !cancelled() }}
-        run: yarn test
-
-      - name: Typecheck
-        if: ${{ !cancelled() }}
-        run: npx tsc --noEmit
+      # Catches a dependency drifting off the version the installed SDK pins —
+      # the failure mode behind the gesture-handler and webview bumps that had
+      # to be closed by hand.
+      - name: Expo Doctor
+        run: npx expo-doctor
