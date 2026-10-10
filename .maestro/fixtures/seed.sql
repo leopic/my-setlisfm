@@ -109,3 +109,4 @@ INSERT OR REPLACE INTO songs (setId, name, songOrder) VALUES (9, 'Juicebox', 2);
 
 -- Metadata
 INSERT OR REPLACE INTO metadata (key, value) VALUES ('lastFetchedAt', '2025-03-20T12:00:00.000Z');
+INSERT OR REPLACE INTO metadata (key, value) VALUES ('username', 'e2e-seed');
