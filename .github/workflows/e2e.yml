@@ -1,0 +1,192 @@
+name: E2E
+
+# Runs the seeded Maestro flows against a Release simulator build, so the suite
+# can't silently rot again. Scoped to changes that can affect what the app
+# renders. The empty-state onboarding flow is left out: it syncs live from
+# setlist.fm, which needs a real API key and network access.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - app/**
+      - src/**
+      - assets/**
+      - .maestro/**
+      - package.json
+      - yarn.lock
+      - app.config.js
+      - .github/workflows/e2e.yml
+  push:
+    branches: [main]
+    paths:
+      - app/**
+      - src/**
+      - assets/**
+      - .maestro/**
+      - package.json
+      - yarn.lock
+      - app.config.js
+      - .github/workflows/e2e.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MAESTRO_VERSION: 2.3.0
+  MAESTRO_CLI_NO_ANALYTICS: 1
+  # The XCTest driver Maestro installs on the simulator can take minutes to
+  # come up on the 3-core runner; the default timeout is too tight for it.
+  MAESTRO_DRIVER_STARTUP_TIMEOUT: 180000
+  # The seeded flows never call setlist.fm, but the API module throws at import
+  # time without a key, so the build needs a placeholder.
+  SETLISTFM_API_KEY: e2e-placeholder
+
+jobs:
+  maestro:
+    name: Maestro (iOS)
+    # Standard arm64 runner: free on public repos. Do not switch to
+    # macos-26-xlarge or another larger runner — those are billed even here.
+    runs-on: macos-26
+    # Caps the cost of a hung build or simulator.
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      # Yarn 4 ships via Corepack, pinned by the packageManager field.
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Locate Yarn cache
+        id: yarn-cache
+        run: echo "dir=$(yarn config get cacheFolder)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v6
+        with:
+          path: ${{ steps.yarn-cache.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
+
+      - name: Install
+        run: yarn install --immutable
+
+      # The native build only depends on what @expo/fingerprint hashes (native
+      # deps, app config, plugins…), not on JS. Computed before prebuild, while
+      # ios/ doesn't exist yet, so every run hashes the same inputs. The Xcode
+      # version is part of the key because a runner image update changes the
+      # build without changing the fingerprint.
+      - name: Fingerprint native project
+        id: fingerprint
+        run: |
+          HASH=$(npx @expo/fingerprint fingerprint:generate --platform ios | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>console.log(JSON.parse(s).hash))")
+          XCODE=$(xcodebuild -version | head -1 | tr ' ' '-')
+          echo "key=ios-release-app-$XCODE-$HASH" >> "$GITHUB_OUTPUT"
+
+      - name: Restore native build
+        id: app-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: e2e-build/Chronicles.app
+          key: ${{ steps.fingerprint.outputs.key }}
+
+      # ios/ is generated (gitignored), so CI creates it from app.config.js.
+      - name: Prebuild iOS project
+        if: steps.app-cache.outputs.cache-hit != 'true'
+        run: npx expo prebuild --platform ios --no-install
+
+      - name: Install pods
+        if: steps.app-cache.outputs.cache-hit != 'true'
+        working-directory: ios
+        run: pod install
+
+      - name: Build Release for simulator
+        if: steps.app-cache.outputs.cache-hit != 'true'
+        run: |
+          xcodebuild \
+            -workspace ios/Chronicles.xcworkspace \
+            -scheme Chronicles \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath ios/build \
+            CODE_SIGNING_ALLOWED=NO \
+            -quiet
+          mkdir -p e2e-build
+          cp -R ios/build/Build/Products/Release-iphonesimulator/Chronicles.app e2e-build/
+
+      - name: Save native build
+        if: steps.app-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: e2e-build/Chronicles.app
+          key: ${{ steps.fingerprint.outputs.key }}
+
+      # A Release .app embeds its JS bundle, so a cached build would otherwise
+      # run stale JS. Rebuild only the bundle (as Hermes bytecode, like the
+      # Xcode build phase does) and swap it into the cached app.
+      - name: Swap in current JS bundle
+        if: steps.app-cache.outputs.cache-hit == 'true'
+        run: |
+          ENTRY=$(node -e "require('expo/scripts/resolveAppEntry')" "$PWD" ios absolute | tail -n 1)
+          npx expo export:embed \
+            --platform ios \
+            --dev false \
+            --entry-file "$ENTRY" \
+            --bundle-output e2e-build/Chronicles.app/main.jsbundle \
+            --assets-dest e2e-build/Chronicles.app \
+            --bytecode
+
+      - name: Install Maestro
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Boot simulator and install app
+        run: |
+          UDID=$(xcrun simctl create e2e "iPhone 16 Pro")
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" e2e-build/Chronicles.app
+          # The seed script writes into the app's SQLite file, which only exists
+          # after the app has launched once.
+          xcrun simctl launch "$UDID" com.leopicado.chronicles
+          for _ in $(seq 1 60); do
+            find ~/Library/Developer/CoreSimulator/Devices/"$UDID" -path '*/SQLite/setlistfm.db' | grep -q . && exit 0
+            sleep 2
+          done
+          echo "App database never appeared" >&2
+          exit 1
+
+      - name: Run seeded flows
+        run: yarn test:e2e
+
+      # An app killed by the system (e.g. under memory pressure) leaves no crash
+      # report; RunningBoard's log records why the process ended.
+      - name: Collect simulator logs
+        if: failure()
+        run: |
+          xcrun simctl spawn booted log show --last 20m --style compact \
+            --predicate 'process == "Chronicles" OR ((process == "runningboardd" OR process == "SpringBoard") AND eventMessage CONTAINS[c] "chronicles")' \
+            > "$HOME/simulator-app.log" || true
+
+      # Screenshots, logs and the app's crash reports only — never the .app
+      # build — kept for a day, to stay well inside the free artifact storage.
+      - name: Upload Maestro output
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: maestro-output
+          path: |
+            ~/.maestro/tests/
+            ~/Library/Logs/DiagnosticReports/Chronicles*
+            ~/simulator-app.log
+          retention-days: 1

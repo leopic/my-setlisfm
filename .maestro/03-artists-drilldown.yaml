@@ -1,7 +1,10 @@
 appId: com.leopicado.chronicles
 name: Artists → concerts → setlist → back chain
 ---
-- launchApp
+# Reuse the running app: restarting it between flows races Maestro's
+# iOS driver on slow CI runners (it reports the relaunched app as "not running").
+- launchApp:
+    stopApp: false
 - tapOn:
     text: "Artists"
 - assertVisible:
