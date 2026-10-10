@@ -38,6 +38,10 @@ concurrency:
 
 env:
   MAESTRO_VERSION: 2.3.0
+  MAESTRO_CLI_NO_ANALYTICS: 1
+  # The XCTest driver Maestro installs on the simulator can take minutes to
+  # come up on the 3-core runner; the default timeout is too tight for it.
+  MAESTRO_DRIVER_STARTUP_TIMEOUT: 180000
   # The seeded flows never call setlist.fm, but the API module throws at import
   # time without a key, so the build needs a placeholder.
   SETLISTFM_API_KEY: e2e-placeholder
