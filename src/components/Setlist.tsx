@@ -213,6 +213,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
           {onBackPress && (
             <Pressable
               onPress={onBackPress}
+              testID="back-button"
               accessibilityRole="button"
               accessibilityLabel="Go back"
             >

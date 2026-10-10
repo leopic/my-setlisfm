@@ -1,10 +1,10 @@
-appId: com.setlistfm.tracker
+appId: com.leopicado.chronicles
 name: Dashboard loads with seeded data
 ---
 - launchApp
 - tapOn:
-    text: "Dashboard, tab.*"
+    text: "Dashboard"
 - assertVisible:
     id: "dashboard-screen"
-- assertVisible: "Highlights"
-- assertVisible: "Concerts per Year"
+- assertVisible: "8 shows · 5 artists · 3 countries"
+- assertVisible: "Last synced: .*"

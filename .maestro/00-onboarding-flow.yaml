@@ -1,21 +1,14 @@
-appId: com.setlistfm.tracker
+appId: com.leopicado.chronicles
 name: Onboarding → sync → dashboard
+tags:
+  - empty-state
 ---
-# Reset via debug tab to trigger onboarding
+# Expects an empty database: run via `yarn test:e2e:empty`
 - launchApp
-- tapOn:
-    text: "Debug"
-    optional: true
-- tapOn:
-    text: "Reset Onboarding"
-    optional: true
-- tapOn:
-    text: "Reset"
-    optional: true
 
 # Wait for onboarding screen (app may need time to reload after reset)
 - extendedWaitUntil:
-    visible: "Welcome to Setlist FM"
+    visible: "Welcome to Chronicles"
     timeout: 10000
 
 # Onboarding flow
@@ -26,6 +19,6 @@ name: Onboarding → sync → dashboard
 - extendedWaitUntil:
     visible: "All set!"
     timeout: 120000
-- tapOn: "Let's Go"
+- tapOn: "Let’s Go"
 - assertVisible:
     id: "dashboard-screen"
