@@ -18,6 +18,7 @@ import { backfillMissingArtistImages, clearArtistImageCache } from '@/services/a
 import { registerDevMenuItems } from 'expo-dev-client';
 import { Alert } from 'react-native';
 import { SyncProvider } from '@/contexts/SyncContext';
+import { OnboardingContext } from '@/contexts/OnboardingContext';
 import { Stack, useRouter, useRootNavigationState } from 'expo-router';
 import '@/i18n';
 
@@ -106,7 +107,8 @@ export default function Layout() {
                     onPress: async () => {
                       await dbOperations.clearAllData();
                       await setStoredUsername('');
-                      router.replace('/onboarding');
+                      didNavigateRef.current = false;
+                      setHasUsername(false);
                     },
                   },
                 ]);
@@ -146,19 +148,38 @@ export default function Layout() {
     }
   }, [rootNavState?.routes?.length, dbReady, hasUsername, router]);
 
+  const onboardingGate = {
+    completeOnboarding: () => setHasUsername(true),
+    restartOnboarding: () => {
+      // Re-arm the dashboard-on-launch effect for when onboarding completes again.
+      didNavigateRef.current = false;
+      setHasUsername(false);
+    },
+  };
+
   // fontError means the font CDN was unreachable — fall back to system font gracefully.
   if (!dbReady || hasUsername === null || (!fontsLoaded && !fontError)) {
     return null;
   }
 
+  // Every route group has an index.tsx, so "/" would otherwise resolve to the
+  // tabs even with no username. The guards make onboarding the only reachable
+  // screen until a username is stored, and redirect as soon as that changes.
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-      <SyncProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          {hasUsername ? <Stack.Screen name="(tabs)" /> : <Stack.Screen name="onboarding" />}
-        </Stack>
-      </SyncProvider>
+      <OnboardingContext value={onboardingGate}>
+        <SyncProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Protected guard={hasUsername}>
+              <Stack.Screen name="(tabs)" />
+            </Stack.Protected>
+            <Stack.Protected guard={!hasUsername}>
+              <Stack.Screen name="onboarding" />
+            </Stack.Protected>
+          </Stack>
+        </SyncProvider>
+      </OnboardingContext>
     </ThemeProvider>
   );
 }

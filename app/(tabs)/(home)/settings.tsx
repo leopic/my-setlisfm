@@ -17,12 +17,14 @@ import { getStoredUsername, setStoredUsername, syncConcertData } from '@/service
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
+import { useOnboardingContext } from '@/contexts/OnboardingContext';
 import { TabScrollView, Icon } from '@/components/ui';
 
 export default function SettingsScreen() {
   const colors = useChronicleColors();
   const router = useRouter();
   const { notifySyncComplete } = useSyncContext();
+  const { restartOnboarding } = useOnboardingContext();
 
   const [username, setUsername] = useState('');
   const [editingUsername, setEditingUsername] = useState('');
@@ -171,7 +173,7 @@ export default function SettingsScreen() {
           onPress: async () => {
             await dbOperations.clearAllData();
             await setStoredUsername('');
-            router.replace('/onboarding');
+            restartOnboarding();
           },
         },
       ],
