@@ -75,15 +75,37 @@ jobs:
       - name: Install
         run: yarn install --immutable
 
+      # The native build only depends on what @expo/fingerprint hashes (native
+      # deps, app config, plugins…), not on JS. Computed before prebuild, while
+      # ios/ doesn't exist yet, so every run hashes the same inputs. The Xcode
+      # version is part of the key because a runner image update changes the
+      # build without changing the fingerprint.
+      - name: Fingerprint native project
+        id: fingerprint
+        run: |
+          HASH=$(npx @expo/fingerprint fingerprint:generate --platform ios | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>console.log(JSON.parse(s).hash))")
+          XCODE=$(xcodebuild -version | head -1 | tr ' ' '-')
+          echo "key=ios-release-app-$XCODE-$HASH" >> "$GITHUB_OUTPUT"
+
+      - name: Restore native build
+        id: app-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: e2e-build/Chronicles.app
+          key: ${{ steps.fingerprint.outputs.key }}
+
       # ios/ is generated (gitignored), so CI creates it from app.config.js.
       - name: Prebuild iOS project
+        if: steps.app-cache.outputs.cache-hit != 'true'
         run: npx expo prebuild --platform ios --no-install
 
       - name: Install pods
+        if: steps.app-cache.outputs.cache-hit != 'true'
         working-directory: ios
         run: pod install
 
       - name: Build Release for simulator
+        if: steps.app-cache.outputs.cache-hit != 'true'
         run: |
           xcodebuild \
             -workspace ios/Chronicles.xcworkspace \
@@ -94,6 +116,30 @@ jobs:
             -derivedDataPath ios/build \
             CODE_SIGNING_ALLOWED=NO \
             -quiet
+          mkdir -p e2e-build
+          cp -R ios/build/Build/Products/Release-iphonesimulator/Chronicles.app e2e-build/
+
+      - name: Save native build
+        if: steps.app-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: e2e-build/Chronicles.app
+          key: ${{ steps.fingerprint.outputs.key }}
+
+      # A Release .app embeds its JS bundle, so a cached build would otherwise
+      # run stale JS. Rebuild only the bundle (as Hermes bytecode, like the
+      # Xcode build phase does) and swap it into the cached app.
+      - name: Swap in current JS bundle
+        if: steps.app-cache.outputs.cache-hit == 'true'
+        run: |
+          ENTRY=$(node -e "require('expo/scripts/resolveAppEntry')" "$PWD" ios absolute | tail -n 1)
+          npx expo export:embed \
+            --platform ios \
+            --dev false \
+            --entry-file "$ENTRY" \
+            --bundle-output e2e-build/Chronicles.app/main.jsbundle \
+            --assets-dest e2e-build/Chronicles.app \
+            --bytecode
 
       - name: Install Maestro
         run: |
@@ -105,7 +151,7 @@ jobs:
           UDID=$(xcrun simctl create e2e "iPhone 16 Pro")
           xcrun simctl boot "$UDID"
           xcrun simctl bootstatus "$UDID" -b
-          xcrun simctl install "$UDID" ios/build/Build/Products/Release-iphonesimulator/Chronicles.app
+          xcrun simctl install "$UDID" e2e-build/Chronicles.app
           # The seed script writes into the app's SQLite file, which only exists
           # after the app has launched once.
           xcrun simctl launch "$UDID" com.leopicado.chronicles
@@ -119,6 +165,15 @@ jobs:
       - name: Run seeded flows
         run: yarn test:e2e
 
+      # An app killed by the system (e.g. under memory pressure) leaves no crash
+      # report; RunningBoard's log records why the process ended.
+      - name: Collect simulator logs
+        if: failure()
+        run: |
+          xcrun simctl spawn booted log show --last 20m --style compact \
+            --predicate 'process == "Chronicles" OR ((process == "runningboardd" OR process == "SpringBoard") AND eventMessage CONTAINS[c] "chronicles")' \
+            > "$HOME/simulator-app.log" || true
+
       # Screenshots, logs and the app's crash reports only — never the .app
       # build — kept for a day, to stay well inside the free artifact storage.
       - name: Upload Maestro output
@@ -129,4 +184,5 @@ jobs:
           path: |
             ~/.maestro/tests/
             ~/Library/Logs/DiagnosticReports/Chronicles*
+            ~/simulator-app.log
           retention-days: 1
