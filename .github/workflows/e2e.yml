@@ -119,12 +119,14 @@ jobs:
       - name: Run seeded flows
         run: yarn test:e2e
 
-      # Screenshots and logs only — never the .app build — kept for a day, to
-      # stay well inside the free artifact storage.
+      # Screenshots, logs and the app's crash reports only — never the .app
+      # build — kept for a day, to stay well inside the free artifact storage.
       - name: Upload Maestro output
         if: failure()
         uses: actions/upload-artifact@v7
         with:
           name: maestro-output
-          path: ~/.maestro/tests/
+          path: |
+            ~/.maestro/tests/
+            ~/Library/Logs/DiagnosticReports/Chronicles*
           retention-days: 1
