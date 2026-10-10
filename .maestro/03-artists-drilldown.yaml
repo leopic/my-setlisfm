@@ -1,9 +1,9 @@
-appId: com.setlistfm.tracker
+appId: com.leopicado.chronicles
 name: Artists → concerts → setlist → back chain
 ---
 - launchApp
 - tapOn:
-    text: "Artists, tab.*"
+    text: "Artists"
 - assertVisible:
     id: "artists-screen"
 - tapOn:

@@ -9,7 +9,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SEED_SQL="$SCRIPT_DIR/../fixtures/seed.sql"
 SCHEMA_SQL="$SCRIPT_DIR/../../src/database/schema.ts"
-APP_ID="com.setlistfm.tracker"
+APP_ID="com.leopicado.chronicles"
 DB_NAME="setlistfm.db"
 
 # Find the booted simulator

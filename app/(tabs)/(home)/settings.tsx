@@ -193,6 +193,7 @@ export default function SettingsScreen() {
           <Pressable
             style={({ pressed }) => [styles.backButton, { opacity: pressed ? 0.7 : 1 }]}
             onPress={() => router.back()}
+            testID="back-button"
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >

@@ -14,5 +14,5 @@ MAESTRO_DIR="$SCRIPT_DIR/.."
 if [ $# -gt 0 ]; then
   maestro test "$@"
 else
-  maestro test "$MAESTRO_DIR/00-dashboard-empty.yaml"
+  maestro test "$MAESTRO_DIR" --include-tags=empty-state
 fi

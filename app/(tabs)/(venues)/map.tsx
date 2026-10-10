@@ -48,6 +48,7 @@ export default function VenuesMapScreen() {
         <Pressable
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           onPress={() => router.back()}
+          testID="back-button"
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >

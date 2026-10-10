@@ -1,9 +1,9 @@
-appId: com.setlistfm.tracker
+appId: com.leopicado.chronicles
 name: Venues → Continents → continent detail → back chain
 ---
 - launchApp
 - tapOn:
-    text: "Venues, tab.*"
+    text: "Venues"
 - assertVisible:
     id: "venues-screen"
 - tapOn:
