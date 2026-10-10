@@ -10,11 +10,11 @@ import {
   Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { syncConcertData, setStoredUsername } from '@/services/syncService';
 import type { SyncProgress } from '@/services/syncService';
 import { useSyncContext } from '@/contexts/SyncContext';
+import { useOnboardingContext } from '@/contexts/OnboardingContext';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 
@@ -148,9 +148,9 @@ function StepRow({
 
 export default function OnboardingScreen() {
   const { t } = useTranslation();
-  const router = useRouter();
   const colors = useChronicleColors();
   const { notifySyncComplete } = useSyncContext();
+  const { completeOnboarding } = useOnboardingContext();
 
   const [username, setUsername] = useState('');
   const [phase, setPhase] = useState<Phase>('input');
@@ -464,7 +464,7 @@ export default function OnboardingScreen() {
       notifySyncComplete();
       setPhase('done');
       // Both dots are now lit — give the user a moment to see them, then go.
-      setTimeout(() => router.replace('/(tabs)/(home)'), 1200);
+      setTimeout(completeOnboarding, 1200);
     } else {
       const msg =
         result.error === 'User not found' ? t('onboarding.userNotFound') : t('onboarding.error');
