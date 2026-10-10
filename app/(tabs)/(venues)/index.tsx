@@ -457,6 +457,7 @@ export default function VenuesScreen() {
         keyExtractor={(item) => item.id}
         renderItem={renderVenue}
         estimatedItemSize={80}
+        recycleItems={false}
         ListHeaderComponent={null}
         ListEmptyComponent={
           <EmptyState

@@ -390,6 +390,7 @@ export default function ArtistsScreen() {
         keyExtractor={(item) => item.mbid}
         renderItem={renderArtist}
         estimatedItemSize={72}
+        recycleItems={false}
         ListHeaderComponent={null}
         ListEmptyComponent={
           <EmptyState

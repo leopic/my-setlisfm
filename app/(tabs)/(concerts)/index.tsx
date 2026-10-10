@@ -721,6 +721,7 @@ export default function ConcertsScreen() {
         keyExtractor={keyExtractor}
         renderItem={renderItem}
         estimatedItemSize={sortOption === 'alphabetical' ? 72 : 300}
+        recycleItems={false}
         ListHeaderComponent={null}
         ListEmptyComponent={
           <EmptyState
