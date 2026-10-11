@@ -213,7 +213,6 @@ export default {
     failedToLoad: 'Failed to load venues',
     failedToLoadConcerts: 'Failed to load venue concerts',
     noConcertsFound: 'No concerts found',
-    map: 'Map',
     continents: 'Continents',
     cities: 'Cities',
     visits: 'visits',
