@@ -1000,7 +1000,7 @@ export class DatabaseOperations {
     const artistsWithLastDates = await Promise.all(
       result.map(async (artist) => {
         const lastConcertResult = (await this.db.getFirstAsync(
-          'SELECT eventDate FROM setlists WHERE artistMbid = ? ORDER BY substr(eventDate, 7, 4) || "-" || substr(eventDate, 4, 2) || "-" || substr(eventDate, 1, 2) DESC LIMIT 1',
+          "SELECT eventDate FROM setlists WHERE artistMbid = ? ORDER BY substr(eventDate, 7, 4) || '-' || substr(eventDate, 4, 2) || '-' || substr(eventDate, 1, 2) DESC LIMIT 1",
           [artist.mbid],
         )) as EventDateRow | null;
 
@@ -1087,7 +1087,7 @@ export class DatabaseOperations {
         c.coordsLat,
         c.coordsLong,
         COUNT(DISTINCT sl.eventDate) as concertCount,
-        (SELECT sl2.eventDate FROM setlists sl2 WHERE sl2.venueId = v.id ORDER BY substr(sl2.eventDate, 7, 4) || "-" || substr(sl2.eventDate, 4, 2) || "-" || substr(sl2.eventDate, 1, 2) DESC LIMIT 1) as lastConcertDate,
+        (SELECT sl2.eventDate FROM setlists sl2 WHERE sl2.venueId = v.id ORDER BY substr(sl2.eventDate, 7, 4) || '-' || substr(sl2.eventDate, 4, 2) || '-' || substr(sl2.eventDate, 1, 2) DESC LIMIT 1) as lastConcertDate,
         GROUP_CONCAT(DISTINCT a.name) as artistNames
       FROM venues v
       INNER JOIN setlists sl ON v.id = sl.venueId
