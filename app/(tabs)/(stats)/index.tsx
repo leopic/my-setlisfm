@@ -10,6 +10,8 @@ import { formatDate } from '@/utils/date';
 import { EmptyState } from '@/components/ui';
 import BarChart from '@/components/charts/BarChart';
 import LineChart, { type LineSeries } from '@/components/charts/LineChart';
+import WeekdayErasCard from '@/components/WeekdayErasCard';
+import { groupWeekdaysIntoEras } from '@/utils/weekdayEras';
 import { useTabletLayout } from '@/utils/tablet';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -43,7 +45,14 @@ export default function StatsScreen() {
   >([]);
   const [chartData, setChartData] = useState<
     Awaited<ReturnType<typeof dbOperations.getStatsChartData>>
-  >({ weekdays: [], milestones: [], topArtistsPerYear: [], topCountry: null, topCity: null });
+  >({
+    weekdays: [],
+    weekdaysByYear: [],
+    milestones: [],
+    topArtistsPerYear: [],
+    topCountry: null,
+    topCity: null,
+  });
   const [totalShows, setTotalShows] = useState(0);
   const [totalCountries, setTotalCountries] = useState(0);
   const [topCountry, setTopCountry] = useState<{ name: string; pct: number } | null>(null);
@@ -233,6 +242,8 @@ export default function StatsScreen() {
     value: chartData.weekdays.find((w) => w.weekday === i)?.concertDays ?? 0,
   }));
 
+  const weekdayEras = groupWeekdaysIntoEras(chartData.weekdaysByYear);
+
   if (loading) {
     return (
       <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.container}>
@@ -365,6 +376,7 @@ export default function StatsScreen() {
                     </Text>
                   </View>
                 </View>
+                {weekdayEras.length > 0 && <WeekdayErasCard eras={weekdayEras} />}
               </View>
               <View style={styles.divider} />
               <View style={styles.section}>
@@ -487,6 +499,7 @@ export default function StatsScreen() {
                   </Text>
                 </View>
               </View>
+              {weekdayEras.length > 0 && <WeekdayErasCard eras={weekdayEras} />}
             </View>
 
             <View style={styles.divider} />

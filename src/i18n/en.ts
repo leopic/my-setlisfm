@@ -183,6 +183,14 @@ export default {
     coverOf: 'cover of {{name}}',
   },
 
+  // Stats
+  stats: {
+    topDayByEra: 'TOP DAY BY ERA',
+    eraShare: '{{top}} of {{total}}',
+    eraHeatmapHint: 'Brighter means a bigger share of that era. Ringed is the top day.',
+    eraSummary: '{{era}}: {{days}}, {{top}} of {{total}} shows',
+  },
+
   // Sort
   sort: {
     sortBy: 'Sort by:',
