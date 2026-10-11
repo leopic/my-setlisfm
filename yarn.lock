@@ -3282,23 +3282,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-native@npm:^13.3.3":
-  version: 13.3.3
-  resolution: "@testing-library/react-native@npm:13.3.3"
+"@testing-library/react-native@npm:^14.1.0":
+  version: 14.1.0
+  resolution: "@testing-library/react-native@npm:14.1.0"
   dependencies:
-    jest-matcher-utils: "npm:^30.0.5"
+    jest-matcher-utils: "npm:^30.4.1"
     picocolors: "npm:^1.1.1"
-    pretty-format: "npm:^30.0.5"
+    pretty-format: "npm:^30.4.1"
     redent: "npm:^3.0.0"
   peerDependencies:
     jest: ">=29.0.0"
-    react: ">=18.2.0"
-    react-native: ">=0.71"
-    react-test-renderer: ">=18.2.0"
+    react: ">=19.0.0"
+    react-native: ">=0.78"
+    test-renderer: ^1.0.0
   peerDependenciesMeta:
     jest:
       optional: true
-  checksum: 10c0/ba13066536d5b2c0b625220d4320c6ad1e390c3df4f4b614d859ef467c4974ad52aa79269ae98efdba8f5a074644e3d11583a5485312df5a64387976ecf4225a
+  checksum: 10c0/620129d24659d306d9fc7f3d8bf2674dfd7b25ace530b7f83408a268cbd78108a097d557db9474a7b1ea5a7ac2319e21078486826d9cde9a0560971b5e399ce2
   languageName: node
   linkType: hard
 
@@ -7006,7 +7006,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-matcher-utils@npm:^30.0.5":
+"jest-matcher-utils@npm:^30.4.1":
   version: 30.5.2
   resolution: "jest-matcher-utils@npm:30.5.2"
   dependencies:
@@ -8925,7 +8925,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pretty-format@npm:30.5.1, pretty-format@npm:^30.0.5":
+"pretty-format@npm:30.5.1, pretty-format@npm:^30.4.1":
   version: 30.5.1
   resolution: "pretty-format@npm:30.5.1"
   dependencies:
@@ -9775,7 +9775,7 @@ __metadata:
     "@expo/vector-icons": "npm:^15.1.1"
     "@legendapp/list": "npm:^3.3.11"
     "@react-native/jest-preset": "npm:0.86.3"
-    "@testing-library/react-native": "npm:^13.3.3"
+    "@testing-library/react-native": "npm:^14.1.0"
     "@types/jest": "npm:29.5.14"
     "@types/react": "npm:~19.2.10"
     "@types/react-dom": "npm:^19"
