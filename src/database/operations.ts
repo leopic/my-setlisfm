@@ -63,20 +63,6 @@ interface SetSongJoinRow {
   coverArtistName?: string;
 }
 
-interface SongWithSetInfoRow {
-  songId: number;
-  songName?: string;
-  tape?: boolean;
-  info?: string;
-  songOrder: number;
-  setId: number;
-  setName?: string;
-  encore?: number;
-  setlistId: string;
-  eventDate?: string;
-  artistName?: string;
-}
-
 interface CountRow {
   count: number;
 }
@@ -137,11 +123,6 @@ interface ArtistStatsRow {
 
 interface EventDateRow {
   eventDate?: string;
-}
-
-interface OrphanedArtistRow {
-  mbid: string;
-  name?: string;
 }
 
 interface VenueStatsRow {
@@ -599,36 +580,6 @@ export class DatabaseOperations {
     return Array.from(setsMap.values());
   }
 
-  async getAllSongs(): Promise<DBSong[]> {
-    const result = await this.db.getAllAsync('SELECT * FROM songs ORDER BY setId, songOrder');
-
-    return result as DBSong[];
-  }
-
-  async getSongsWithSetInfo(): Promise<SongWithSetInfoRow[]> {
-    const result = await this.db.getAllAsync(`
-      SELECT 
-        s.id as songId,
-        s.name as songName,
-        s.tape,
-        s.info,
-        s.songOrder,
-        st.id as setId,
-        st.name as setName,
-        st.encore,
-        sl.id as setlistId,
-        sl.eventDate,
-        a.name as artistName
-      FROM songs s
-      LEFT JOIN sets st ON s.setId = st.id
-      LEFT JOIN setlists sl ON st.setlistId = sl.id
-      LEFT JOIN artists a ON sl.artistMbid = a.mbid
-      ORDER BY sl.eventDate DESC, st.songOrder, s.songOrder
-    `);
-
-    return result as SongWithSetInfoRow[];
-  }
-
   // Get statistics
   async getDatabaseCounts(): Promise<{
     totalSetlists: number;
@@ -813,18 +764,6 @@ export class DatabaseOperations {
       peakMonth: peakByYear[r.year]?.month ?? 0,
       peakMonthCount: peakByYear[r.year]?.cnt ?? 0,
     }));
-  }
-
-  // Year with most shows — the "longest streak" headline stat
-  async getBusiestYear(): Promise<{ year: string; count: number } | null> {
-    const row = (await this.db.getFirstAsync(`
-      SELECT substr(eventDate, 7, 4) AS year, COUNT(*) AS count
-      FROM setlists
-      GROUP BY year
-      ORDER BY count DESC
-      LIMIT 1
-    `)) as { year: string; count: number } | null;
-    return row ?? null;
   }
 
   async getConcertsByYearMonth(): Promise<{ year: string; month: number; count: number }[]> {
@@ -1022,36 +961,6 @@ export class DatabaseOperations {
       lastConcertDate: row.lastConcertDate,
       venues: row.venueNames ? row.venueNames.split(',') : [],
     }));
-  }
-
-  // Debug method to check data integrity
-  async debugArtistData(): Promise<{
-    totalArtists: number;
-    artistsWithConcerts: number;
-    artistsWithoutConcerts: number;
-    orphanedArtists: string[];
-  }> {
-    const totalArtists = (await this.db.getFirstAsync(
-      'SELECT COUNT(*) as count FROM artists',
-    )) as CountRow | null;
-    const artistsWithConcerts = (await this.db.getFirstAsync(`
-      SELECT COUNT(DISTINCT a.mbid) as count
-      FROM artists a
-      INNER JOIN setlists sl ON a.mbid = sl.artistMbid
-    `)) as CountRow | null;
-    const orphanedArtists = (await this.db.getAllAsync(`
-      SELECT a.mbid, a.name
-      FROM artists a
-      LEFT JOIN setlists sl ON a.mbid = sl.artistMbid
-      WHERE sl.id IS NULL
-    `)) as OrphanedArtistRow[];
-
-    return {
-      totalArtists: totalArtists?.count || 0,
-      artistsWithConcerts: artistsWithConcerts?.count || 0,
-      artistsWithoutConcerts: orphanedArtists.length,
-      orphanedArtists: orphanedArtists.map((a) => `${a.name} (${a.mbid})`),
-    };
   }
 
   // Get all venues with their concert counts and stats
@@ -1610,150 +1519,7 @@ export class DatabaseOperations {
 
   // ── Concert insights (for the Concerts tab) ──────────────────────────────
 
-  async getConcertInsights(): Promise<{
-    dryStreaks: Array<{
-      gap: number;
-      fromDate: string;
-      toDate: string;
-      fromArtist: string;
-      toArtist: string;
-    }>;
-    activeStreaks: Array<{ startDate: string; endDate: string; length: number }>;
-    busiestDays: Array<{ eventDate: string; concertCount: number; artistNames: string }>;
-  }> {
-    const ISO = `substr(eventDate,7,4)||'-'||substr(eventDate,4,2)||'-'||substr(eventDate,1,2)`;
-    const [dryRaw, activeRaw, busiestRaw] = await Promise.all([
-      this.db.getAllAsync(`
-        WITH ordered AS (SELECT DISTINCT ${ISO} AS iso FROM setlists ORDER BY iso),
-        gaps AS (
-          SELECT iso AS fromDate, LEAD(iso) OVER (ORDER BY iso) AS toDate,
-                 CAST(julianday(LEAD(iso) OVER (ORDER BY iso))-julianday(iso) AS INTEGER) AS gap
-          FROM ordered
-        )
-        SELECT g.fromDate, g.toDate, g.gap,
-               (SELECT a.name FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid WHERE ${ISO}=g.fromDate LIMIT 1) AS fromArtist,
-               (SELECT a.name FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid WHERE ${ISO}=g.toDate LIMIT 1) AS toArtist
-        FROM gaps g WHERE g.toDate IS NOT NULL ORDER BY g.gap DESC LIMIT 3
-      `),
-      this.db.getAllAsync(`
-        WITH dated AS (SELECT DISTINCT ${ISO} AS iso FROM setlists ORDER BY iso),
-        grouped AS (
-          SELECT iso, CAST(julianday(iso) AS INTEGER)-ROW_NUMBER() OVER (ORDER BY iso) AS grp FROM dated
-        ),
-        streaks AS (SELECT MIN(iso) AS startDate, MAX(iso) AS endDate, COUNT(*) AS length FROM grouped GROUP BY grp HAVING length >= 2)
-        SELECT startDate, endDate, length FROM streaks ORDER BY length DESC LIMIT 3
-      `),
-      this.db.getAllAsync(`
-        SELECT sl.eventDate, COUNT(*) AS concertCount, GROUP_CONCAT(a.name, ', ') AS artistNames
-        FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid
-        GROUP BY sl.eventDate ORDER BY concertCount DESC LIMIT 3
-      `),
-    ]);
-    return {
-      dryStreaks: dryRaw as Array<{
-        gap: number;
-        fromDate: string;
-        toDate: string;
-        fromArtist: string;
-        toArtist: string;
-      }>,
-      activeStreaks: activeRaw as Array<{ startDate: string; endDate: string; length: number }>,
-      busiestDays: busiestRaw as Array<{
-        eventDate: string;
-        concertCount: number;
-        artistNames: string;
-      }>,
-    };
-  }
-
   // ── Artist insights (for the Artists tab) ────────────────────────────────
-
-  async getArtistInsights(): Promise<{
-    repeatDepth: {
-      totalArtists: number;
-      oneOff: number;
-      repeat: number;
-      seen2: number;
-      seen3: number;
-      seen4: number;
-      seen5plus: number;
-    };
-    artistReunions: {
-      fastest: Array<{ artistName: string; gap: number; fromDate: string; toDate: string }>;
-      slowest: Array<{ artistName: string; gap: number; fromDate: string; toDate: string }>;
-    };
-    artistCityReach: Array<{ artistName: string; cityCount: number; showCount: number }>;
-  }> {
-    const ISO = `substr(eventDate,7,4)||'-'||substr(eventDate,4,2)||'-'||substr(eventDate,1,2)`;
-    const [repeatRaw, fastRaw, slowRaw, cityRaw] = await Promise.all([
-      this.db.getFirstAsync(`
-        SELECT COUNT(*) AS totalArtists,
-               COUNT(CASE WHEN cnt = 1 THEN 1 END) AS oneOff,
-               COUNT(CASE WHEN cnt >= 2 THEN 1 END) AS repeat,
-               COUNT(CASE WHEN cnt = 2 THEN 1 END) AS seen2,
-               COUNT(CASE WHEN cnt = 3 THEN 1 END) AS seen3,
-               COUNT(CASE WHEN cnt = 4 THEN 1 END) AS seen4,
-               COUNT(CASE WHEN cnt >= 5 THEN 1 END) AS seen5plus
-        FROM (SELECT artistMbid, COUNT(*) AS cnt FROM setlists GROUP BY artistMbid)
-      `),
-      this.db.getAllAsync(`
-        WITH pa AS (SELECT a.name AS artistName, ${ISO} AS iso FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid),
-        wp AS (SELECT artistName, iso, LAG(iso) OVER (PARTITION BY artistName ORDER BY iso) AS prev FROM pa),
-        g AS (SELECT artistName, prev AS fromDate, iso AS toDate, CAST(julianday(iso)-julianday(prev) AS INTEGER) AS gap FROM wp WHERE prev IS NOT NULL)
-        SELECT artistName, fromDate, toDate, gap FROM g ORDER BY gap ASC, artistName ASC LIMIT 3
-      `),
-      this.db.getAllAsync(`
-        WITH pa AS (SELECT a.name AS artistName, ${ISO} AS iso FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid),
-        wp AS (SELECT artistName, iso, LAG(iso) OVER (PARTITION BY artistName ORDER BY iso) AS prev FROM pa),
-        g AS (SELECT artistName, prev AS fromDate, iso AS toDate, CAST(julianday(iso)-julianday(prev) AS INTEGER) AS gap FROM wp WHERE prev IS NOT NULL)
-        SELECT artistName, fromDate, toDate, gap FROM g ORDER BY gap DESC LIMIT 3
-      `),
-      this.db.getAllAsync(`
-        SELECT a.name AS artistName, COUNT(DISTINCT v.cityId) AS cityCount, COUNT(*) AS showCount
-        FROM setlists sl JOIN artists a ON sl.artistMbid=a.mbid JOIN venues v ON sl.venueId=v.id
-        GROUP BY sl.artistMbid ORDER BY cityCount DESC LIMIT 3
-      `),
-    ]);
-    const rd = repeatRaw as {
-      totalArtists: number;
-      oneOff: number;
-      repeat: number;
-      seen2: number;
-      seen3: number;
-      seen4: number;
-      seen5plus: number;
-    } | null;
-    return {
-      repeatDepth: rd ?? {
-        totalArtists: 0,
-        oneOff: 0,
-        repeat: 0,
-        seen2: 0,
-        seen3: 0,
-        seen4: 0,
-        seen5plus: 0,
-      },
-      artistReunions: {
-        fastest: fastRaw as Array<{
-          artistName: string;
-          gap: number;
-          fromDate: string;
-          toDate: string;
-        }>,
-        slowest: slowRaw as Array<{
-          artistName: string;
-          gap: number;
-          fromDate: string;
-          toDate: string;
-        }>,
-      },
-      artistCityReach: cityRaw as Array<{
-        artistName: string;
-        cityCount: number;
-        showCount: number;
-      }>,
-    };
-  }
 
   // ── Places insights (for the Venues tab) ─────────────────────────────────
 

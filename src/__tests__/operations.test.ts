@@ -52,26 +52,6 @@ describe('DatabaseOperations — new dashboard queries', () => {
     });
   });
 
-  // ── getBusiestYear ─────────────────────────────────────────────────────
-
-  describe('getBusiestYear', () => {
-    it('returns the year with the most shows', async () => {
-      mockDb.getFirstAsync.mockResolvedValue({ year: '2016', count: 58 });
-
-      const result = await ops.getBusiestYear();
-
-      expect(result).toEqual({ year: '2016', count: 58 });
-    });
-
-    it('returns null when there are no concerts', async () => {
-      mockDb.getFirstAsync.mockResolvedValue(null);
-
-      const result = await ops.getBusiestYear();
-
-      expect(result).toBeNull();
-    });
-  });
-
   // ── getYearSummaries ───────────────────────────────────────────────────
 
   describe('getYearSummaries', () => {
