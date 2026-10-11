@@ -17,6 +17,8 @@ import ArtistImage from '@/components/ArtistImage';
 import ArtistDetailPane from '@/components/panes/ArtistDetailPane';
 import { useTabletLayout } from '@/utils/tablet';
 
+const SORT_OPTIONS: SortOption[] = ['recent', 'top', 'alphabetical'];
+
 interface ArtistWithStats {
   mbid: string;
   name: string;
@@ -348,7 +350,7 @@ export default function ArtistsScreen() {
           accessibilityLabel={t('artists.searchPlaceholder')}
         />
         <View style={styles.sortStrip}>
-          {(['recent', 'top', 'alphabetical'] as SortOption[]).map((option) => {
+          {SORT_OPTIONS.map((option) => {
             const isActive = sortOption === option;
             const label =
               option === 'recent'

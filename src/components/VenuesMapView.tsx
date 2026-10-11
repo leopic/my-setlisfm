@@ -19,6 +19,21 @@ interface VenueWithCoords {
   lastConcertDate?: string;
 }
 
+// Pin and legend colours by how often a venue was visited, fewest visits first.
+const VISIT_TIERS = [
+  { minVisits: 1, color: '#96CEB4', labelKey: 'map.legend1' },
+  { minVisits: 2, color: '#45B7D1', labelKey: 'map.legend2' },
+  { minVisits: 3, color: '#4ECDC4', labelKey: 'map.legend3' },
+  { minVisits: 5, color: '#FF6B6B', labelKey: 'map.legend5' },
+] as const;
+
+function visitColor(visits: number) {
+  return (
+    [...VISIT_TIERS].reverse().find((tier) => visits >= tier.minVisits)?.color ??
+    VISIT_TIERS[0].color
+  );
+}
+
 function buildHtml(
   venues: VenueWithCoords[],
   centerLat: number,
@@ -27,14 +42,7 @@ function buildHtml(
 ): string {
   const markers = venues
     .map((v) => {
-      const color =
-        v.concertCount >= 5
-          ? '#FF6B6B'
-          : v.concertCount >= 3
-            ? '#4ECDC4'
-            : v.concertCount >= 2
-              ? '#45B7D1'
-              : '#96CEB4';
+      const color = visitColor(v.concertCount);
       const popup = [
         `<b>${v.name}</b>`,
         v.cityName && v.countryName ? `${v.cityName}, ${v.countryName}` : (v.cityName ?? ''),
@@ -202,15 +210,7 @@ export default function VenuesMapView() {
           <Marker
             key={venue.id}
             coordinate={{ latitude: venue.coordsLat ?? 0, longitude: venue.coordsLong ?? 0 }}
-            pinColor={
-              venue.concertCount >= 5
-                ? '#FF6B6B'
-                : venue.concertCount >= 3
-                  ? '#4ECDC4'
-                  : venue.concertCount >= 2
-                    ? '#45B7D1'
-                    : '#96CEB4'
-            }
+            pinColor={visitColor(venue.concertCount)}
             title={venue.name}
             description={`${venue.cityName ?? ''}${venue.countryName ? ', ' + venue.countryName : ''} · ${t('common.visit', { count: venue.concertCount })}`}
           />
@@ -245,15 +245,10 @@ export default function VenuesMapView() {
       <View style={styles.legend}>
         <Text style={styles.legendTitle}>{t('map.legendTitle')}</Text>
         <View style={styles.legendItems}>
-          {[
-            { color: '#96CEB4', label: t('map.legend1') },
-            { color: '#45B7D1', label: t('map.legend2') },
-            { color: '#4ECDC4', label: t('map.legend3') },
-            { color: '#FF6B6B', label: t('map.legend5') },
-          ].map(({ color, label }) => (
+          {VISIT_TIERS.map(({ color, labelKey }) => (
             <View key={color} style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: color }]} />
-              <Text style={styles.legendText}>{label}</Text>
+              <Text style={styles.legendText}>{t(labelKey)}</Text>
             </View>
           ))}
         </View>

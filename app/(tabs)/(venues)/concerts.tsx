@@ -271,7 +271,7 @@ export default function VenueConcertsListScreen() {
             testID="back-button"
             accessibilityRole="button"
           >
-            <Text style={styles.backText}>← Back</Text>
+            <Text style={styles.backText}>{t('common.back')}</Text>
           </Pressable>
         </View>
         <Text style={styles.headerTitle}>{venueName}</Text>

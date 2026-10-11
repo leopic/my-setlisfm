@@ -282,6 +282,7 @@ export default function SettingsScreen() {
           </View>
           <View style={styles.row}>
             <Text style={styles.rowLabel}>{t('settings.dataSource')}</Text>
+            {/* eslint-disable-next-line i18next/no-literal-string -- the service's name */}
             <Text style={styles.rowValue}>setlist.fm</Text>
           </View>
 

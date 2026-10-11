@@ -204,6 +204,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   const locationParts = [setlist.city?.name, setlist.city?.state, setlist.country?.name].filter(
     Boolean,
   );
+  const eventDate = formatDate(setlist.eventDate ?? '', 'long');
 
   return (
     <>
@@ -217,7 +218,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
               accessibilityRole="button"
               accessibilityLabel={t('common.goBack')}
             >
-              <Text style={styles.backButton}>{'← Back'}</Text>
+              <Text style={styles.backButton}>{t('common.back')}</Text>
             </Pressable>
           )}
           {setlist.artist?.mbid && (
@@ -251,7 +252,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
         {locationParts.length > 0 && (
           <Text style={styles.locationLine}>{locationParts.join(', ')}</Text>
         )}
-        <Text style={styles.dateLine}>{formatDate(setlist.eventDate ?? '', 'long')}</Text>
+        <Text style={styles.dateLine}>{eventDate}</Text>
         {setlist.tour?.name && <Text style={styles.tourName}>{setlist.tour.name}</Text>}
       </View>
 

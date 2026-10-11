@@ -106,6 +106,8 @@ All writes are idempotent — safe to run the same data twice.
 
 All user-facing strings go through `t()` from `react-i18next`. Keys live in `src/i18n/en.ts`. English is the only supported locale today; device locale detection is wired up for future expansion.
 
+ESLint (`i18next/no-literal-string`) fails on copy written straight into JSX, as text or as a copy prop (`title`, `placeholder`, `accessibilityLabel`…). It can't see strings outside JSX, so `Alert.alert` messages and helpers that build display text (e.g. `src/utils/date.ts`) need the same care by hand. A real exception (a brand name) gets an inline disable with the reason. Only the props listed in `eslint.config.js` are checked, so a component with a new copy prop (say `subtitle`) needs it added there.
+
 ### Styling
 
 Use `useChronicleColors()` for every color value — never hardcode hex. The hook reads the active color scheme (light/dark) and returns the Chronicle palette. Text styles start from `Type` in `src/utils/typography.ts`. Layout uses React Native `StyleSheet`.

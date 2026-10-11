@@ -265,7 +265,7 @@ export default function ContinentsScreen() {
             accessibilityRole="button"
             accessibilityLabel={t('common.goBack')}
           >
-            <Text style={styles.backButton}>← Back</Text>
+            <Text style={styles.backButton}>{t('common.back')}</Text>
           </Pressable>
         </View>
         <Text style={styles.headerTitle}>{t('geo.continentsTitle')}</Text>

@@ -16,6 +16,8 @@ import { EmptyState, SearchInput } from '@/components/ui';
 import VenueDetailPane from '@/components/panes/VenueDetailPane';
 import { useTabletLayout } from '@/utils/tablet';
 
+const SORT_OPTIONS: SortOption[] = ['recent', 'top', 'alphabetical'];
+
 interface VenueWithStats {
   id: string;
   name: string;
@@ -422,7 +424,7 @@ export default function VenuesScreen() {
           returnKeyType="search"
         />
         <View style={styles.sortRow}>
-          {(['recent', 'top', 'alphabetical'] as SortOption[]).map((option) => {
+          {SORT_OPTIONS.map((option) => {
             const isActive = sortOption === option;
             const label =
               option === 'recent'
