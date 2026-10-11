@@ -5,7 +5,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
 import { dbOperations } from '@/database/operations';
 import { formatDate } from '@/utils/date';
-import { useColors } from '@/utils/colors';
+import { useChronicleColors } from '@/utils/colors';
 
 interface VenueWithCoords {
   id: string;
@@ -68,7 +68,7 @@ ${markers}
 
 export default function VenuesMapView() {
   const { t } = useTranslation();
-  const colors = useColors();
+  const colors = useChronicleColors();
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
     loadingContainer: {
@@ -99,7 +99,7 @@ export default function VenuesMapView() {
       lineHeight: 20,
     },
     venueCount: {
-      backgroundColor: colors.backgroundCard,
+      backgroundColor: colors.background,
       padding: 15,
       borderTopWidth: 1,
       borderTopColor: colors.border,
@@ -107,7 +107,7 @@ export default function VenuesMapView() {
     },
     venueCountText: { fontSize: 14, color: colors.textSecondary, fontWeight: '500' },
     legend: {
-      backgroundColor: colors.backgroundCard,
+      backgroundColor: colors.background,
       padding: 15,
       borderTopWidth: 1,
       borderTopColor: colors.border,
@@ -162,7 +162,7 @@ export default function VenuesMapView() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={colors.accent} />
         <Text style={styles.loadingText}>{t('map.loading')}</Text>
       </View>
     );
@@ -220,7 +220,7 @@ export default function VenuesMapView() {
         startInLoadingState
         renderLoading={() => (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.primary} />
+            <ActivityIndicator size="large" color={colors.accent} />
           </View>
         )}
       />
