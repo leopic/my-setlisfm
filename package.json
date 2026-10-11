@@ -14,7 +14,8 @@
     "test:e2e:empty": ".maestro/scripts/run-empty.sh",
     "test:e2e:seed": ".maestro/scripts/seed-db.sh",
     "test:e2e:clear": ".maestro/scripts/seed-db.sh --clear",
-    "prepare": "husky"
+    "prepare": "husky",
+    "zzz-fingerprint-test": "true"
   },
   "dependencies": {
     "@expo-google-fonts/space-grotesk": "^0.4.1",
