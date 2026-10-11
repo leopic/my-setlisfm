@@ -234,6 +234,127 @@ export default function StatsScreen() {
 
   const weekdayEras = groupWeekdaysIntoEras(chartData.weekdaysByYear);
 
+  // Each section renders once; the tablet layout puts them in two columns, the phone in one.
+  const artistsSection = (
+    <View style={styles.section}>
+      <Text style={styles.sectionLabel}>{t('stats.sectionArtists')}</Text>
+      {artistSeries.length > 0 && (
+        <View style={styles.chartCard}>
+          <Text style={styles.chartTitle}>{t('stats.topArtistsOverTime')}</Text>
+          <LineChart series={artistSeries} xLabels={artistXLabels} height={160} />
+        </View>
+      )}
+    </View>
+  );
+
+  const storySection = (
+    <View style={styles.section}>
+      <Text style={styles.sectionLabel}>{t('stats.sectionStory')}</Text>
+      <View style={styles.chartCard}>
+        <Text style={styles.chartTitle}>{t('stats.milestones')}</Text>
+        {chartData.milestones.map((m, i) => (
+          <View
+            key={m.number}
+            style={[
+              styles.milestoneRow,
+              i === chartData.milestones.length - 1 && { borderBottomWidth: 0 },
+            ]}
+          >
+            <Text style={styles.milestoneOrdinal}>{toOrdinal(m.number)}</Text>
+            <View style={styles.milestoneInfo}>
+              <View style={styles.milestoneTopRow}>
+                <Text style={styles.milestoneArtist}>{m.artistName}</Text>
+                <Text style={styles.milestoneDate}>{formatDate(m.eventDate)}</Text>
+              </View>
+              <Text style={styles.milestoneVenue}>
+                {[m.venueName, m.cityName].filter(Boolean).join(' · ')}
+              </Text>
+            </View>
+          </View>
+        ))}
+      </View>
+      <View style={styles.cardRow}>
+        <View style={styles.statCard}>
+          <Text style={[styles.statValue, { color: colors.accent }]}>{totalShows}</Text>
+          <Text style={styles.statLabel}>{t('stats.totalShows')}</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={[styles.statValue, { color: colors.chartGreen }]}>{totalCountries}</Text>
+          <Text style={styles.statLabel}>{t('stats.countriesVisited')}</Text>
+        </View>
+      </View>
+    </View>
+  );
+
+  const concertsSection = (
+    <View style={styles.section}>
+      <Text style={styles.sectionLabel}>{t('stats.sectionConcerts')}</Text>
+      <View style={styles.chartCard}>
+        <Text style={styles.chartTitle}>{t('stats.showsPerYear')}</Text>
+        <BarChart data={yearBarData} height={90} />
+      </View>
+      <View style={styles.chartCard}>
+        <Text style={styles.chartTitle}>{t('stats.showsByDay')}</Text>
+        <BarChart data={weekdayBarData} height={70} />
+      </View>
+      <View style={styles.cardRow}>
+        <View style={styles.statCard}>
+          <Text style={[styles.statValue, { color: colors.chartOrange }]}>
+            {busiestYear?.year ?? '—'}
+          </Text>
+          <Text style={styles.statLabel}>
+            {t('stats.busiestYear', { count: busiestYear?.shows ?? 0 })}
+          </Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={[styles.statValue, { color: colors.accent }]}>
+            {busiestWeekday?.name ?? '—'}
+          </Text>
+          <Text style={styles.statLabel}>
+            {t('stats.mostCommonDay', { count: busiestWeekday?.count ?? 0 })}
+          </Text>
+        </View>
+      </View>
+      {weekdayEras.length > 0 && <WeekdayErasCard eras={weekdayEras} />}
+    </View>
+  );
+
+  const placesSection = (
+    <>
+      <View style={styles.section}>
+        <Text style={styles.sectionLabel}>{t('stats.sectionPlaces')}</Text>
+      </View>
+      <Pressable
+        style={({ pressed }) => [styles.mapCard, { opacity: pressed ? 0.8 : 1 }]}
+        onPress={() => router.push('/(stats)/map')}
+        accessibilityRole="button"
+        accessibilityLabel={t('stats.openWorldMap')}
+      >
+        <View style={styles.mapInner}>
+          <Ionicons name="map-outline" size={36} color={colors.accent} style={{ opacity: 0.6 }} />
+          <Text style={styles.mapLabel}>{t('stats.worldMap')}</Text>
+          <Text style={styles.mapSub}>{t('stats.worldMapHint', { count: totalCountries })}</Text>
+        </View>
+      </Pressable>
+      <View style={[styles.cardRow, { paddingHorizontal: 20, marginBottom: 20 }]}>
+        <View style={styles.statCard}>
+          <Text style={[styles.statValue, { color: colors.chartGreen }]}>
+            {topCountry?.name ?? '—'}
+          </Text>
+          <Text style={styles.statLabel}>
+            {topCountry
+              ? t('stats.topCountryShare', { pct: topCountry.pct })
+              : t('stats.topCountry')}
+          </Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={[styles.statValue, { color: colors.accent }]}>{topCity ?? '—'}</Text>
+          <Text style={styles.statLabel}>{t('stats.mostVisitedCity')}</Text>
+        </View>
+      </View>
+    </>
+  );
+
   if (loading) {
     return (
       <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.container}>
@@ -280,263 +401,28 @@ export default function StatsScreen() {
         showsVerticalScrollIndicator={false}
       >
         {isTablet ? (
-          /* ── Tablet: 2-column layout ────────────────────────────────────── */
           <View style={styles.twoColRow}>
-            {/* Left column: ARTISTS + YOUR STORY */}
             <View style={styles.twoColLeft}>
-              <View style={styles.section}>
-                <Text style={styles.sectionLabel}>{t('stats.sectionArtists')}</Text>
-                {artistSeries.length > 0 && (
-                  <View style={styles.chartCard}>
-                    <Text style={styles.chartTitle}>{t('stats.topArtistsOverTime')}</Text>
-                    <LineChart series={artistSeries} xLabels={artistXLabels} height={160} />
-                  </View>
-                )}
-              </View>
+              {artistsSection}
               <View style={styles.divider} />
-              <View style={styles.section}>
-                <Text style={styles.sectionLabel}>{t('stats.sectionStory')}</Text>
-                <View style={styles.chartCard}>
-                  <Text style={styles.chartTitle}>{t('stats.milestones')}</Text>
-                  {chartData.milestones.map((m, i) => (
-                    <View
-                      key={m.number}
-                      style={[
-                        styles.milestoneRow,
-                        i === chartData.milestones.length - 1 && { borderBottomWidth: 0 },
-                      ]}
-                    >
-                      <Text style={styles.milestoneOrdinal}>{toOrdinal(m.number)}</Text>
-                      <View style={styles.milestoneInfo}>
-                        <View style={styles.milestoneTopRow}>
-                          <Text style={styles.milestoneArtist}>{m.artistName}</Text>
-                          <Text style={styles.milestoneDate}>{formatDate(m.eventDate)}</Text>
-                        </View>
-                        <Text style={styles.milestoneVenue}>
-                          {[m.venueName, m.cityName].filter(Boolean).join(' · ')}
-                        </Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-                <View style={styles.cardRow}>
-                  <View style={styles.statCard}>
-                    <Text style={[styles.statValue, { color: colors.accent }]}>{totalShows}</Text>
-                    <Text style={styles.statLabel}>{t('stats.totalShows')}</Text>
-                  </View>
-                  <View style={styles.statCard}>
-                    <Text style={[styles.statValue, { color: colors.chartGreen }]}>
-                      {totalCountries}
-                    </Text>
-                    <Text style={styles.statLabel}>{t('stats.countriesVisited')}</Text>
-                  </View>
-                </View>
-              </View>
+              {storySection}
             </View>
-
-            {/* Column divider */}
             <View style={styles.twoColDivider} />
-
-            {/* Right column: CONCERTS + PLACES */}
             <View style={styles.twoColRight}>
-              <View style={styles.section}>
-                <Text style={styles.sectionLabel}>{t('stats.sectionConcerts')}</Text>
-                <View style={styles.chartCard}>
-                  <Text style={styles.chartTitle}>{t('stats.showsPerYear')}</Text>
-                  <BarChart data={yearBarData} height={90} />
-                </View>
-                <View style={styles.chartCard}>
-                  <Text style={styles.chartTitle}>{t('stats.showsByDay')}</Text>
-                  <BarChart data={weekdayBarData} height={70} />
-                </View>
-                <View style={styles.cardRow}>
-                  <View style={styles.statCard}>
-                    <Text style={[styles.statValue, { color: colors.chartOrange }]}>
-                      {busiestYear?.year ?? '—'}
-                    </Text>
-                    <Text style={styles.statLabel}>
-                      {t('stats.busiestYear', { count: busiestYear?.shows ?? 0 })}
-                    </Text>
-                  </View>
-                  <View style={styles.statCard}>
-                    <Text style={[styles.statValue, { color: colors.accent }]}>
-                      {busiestWeekday?.name ?? '—'}
-                    </Text>
-                    <Text style={styles.statLabel}>
-                      {t('stats.mostCommonDay', { count: busiestWeekday?.count ?? 0 })}
-                    </Text>
-                  </View>
-                </View>
-                {weekdayEras.length > 0 && <WeekdayErasCard eras={weekdayEras} />}
-              </View>
+              {concertsSection}
               <View style={styles.divider} />
-              <View style={styles.section}>
-                <Text style={styles.sectionLabel}>{t('stats.sectionPlaces')}</Text>
-              </View>
-              <Pressable
-                style={({ pressed }) => [styles.mapCard, { opacity: pressed ? 0.8 : 1 }]}
-                onPress={() => router.push('/(stats)/map')}
-                accessibilityRole="button"
-                accessibilityLabel={t('stats.openWorldMap')}
-              >
-                <View style={styles.mapInner}>
-                  <Ionicons
-                    name="map-outline"
-                    size={36}
-                    color={colors.accent}
-                    style={{ opacity: 0.6 }}
-                  />
-                  <Text style={styles.mapLabel}>{t('stats.worldMap')}</Text>
-                  <Text style={styles.mapSub}>
-                    {t('stats.worldMapHint', { count: totalCountries })}
-                  </Text>
-                </View>
-              </Pressable>
-              <View style={[styles.cardRow, { paddingHorizontal: 20, marginBottom: 20 }]}>
-                <View style={styles.statCard}>
-                  <Text style={[styles.statValue, { color: colors.chartGreen }]}>
-                    {topCountry?.name ?? '—'}
-                  </Text>
-                  <Text style={styles.statLabel}>
-                    {topCountry
-                      ? t('stats.topCountryShare', { pct: topCountry.pct })
-                      : t('stats.topCountry')}
-                  </Text>
-                </View>
-                <View style={styles.statCard}>
-                  <Text style={[styles.statValue, { color: colors.accent }]}>{topCity ?? '—'}</Text>
-                  <Text style={styles.statLabel}>{t('stats.mostVisitedCity')}</Text>
-                </View>
-              </View>
+              {placesSection}
             </View>
           </View>
         ) : (
-          /* ── Phone: single-column layout ────────────────────────────────── */
           <>
-            <View style={styles.section}>
-              <Text style={styles.sectionLabel}>{t('stats.sectionArtists')}</Text>
-              {artistSeries.length > 0 && (
-                <View style={styles.chartCard}>
-                  <Text style={styles.chartTitle}>{t('stats.topArtistsOverTime')}</Text>
-                  <LineChart series={artistSeries} xLabels={artistXLabels} height={160} />
-                </View>
-              )}
-            </View>
-
+            {artistsSection}
             <View style={styles.divider} />
-
-            <View style={styles.section}>
-              <Text style={styles.sectionLabel}>{t('stats.sectionStory')}</Text>
-              <View style={styles.chartCard}>
-                <Text style={styles.chartTitle}>{t('stats.milestones')}</Text>
-                {chartData.milestones.map((m, i) => (
-                  <View
-                    key={m.number}
-                    style={[
-                      styles.milestoneRow,
-                      i === chartData.milestones.length - 1 && { borderBottomWidth: 0 },
-                    ]}
-                  >
-                    <Text style={styles.milestoneOrdinal}>{toOrdinal(m.number)}</Text>
-                    <View style={styles.milestoneInfo}>
-                      <View style={styles.milestoneTopRow}>
-                        <Text style={styles.milestoneArtist}>{m.artistName}</Text>
-                        <Text style={styles.milestoneDate}>{formatDate(m.eventDate)}</Text>
-                      </View>
-                      <Text style={styles.milestoneVenue}>
-                        {[m.venueName, m.cityName].filter(Boolean).join(' · ')}
-                      </Text>
-                    </View>
-                  </View>
-                ))}
-              </View>
-              <View style={styles.cardRow}>
-                <View style={styles.statCard}>
-                  <Text style={[styles.statValue, { color: colors.accent }]}>{totalShows}</Text>
-                  <Text style={styles.statLabel}>{t('stats.totalShows')}</Text>
-                </View>
-                <View style={styles.statCard}>
-                  <Text style={[styles.statValue, { color: colors.chartGreen }]}>
-                    {totalCountries}
-                  </Text>
-                  <Text style={styles.statLabel}>{t('stats.countriesVisited')}</Text>
-                </View>
-              </View>
-            </View>
-
+            {storySection}
             <View style={styles.divider} />
-
-            <View style={styles.section}>
-              <Text style={styles.sectionLabel}>{t('stats.sectionConcerts')}</Text>
-              <View style={styles.chartCard}>
-                <Text style={styles.chartTitle}>{t('stats.showsPerYear')}</Text>
-                <BarChart data={yearBarData} height={90} />
-              </View>
-              <View style={styles.chartCard}>
-                <Text style={styles.chartTitle}>{t('stats.showsByDay')}</Text>
-                <BarChart data={weekdayBarData} height={70} />
-              </View>
-              <View style={styles.cardRow}>
-                <View style={styles.statCard}>
-                  <Text style={[styles.statValue, { color: colors.chartOrange }]}>
-                    {busiestYear?.year ?? '—'}
-                  </Text>
-                  <Text style={styles.statLabel}>
-                    {t('stats.busiestYear', { count: busiestYear?.shows ?? 0 })}
-                  </Text>
-                </View>
-                <View style={styles.statCard}>
-                  <Text style={[styles.statValue, { color: colors.accent }]}>
-                    {busiestWeekday?.name ?? '—'}
-                  </Text>
-                  <Text style={styles.statLabel}>
-                    {t('stats.mostCommonDay', { count: busiestWeekday?.count ?? 0 })}
-                  </Text>
-                </View>
-              </View>
-              {weekdayEras.length > 0 && <WeekdayErasCard eras={weekdayEras} />}
-            </View>
-
+            {concertsSection}
             <View style={styles.divider} />
-
-            <View style={styles.section}>
-              <Text style={styles.sectionLabel}>{t('stats.sectionPlaces')}</Text>
-            </View>
-            <Pressable
-              style={({ pressed }) => [styles.mapCard, { opacity: pressed ? 0.8 : 1 }]}
-              onPress={() => router.push('/(stats)/map')}
-              accessibilityRole="button"
-              accessibilityLabel={t('stats.openWorldMap')}
-            >
-              <View style={styles.mapInner}>
-                <Ionicons
-                  name="map-outline"
-                  size={36}
-                  color={colors.accent}
-                  style={{ opacity: 0.6 }}
-                />
-                <Text style={styles.mapLabel}>{t('stats.worldMap')}</Text>
-                <Text style={styles.mapSub}>
-                  {t('stats.worldMapHint', { count: totalCountries })}
-                </Text>
-              </View>
-            </Pressable>
-            <View style={[styles.cardRow, { paddingHorizontal: 20, marginBottom: 20 }]}>
-              <View style={styles.statCard}>
-                <Text style={[styles.statValue, { color: colors.chartGreen }]}>
-                  {topCountry?.name ?? '—'}
-                </Text>
-                <Text style={styles.statLabel}>
-                  {topCountry
-                    ? t('stats.topCountryShare', { pct: topCountry.pct })
-                    : t('stats.topCountry')}
-                </Text>
-              </View>
-              <View style={styles.statCard}>
-                <Text style={[styles.statValue, { color: colors.accent }]}>{topCity ?? '—'}</Text>
-                <Text style={styles.statLabel}>{t('stats.mostVisitedCity')}</Text>
-              </View>
-            </View>
+            {placesSection}
           </>
         )}
       </ScrollView>
