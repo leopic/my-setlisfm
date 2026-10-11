@@ -10,13 +10,13 @@ jest.mock('@/services/syncService', () => ({
 }));
 
 it('opens onboarding on first launch and the dashboard once sync completes', async () => {
-  renderRouter('./app', { initialUrl: '/' });
+  await renderRouter('./app', { initialUrl: '/' });
 
   expect(await screen.findByText('Get Started')).toBeOnTheScreen();
   expect(screen).toHavePathname('/onboarding');
 
-  fireEvent.changeText(screen.getByPlaceholderText('Your setlist.fm username'), 'leopic');
-  fireEvent.press(screen.getByText('Get Started'));
+  await fireEvent.changeText(screen.getByPlaceholderText('Your setlist.fm username'), 'leopic');
+  await fireEvent.press(screen.getByText('Get Started'));
 
   // Onboarding holds the finished state for a moment before handing off.
   expect(await screen.findByTestId('dashboard-screen', {}, { timeout: 3000 })).toBeOnTheScreen();

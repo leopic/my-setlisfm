@@ -1,4 +1,3 @@
-import { ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 
@@ -8,13 +7,11 @@ import { act, fireEvent, renderRouter, screen, waitFor, within } from 'expo-rout
 const FRAME = { x: 0, y: 0, width: 390, height: 844 };
 const ROW = { x: 0, y: 0, width: 390, height: 80 };
 
-export function layOutLists() {
-  for (const list of screen.UNSAFE_queryAllByType(ScrollView)) {
-    fireEvent(list, 'layout', { nativeEvent: { layout: FRAME } });
-    for (const child of list.findAll((n) => typeof n.type === 'string' && !!n.props.onLayout)) {
-      if (child.props.onLayout !== list.props.onLayout) {
-        fireEvent(child, 'layout', { nativeEvent: { layout: ROW } });
-      }
+export async function layOutLists() {
+  for (const list of screen.container.queryAll((n) => n.type === 'RCTScrollView')) {
+    await fireEvent(list, 'layout', { nativeEvent: { layout: FRAME } });
+    for (const child of list.queryAll((n) => n !== list && !!n.props.onLayout)) {
+      await fireEvent(child, 'layout', { nativeEvent: { layout: ROW } });
     }
   }
 }
@@ -28,23 +25,23 @@ export async function findScreen(testID: string) {
     expect(match).toBeVisible();
     return match;
   });
-  layOutLists();
+  await layOutLists();
   return within(found);
 }
 
 export async function launchApp() {
-  renderRouter('./app', { initialUrl: '/' });
+  await renderRouter('./app', { initialUrl: '/' });
   await screen.findByTestId('dashboard-screen');
 }
 
 // The tab bar is native and not rendered under Jest; switch tabs the way a
 // tab press does, through the router.
-export function openTab(tab: '(concerts)' | '(artists)' | '(venues)') {
-  act(() => router.navigate(`/(tabs)/${tab}`));
+export async function openTab(tab: '(concerts)' | '(artists)' | '(venues)') {
+  await act(async () => router.navigate(`/(tabs)/${tab}`));
 }
 
 export async function goBackFrom(testID: string) {
   const current = await findScreen(testID);
-  fireEvent.press(current.getByTestId('back-button'));
+  await fireEvent.press(current.getByTestId('back-button'));
   await waitFor(() => expect(screen.queryByTestId(testID)).not.toBeOnTheScreen());
 }

@@ -4,6 +4,7 @@ import {
   TextInput,
   Pressable,
   StyleSheet,
+  type TextInputInstance,
   type TextInputProps,
   type ViewStyle,
 } from 'react-native';
@@ -20,7 +21,7 @@ interface SearchInputProps extends Omit<TextInputProps, 'style'> {
 
 export default function SearchInput({ value, onChangeText, style, ...rest }: SearchInputProps) {
   const colors = useChronicleColors();
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<TextInputInstance>(null);
 
   const styles = StyleSheet.create({
     container: {
