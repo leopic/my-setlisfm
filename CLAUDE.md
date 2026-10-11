@@ -117,7 +117,8 @@ integration tests cover screens and navigation there. What only Maestro catches 
 Release build that won't launch or crashes natively, so **any native change must pass
 Maestro both locally and on CI before merging**: Expo SDK or `expo-*` bumps, React
 Native, dependencies with native code, `app.config.js` and its plugins, including
-Dependabot PRs for any of these. Nothing enforces this automatically.
+Dependabot PRs for any of these. The `Native fingerprint` check comments on any PR that
+changes the iOS fingerprint as a reminder; it doesn't block merging.
 
 - Locally: `yarn test:e2e` needs a booted simulator with the app installed and launched
   once (it seeds the app's database, so use a dedicated simulator, not one with real data).

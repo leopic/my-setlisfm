@@ -1,0 +1,109 @@
+name: Native fingerprint
+
+# Maestro only runs on demand, and CLAUDE.md requires it for native changes.
+# This compares the PR's iOS fingerprint (computed like the E2E workflow's cache
+# key) with its base and comments when they differ, so a native change — a
+# Dependabot Expo bump, say — can't slip through unnoticed. It never fails the
+# PR. No path filter on purpose: native sources come from many places
+# (package.json, lockfile, config, plugins), and a missed one would silently
+# skip the reminder.
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  # To post the reminder. Dependabot runs get this too (the permissions key
+  # raises their read-only default); fork PRs stay read-only, so the comment
+  # step fails quietly there and the job summary still shows the result.
+  pull-requests: write
+
+concurrency:
+  group: native-fingerprint-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  fingerprint:
+    name: Native fingerprint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # The PR's merge commit: main as of the last sync, plus the PR. Its first
+      # parent is the base to compare against, so native changes that landed on
+      # main after the PR was opened aren't blamed on the PR.
+      - uses: actions/checkout@v7
+        with:
+          path: head
+          fetch-depth: 2
+
+      - name: Check out base
+        run: git -C head worktree add --detach ../base HEAD^1
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: head/.nvmrc
+
+      # Yarn 4 ships via Corepack, pinned by the packageManager field.
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Locate Yarn cache
+        id: yarn-cache
+        working-directory: head
+        run: echo "dir=$(yarn config get cacheFolder)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v6
+        with:
+          path: ${{ steps.yarn-cache.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('head/yarn.lock', 'base/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
+
+      # The fingerprint hashes the native modules autolinking finds in
+      # node_modules, so each side needs its own install.
+      # Anything going wrong here (an install, the fingerprint itself) must not
+      # turn the PR red; the summary says the check couldn't run instead.
+      - name: Fingerprint base and head
+        id: fingerprint
+        continue-on-error: true
+        env:
+          # Via env, never ${{ }} in the script: branch names are PR-controlled.
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          for side in base head; do
+            (cd "$side" && yarn install --immutable && npx @expo/fingerprint fingerprint:generate --platform ios > "../$side.json")
+          done
+          (cd head && npx @expo/fingerprint fingerprint:diff ../base.json ../head.json) > diff.json
+          node head/.github/scripts/native-fingerprint-comment.mjs base.json head.json diff.json \
+            "$BRANCH" > comment.md
+          if [ -s comment.md ]; then cat comment.md; else echo "Native fingerprint unchanged."; fi >> "$GITHUB_STEP_SUMMARY"
+
+      # One comment per PR, found by its marker and edited in place on later
+      # pushes; never created for a PR whose fingerprint never changed.
+      - name: Report fingerprint failure
+        if: steps.fingerprint.outcome == 'failure'
+        run: echo "Native fingerprint could not be computed; see the step log." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Update PR comment
+        if: steps.fingerprint.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          MARKER='<!-- native-fingerprint -->'
+          EXISTING=$(gh api --paginate "repos/$REPO/issues/$PR/comments" \
+            --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -n 1)
+          if [ -s comment.md ]; then
+            BODY="$MARKER"$'\n'"$(cat comment.md)"
+          elif [ -n "$EXISTING" ]; then
+            BODY="$MARKER"$'\n'"### Native fingerprint matches \`main\` again"$'\n\n'"No Maestro run needed for native changes."
+          else
+            exit 0
+          fi
+          if [ -n "$EXISTING" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$EXISTING" -f body="$BODY" > /dev/null
+          else
+            gh api -X POST "repos/$REPO/issues/$PR/comments" -f body="$BODY" > /dev/null
+          fi
