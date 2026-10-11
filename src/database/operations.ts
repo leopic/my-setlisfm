@@ -2173,6 +2173,7 @@ export class DatabaseOperations {
   // ── Stats tab chart data ─────────────────────────────────────────────────
   async getStatsChartData(): Promise<{
     weekdays: Array<{ weekday: number; concertDays: number }>;
+    weekdaysByYear: Array<{ year: number; weekday: number; concertDays: number }>;
     milestones: Array<{
       number: number;
       artistName: string;
@@ -2190,8 +2191,8 @@ export class DatabaseOperations {
       ((await this.db.getFirstAsync('SELECT COUNT(*) AS n FROM setlists')) as { n: number } | null)
         ?.n ?? 0;
 
-    const [weekdayRaw, milestonesRaw, topArtistsRaw, topCountryRaw, topCityRaw] = await Promise.all(
-      [
+    const [weekdayRaw, weekdayByYearRaw, milestonesRaw, topArtistsRaw, topCountryRaw, topCityRaw] =
+      await Promise.all([
         // Weekday distribution (0=Sun … 6=Sat)
         this.db.getAllAsync(`
         SELECT
@@ -2200,6 +2201,19 @@ export class DatabaseOperations {
         FROM setlists
         GROUP BY weekday
         ORDER BY weekday
+      `),
+
+        // Weekday distribution per year, grouped into eras on the stats screen
+        this.db.getAllAsync(`
+        SELECT
+          CAST(substr(eventDate, 7, 4) AS INTEGER) AS year,
+          CAST(strftime('%w', ${ISO}) AS INTEGER) AS weekday,
+          COUNT(DISTINCT ${ISO}) AS concertDays
+        FROM setlists
+        -- A malformed eventDate would otherwise anchor the eras at year 0
+        WHERE strftime('%w', ${ISO}) IS NOT NULL
+        GROUP BY year, weekday
+        ORDER BY year, weekday
       `),
 
         // 1st, 50th, 100th, 200th concerts
@@ -2264,14 +2278,18 @@ export class DatabaseOperations {
         ORDER BY concertDays DESC
         LIMIT 1
       `),
-      ],
-    );
+      ]);
 
     const tc = topCountryRaw as { countryName: string; showCount: number } | null;
     const tCity = topCityRaw as { cityName: string } | null;
 
     return {
       weekdays: weekdayRaw as Array<{ weekday: number; concertDays: number }>,
+      weekdaysByYear: weekdayByYearRaw as Array<{
+        year: number;
+        weekday: number;
+        concertDays: number;
+      }>,
       milestones: milestonesRaw as Array<{
         number: number;
         artistName: string;

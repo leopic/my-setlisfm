@@ -36,7 +36,7 @@ export async function launchApp() {
 
 // The tab bar is native and not rendered under Jest; switch tabs the way a
 // tab press does, through the router.
-export async function openTab(tab: '(concerts)' | '(artists)' | '(venues)') {
+export async function openTab(tab: '(concerts)' | '(artists)' | '(venues)' | '(stats)') {
   await act(async () => router.navigate(`/(tabs)/${tab}`));
 }
 
