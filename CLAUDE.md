@@ -40,6 +40,11 @@ accumulate, because ESLint exits 0 on warnings.
 
 The hook only lints staged files. Types and tests are CI's job.
 
+`expo-doctor` also runs in CI. `package.json` excludes `jest` and `@types/jest` from its
+version check (`expo.install.exclude`): the SDK 58 beta's doctor still expects jest 29, but
+jest-expo 58 depends on jest 30. Don't "fix" doctor by downgrading jest; drop the exclude
+once doctor agrees with jest-expo.
+
 ## Architecture
 
 This is an Expo Router (React Native) app that tracks a user's concert history by syncing with the Setlist.fm API and storing everything locally in SQLite.
@@ -107,7 +112,7 @@ Use `useColors()` for every color value — never hardcode hex. The hook reads t
 ## Testing
 
 - **Unit tests** live in `src/__tests__/` and cover `SetlistApiService` (rate limiting, retries, pagination) and `DataProcessor` (normalization).
-- **Integration tests** live in `src/__tests__/integration/` and render the real `app/` routes headlessly with `renderRouter` from `expo-router/testing-library`. SQLite is Node's built-in `node:sqlite` in memory (`test/expoSqliteNode.ts`), seeded from the same fixture as Maestro (`.maestro/fixtures/seed.sql`). Under Jest the native tab bar isn't rendered (switch tabs with `openTab`), and lists need `layOutLists()` before their rows are tappable; helpers live in `test/screen.ts`.
+- **Integration tests** live in `src/__tests__/integration/` and render the real `app/` routes headlessly with `renderRouter` from `expo-router/testing-library`. SQLite is Node's built-in `node:sqlite` in memory (`test/expoSqliteNode.ts`), seeded from the same fixture as Maestro (`.maestro/fixtures/seed.sql`). Under Jest the native tab bar isn't rendered (switch tabs with `openTab`), and lists need `layOutLists()` before their rows are tappable; helpers live in `test/screen.ts`. Rendering, events and the helpers are async (RNTL 14), so always `await` them.
 - **E2E tests** live in `.maestro/` and use Maestro YAML. Screens expose `testID` props for selectors (e.g. `dashboard-screen`).
 
 ### When to run Maestro
