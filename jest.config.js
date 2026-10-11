@@ -31,6 +31,9 @@ module.exports = {
       preset: 'jest-expo/ios',
       transform: integrationTransform,
       testMatch: ['<rootDir>/src/__tests__/integration/**/*.test.tsx'],
+      // The first render in each file loads the whole app/ tree, which takes
+      // 20–30s on CI with a cold transform cache.
+      testTimeout: 60000,
       setupFiles: ['./test/integration.setup.ts'],
       moduleNameMapper: {
         ...alias,
