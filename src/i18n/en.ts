@@ -26,12 +26,23 @@ export default {
     continent_other: '{{count}} continents',
     year_one: '{{count}} year',
     year_other: '{{count}} years',
+    month_one: '{{count}} month',
+    month_other: '{{count}} months',
+    day_one: '{{count}} day',
+    day_other: '{{count}} days',
     lastShow: 'Last show: {{date}}',
     lastSeen: 'Last seen: {{date}}',
     all: 'All',
     noMatchesFound: 'No matches found',
     tryDifferentSearch: 'Try a different search term',
     moreCount: '+{{count}} more',
+    goBack: 'Go back',
+    clearSearch: 'Clear search',
+    unknownArtist: 'Unknown Artist',
+    unknownVenue: 'Unknown Venue',
+    unknownCity: 'Unknown City',
+    unknownLocation: 'Unknown location',
+    unknownError: 'Unknown error',
   },
 
   // Dashboard
@@ -64,6 +75,85 @@ export default {
     upToDate: 'Up to Date',
     upToDateMessage: 'No new concerts found.',
     syncFailed: 'Sync Failed',
+    syncData: 'Sync concert data',
+    openSettings: 'Open settings',
+    opensConcertDetails: 'Opens concert details',
+    onThisDay_one: 'ON THIS DAY · {{count}} YEAR AGO',
+    onThisDay_other: 'ON THIS DAY · {{count}} YEARS AGO',
+    onThisDayShort_one: 'ON THIS DAY · {{count}} YR AGO',
+    onThisDayShort_other: 'ON THIS DAY · {{count}} YRS AGO',
+    onThisDayLabel_one: 'On this day {{count}} year ago: {{artist}}',
+    onThisDayLabel_other: 'On this day {{count}} years ago: {{artist}}',
+    alsoOnThisDay: 'ALSO ON THIS DAY',
+    alsoOnThisDayLabel_one: 'Also on this day {{count}} year ago: {{artist}}',
+    alsoOnThisDayLabel_other: 'Also on this day {{count}} years ago: {{artist}}',
+    countryLabel_one: 'country',
+    countryLabel_other: 'countries',
+    cityLabel_one: 'city',
+    cityLabel_other: 'cities',
+    peak: 'peak',
+    peakMonth: 'peak {{month}}',
+    showsLabel_one: 'show',
+    showsLabel_other: 'shows',
+    monthly: 'MONTHLY',
+    highlightsLabel: 'HIGHLIGHTS',
+    showsHeading: 'SHOWS',
+    milestoneShow: '{{ordinal}} SHOW',
+  },
+
+  // Error boundary
+  errorBoundary: {
+    title: 'Something went wrong',
+    retry: 'Try Again',
+  },
+
+  // Dashboard insight cards
+  insights: {
+    habits: 'HABITS',
+    topDay: 'TOP DAY',
+    busiestWeek: 'BUSIEST WEEK',
+    concertDays_one: '{{count}} concert day',
+    concertDays_other: '{{count}} concert days',
+    startingOn: 'starting {{date}}',
+  },
+
+  // Tablet master-detail placeholders
+  panes: {
+    selectConcert: 'Select a concert',
+    selectVenue: 'Select a venue',
+    selectArtist: 'Select an artist',
+  },
+
+  // Relative time (src/utils/date.ts)
+  time: {
+    sameDay: 'same day',
+    today: 'today',
+    yearsAndMonths: '{{years}}, {{months}}',
+    ago: '{{span}} ago',
+  },
+
+  // Settings
+  settings: {
+    title: 'Settings',
+    account: 'Account',
+    username: 'Username',
+    save: 'Save',
+    change: 'Change',
+    sync: 'Sync',
+    lastSynced: 'Last synced',
+    never: 'Never',
+    syncNowLabel: 'Sync now',
+    syncNow: 'Sync Now',
+    syncing: 'Syncing…',
+    about: 'About',
+    version: 'Version',
+    dataSource: 'Data source',
+    data: 'Data',
+    clearAllDataLabel: 'Clear all data',
+    clearAllData: 'Clear All Data',
+    clearConfirmMessage:
+      'This will permanently delete all your concert history and restart the app. This cannot be undone.',
+    clearEverything: 'Clear Everything',
   },
 
   // Artists
@@ -95,6 +185,9 @@ export default {
     mostRecent: 'Most Recent',
     alphabetical: 'By Name',
     yearFilter: 'Year',
+    filteredByYear: 'Filtered by {{year}}',
+    filterByYear: 'Filter by year',
+    opensYearPicker: 'Opens year picker',
     searchPlaceholder: 'Search by artist, venue, city...',
     empty: 'No shows yet',
     emptyBody: 'Your concert timeline builds here as you sync.',
@@ -140,6 +233,7 @@ export default {
     legend2: '2 visits',
     legend3: '3-4 visits',
     legend5: '5+ visits',
+    lastVisit: 'Last: {{date}}',
   },
 
   // Geographic
@@ -169,6 +263,8 @@ export default {
     failedToLoadCountries: 'Failed to load countries',
     failedToLoadCities: 'Failed to load cities',
     failedToLoadVenues: 'Failed to load venues',
+    venuesLabel_one: 'venue',
+    venuesLabel_other: 'venues',
   },
 
   // Setlist
@@ -185,10 +281,73 @@ export default {
 
   // Stats
   stats: {
+    title: 'Stats',
+    emptyTitle: 'Nothing to chart yet',
+    emptyBody: 'Your stats come to life once you sync some concerts.',
+    sectionArtists: 'ARTISTS',
+    sectionStory: 'YOUR STORY',
+    sectionConcerts: 'CONCERTS',
+    sectionPlaces: 'PLACES',
+    topArtistsOverTime: 'TOP 5 OVER TIME',
+    milestones: 'MILESTONES',
+    showsPerYear: 'SHOWS PER YEAR',
+    showsByDay: 'SHOWS BY DAY',
+    totalShows: 'total shows',
+    countriesVisited: 'countries visited',
+    busiestYear_one: 'busiest year · {{count}} show',
+    busiestYear_other: 'busiest year · {{count}} shows',
+    mostCommonDay_one: 'most common day · {{count}} show',
+    mostCommonDay_other: 'most common day · {{count}} shows',
+    openWorldMap: 'Open world map',
+    worldMap: 'World Map',
+    worldMapHint_one: '{{count}} country · tap to explore',
+    worldMapHint_other: '{{count}} countries · tap to explore',
+    topCountryShare: '{{pct}}% of shows',
+    topCountry: 'top country',
+    mostVisitedCity: 'most visited city',
     topDayByEra: 'TOP DAY BY ERA',
     eraShare: '{{top}} of {{total}}',
     eraHeatmapHint: 'Brighter means a bigger share of that era. Ringed is the top day.',
     eraSummary: '{{era}}: {{days}}, {{top}} of {{total}} shows',
+  },
+
+  // Weekdays and months, keyed as in src/i18n/calendar.ts
+  weekdays: {
+    short: {
+      sun: 'Sun',
+      mon: 'Mon',
+      tue: 'Tue',
+      wed: 'Wed',
+      thu: 'Thu',
+      fri: 'Fri',
+      sat: 'Sat',
+    },
+    long: {
+      sun: 'Sunday',
+      mon: 'Monday',
+      tue: 'Tuesday',
+      wed: 'Wednesday',
+      thu: 'Thursday',
+      fri: 'Friday',
+      sat: 'Saturday',
+    },
+  },
+
+  months: {
+    short: {
+      jan: 'Jan',
+      feb: 'Feb',
+      mar: 'Mar',
+      apr: 'Apr',
+      may: 'May',
+      jun: 'Jun',
+      jul: 'Jul',
+      aug: 'Aug',
+      sep: 'Sep',
+      oct: 'Oct',
+      nov: 'Nov',
+      dec: 'Dec',
+    },
   },
 
   // Sort
@@ -269,5 +428,16 @@ export default {
     userNotFound: 'Username not found on setlist.fm. Please check your username and try again.',
     retry: 'Try Again',
     usernameRequired: 'Please enter your setlist.fm username',
+    concertsStep: 'Your concerts',
+    concertsStepDetail: 'Synced from setlist.fm',
+    findingConcerts: 'Finding concerts…',
+    fetchingPageWithTotal: 'Page {{current}} of {{total}}  ·  {{concerts}} total',
+    allSaved: 'All saved ✓',
+    photosStep: 'Artist photos',
+    photosStepDetail: "A face for every act you've seen",
+    fetchingPhotos: 'Fetching photos…',
+    photosReady: 'Photos ready',
+    photosProgress: '{{done}} of {{total}} artists',
+    allMatched: 'All matched ✓',
   },
 };

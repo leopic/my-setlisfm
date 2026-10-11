@@ -1,3 +1,5 @@
+import i18n from '@/i18n';
+
 /**
  * Parses a DD-MM-YYYY date string (setlist.fm format) into a Date object.
  */
@@ -48,28 +50,30 @@ export function formatIsoDate(isoDate: string, format: DateFormat = 'short'): st
  *   880 → "2 years, 5 months"
  */
 export function formatDaySpan(days: number): string {
-  if (days <= 0) return 'same day';
-  if (days === 1) return '1 day';
-  if (days < 30) return `${days} days`;
+  if (days <= 0) return i18n.t('time.sameDay');
+  if (days < 30) return i18n.t('common.day', { count: days });
 
   const years = Math.floor(days / 365);
   const months = Math.floor((days % 365) / 30);
 
   if (years > 0 && months > 0) {
-    return `${years} year${years !== 1 ? 's' : ''}, ${months} month${months !== 1 ? 's' : ''}`;
+    return i18n.t('time.yearsAndMonths', {
+      years: i18n.t('common.year', { count: years }),
+      months: i18n.t('common.month', { count: months }),
+    });
   }
   if (years > 0) {
-    return `${years} year${years !== 1 ? 's' : ''}`;
+    return i18n.t('common.year', { count: years });
   }
-  return `${months} month${months !== 1 ? 's' : ''}`;
+  return i18n.t('common.month', { count: months });
 }
 
 /**
  * Formats a day gap as a relative "time ago" phrase, e.g. "8 years ago", "3 months ago", "today".
  */
 export function formatTimeAgo(days: number): string {
-  if (days <= 0) return 'today';
-  return `${formatDaySpan(days)} ago`;
+  if (days <= 0) return i18n.t('time.today');
+  return i18n.t('time.ago', { span: formatDaySpan(days) });
 }
 
 /**

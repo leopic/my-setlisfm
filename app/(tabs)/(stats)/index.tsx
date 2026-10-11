@@ -7,6 +7,8 @@ import { dbOperations } from '@/database/operations';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { formatDate } from '@/utils/date';
+import { toOrdinal } from '@/utils/ordinal';
+import { WEEKDAY_KEYS } from '@/i18n/calendar';
 import { EmptyState } from '@/components/ui';
 import BarChart from '@/components/charts/BarChart';
 import LineChart, { type LineSeries } from '@/components/charts/LineChart';
@@ -14,25 +16,13 @@ import WeekdayErasCard from '@/components/WeekdayErasCard';
 import { groupWeekdaysIntoEras } from '@/utils/weekdayEras';
 import { useTabletLayout } from '@/utils/tablet';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 const ARTIST_COLORS_DARK = ['#00e8ff', '#ff9f0a', '#30d158', '#bf5af2', '#ff6b6b'];
 const ARTIST_COLORS_LIGHT = ['#0066bb', '#b45309', '#16a34a', '#7c3aed', '#dc2626'];
-const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-function ordinal(n: number) {
-  return n === 1 ? '1st' : n === 2 ? '2nd' : n === 3 ? '3rd' : `${n}th`;
-}
-const DAY_FULL_LABELS = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-];
 
 export default function StatsScreen() {
+  const { t } = useTranslation();
   const colors = useChronicleColors();
   const router = useRouter();
   const { lastSyncTimestamp } = useSyncContext();
@@ -233,12 +223,12 @@ export default function StatsScreen() {
   const busiestWeekday = (() => {
     if (!chartData.weekdays.length) return null;
     const top = chartData.weekdays.reduce((a, b) => (a.concertDays > b.concertDays ? a : b));
-    const name = DAY_FULL_LABELS[top.weekday];
-    return name ? { name, count: top.concertDays } : null;
+    const key = WEEKDAY_KEYS[top.weekday];
+    return key ? { name: t(`weekdays.long.${key}`), count: top.concertDays } : null;
   })();
 
-  const weekdayBarData = DAY_LABELS.map((label, i) => ({
-    label,
+  const weekdayBarData = WEEKDAY_KEYS.map((key, i) => ({
+    label: t(`weekdays.short.${key}`),
     value: chartData.weekdays.find((w) => w.weekday === i)?.concertDays ?? 0,
   }));
 
@@ -248,7 +238,7 @@ export default function StatsScreen() {
     return (
       <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Stats</Text>
+          <Text style={styles.headerTitle}>{t('stats.title')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -258,12 +248,12 @@ export default function StatsScreen() {
     return (
       <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="stats-screen">
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Stats</Text>
+          <Text style={styles.headerTitle}>{t('stats.title')}</Text>
         </View>
         <EmptyState
           icon={{ sf: 'chart.bar', md: 'bar-chart-outline' }}
-          title="Nothing to chart yet"
-          body="Your stats come to life once you sync some concerts."
+          title={t('stats.emptyTitle')}
+          body={t('stats.emptyBody')}
         />
       </SafeAreaView>
     );
@@ -276,9 +266,10 @@ export default function StatsScreen() {
       testID="stats-screen"
     >
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Stats</Text>
+        <Text style={styles.headerTitle}>{t('stats.title')}</Text>
         <Text style={styles.headerSub}>
-          {totalShows} shows · {totalCountries} countries
+          {t('common.show', { count: totalShows })} ·{' '}
+          {t('common.country', { count: totalCountries })}
         </Text>
       </View>
 
@@ -294,19 +285,19 @@ export default function StatsScreen() {
             {/* Left column: ARTISTS + YOUR STORY */}
             <View style={styles.twoColLeft}>
               <View style={styles.section}>
-                <Text style={styles.sectionLabel}>ARTISTS</Text>
+                <Text style={styles.sectionLabel}>{t('stats.sectionArtists')}</Text>
                 {artistSeries.length > 0 && (
                   <View style={styles.chartCard}>
-                    <Text style={styles.chartTitle}>TOP 5 OVER TIME</Text>
+                    <Text style={styles.chartTitle}>{t('stats.topArtistsOverTime')}</Text>
                     <LineChart series={artistSeries} xLabels={artistXLabels} height={160} />
                   </View>
                 )}
               </View>
               <View style={styles.divider} />
               <View style={styles.section}>
-                <Text style={styles.sectionLabel}>YOUR STORY</Text>
+                <Text style={styles.sectionLabel}>{t('stats.sectionStory')}</Text>
                 <View style={styles.chartCard}>
-                  <Text style={styles.chartTitle}>MILESTONES</Text>
+                  <Text style={styles.chartTitle}>{t('stats.milestones')}</Text>
                   {chartData.milestones.map((m, i) => (
                     <View
                       key={m.number}
@@ -315,7 +306,7 @@ export default function StatsScreen() {
                         i === chartData.milestones.length - 1 && { borderBottomWidth: 0 },
                       ]}
                     >
-                      <Text style={styles.milestoneOrdinal}>{ordinal(m.number)}</Text>
+                      <Text style={styles.milestoneOrdinal}>{toOrdinal(m.number)}</Text>
                       <View style={styles.milestoneInfo}>
                         <View style={styles.milestoneTopRow}>
                           <Text style={styles.milestoneArtist}>{m.artistName}</Text>
@@ -331,13 +322,13 @@ export default function StatsScreen() {
                 <View style={styles.cardRow}>
                   <View style={styles.statCard}>
                     <Text style={[styles.statValue, { color: colors.accent }]}>{totalShows}</Text>
-                    <Text style={styles.statLabel}>total shows</Text>
+                    <Text style={styles.statLabel}>{t('stats.totalShows')}</Text>
                   </View>
                   <View style={styles.statCard}>
                     <Text style={[styles.statValue, { color: colors.chartGreen }]}>
                       {totalCountries}
                     </Text>
-                    <Text style={styles.statLabel}>countries visited</Text>
+                    <Text style={styles.statLabel}>{t('stats.countriesVisited')}</Text>
                   </View>
                 </View>
               </View>
@@ -349,13 +340,13 @@ export default function StatsScreen() {
             {/* Right column: CONCERTS + PLACES */}
             <View style={styles.twoColRight}>
               <View style={styles.section}>
-                <Text style={styles.sectionLabel}>CONCERTS</Text>
+                <Text style={styles.sectionLabel}>{t('stats.sectionConcerts')}</Text>
                 <View style={styles.chartCard}>
-                  <Text style={styles.chartTitle}>SHOWS PER YEAR</Text>
+                  <Text style={styles.chartTitle}>{t('stats.showsPerYear')}</Text>
                   <BarChart data={yearBarData} height={90} />
                 </View>
                 <View style={styles.chartCard}>
-                  <Text style={styles.chartTitle}>SHOWS BY DAY</Text>
+                  <Text style={styles.chartTitle}>{t('stats.showsByDay')}</Text>
                   <BarChart data={weekdayBarData} height={70} />
                 </View>
                 <View style={styles.cardRow}>
@@ -364,7 +355,7 @@ export default function StatsScreen() {
                       {busiestYear?.year ?? '—'}
                     </Text>
                     <Text style={styles.statLabel}>
-                      busiest year · {busiestYear?.shows ?? 0} shows
+                      {t('stats.busiestYear', { count: busiestYear?.shows ?? 0 })}
                     </Text>
                   </View>
                   <View style={styles.statCard}>
@@ -372,7 +363,7 @@ export default function StatsScreen() {
                       {busiestWeekday?.name ?? '—'}
                     </Text>
                     <Text style={styles.statLabel}>
-                      most common day · {busiestWeekday?.count ?? 0} shows
+                      {t('stats.mostCommonDay', { count: busiestWeekday?.count ?? 0 })}
                     </Text>
                   </View>
                 </View>
@@ -380,13 +371,13 @@ export default function StatsScreen() {
               </View>
               <View style={styles.divider} />
               <View style={styles.section}>
-                <Text style={styles.sectionLabel}>PLACES</Text>
+                <Text style={styles.sectionLabel}>{t('stats.sectionPlaces')}</Text>
               </View>
               <Pressable
                 style={({ pressed }) => [styles.mapCard, { opacity: pressed ? 0.8 : 1 }]}
                 onPress={() => router.push('/(stats)/map')}
                 accessibilityRole="button"
-                accessibilityLabel="Open world map"
+                accessibilityLabel={t('stats.openWorldMap')}
               >
                 <View style={styles.mapInner}>
                   <Ionicons
@@ -395,8 +386,10 @@ export default function StatsScreen() {
                     color={colors.accent}
                     style={{ opacity: 0.6 }}
                   />
-                  <Text style={styles.mapLabel}>World Map</Text>
-                  <Text style={styles.mapSub}>{totalCountries} countries · tap to explore</Text>
+                  <Text style={styles.mapLabel}>{t('stats.worldMap')}</Text>
+                  <Text style={styles.mapSub}>
+                    {t('stats.worldMapHint', { count: totalCountries })}
+                  </Text>
                 </View>
               </Pressable>
               <View style={[styles.cardRow, { paddingHorizontal: 20, marginBottom: 20 }]}>
@@ -405,12 +398,14 @@ export default function StatsScreen() {
                     {topCountry?.name ?? '—'}
                   </Text>
                   <Text style={styles.statLabel}>
-                    {topCountry ? `${topCountry.pct}% of shows` : 'top country'}
+                    {topCountry
+                      ? t('stats.topCountryShare', { pct: topCountry.pct })
+                      : t('stats.topCountry')}
                   </Text>
                 </View>
                 <View style={styles.statCard}>
                   <Text style={[styles.statValue, { color: colors.accent }]}>{topCity ?? '—'}</Text>
-                  <Text style={styles.statLabel}>most visited city</Text>
+                  <Text style={styles.statLabel}>{t('stats.mostVisitedCity')}</Text>
                 </View>
               </View>
             </View>
@@ -419,10 +414,10 @@ export default function StatsScreen() {
           /* ── Phone: single-column layout ────────────────────────────────── */
           <>
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>ARTISTS</Text>
+              <Text style={styles.sectionLabel}>{t('stats.sectionArtists')}</Text>
               {artistSeries.length > 0 && (
                 <View style={styles.chartCard}>
-                  <Text style={styles.chartTitle}>TOP 5 OVER TIME</Text>
+                  <Text style={styles.chartTitle}>{t('stats.topArtistsOverTime')}</Text>
                   <LineChart series={artistSeries} xLabels={artistXLabels} height={160} />
                 </View>
               )}
@@ -431,9 +426,9 @@ export default function StatsScreen() {
             <View style={styles.divider} />
 
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>YOUR STORY</Text>
+              <Text style={styles.sectionLabel}>{t('stats.sectionStory')}</Text>
               <View style={styles.chartCard}>
-                <Text style={styles.chartTitle}>MILESTONES</Text>
+                <Text style={styles.chartTitle}>{t('stats.milestones')}</Text>
                 {chartData.milestones.map((m, i) => (
                   <View
                     key={m.number}
@@ -442,7 +437,7 @@ export default function StatsScreen() {
                       i === chartData.milestones.length - 1 && { borderBottomWidth: 0 },
                     ]}
                   >
-                    <Text style={styles.milestoneOrdinal}>{ordinal(m.number)}</Text>
+                    <Text style={styles.milestoneOrdinal}>{toOrdinal(m.number)}</Text>
                     <View style={styles.milestoneInfo}>
                       <View style={styles.milestoneTopRow}>
                         <Text style={styles.milestoneArtist}>{m.artistName}</Text>
@@ -458,13 +453,13 @@ export default function StatsScreen() {
               <View style={styles.cardRow}>
                 <View style={styles.statCard}>
                   <Text style={[styles.statValue, { color: colors.accent }]}>{totalShows}</Text>
-                  <Text style={styles.statLabel}>total shows</Text>
+                  <Text style={styles.statLabel}>{t('stats.totalShows')}</Text>
                 </View>
                 <View style={styles.statCard}>
                   <Text style={[styles.statValue, { color: colors.chartGreen }]}>
                     {totalCountries}
                   </Text>
-                  <Text style={styles.statLabel}>countries visited</Text>
+                  <Text style={styles.statLabel}>{t('stats.countriesVisited')}</Text>
                 </View>
               </View>
             </View>
@@ -472,13 +467,13 @@ export default function StatsScreen() {
             <View style={styles.divider} />
 
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>CONCERTS</Text>
+              <Text style={styles.sectionLabel}>{t('stats.sectionConcerts')}</Text>
               <View style={styles.chartCard}>
-                <Text style={styles.chartTitle}>SHOWS PER YEAR</Text>
+                <Text style={styles.chartTitle}>{t('stats.showsPerYear')}</Text>
                 <BarChart data={yearBarData} height={90} />
               </View>
               <View style={styles.chartCard}>
-                <Text style={styles.chartTitle}>SHOWS BY DAY</Text>
+                <Text style={styles.chartTitle}>{t('stats.showsByDay')}</Text>
                 <BarChart data={weekdayBarData} height={70} />
               </View>
               <View style={styles.cardRow}>
@@ -487,7 +482,7 @@ export default function StatsScreen() {
                     {busiestYear?.year ?? '—'}
                   </Text>
                   <Text style={styles.statLabel}>
-                    busiest year · {busiestYear?.shows ?? 0} shows
+                    {t('stats.busiestYear', { count: busiestYear?.shows ?? 0 })}
                   </Text>
                 </View>
                 <View style={styles.statCard}>
@@ -495,7 +490,7 @@ export default function StatsScreen() {
                     {busiestWeekday?.name ?? '—'}
                   </Text>
                   <Text style={styles.statLabel}>
-                    most common day · {busiestWeekday?.count ?? 0} shows
+                    {t('stats.mostCommonDay', { count: busiestWeekday?.count ?? 0 })}
                   </Text>
                 </View>
               </View>
@@ -505,13 +500,13 @@ export default function StatsScreen() {
             <View style={styles.divider} />
 
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>PLACES</Text>
+              <Text style={styles.sectionLabel}>{t('stats.sectionPlaces')}</Text>
             </View>
             <Pressable
               style={({ pressed }) => [styles.mapCard, { opacity: pressed ? 0.8 : 1 }]}
               onPress={() => router.push('/(stats)/map')}
               accessibilityRole="button"
-              accessibilityLabel="Open world map"
+              accessibilityLabel={t('stats.openWorldMap')}
             >
               <View style={styles.mapInner}>
                 <Ionicons
@@ -520,8 +515,10 @@ export default function StatsScreen() {
                   color={colors.accent}
                   style={{ opacity: 0.6 }}
                 />
-                <Text style={styles.mapLabel}>World Map</Text>
-                <Text style={styles.mapSub}>{totalCountries} countries · tap to explore</Text>
+                <Text style={styles.mapLabel}>{t('stats.worldMap')}</Text>
+                <Text style={styles.mapSub}>
+                  {t('stats.worldMapHint', { count: totalCountries })}
+                </Text>
               </View>
             </Pressable>
             <View style={[styles.cardRow, { paddingHorizontal: 20, marginBottom: 20 }]}>
@@ -530,12 +527,14 @@ export default function StatsScreen() {
                   {topCountry?.name ?? '—'}
                 </Text>
                 <Text style={styles.statLabel}>
-                  {topCountry ? `${topCountry.pct}% of shows` : 'top country'}
+                  {topCountry
+                    ? t('stats.topCountryShare', { pct: topCountry.pct })
+                    : t('stats.topCountry')}
                 </Text>
               </View>
               <View style={styles.statCard}>
                 <Text style={[styles.statValue, { color: colors.accent }]}>{topCity ?? '—'}</Text>
-                <Text style={styles.statLabel}>most visited city</Text>
+                <Text style={styles.statLabel}>{t('stats.mostVisitedCity')}</Text>
               </View>
             </View>
           </>

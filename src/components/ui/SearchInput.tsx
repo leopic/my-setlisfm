@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import Icon from './Icon';
+import { useTranslation } from 'react-i18next';
 
 interface SearchInputProps extends Omit<TextInputProps, 'style'> {
   value: string;
@@ -20,6 +21,7 @@ interface SearchInputProps extends Omit<TextInputProps, 'style'> {
 }
 
 export default function SearchInput({ value, onChangeText, style, ...rest }: SearchInputProps) {
+  const { t } = useTranslation();
   const colors = useChronicleColors();
   const inputRef = useRef<TextInputInstance>(null);
 
@@ -72,7 +74,7 @@ export default function SearchInput({ value, onChangeText, style, ...rest }: Sea
             onChangeText('');
             inputRef.current?.focus();
           }}
-          accessibilityLabel="Clear search"
+          accessibilityLabel={t('common.clearSearch')}
           accessibilityRole="button"
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >

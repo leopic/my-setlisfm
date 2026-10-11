@@ -298,7 +298,8 @@ export default function VenuesScreen() {
 
   const renderVenue = ({ item: venue }: { item: VenueWithStats }) => {
     const locationParts = [venue.cityName, venue.state, venue.countryName].filter(Boolean);
-    const locationText = locationParts.length > 0 ? locationParts.join(', ') : 'Unknown location';
+    const locationText =
+      locationParts.length > 0 ? locationParts.join(', ') : t('common.unknownLocation');
 
     const topArtists = venue.artists.slice(0, 3).join(', ');
     const extraArtists = venue.artists.length > 3 ? venue.artists.length - 3 : 0;
@@ -389,7 +390,7 @@ export default function VenuesScreen() {
           accessibilityRole="button"
           accessibilityLabel={t('common.continent', { count: geoStats?.totalContinents ?? 0 })}
         >
-          <Text style={styles.geoButtonLabel}>Continents</Text>
+          <Text style={styles.geoButtonLabel}>{t('venues.continents')}</Text>
         </Pressable>
         <Pressable
           style={({ pressed }) => [styles.geoButton, { opacity: pressed ? 0.7 : 1 }]}
@@ -398,7 +399,7 @@ export default function VenuesScreen() {
           accessibilityRole="button"
           accessibilityLabel={t('common.country', { count: geoStats?.totalCountries ?? 0 })}
         >
-          <Text style={styles.geoButtonLabel}>Countries</Text>
+          <Text style={styles.geoButtonLabel}>{t('geo.countriesTitle')}</Text>
         </Pressable>
         <Pressable
           style={({ pressed }) => [styles.geoButton, { opacity: pressed ? 0.7 : 1 }]}
@@ -407,7 +408,7 @@ export default function VenuesScreen() {
           accessibilityRole="button"
           accessibilityLabel={t('common.city', { count: geoStats?.totalCities ?? 0 })}
         >
-          <Text style={styles.geoButtonLabel}>Cities</Text>
+          <Text style={styles.geoButtonLabel}>{t('venues.cities')}</Text>
         </Pressable>
       </View>
 

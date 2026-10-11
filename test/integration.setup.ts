@@ -1,3 +1,6 @@
+// The root layout initialises i18n; tests that render mock routes don't load it.
+import '@/i18n';
+
 jest.mock('expo-constants', () => ({
   expoConfig: { extra: { setlistfmApiKey: 'test-api-key' } },
 }));

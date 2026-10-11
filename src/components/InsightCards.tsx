@@ -3,6 +3,8 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { formatIsoDate } from '@/utils/date';
+import { useTranslation } from 'react-i18next';
+import { WEEKDAY_KEYS } from '@/i18n/calendar';
 import type { dbOperations } from '@/database/operations';
 
 type InsightStats = Awaited<ReturnType<typeof dbOperations.getInsightStats>>;
@@ -12,6 +14,7 @@ interface Props {
 }
 
 export default function InsightCards({ stats }: Props) {
+  const { t } = useTranslation();
   const colors = useChronicleColors();
 
   const styles = StyleSheet.create({
@@ -74,20 +77,28 @@ export default function InsightCards({ stats }: Props) {
 
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionLabel}>HABITS</Text>
+      <Text style={styles.sectionLabel}>{t('insights.habits')}</Text>
       <View style={styles.row}>
         {topWeekday && (
           <View style={styles.halfCard}>
-            <Text style={styles.cardLabel}>TOP DAY</Text>
-            <Text style={styles.cardValue}>{topWeekday.weekday}</Text>
-            <Text style={styles.cardSub}>{topWeekday.concertDays} concert days</Text>
+            <Text style={styles.cardLabel}>{t('insights.topDay')}</Text>
+            <Text style={styles.cardValue}>
+              {t(`weekdays.long.${WEEKDAY_KEYS[topWeekday.dow]}`)}
+            </Text>
+            <Text style={styles.cardSub}>
+              {t('insights.concertDays', { count: topWeekday.concertDays })}
+            </Text>
           </View>
         )}
         {busiest7Days && (
           <View style={styles.halfCard}>
-            <Text style={styles.cardLabel}>BUSIEST WEEK</Text>
-            <Text style={styles.cardValue}>{busiest7Days.days} concert days</Text>
-            <Text style={styles.cardSub}>starting {formatIsoDate(busiest7Days.windowStart)}</Text>
+            <Text style={styles.cardLabel}>{t('insights.busiestWeek')}</Text>
+            <Text style={styles.cardValue}>
+              {t('insights.concertDays', { count: busiest7Days.days })}
+            </Text>
+            <Text style={styles.cardSub}>
+              {t('insights.startingOn', { date: formatIsoDate(busiest7Days.windowStart) })}
+            </Text>
           </View>
         )}
       </View>

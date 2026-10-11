@@ -404,20 +404,29 @@ export default function OnboardingScreen() {
   // Step 1: Concerts
   const step1Title =
     step1Display === 'waiting'
-      ? 'Your concerts'
+      ? t('onboarding.concertsStep')
       : step1Display === 'error'
-        ? 'Something went wrong'
+        ? t('onboarding.error')
         : step1Display === 'done'
-          ? `${progress?.totalConcerts ?? totalFound} concerts`
-          : 'Finding concerts…';
+          ? t('common.concert', { count: progress?.totalConcerts ?? totalFound })
+          : t('onboarding.findingConcerts');
 
   const step1Detail =
     step1Display === 'waiting'
-      ? 'Synced from setlist.fm'
+      ? t('onboarding.concertsStepDetail')
       : step1Display === 'active' && progress
-        ? `Page ${progress.currentPage} of ${progress.totalPages}${progress.totalConcerts > 0 ? `  ·  ${progress.totalConcerts} total` : ''}`
+        ? progress.totalConcerts > 0
+          ? t('onboarding.fetchingPageWithTotal', {
+              current: progress.currentPage,
+              total: progress.totalPages,
+              concerts: progress.totalConcerts,
+            })
+          : t('onboarding.fetchingPage', {
+              current: progress.currentPage,
+              total: progress.totalPages,
+            })
         : step1Display === 'done'
-          ? 'All saved ✓'
+          ? t('onboarding.allSaved')
           : step1Display === 'error'
             ? errorMessage
             : undefined;
@@ -430,18 +439,21 @@ export default function OnboardingScreen() {
   // Step 2: Photos
   const step2Title =
     step2Display === 'waiting'
-      ? 'Artist photos'
+      ? t('onboarding.photosStep')
       : step2Display === 'active'
-        ? 'Fetching photos…'
-        : 'Photos ready';
+        ? t('onboarding.fetchingPhotos')
+        : t('onboarding.photosReady');
 
   const step2Detail =
     step2Display === 'waiting'
-      ? "A face for every act you've seen"
+      ? t('onboarding.photosStepDetail')
       : step2Display === 'active' && progress?.imagesTotal
-        ? `${progress.imagesDone ?? 0} of ${progress.imagesTotal} artists`
+        ? t('onboarding.photosProgress', {
+            done: progress.imagesDone ?? 0,
+            total: progress.imagesTotal,
+          })
         : step2Display === 'done'
-          ? 'All matched ✓'
+          ? t('onboarding.allMatched')
           : undefined;
 
   const step2Progress =

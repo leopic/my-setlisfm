@@ -143,7 +143,7 @@ export default function ArtistDetailPane({ artistMbid }: Props) {
     return (
       <View style={styles.container}>
         <View style={styles.placeholder}>
-          <Text style={styles.placeholderText}>Select an artist</Text>
+          <Text style={styles.placeholderText}>{t('panes.selectArtist')}</Text>
         </View>
       </View>
     );
@@ -196,7 +196,7 @@ export default function ArtistDetailPane({ artistMbid }: Props) {
                       <View style={styles.entryContent}>
                         <Text style={styles.entryDate}>{formatDate(concert.eventDate ?? '')}</Text>
                         <Text style={styles.entryPrimary}>
-                          {concert.venue?.name ?? 'Unknown Venue'}
+                          {concert.venue?.name ?? t('common.unknownVenue')}
                         </Text>
                         {location ? <Text style={styles.entrySecondary}>{location}</Text> : null}
                         {concert.tour?.name ? (

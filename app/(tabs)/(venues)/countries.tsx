@@ -117,8 +117,8 @@ export default function CountriesScreen() {
   };
 
   const sortOptions: { value: SortOption; label: string }[] = [
-    { value: 'alphabetical', label: 'By Name' },
-    { value: 'top', label: 'Top' },
+    { value: 'alphabetical', label: t('sort.byName') },
+    { value: 'top', label: t('sort.top') },
   ];
 
   if (loading) {
@@ -139,7 +139,7 @@ export default function CountriesScreen() {
             onPress={() => router.back()}
             testID="back-button"
             accessibilityRole="button"
-            accessibilityLabel="Go back"
+            accessibilityLabel={t('common.goBack')}
           >
             <Text style={styles.backButton}>← Back</Text>
           </Pressable>

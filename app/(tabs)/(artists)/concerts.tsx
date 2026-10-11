@@ -11,6 +11,7 @@ import ConcertListSkeleton from '@/components/skeletons/ConcertListSkeleton';
 import ArtistImage from '@/components/ArtistImage';
 import { TabScrollView } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -25,11 +26,11 @@ interface YearGroup {
   concerts: ConcertWithDetails[];
 }
 
-function transformConcerts(rawConcerts: SetlistWithDetails[]): ConcertWithDetails[] {
+function transformConcerts(rawConcerts: SetlistWithDetails[], t: TFunction): ConcertWithDetails[] {
   return rawConcerts.map((concert) => ({
     ...concert,
-    artistName: concert.artist?.name || 'Unknown Artist',
-    venueName: concert.venue?.name || 'Unknown Venue',
+    artistName: concert.artist?.name || t('common.unknownArtist'),
+    venueName: concert.venue?.name || t('common.unknownVenue'),
     cityName: concert.city?.name,
     stateName: concert.city?.state,
     countryName: concert.country?.name,
@@ -202,7 +203,7 @@ export default function ArtistConcertsListScreen() {
         }
         const rawConcerts = await dbOperations.getSetlistsByArtist(artistMbid);
         if (!cancelled) {
-          setConcerts(transformConcerts(rawConcerts));
+          setConcerts(transformConcerts(rawConcerts, t));
           setLoading(false);
         }
       } catch (error) {
@@ -227,7 +228,7 @@ export default function ArtistConcertsListScreen() {
         setArtistImageUrl(artistData.imageUrl ?? undefined);
       }
       const rawConcerts = await dbOperations.getSetlistsByArtist(artistMbid);
-      setConcerts(transformConcerts(rawConcerts));
+      setConcerts(transformConcerts(rawConcerts, t));
     } catch (error) {
       console.error('Failed to load artist concerts:', error);
       Alert.alert(t('common.error'), t('artists.failedToLoadConcerts'));
