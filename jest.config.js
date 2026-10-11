@@ -33,6 +33,9 @@ module.exports = {
       testMatch: ['<rootDir>/src/__tests__/integration/**/*.test.tsx'],
       setupFiles: ['./test/integration.setup.ts'],
       setupFilesAfterEnv: ['./test/integration.timeout.ts'],
+      // Reanimated and Worklets run their web implementation under Jest; their
+      // resolver picks it over the native one.
+      resolver: 'react-native-reanimated/jest/resolver',
       moduleNameMapper: {
         ...alias,
         '^expo-sqlite$': '<rootDir>/test/expoSqliteNode.ts',

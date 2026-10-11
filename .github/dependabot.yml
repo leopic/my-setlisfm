@@ -23,18 +23,19 @@ updates:
       # Every package listed in expo/bundledNativeModules.json is owned by the
       # SDK, and `expo install --fix` is the only supported way to move one.
       # These are ignored outright rather than majors-only: the SDK pins some
-      # of them exactly (react-native-webview at 13.16.1, react-native-maps at
-      # 1.27.2), so even a patch bump desynchronises the install and turns
-      # expo-doctor red. Run `npx expo install --fix` to advance them together.
+      # of them exactly (react-native-webview, react-native-maps), so even a
+      # patch bump desynchronises the install and turns expo-doctor red. Run
+      # `npx expo install --fix` to advance them together.
       - dependency-name: expo
       - dependency-name: expo-*
       - dependency-name: "@expo/*"
       - dependency-name: jest-expo
-      # jest is pinned in practice by jest-expo, which depends on the jest 29
-      # family (babel-jest, jest-snapshot, jest-environment-jsdom,
-      # @jest/globals). Bumping jest alone installs both majors side by side
-      # and leaves the runner and the preset's machinery on different
-      # versions. It moves when jest-expo does, with the SDK.
+      # jest is pinned in practice by jest-expo, which depends on one jest
+      # major (babel-jest, jest-snapshot, jest-environment-*). Bumping jest
+      # alone installs two majors side by side and leaves the runner and the
+      # preset's machinery on different versions. It moves when jest-expo
+      # does, with the SDK, which is also why package.json excludes jest from
+      # expo-doctor's version check (see CLAUDE.md).
       - dependency-name: jest
       - dependency-name: "@types/jest"
       - dependency-name: react
@@ -48,12 +49,12 @@ updates:
       - dependency-name: react-native-svg
       - dependency-name: react-native-webview
       - dependency-name: react-native-worklets
-      # The test renderers can't run ahead of react and react-native:
-      # @react-native/jest-preset 0.87 looks for files react-native 0.86 doesn't
-      # ship, and react-test-renderer 19.3 requires react ^19.3. They move with
-      # the SDK, like the packages above.
+      # The test renderers can't run ahead of react and react-native: a newer
+      # @react-native/jest-preset looks for files an older react-native doesn't
+      # ship, and test-renderer tracks react's version. They move with the SDK,
+      # like the packages above.
       - dependency-name: "@react-native/jest-preset"
-      - dependency-name: react-test-renderer
+      - dependency-name: test-renderer
 
   # The workflow actions had gone three majors stale and were running on a
   # deprecated Node runtime before anything flagged it.

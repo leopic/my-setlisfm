@@ -10,10 +10,10 @@ it('returns to onboarding after clearing everything from settings', async () => 
     buttons?.find((b) => b.style === 'destructive')?.onPress?.();
   });
 
-  renderRouter('./app', { initialUrl: '/' });
+  await renderRouter('./app', { initialUrl: '/' });
 
-  fireEvent.press(await screen.findByLabelText('Open settings'));
-  fireEvent.press(await screen.findByLabelText('Clear all data'));
+  await fireEvent.press(await screen.findByLabelText('Open settings'));
+  await fireEvent.press(await screen.findByLabelText('Clear all data'));
 
   expect(await screen.findByText('Get Started')).toBeOnTheScreen();
   expect(screen).toHavePathname('/onboarding');

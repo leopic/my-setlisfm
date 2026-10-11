@@ -10,9 +10,9 @@ beforeAll(seedDatabase);
 beforeEach(launchApp);
 
 it('concerts → setlist → back', async () => {
-  openTab('(concerts)');
+  await openTab('(concerts)');
   const concerts = await findScreen('concerts-screen');
-  fireEvent.press(concerts.getByTestId('concert-set-8'));
+  await fireEvent.press(concerts.getByTestId('concert-set-8'));
 
   const setlist = await findScreen('setlist-screen');
   expect(setlist.getByText('The Strokes')).toBeOnTheScreen();
@@ -23,12 +23,12 @@ it('concerts → setlist → back', async () => {
 });
 
 it('artists → artist concerts → setlist → back chain', async () => {
-  openTab('(artists)');
+  await openTab('(artists)');
   const artists = await findScreen('artists-screen');
-  fireEvent.press(artists.getByTestId('artist-artist-2'));
+  await fireEvent.press(artists.getByTestId('artist-artist-2'));
 
   const artistConcerts = await findScreen('artist-concerts-screen');
-  fireEvent.press(artistConcerts.getByTestId('artist-concert-set-8'));
+  await fireEvent.press(artistConcerts.getByTestId('artist-concert-set-8'));
 
   const setlist = await findScreen('setlist-screen');
   expect(setlist.getByText('Someday')).toBeOnTheScreen();
@@ -39,12 +39,12 @@ it('artists → artist concerts → setlist → back chain', async () => {
 });
 
 it('venues → venue concerts → setlist → back chain', async () => {
-  openTab('(venues)');
+  await openTab('(venues)');
   const venues = await findScreen('venues-screen');
-  fireEvent.press(venues.getByTestId('venue-venue-2'));
+  await fireEvent.press(venues.getByTestId('venue-venue-2'));
 
   const venueConcerts = await findScreen('venue-concerts-screen');
-  fireEvent.press(venueConcerts.getByTestId('venue-concert-set-6'));
+  await fireEvent.press(venueConcerts.getByTestId('venue-concert-set-6'));
 
   const setlist = await findScreen('setlist-screen');
   expect(setlist.getByText('Kraftwerk')).toBeOnTheScreen();
@@ -55,9 +55,9 @@ it('venues → venue concerts → setlist → back chain', async () => {
 });
 
 it('venues → countries → back', async () => {
-  openTab('(venues)');
+  await openTab('(venues)');
   const venues = await findScreen('venues-screen');
-  fireEvent.press(venues.getByTestId('nav-countries'));
+  await fireEvent.press(venues.getByTestId('nav-countries'));
 
   const countries = await findScreen('countries-screen');
   expect(countries.getByText('Germany')).toBeOnTheScreen();
@@ -67,17 +67,17 @@ it('venues → countries → back', async () => {
 });
 
 it('venues → continents → continent detail → back chain', async () => {
-  openTab('(venues)');
+  await openTab('(venues)');
   const venues = await findScreen('venues-screen');
-  fireEvent.press(venues.getByTestId('nav-continents'));
+  await fireEvent.press(venues.getByTestId('nav-continents'));
 
   const continents = await findScreen('continents-screen');
-  fireEvent.press(continents.getByTestId('continent-Europe'));
+  await fireEvent.press(continents.getByTestId('continent-Europe'));
   expect(screen).toHaveSegments(['(tabs)', '(venues)', 'continent-detail']);
 
   // Continent detail has no screen testID; its back button is the topmost one.
   const backButtons = await screen.findAllByTestId('back-button');
-  fireEvent.press(backButtons[backButtons.length - 1]);
+  await fireEvent.press(backButtons[backButtons.length - 1]);
   await goBackFrom('continents-screen');
   expect(screen).toHaveSegments(['(tabs)', '(venues)']);
 });
