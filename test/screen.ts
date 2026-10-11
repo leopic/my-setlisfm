@@ -8,7 +8,10 @@ const FRAME = { x: 0, y: 0, width: 390, height: 844 };
 const ROW = { x: 0, y: 0, width: 390, height: 80 };
 
 export async function layOutLists() {
-  for (const list of screen.container.queryAll((n) => n.type === 'RCTScrollView')) {
+  // Only scroll views that measure themselves; layout events don't bubble in React Native,
+  // so firing one on a plain ScrollView would just land on whatever ancestor listens.
+  const lists = screen.container.queryAll((n) => n.type === 'RCTScrollView' && !!n.props.onLayout);
+  for (const list of lists) {
     await fireEvent(list, 'layout', { nativeEvent: { layout: FRAME } });
     for (const child of list.queryAll((n) => n !== list && !!n.props.onLayout)) {
       await fireEvent(child, 'layout', { nativeEvent: { layout: ROW } });
