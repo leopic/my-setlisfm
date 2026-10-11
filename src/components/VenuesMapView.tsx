@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Alert, ActivityIndicator, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { Marker } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
@@ -83,6 +84,7 @@ ${markers}
 export default function VenuesMapView() {
   const { t } = useTranslation();
   const colors = useChronicleColors();
+  const insets = useSafeAreaInsets();
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
     loadingContainer: {
@@ -123,6 +125,8 @@ export default function VenuesMapView() {
     legend: {
       backgroundColor: colors.background,
       padding: 15,
+      // The native tab bar floats over the bottom of the screen; keep the legend above it.
+      paddingBottom: 15 + insets.bottom,
       borderTopWidth: 1,
       borderTopColor: colors.border,
     },
