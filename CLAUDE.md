@@ -61,7 +61,7 @@ app/
     (home)/            ← dashboard + settings (username, sync, clear data)
     (concerts)/        ← concert list → setlist detail
     (artists)/         ← artist list → artist's concerts
-    (venues)/          ← venues → geographic hierarchy (continent/country/city) + map
+    (venues)/          ← venues → geographic hierarchy (continent/country/city)
     (stats)/           ← charts and insights + world map
 ```
 
