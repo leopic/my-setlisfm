@@ -107,6 +107,7 @@ Use `useColors()` for every color value — never hardcode hex. The hook reads t
 ## Testing
 
 - **Unit tests** live in `src/__tests__/` and cover `SetlistApiService` (rate limiting, retries, pagination) and `DataProcessor` (normalization).
+- **Integration tests** live in `src/__tests__/integration/` and render the real `app/` routes headlessly with `renderRouter` from `expo-router/testing-library`. SQLite is Node's built-in `node:sqlite` in memory (`test/expoSqliteNode.ts`), seeded from the same fixture as Maestro (`.maestro/fixtures/seed.sql`). Under Jest the native tab bar isn't rendered (switch tabs with `openTab`), and lists need `layOutLists()` before their rows are tappable; helpers live in `test/screen.ts`.
 - **E2E tests** live in `.maestro/` and use Maestro YAML. Screens expose `testID` props for selectors (e.g. `dashboard-screen`).
 
 ## Environment
