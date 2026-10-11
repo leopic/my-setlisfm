@@ -8,7 +8,7 @@ import Animated, {
   useAnimatedStyle,
   cancelAnimation,
 } from 'react-native-reanimated';
-import { useColors } from '@/utils/colors';
+import { useChronicleColors } from '@/utils/colors';
 
 interface Props {
   width: ViewStyle['width'];
@@ -18,7 +18,7 @@ interface Props {
 }
 
 export default function SkeletonBox({ width, height, borderRadius = 4, style }: Props) {
-  const colors = useColors();
+  const colors = useChronicleColors();
   const opacity = useSharedValue(0.3);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function SkeletonBox({ width, height, borderRadius = 4, style }: 
           height,
           borderRadius,
           borderCurve: 'continuous',
-          backgroundColor: colors.backgroundPill,
+          backgroundColor: colors.textDisabled,
         },
         animatedStyle,
         style,

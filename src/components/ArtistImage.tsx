@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { getArtistImageUri } from '@/services/artistImageService';
-import { useColors } from '@/utils/colors';
+import { useChronicleColors } from '@/utils/colors';
 
 interface ArtistImageProps {
   mbid: string;
@@ -19,7 +19,7 @@ export default function ArtistImage({
   name,
   imageUrl: preloaded,
 }: ArtistImageProps) {
-  const colors = useColors();
+  const colors = useChronicleColors();
 
   // Only treat a string as pre-resolved: '' = tried, no image; 'https://...' = valid URL.
   // undefined and null both mean "not yet fetched" — resolve lazily via getArtistImageUri.
@@ -36,7 +36,7 @@ export default function ArtistImage({
       width: size,
       height: size,
       borderRadius: size / 2,
-      backgroundColor: colors.backgroundPill,
+      backgroundColor: colors.surfaceRaised,
       overflow: 'hidden',
       alignItems: 'center',
       justifyContent: 'center',

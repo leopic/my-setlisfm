@@ -5,11 +5,11 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '@/database/operations';
 import type { SetlistWithDetails, SetWithSongs } from '@/types/database';
 import Setlist from '@/components/Setlist';
-import { useColors } from '@/utils/colors';
+import { useChronicleColors } from '@/utils/colors';
 import SetlistSkeleton from '@/components/skeletons/SetlistSkeleton';
 
 export default function SetlistDetailScreen() {
-  const colors = useColors();
+  const colors = useChronicleColors();
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
     loadingText: {
