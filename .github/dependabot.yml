@@ -40,6 +40,9 @@ updates:
       - dependency-name: "@types/jest"
       - dependency-name: react
       - dependency-name: react-dom
+      # expo-doctor checks the React type packages against the SDK too.
+      - dependency-name: "@types/react"
+      - dependency-name: "@types/react-dom"
       - dependency-name: react-native
       - dependency-name: react-native-gesture-handler
       - dependency-name: react-native-maps
