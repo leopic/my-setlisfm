@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { formatEraLabel, type WeekdayEra } from '@/utils/weekdayEras';
-
-const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+import { WEEKDAY_KEYS } from '@/i18n/calendar';
 
 // Heatmap cells go from a faint tint (a day with one show) to full accent (the era's top day)
 const EMPTY_ALPHA = 0.03;
@@ -46,6 +45,7 @@ function readableOn(accent: string, surface: string, alpha: number, candidates: 
 export default function WeekdayErasCard({ eras }: { eras: WeekdayEra[] }) {
   const { t } = useTranslation();
   const colors = useChronicleColors();
+  const dayLabels = WEEKDAY_KEYS.map((key) => t(`weekdays.short.${key}`));
 
   const styles = StyleSheet.create({
     card: {
@@ -103,7 +103,7 @@ export default function WeekdayErasCard({ eras }: { eras: WeekdayEra[] }) {
       <View style={styles.timeline}>
         <View style={styles.spine} />
         {eras.map((era) => {
-          const days = era.topWeekdays.map((d) => DAY_LABELS[d]).join('/');
+          const days = era.topWeekdays.map((d) => dayLabels[d]).join('/');
           const label = formatEraLabel(era);
           return (
             <View
@@ -138,7 +138,7 @@ export default function WeekdayErasCard({ eras }: { eras: WeekdayEra[] }) {
       >
         <View style={styles.row}>
           <View style={{ width: 56 }} />
-          {DAY_LABELS.map((day) => (
+          {dayLabels.map((day) => (
             <Text key={day} style={styles.dayLabel}>
               {day}
             </Text>

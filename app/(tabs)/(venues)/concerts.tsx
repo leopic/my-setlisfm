@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Pressable, Alert, RefreshControl } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { dbOperations } from '@/database/operations';
 import type { SetlistWithDetails } from '@/types/database';
 import { parseSetlistDate, formatDate } from '@/utils/date';
@@ -24,11 +25,11 @@ interface YearGroup {
   concerts: ConcertWithDetails[];
 }
 
-function transformConcerts(rawConcerts: SetlistWithDetails[]): ConcertWithDetails[] {
+function transformConcerts(rawConcerts: SetlistWithDetails[], t: TFunction): ConcertWithDetails[] {
   return rawConcerts.map((concert) => ({
     ...concert,
-    artistName: concert.artist?.name || 'Unknown Artist',
-    venueName: concert.venue?.name || 'Unknown Venue',
+    artistName: concert.artist?.name || t('common.unknownArtist'),
+    venueName: concert.venue?.name || t('common.unknownVenue'),
     cityName: concert.city?.name,
     stateName: concert.city?.state,
     countryName: concert.country?.name,
@@ -190,7 +191,7 @@ export default function VenueConcertsListScreen() {
         }
         const rawConcerts = await dbOperations.getSetlistsByVenue(venueId);
         if (!cancelled) {
-          setConcerts(transformConcerts(rawConcerts));
+          setConcerts(transformConcerts(rawConcerts, t));
           setLoading(false);
         }
       } catch (error) {
@@ -212,7 +213,7 @@ export default function VenueConcertsListScreen() {
       const venueData = await dbOperations.getVenueById(venueId);
       if (venueData?.name) setVenueName(venueData.name);
       const rawConcerts = await dbOperations.getSetlistsByVenue(venueId);
-      setConcerts(transformConcerts(rawConcerts));
+      setConcerts(transformConcerts(rawConcerts, t));
     } catch (error) {
       console.error('Failed to load venue concerts:', error);
       Alert.alert(t('common.error'), t('venues.failedToLoadConcerts'));

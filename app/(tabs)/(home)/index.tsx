@@ -24,6 +24,8 @@ import ArtistImage from '@/components/ArtistImage';
 import BarChart from '@/components/charts/BarChart';
 import { TabScrollView, Icon, EmptyState } from '@/components/ui';
 import { useTabletLayout } from '@/utils/tablet';
+import { MONTH_KEYS } from '@/i18n/calendar';
+import { toOrdinal } from '@/utils/ordinal';
 
 type DashboardStats = Awaited<ReturnType<typeof dbOperations.getDashboardStats>>;
 type OnThisDayConcert = Awaited<ReturnType<typeof dbOperations.getOnThisDayConcert>>;
@@ -606,7 +608,7 @@ export default function DashboardScreen() {
         Alert.alert(t('dashboard.upToDate'), t('dashboard.upToDateMessage'));
       }
     } else {
-      Alert.alert(t('dashboard.syncFailed'), result.error ?? 'Unknown error');
+      Alert.alert(t('dashboard.syncFailed'), result.error ?? t('common.unknownError'));
     }
   };
 
@@ -640,7 +642,7 @@ export default function DashboardScreen() {
                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                 onPress={handleSync}
                 accessibilityRole="button"
-                accessibilityLabel="Sync concert data"
+                accessibilityLabel={t('dashboard.syncData')}
               >
                 <Icon
                   sf="arrow.clockwise"
@@ -653,7 +655,7 @@ export default function DashboardScreen() {
                 style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                 onPress={() => router.push('/(home)/settings')}
                 accessibilityRole="button"
-                accessibilityLabel="Open settings"
+                accessibilityLabel={t('dashboard.openSettings')}
               >
                 <Icon sf="gearshape" md="settings-outline" size={20} color={colors.textMuted} />
               </Pressable>
@@ -669,21 +671,8 @@ export default function DashboardScreen() {
     );
   }
 
-  const MONTH_ABBR = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
-  const MONTH_NAMES = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
+  const MONTH_NAMES = MONTH_KEYS.map((key) => t(`months.short.${key}`));
+  const MONTH_ABBR = MONTH_NAMES.map((name) => name.charAt(0));
 
   // Build lookups
   const monthlyByYear = monthlyData.reduce<Record<string, Record<number, number>>>((acc, row) => {
@@ -730,11 +719,14 @@ export default function DashboardScreen() {
         router.push({ pathname: '/(home)/concert/[id]', params: { id: onThisDay.setlistId } })
       }
       accessibilityRole="button"
-      accessibilityLabel={`On this day ${onThisDay.yearsAgo} years ago: ${onThisDay.artistName}`}
-      accessibilityHint={t('Opens concert details')}
+      accessibilityLabel={t('dashboard.onThisDayLabel', {
+        count: onThisDay.yearsAgo,
+        artist: onThisDay.artistName,
+      })}
+      accessibilityHint={t('dashboard.opensConcertDetails')}
     >
       <Text style={styles.onThisDayLabel}>
-        {`ON THIS DAY · ${onThisDay.yearsAgo} YEAR${onThisDay.yearsAgo !== 1 ? 'S' : ''} AGO`}
+        {t('dashboard.onThisDay', { count: onThisDay.yearsAgo })}
       </Text>
       <View style={styles.onThisDayRow}>
         {onThisDay.artistMbid && (
@@ -779,16 +771,14 @@ export default function DashboardScreen() {
       <View key={yearStr}>
         <View style={styles.yearChapter}>
           <Text style={styles.yearGhost}>{yearStr}</Text>
-          <Text
-            style={styles.yearMeta}
-          >{`${showsInYear} show${showsInYear !== 1 ? 's' : ''}`}</Text>
+          <Text style={styles.yearMeta}>{t('common.show', { count: showsInYear })}</Text>
           {isPastYear && summary && (summary.countries > 1 || summary.cities > 1) && (
             <View style={styles.yearStatRow}>
               {summary.countries > 1 && (
                 <View style={styles.yearStatChip}>
                   <Text style={styles.yearStatValue}>{summary.countries}</Text>
                   <Text style={styles.yearStatLabel}>
-                    {summary.countries === 1 ? 'country' : 'countries'}
+                    {t('dashboard.countryLabel', { count: summary.countries })}
                   </Text>
                 </View>
               )}
@@ -796,13 +786,13 @@ export default function DashboardScreen() {
                 <View style={styles.yearStatChip}>
                   <Text style={styles.yearStatValue}>{summary.cities}</Text>
                   <Text style={styles.yearStatLabel}>
-                    {summary.cities === 1 ? 'city' : 'cities'}
+                    {t('dashboard.cityLabel', { count: summary.cities })}
                   </Text>
                 </View>
               )}
               {summary.peakMonth > 0 && summary.peakMonthCount > 1 && (
                 <View style={styles.yearStatChip}>
-                  <Text style={styles.yearStatLabel}>peak</Text>
+                  <Text style={styles.yearStatLabel}>{t('dashboard.peak')}</Text>
                   <Text style={styles.yearStatValue}>{MONTH_NAMES[summary.peakMonth - 1]}</Text>
                   <Text style={styles.yearStatLabel}>({summary.peakMonthCount})</Text>
                 </View>
@@ -852,7 +842,7 @@ export default function DashboardScreen() {
                 }
                 accessibilityRole="button"
                 accessibilityLabel={`${t('dashboard.mostRecent')}, ${stats.lastConcert.artistName}, ${formatDate(stats.lastConcert.eventDate)}`}
-                accessibilityHint={t('Opens concert details')}
+                accessibilityHint={t('dashboard.opensConcertDetails')}
               >
                 <View style={styles.dotWrapper}>
                   <View style={yearIndex === 0 ? styles.dotActive : styles.dotInactive} />
@@ -876,9 +866,9 @@ export default function DashboardScreen() {
             )}
 
             {milestonesInYear.map((m) => {
-              const n = m.number;
-              const suffix = n === 1 ? 'ST' : n === 2 ? 'ND' : n === 3 ? 'RD' : 'TH';
-              const label = `${n}${suffix} SHOW`;
+              const label = t('dashboard.milestoneShow', {
+                ordinal: toOrdinal(m.number).toUpperCase(),
+              });
               return (
                 <Pressable
                   key={m.number}
@@ -891,7 +881,7 @@ export default function DashboardScreen() {
                   }
                   accessibilityRole="button"
                   accessibilityLabel={`${label}: ${m.artistName}, ${formatDate(m.eventDate)}`}
-                  accessibilityHint={t('Opens concert details')}
+                  accessibilityHint={t('dashboard.opensConcertDetails')}
                 >
                   <View style={styles.dotWrapper}>
                     <View style={styles.milestoneMarker} />
@@ -923,7 +913,7 @@ export default function DashboardScreen() {
                 }
                 accessibilityRole="button"
                 accessibilityLabel={`${t('dashboard.yearsAgo', { count: onThisDay.yearsAgo })}, ${onThisDay.artistName}, ${formatDate(onThisDay.eventDate)}`}
-                accessibilityHint={t('Opens concert details')}
+                accessibilityHint={t('dashboard.opensConcertDetails')}
               >
                 <View style={styles.dotWrapper}>
                   <View style={styles.dotInactive} />
@@ -958,7 +948,7 @@ export default function DashboardScreen() {
                 }
                 accessibilityRole="button"
                 accessibilityLabel={`${t('dashboard.firstConcert')}, ${stats.firstConcert.artistName}, ${formatDate(stats.firstConcert.eventDate)}`}
-                accessibilityHint={t('Opens concert details')}
+                accessibilityHint={t('dashboard.opensConcertDetails')}
               >
                 <View style={styles.dotWrapper}>
                   <View style={styles.dotInactive} />
@@ -1031,7 +1021,10 @@ export default function DashboardScreen() {
                 })
               }
               accessibilityRole="button"
-              accessibilityLabel={`Also on this day ${panelOnThisDay.yearsAgo} years ago: ${panelOnThisDay.artistName}`}
+              accessibilityLabel={t('dashboard.alsoOnThisDayLabel', {
+                count: panelOnThisDay.yearsAgo,
+                artist: panelOnThisDay.artistName,
+              })}
             >
               {panelOnThisDay.artistMbid && (
                 <ArtistImage
@@ -1042,7 +1035,7 @@ export default function DashboardScreen() {
                 />
               )}
               <View>
-                <Text style={styles.alsoOtdLabel}>ALSO ON THIS DAY</Text>
+                <Text style={styles.alsoOtdLabel}>{t('dashboard.alsoOnThisDay')}</Text>
                 <Text style={styles.alsoOtdName}>{panelOnThisDay.artistName}</Text>
                 <Text style={styles.alsoOtdMeta}>{panelOnThisDay.venueName}</Text>
               </View>
@@ -1056,14 +1049,16 @@ export default function DashboardScreen() {
             <Text style={[styles.detailStatValue, { color: colors.accent }]}>
               {selectedShowCount}
             </Text>
-            <Text style={styles.detailStatLabel}>shows</Text>
+            <Text style={styles.detailStatLabel}>
+              {t('dashboard.showsLabel', { count: selectedShowCount })}
+            </Text>
           </View>
           <View style={styles.detailStatCard}>
             <Text style={[styles.detailStatValue, { color: colors.chartGreen }]}>
               {selectedSummary?.countries ?? '—'}
             </Text>
             <Text style={styles.detailStatLabel}>
-              {(selectedSummary?.countries ?? 0) === 1 ? 'country' : 'countries'}
+              {t('dashboard.countryLabel', { count: selectedSummary?.countries ?? 0 })}
             </Text>
           </View>
           <View style={styles.detailStatCard}>
@@ -1071,7 +1066,7 @@ export default function DashboardScreen() {
               {selectedSummary?.cities ?? '—'}
             </Text>
             <Text style={styles.detailStatLabel}>
-              {(selectedSummary?.cities ?? 0) === 1 ? 'city' : 'cities'}
+              {t('dashboard.cityLabel', { count: selectedSummary?.cities ?? 0 })}
             </Text>
           </View>
           <View style={styles.detailStatCard}>
@@ -1079,14 +1074,16 @@ export default function DashboardScreen() {
               {selectedSummary?.peakMonthCount ?? '—'}
             </Text>
             <Text style={styles.detailStatLabel}>
-              {selectedSummary ? `peak ${MONTH_NAMES[selectedSummary.peakMonth - 1]}` : 'peak'}
+              {selectedSummary
+                ? t('dashboard.peakMonth', { month: MONTH_NAMES[selectedSummary.peakMonth - 1] })
+                : t('dashboard.peak')}
             </Text>
           </View>
         </View>
 
         {/* Monthly chart — full width */}
         <View style={[styles.detailChartBox, { marginBottom: 14 }]}>
-          <Text style={styles.detailChartLabel}>MONTHLY</Text>
+          <Text style={styles.detailChartLabel}>{t('dashboard.monthly')}</Text>
           <BarChart data={monthlyChartData} height={90} showLabels />
         </View>
 
@@ -1096,7 +1093,7 @@ export default function DashboardScreen() {
           isSelectedFirstYear ||
           selectedMilestones.length > 0) && (
           <>
-            <Text style={styles.detailHighlightsLabel}>HIGHLIGHTS</Text>
+            <Text style={styles.detailHighlightsLabel}>{t('dashboard.highlightsLabel')}</Text>
 
             {isSelectedLastYear && stats.lastConcert && (
               <Pressable
@@ -1129,8 +1126,9 @@ export default function DashboardScreen() {
             )}
 
             {selectedMilestones.map((m) => {
-              const n = m.number;
-              const suffix = n === 1 ? 'ST' : n === 2 ? 'ND' : n === 3 ? 'RD' : 'TH';
+              const label = t('dashboard.milestoneShow', {
+                ordinal: toOrdinal(m.number).toUpperCase(),
+              });
               return (
                 <Pressable
                   key={m.number}
@@ -1147,7 +1145,7 @@ export default function DashboardScreen() {
                   accessibilityRole="button"
                 >
                   <View style={styles.detailHighlightText}>
-                    <Text style={styles.detailMilestoneTag}>{`${n}${suffix} SHOW`}</Text>
+                    <Text style={styles.detailMilestoneTag}>{label}</Text>
                     <Text style={styles.detailArtistName}>{m.artistName}</Text>
                     <Text style={styles.detailMeta}>
                       {m.cityName ? `${m.cityName} · ` : ''}
@@ -1226,7 +1224,7 @@ export default function DashboardScreen() {
         {/* Shows this year */}
         {yearConcerts.length > 0 && (
           <>
-            <Text style={styles.detailHighlightsLabel}>SHOWS</Text>
+            <Text style={styles.detailHighlightsLabel}>{t('dashboard.showsHeading')}</Text>
             {yearConcerts.map((c) => (
               <Pressable
                 key={c.setlistId}
@@ -1279,7 +1277,11 @@ export default function DashboardScreen() {
             <View style={styles.tabletTopBarLeft}>
               <Text style={styles.appTitle}>Chronicles</Text>
               <Text style={styles.statsLine}>
-                {`${stats.totalConcerts} shows · ${stats.totalArtists} artists · ${stats.totalCountries} countries`}
+                {[
+                  t('common.show', { count: stats.totalConcerts }),
+                  t('common.artist', { count: stats.totalArtists }),
+                  t('common.country', { count: stats.totalCountries }),
+                ].join(' · ')}
               </Text>
             </View>
             <View style={styles.tabletTopBarRight}>
@@ -1293,7 +1295,10 @@ export default function DashboardScreen() {
                     })
                   }
                   accessibilityRole="button"
-                  accessibilityLabel={`On this day ${onThisDay.yearsAgo} years ago: ${onThisDay.artistName}`}
+                  accessibilityLabel={t('dashboard.onThisDayLabel', {
+                    count: onThisDay.yearsAgo,
+                    artist: onThisDay.artistName,
+                  })}
                 >
                   {onThisDay.artistMbid && (
                     <ArtistImage
@@ -1305,7 +1310,7 @@ export default function DashboardScreen() {
                   )}
                   <View>
                     <Text style={styles.headerOtdLabel}>
-                      {`ON THIS DAY · ${onThisDay.yearsAgo} YR${onThisDay.yearsAgo !== 1 ? 'S' : ''} AGO`}
+                      {t('dashboard.onThisDayShort', { count: onThisDay.yearsAgo })}
                     </Text>
                     <Text style={styles.headerOtdName}>{onThisDay.artistName}</Text>
                     <Text style={styles.headerOtdMeta}>
@@ -1319,7 +1324,7 @@ export default function DashboardScreen() {
                   style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                   onPress={handleSync}
                   accessibilityRole="button"
-                  accessibilityLabel="Sync concert data"
+                  accessibilityLabel={t('dashboard.syncData')}
                 >
                   <Icon
                     sf="arrow.clockwise"
@@ -1332,7 +1337,7 @@ export default function DashboardScreen() {
                   style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                   onPress={() => router.push('/(home)/settings')}
                   accessibilityRole="button"
-                  accessibilityLabel="Open settings"
+                  accessibilityLabel={t('dashboard.openSettings')}
                 >
                   <Icon sf="gearshape" md="settings-outline" size={20} color={colors.textMuted} />
                 </Pressable>
@@ -1365,7 +1370,7 @@ export default function DashboardScreen() {
                       ]}
                       onPress={() => selectYear(yr)}
                       accessibilityRole="button"
-                      accessibilityLabel={`${yr}, ${y.count} shows`}
+                      accessibilityLabel={`${yr}, ${t('common.show', { count: y.count })}`}
                       accessibilityState={{ selected: isSelected }}
                     >
                       <Text
@@ -1376,7 +1381,7 @@ export default function DashboardScreen() {
                       <Text
                         style={[styles.yearTileCount, isSelected && styles.yearTileCountSelected]}
                       >
-                        {`${y.count} show${y.count !== 1 ? 's' : ''}`}
+                        {t('common.show', { count: y.count })}
                       </Text>
                     </Pressable>
                   );
@@ -1399,7 +1404,7 @@ export default function DashboardScreen() {
                   style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                   onPress={handleSync}
                   accessibilityRole="button"
-                  accessibilityLabel="Sync concert data"
+                  accessibilityLabel={t('dashboard.syncData')}
                 >
                   <Icon
                     sf="arrow.clockwise"
@@ -1412,14 +1417,18 @@ export default function DashboardScreen() {
                   style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
                   onPress={() => router.push('/(home)/settings')}
                   accessibilityRole="button"
-                  accessibilityLabel="Open settings"
+                  accessibilityLabel={t('dashboard.openSettings')}
                 >
                   <Icon sf="gearshape" md="settings-outline" size={20} color={colors.textMuted} />
                 </Pressable>
               </View>
             </View>
             <Text style={styles.statsLine}>
-              {`${stats.totalConcerts} shows · ${stats.totalArtists} artists · ${stats.totalCountries} countries`}
+              {[
+                t('common.show', { count: stats.totalConcerts }),
+                t('common.artist', { count: stats.totalArtists }),
+                t('common.country', { count: stats.totalCountries }),
+              ].join(' · ')}
             </Text>
             {lastSynced && (
               <Text style={styles.lastSynced}>

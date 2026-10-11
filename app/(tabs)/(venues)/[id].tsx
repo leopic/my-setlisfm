@@ -7,8 +7,10 @@ import type { SetlistWithDetails, SetWithSongs } from '@/types/database';
 import Setlist from '@/components/Setlist';
 import { useChronicleColors } from '@/utils/colors';
 import SetlistSkeleton from '@/components/skeletons/SetlistSkeleton';
+import { useTranslation } from 'react-i18next';
 
 export default function SetlistDetailScreen() {
+  const { t } = useTranslation();
   const colors = useChronicleColors();
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
@@ -62,7 +64,7 @@ export default function SetlistDetailScreen() {
   if (!setlist) {
     return (
       <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
-        <Text style={styles.errorText}>Setlist not found</Text>
+        <Text style={styles.errorText}>{t('setlist.notFound')}</Text>
       </SafeAreaView>
     );
   }

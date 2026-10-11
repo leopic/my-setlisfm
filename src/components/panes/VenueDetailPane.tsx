@@ -138,7 +138,7 @@ export default function VenueDetailPane({ venue }: Props) {
     return (
       <View style={styles.container}>
         <View style={styles.placeholder}>
-          <Text style={styles.placeholderText}>Select a venue</Text>
+          <Text style={styles.placeholderText}>{t('panes.selectVenue')}</Text>
         </View>
       </View>
     );
@@ -191,7 +191,7 @@ export default function VenueDetailPane({ venue }: Props) {
                       <View style={styles.entryContent}>
                         <Text style={styles.entryDate}>{formatDate(concert.eventDate ?? '')}</Text>
                         <Text style={styles.entryPrimary}>
-                          {concert.artist?.name ?? 'Unknown Artist'}
+                          {concert.artist?.name ?? t('common.unknownArtist')}
                         </Text>
                         {location ? <Text style={styles.entrySecondary}>{location}</Text> : null}
                         {concert.tour?.name ? (

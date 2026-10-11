@@ -39,7 +39,7 @@ export default function TabLayout() {
           sf={{ default: 'chart.bar', selected: 'chart.bar.fill' }}
           md="bar_chart"
         />
-        <NativeTabs.Trigger.Label>Stats</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>{t('stats.title')}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );

@@ -103,7 +103,7 @@ export default function CityList({ cities, onCityPress, emptyMessage }: CityList
       </View>
       <View style={styles.rightContent}>
         <Text style={styles.countNumber}>{city.venueCount}</Text>
-        <Text style={styles.countLabel}>venues</Text>
+        <Text style={styles.countLabel}>{t('geo.venuesLabel', { count: city.venueCount })}</Text>
       </View>
     </Pressable>
   );

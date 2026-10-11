@@ -424,8 +424,8 @@ export default function ConcertsScreen() {
           const fetched = await dbOperations.getAllSetlists();
           const concertsWithDetails: ConcertWithDetails[] = fetched.map((concert) => ({
             ...concert,
-            artistName: concert.artist?.name || 'Unknown Artist',
-            venueName: concert.venue?.name || 'Unknown Venue',
+            artistName: concert.artist?.name || t('common.unknownArtist'),
+            venueName: concert.venue?.name || t('common.unknownVenue'),
             cityName: concert.city?.name,
             stateName: concert.city?.state,
             countryName: concert.country?.name,
@@ -458,8 +458,8 @@ export default function ConcertsScreen() {
       const fetched = await dbOperations.getAllSetlists();
       const concertsWithDetails: ConcertWithDetails[] = fetched.map((concert) => ({
         ...concert,
-        artistName: concert.artist?.name || 'Unknown Artist',
-        venueName: concert.venue?.name || 'Unknown Venue',
+        artistName: concert.artist?.name || t('common.unknownArtist'),
+        venueName: concert.venue?.name || t('common.unknownVenue'),
         cityName: concert.city?.name,
         stateName: concert.city?.state,
         countryName: concert.country?.name,
@@ -670,8 +670,12 @@ export default function ConcertsScreen() {
             ]}
             onPress={() => setYearDropdownOpen(true)}
             accessibilityRole="button"
-            accessibilityLabel={yearFilter ? `Filtered by ${yearFilter}` : 'Filter by year'}
-            accessibilityHint="Opens year picker"
+            accessibilityLabel={
+              yearFilter
+                ? t('concerts.filteredByYear', { year: yearFilter })
+                : t('concerts.filterByYear')
+            }
+            accessibilityHint={t('concerts.opensYearPicker')}
           >
             <Text
               style={[

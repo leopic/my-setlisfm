@@ -215,7 +215,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
               onPress={onBackPress}
               testID="back-button"
               accessibilityRole="button"
-              accessibilityLabel="Go back"
+              accessibilityLabel={t('common.goBack')}
             >
               <Text style={styles.backButton}>{'← Back'}</Text>
             </Pressable>
@@ -224,7 +224,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
             <ArtistImage mbid={setlist.artist.mbid} size={28} name={setlist.artist.name} />
           )}
           <Text style={styles.artistName} numberOfLines={1}>
-            {setlist.artist?.name || 'Unknown Artist'}
+            {setlist.artist?.name || t('common.unknownArtist')}
           </Text>
           {facts && (
             <Pressable
@@ -247,7 +247,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
 
       {/* Hero block */}
       <View style={styles.hero}>
-        <Text style={styles.venueName}>{setlist.venue?.name || 'Unknown Venue'}</Text>
+        <Text style={styles.venueName}>{setlist.venue?.name || t('common.unknownVenue')}</Text>
         {locationParts.length > 0 && (
           <Text style={styles.locationLine}>{locationParts.join(', ')}</Text>
         )}
@@ -310,7 +310,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
         <RecognitionSheet
           visible={sheetVisible}
           onClose={() => setSheetVisible(false)}
-          artistName={setlist.artist?.name || 'Unknown Artist'}
+          artistName={setlist.artist?.name || t('common.unknownArtist')}
           currentCityName={setlist.city?.name}
           currentCountryName={setlist.country?.name}
           facts={facts}

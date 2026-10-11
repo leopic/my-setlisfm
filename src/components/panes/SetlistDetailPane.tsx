@@ -5,12 +5,14 @@ import type { SetlistWithDetails, SetWithSongs } from '@/types/database';
 import Setlist from '@/components/Setlist';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   concertId: string | null;
 }
 
 export default function SetlistDetailPane({ concertId }: Props) {
+  const { t } = useTranslation();
   const colors = useChronicleColors();
   const [setlist, setSetlist] = useState<SetlistWithDetails | null>(null);
   const [sets, setSets] = useState<SetWithSongs[]>([]);
@@ -57,7 +59,7 @@ export default function SetlistDetailPane({ concertId }: Props) {
     return (
       <View style={styles.container}>
         <View style={styles.placeholder}>
-          <Text style={styles.placeholderText}>Select a concert</Text>
+          <Text style={styles.placeholderText}>{t('panes.selectConcert')}</Text>
         </View>
       </View>
     );

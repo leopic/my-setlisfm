@@ -50,7 +50,7 @@ export default function VenuesMapScreen() {
           onPress={() => router.back()}
           testID="back-button"
           accessibilityRole="button"
-          accessibilityLabel="Go back"
+          accessibilityLabel={t('common.goBack')}
         >
           <Text style={styles.back}>← Back</Text>
         </Pressable>

@@ -182,7 +182,7 @@ export default function CityDetailScreen() {
       <View style={styles.venueInfo}>
         <Text style={styles.venueName}>{venue.name}</Text>
         <Text style={styles.venueLocation}>
-          {venue.cityName || 'Unknown City'}
+          {venue.cityName || t('common.unknownCity')}
           {venue.state && `, ${venue.state}`}
           {venue.countryName && `, ${venue.countryName}`}
         </Text>
@@ -219,7 +219,7 @@ export default function CityDetailScreen() {
           onPress={() => router.back()}
           testID="back-button"
           accessibilityRole="button"
-          accessibilityLabel="Go back"
+          accessibilityLabel={t('common.goBack')}
         >
           <Text style={styles.backBtn}>← Back</Text>
         </Pressable>

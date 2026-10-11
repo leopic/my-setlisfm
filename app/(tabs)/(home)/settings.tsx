@@ -19,8 +19,10 @@ import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import { useOnboardingContext } from '@/contexts/OnboardingContext';
 import { TabScrollView, Icon } from '@/components/ui';
+import { useTranslation } from 'react-i18next';
 
 export default function SettingsScreen() {
+  const { t } = useTranslation();
   const colors = useChronicleColors();
   const router = useRouter();
   const { notifySyncComplete } = useSyncContext();
@@ -146,14 +148,14 @@ export default function SettingsScreen() {
         setLastSynced(fetchedAt ? fetchedAt.toLocaleString() : null);
         if (result.newConcerts > 0) {
           Alert.alert(
-            'Sync Complete',
-            `Added ${result.newConcerts} new concert${result.newConcerts !== 1 ? 's' : ''}.`,
+            t('dashboard.syncComplete'),
+            t('dashboard.syncCompleteMessage', { count: result.newConcerts }),
           );
         } else {
-          Alert.alert('Up to Date', 'No new concerts found.');
+          Alert.alert(t('dashboard.upToDate'), t('dashboard.upToDateMessage'));
         }
       } else {
-        Alert.alert('Sync Failed', result.error ?? 'Unknown error');
+        Alert.alert(t('dashboard.syncFailed'), result.error ?? t('common.unknownError'));
       }
       setIsSyncing(false);
     } catch {
@@ -162,22 +164,18 @@ export default function SettingsScreen() {
   };
 
   const handleClearData = () => {
-    Alert.alert(
-      'Clear All Data',
-      'This will permanently delete all your concert history and restart the app. This cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Clear Everything',
-          style: 'destructive',
-          onPress: async () => {
-            await dbOperations.clearAllData();
-            await setStoredUsername('');
-            restartOnboarding();
-          },
+    Alert.alert(t('settings.clearAllData'), t('settings.clearConfirmMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('settings.clearEverything'),
+        style: 'destructive',
+        onPress: async () => {
+          await dbOperations.clearAllData();
+          await setStoredUsername('');
+          restartOnboarding();
         },
-      ],
-    );
+      },
+    ]);
   };
 
   const appVersion = Constants.expoConfig?.version ?? '—';
@@ -195,19 +193,19 @@ export default function SettingsScreen() {
             onPress={() => router.back()}
             testID="back-button"
             accessibilityRole="button"
-            accessibilityLabel="Go back"
+            accessibilityLabel={t('common.goBack')}
           >
             <Icon sf="chevron.left" md="chevron-back-outline" size={20} color={colors.accent} />
           </Pressable>
-          <Text style={styles.headerTitle}>Settings</Text>
+          <Text style={styles.headerTitle}>{t('settings.title')}</Text>
         </View>
 
         <TabScrollView showsVerticalScrollIndicator={false}>
           {/* ── Account ─────────────────────────────────────────────────── */}
-          <Text style={styles.sectionLabel}>Account</Text>
+          <Text style={styles.sectionLabel}>{t('settings.account')}</Text>
 
           <View style={[styles.row, styles.rowFirst]}>
-            <Text style={styles.rowLabel}>Username</Text>
+            <Text style={styles.rowLabel}>{t('settings.username')}</Text>
             {isEditing ? (
               <>
                 <TextInput
@@ -225,7 +223,7 @@ export default function SettingsScreen() {
                   style={({ pressed }) => [styles.saveButton, { opacity: pressed ? 0.7 : 1 }]}
                   onPress={handleSaveUsername}
                 >
-                  <Text style={styles.saveButtonText}>Save</Text>
+                  <Text style={styles.saveButtonText}>{t('settings.save')}</Text>
                 </Pressable>
                 <Pressable
                   style={({ pressed }) => [styles.cancelButton, { opacity: pressed ? 0.7 : 1 }]}
@@ -243,18 +241,18 @@ export default function SettingsScreen() {
                   onPress={handleStartEdit}
                   accessibilityRole="button"
                 >
-                  <Text style={styles.rowAction}>Change</Text>
+                  <Text style={styles.rowAction}>{t('settings.change')}</Text>
                 </Pressable>
               </>
             )}
           </View>
 
           {/* ── Sync ────────────────────────────────────────────────────── */}
-          <Text style={styles.sectionLabel}>Sync</Text>
+          <Text style={styles.sectionLabel}>{t('settings.sync')}</Text>
 
           <View style={[styles.row, styles.rowFirst]}>
-            <Text style={styles.rowLabel}>Last synced</Text>
-            <Text style={styles.rowValue}>{lastSynced ?? 'Never'}</Text>
+            <Text style={styles.rowLabel}>{t('settings.lastSynced')}</Text>
+            <Text style={styles.rowValue}>{lastSynced ?? t('settings.never')}</Text>
           </View>
 
           <Pressable
@@ -262,7 +260,7 @@ export default function SettingsScreen() {
             onPress={() => handleSync()}
             disabled={isSyncing || !username}
             accessibilityRole="button"
-            accessibilityLabel="Sync now"
+            accessibilityLabel={t('settings.syncNowLabel')}
           >
             <Icon
               sf={isSyncing ? 'arrow.clockwise' : 'arrow.clockwise'}
@@ -271,32 +269,32 @@ export default function SettingsScreen() {
               color={isSyncing || !username ? colors.textMuted : colors.accent}
             />
             <Text style={isSyncing || !username ? styles.syncTextDisabled : styles.syncText}>
-              {isSyncing ? 'Syncing…' : 'Sync Now'}
+              {isSyncing ? t('settings.syncing') : t('settings.syncNow')}
             </Text>
           </Pressable>
 
           {/* ── About ───────────────────────────────────────────────────── */}
-          <Text style={styles.sectionLabel}>About</Text>
+          <Text style={styles.sectionLabel}>{t('settings.about')}</Text>
 
           <View style={[styles.row, styles.rowFirst]}>
-            <Text style={styles.rowLabel}>Version</Text>
+            <Text style={styles.rowLabel}>{t('settings.version')}</Text>
             <Text style={styles.rowValue}>{appVersion}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.rowLabel}>Data source</Text>
+            <Text style={styles.rowLabel}>{t('settings.dataSource')}</Text>
             <Text style={styles.rowValue}>setlist.fm</Text>
           </View>
 
           {/* ── Danger zone ─────────────────────────────────────────────── */}
-          <Text style={styles.sectionLabel}>Data</Text>
+          <Text style={styles.sectionLabel}>{t('settings.data')}</Text>
 
           <Pressable
             style={({ pressed }) => [styles.row, styles.rowFirst, { opacity: pressed ? 0.7 : 1 }]}
             onPress={handleClearData}
             accessibilityRole="button"
-            accessibilityLabel="Clear all data"
+            accessibilityLabel={t('settings.clearAllDataLabel')}
           >
-            <Text style={styles.rowDestructive}>Clear All Data</Text>
+            <Text style={styles.rowDestructive}>{t('settings.clearAllData')}</Text>
             <Icon
               sf="chevron.right"
               md="chevron-forward-outline"

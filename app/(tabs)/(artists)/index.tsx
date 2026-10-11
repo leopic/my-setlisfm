@@ -288,7 +288,8 @@ export default function ArtistsScreen() {
           {artist.venues.length > 0 && (
             <Text style={styles.venuesText} numberOfLines={1}>
               {artist.venues.slice(0, 3).join(', ')}
-              {artist.venues.length > 3 && ` +${artist.venues.length - 3} more`}
+              {artist.venues.length > 3 &&
+                ` ${t('common.moreCount', { count: artist.venues.length - 3 })}`}
             </Text>
           )}
         </View>

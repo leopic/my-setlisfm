@@ -203,8 +203,8 @@ export default function ContinentsScreen() {
   };
 
   const sortOptions: { value: SortOption; label: string }[] = [
-    { value: 'recent', label: 'Most Recent' },
-    { value: 'top', label: 'Top' },
+    { value: 'recent', label: t('sort.mostRecent') },
+    { value: 'top', label: t('sort.top') },
   ];
 
   const getContinentRow = (continent: ContinentWithStats) => (
@@ -238,7 +238,9 @@ export default function ContinentsScreen() {
       </View>
       <View style={styles.rightContent}>
         <Text style={styles.countNumber}>{continent.venueCount}</Text>
-        <Text style={styles.countLabel}>venues</Text>
+        <Text style={styles.countLabel}>
+          {t('geo.venuesLabel', { count: continent.venueCount })}
+        </Text>
       </View>
     </Pressable>
   );
@@ -261,7 +263,7 @@ export default function ContinentsScreen() {
             onPress={() => router.back()}
             testID="back-button"
             accessibilityRole="button"
-            accessibilityLabel="Go back"
+            accessibilityLabel={t('common.goBack')}
           >
             <Text style={styles.backButton}>← Back</Text>
           </Pressable>

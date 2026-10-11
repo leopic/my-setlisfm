@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Alert, ActivityIndicator, Platform } from 'reac
 import { WebView } from 'react-native-webview';
 import MapView, { Marker } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { dbOperations } from '@/database/operations';
 import { formatDate } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
@@ -18,7 +19,12 @@ interface VenueWithCoords {
   lastConcertDate?: string;
 }
 
-function buildHtml(venues: VenueWithCoords[], centerLat: number, centerLng: number): string {
+function buildHtml(
+  venues: VenueWithCoords[],
+  centerLat: number,
+  centerLng: number,
+  t: TFunction,
+): string {
   const markers = venues
     .map((v) => {
       const color =
@@ -32,8 +38,8 @@ function buildHtml(venues: VenueWithCoords[], centerLat: number, centerLng: numb
       const popup = [
         `<b>${v.name}</b>`,
         v.cityName && v.countryName ? `${v.cityName}, ${v.countryName}` : (v.cityName ?? ''),
-        `${v.concertCount} visit${v.concertCount !== 1 ? 's' : ''}`,
-        v.lastConcertDate ? `Last: ${formatDate(v.lastConcertDate)}` : '',
+        t('common.visit', { count: v.concertCount }),
+        v.lastConcertDate ? t('map.lastVisit', { date: formatDate(v.lastConcertDate) }) : '',
       ]
         .filter(Boolean)
         .join('<br/>');
@@ -206,14 +212,14 @@ export default function VenuesMapView() {
                     : '#96CEB4'
             }
             title={venue.name}
-            description={`${venue.cityName ?? ''}${venue.countryName ? ', ' + venue.countryName : ''} · ${venue.concertCount} visit${venue.concertCount !== 1 ? 's' : ''}`}
+            description={`${venue.cityName ?? ''}${venue.countryName ? ', ' + venue.countryName : ''} · ${t('common.visit', { count: venue.concertCount })}`}
           />
         ))}
       </MapView>
     ) : (
       <WebView
         style={{ flex: 1 }}
-        source={{ html: buildHtml(venues, center.lat, center.lng) }}
+        source={{ html: buildHtml(venues, center.lat, center.lng, t) }}
         originWhitelist={['*']}
         javaScriptEnabled
         domStorageEnabled

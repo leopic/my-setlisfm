@@ -103,7 +103,7 @@ export default function CountryList({ countries, onCountryPress, emptyMessage }:
       </View>
       <View style={styles.rightContent}>
         <Text style={styles.countNumber}>{country.venueCount}</Text>
-        <Text style={styles.countLabel}>venues</Text>
+        <Text style={styles.countLabel}>{t('geo.venuesLabel', { count: country.venueCount })}</Text>
       </View>
     </Pressable>
   );
