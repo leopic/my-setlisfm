@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 yarn start          # Expo dev server
 yarn ios            # Run on iOS simulator
 yarn android        # Run on Android emulator
-yarn test           # Jest unit tests (watch mode off by default)
+yarn test           # Jest unit + integration tests (watch mode off by default)
 yarn lint           # ESLint check — fails on any warning (--max-warnings 0)
 yarn lint:fix       # ESLint auto-fix
 yarn format         # Prettier format
@@ -58,11 +58,11 @@ app/
   _layout.tsx          ← root: DB init, auth gate (onboarding vs tabs)
   onboarding.tsx       ← first-run: enter Setlist.fm username + initial sync
   (tabs)/
-    (home)/            ← dashboard: stats + sync trigger
+    (home)/            ← dashboard + settings (username, sync, clear data)
     (concerts)/        ← concert list → setlist detail
     (artists)/         ← artist list → artist's concerts
-    (venues)/          ← venues → geographic hierarchy (continent/country/city)
-    (debug)/           ← dev-only: DB reset controls
+    (venues)/          ← venues → geographic hierarchy (continent/country/city) + map
+    (stats)/           ← charts and insights + world map
 ```
 
 ### Data Flow
@@ -83,11 +83,12 @@ Setlist.fm API
 | `src/services/setlistApi.ts` | API client — rate limiting, pagination, exponential backoff |
 | `src/services/syncService.ts` | Orchestrates full sync: fetch pages until caught up, store username |
 | `src/services/dataProcessor.ts` | Maps API shape → DB rows (idempotent upserts) |
-| `src/database/schema.ts` | SQLite schema: 11 tables + indexes |
+| `src/database/schema.ts` | SQLite schema: 9 tables + indexes |
 | `src/database/operations.ts` | All CRUD + complex join queries (stats, rankings, geo queries) |
-| `src/context/SyncContext.tsx` | Context that propagates sync completion; screens subscribe to re-fetch |
+| `src/contexts/SyncContext.tsx` | Context that propagates sync completion; screens subscribe to re-fetch |
 | `src/i18n/en.ts` | All UI strings — add keys here for new copy |
-| `src/utils/colors.ts` | `useColors()` hook — always use this for theme colors |
+| `src/utils/colors.ts` | `useChronicleColors()` hook — always use this for theme colors |
+| `src/utils/typography.ts` | `Type` scale (Space Grotesk) — spread it into text styles |
 
 ### Sync Behaviour
 
@@ -107,11 +108,11 @@ All user-facing strings go through `t()` from `react-i18next`. Keys live in `src
 
 ### Styling
 
-Use `useColors()` for every color value — never hardcode hex. The hook reads the active color scheme (light/dark) and returns the correct palette. Layout uses React Native `StyleSheet`.
+Use `useChronicleColors()` for every color value — never hardcode hex. The hook reads the active color scheme (light/dark) and returns the Chronicle palette. Text styles start from `Type` in `src/utils/typography.ts`. Layout uses React Native `StyleSheet`.
 
 ## Testing
 
-- **Unit tests** live in `src/__tests__/` and cover `SetlistApiService` (rate limiting, retries, pagination) and `DataProcessor` (normalization).
+- **Unit tests** live in `src/__tests__/`: the API client (rate limiting, retries, pagination), sync, `DataProcessor` (normalization), database queries and pure utils.
 - **Integration tests** live in `src/__tests__/integration/` and render the real `app/` routes headlessly with `renderRouter` from `expo-router/testing-library`. SQLite is Node's built-in `node:sqlite` in memory (`test/expoSqliteNode.ts`), seeded from the same fixture as Maestro (`.maestro/fixtures/seed.sql`). Under Jest the native tab bar isn't rendered (switch tabs with `openTab`), and lists need `layOutLists()` before their rows are tappable; helpers live in `test/screen.ts`. Rendering, events and the helpers are async (RNTL 14), so always `await` them.
 - **E2E tests** live in `.maestro/` and use Maestro YAML. Screens expose `testID` props for selectors (e.g. `dashboard-screen`).
 
