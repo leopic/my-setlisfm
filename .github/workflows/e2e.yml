@@ -1,40 +1,23 @@
 name: E2E
 
-# Runs the seeded Maestro flows against a Release simulator build, so the suite
-# can't silently rot again. Scoped to changes that can affect what the app
-# renders. The empty-state onboarding flow is left out: it syncs live from
-# setlist.fm, which needs a real API key and network access.
+# Runs the seeded Maestro flows against a Release simulator build. Manual
+# only: on the free 3-core macOS runner Maestro's iOS driver sometimes fails to
+# start, and the headless integration tests (src/__tests__/integration/) cover
+# screens and navigation on every PR. Native changes (Expo SDK and other native
+# upgrades) must pass it before merging — see CLAUDE.md:
+#   gh workflow run e2e.yml --ref <branch>
+# The empty-state onboarding flow is left out: it syncs live from setlist.fm,
+# which needs a real API key and network access.
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - app/**
-      - src/**
-      - assets/**
-      - .maestro/**
-      - package.json
-      - yarn.lock
-      - app.config.js
-      - .github/workflows/e2e.yml
-  push:
-    branches: [main]
-    paths:
-      - app/**
-      - src/**
-      - assets/**
-      - .maestro/**
-      - package.json
-      - yarn.lock
-      - app.config.js
-      - .github/workflows/e2e.yml
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# Runs are started deliberately and are expensive; never cancel one in flight.
 concurrency:
   group: e2e-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   MAESTRO_VERSION: 2.3.0

@@ -110,6 +110,24 @@ Use `useColors()` for every color value — never hardcode hex. The hook reads t
 - **Integration tests** live in `src/__tests__/integration/` and render the real `app/` routes headlessly with `renderRouter` from `expo-router/testing-library`. SQLite is Node's built-in `node:sqlite` in memory (`test/expoSqliteNode.ts`), seeded from the same fixture as Maestro (`.maestro/fixtures/seed.sql`). Under Jest the native tab bar isn't rendered (switch tabs with `openTab`), and lists need `layOutLists()` before their rows are tappable; helpers live in `test/screen.ts`.
 - **E2E tests** live in `.maestro/` and use Maestro YAML. Screens expose `testID` props for selectors (e.g. `dashboard-screen`).
 
+### When to run Maestro
+
+Maestro doesn't run on PRs (the CI runner's simulator is too flaky); the headless
+integration tests cover screens and navigation there. What only Maestro catches is a
+Release build that won't launch or crashes natively, so **any native change must pass
+Maestro both locally and on CI before merging**: Expo SDK or `expo-*` bumps, React
+Native, dependencies with native code, `app.config.js` and its plugins, including
+Dependabot PRs for any of these. Nothing enforces this automatically.
+
+- Locally: `yarn test:e2e` needs a booted simulator with the app installed and launched
+  once (it seeds the app's database, so use a dedicated simulator, not one with real data).
+- On CI: `gh workflow run e2e.yml --ref <branch>`. The native build is cached by
+  fingerprint, but caches from a PR branch aren't shared, so the first run on a branch
+  usually rebuilds from scratch (~27 min); re-runs on the same branch take ~9 min.
+
+A run where no flow executed ("iOS driver not ready in time") is the runner, not the
+app — re-run it. A flow that ran and failed is a real failure.
+
 ## Environment
 
 Create a `.env` file at the repo root:
