@@ -193,7 +193,7 @@ export default function CityDetailScreen() {
         )}
         {venue.artists.length > 0 && (
           <Text style={styles.artistsText}>
-            Artists: {venue.artists.slice(0, 3).join(', ')}
+            {t('geo.artistsList', { names: venue.artists.slice(0, 3).join(', ') })}
             {venue.artists.length > 3 &&
               ` ${t('common.moreCount', { count: venue.artists.length - 3 })}`}
           </Text>
@@ -221,7 +221,7 @@ export default function CityDetailScreen() {
           accessibilityRole="button"
           accessibilityLabel={t('common.goBack')}
         >
-          <Text style={styles.backBtn}>← Back</Text>
+          <Text style={styles.backBtn}>{t('common.back')}</Text>
         </Pressable>
         <Text style={styles.title}>{city as string}</Text>
         <Text style={styles.subtitle}>

@@ -499,6 +499,7 @@ export default function OnboardingScreen() {
     <SafeAreaView style={styles.outer} edges={['top', 'left', 'right', 'bottom']}>
       {/* Wordmark */}
       <View style={styles.header}>
+        {/* eslint-disable-next-line i18next/no-literal-string -- app wordmark, not copy */}
         <Text style={styles.wordmark}>CHRONICLES</Text>
       </View>
 

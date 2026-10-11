@@ -238,6 +238,7 @@ export default {
 
   // Geographic
   geo: {
+    artistsList: 'Artists: {{names}}',
     continentsTitle: 'Continents',
     continentsSubtitle: '{{count}} continent',
     continentsSubtitle_other: '{{count}} continents',

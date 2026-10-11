@@ -287,7 +287,7 @@ export default function ArtistConcertsListScreen() {
             testID="back-button"
             accessibilityRole="button"
           >
-            <Text style={styles.backText}>← Back</Text>
+            <Text style={styles.backText}>{t('common.back')}</Text>
           </Pressable>
         </View>
         <View style={styles.artistRow}>

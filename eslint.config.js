@@ -2,6 +2,7 @@ const js = require('@eslint/js');
 const tseslint = require('typescript-eslint');
 const prettierConfig = require('eslint-config-prettier');
 const prettierPlugin = require('eslint-plugin-prettier');
+const i18nextPlugin = require('eslint-plugin-i18next');
 
 module.exports = tseslint.config(
   js.configs.recommended,
@@ -28,6 +29,39 @@ module.exports = tseslint.config(
     files: ['src/__tests__/**/*.ts', 'src/__tests__/**/*.tsx'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  {
+    // Every user-facing string goes through t() (see CLAUDE.md). This catches copy written
+    // straight into JSX, as text or as a string prop; strings outside JSX (Alert.alert,
+    // plain helpers) are left to review.
+    files: ['app/**/*.tsx', 'src/**/*.tsx'],
+    ignores: ['src/__tests__/**'],
+    plugins: { i18next: i18nextPlugin },
+    rules: {
+      'i18next/no-literal-string': [
+        'error',
+        {
+          mode: 'jsx-only',
+          // Only the props that carry copy; testID, edges, icon names and the like don't.
+          'jsx-attributes': {
+            include: [
+              'title',
+              'body',
+              'description',
+              'label',
+              'message',
+              'placeholder',
+              'accessibilityLabel',
+              'accessibilityHint',
+            ],
+          },
+          // Strings without a letter (›, —, " · ", counts) aren't copy. The default list also
+          // skips ALL-CAPS words, which would let section labels like "CONCERTS" through.
+          words: { exclude: [/^[^\p{L}]*$/u] },
+          'should-validate-template': true,
+        },
+      ],
     },
   },
   {

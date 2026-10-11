@@ -25,6 +25,8 @@ import { EmptyState, SearchInput } from '@/components/ui';
 import SetlistDetailPane from '@/components/panes/SetlistDetailPane';
 import { useTabletLayout } from '@/utils/tablet';
 
+const SORT_OPTIONS: SortOption[] = ['recent', 'alphabetical'];
+
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
   venueName: string;
@@ -692,7 +694,7 @@ export default function ConcertsScreen() {
             </Text>
           </Pressable>
 
-          {(['recent', 'alphabetical'] as SortOption[]).map((option) => {
+          {SORT_OPTIONS.map((option) => {
             const isActive = sortOption === option;
             const label =
               option === 'recent' ? t('concerts.mostRecent') : t('concerts.alphabetical');

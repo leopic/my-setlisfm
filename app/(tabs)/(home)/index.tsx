@@ -636,6 +636,7 @@ export default function DashboardScreen() {
       >
         <View style={styles.topBar}>
           <View style={styles.topBarRow}>
+            {/* eslint-disable-next-line i18next/no-literal-string -- app name, not copy */}
             <Text style={styles.appTitle}>Chronicles</Text>
             <View style={styles.topBarActions}>
               <Pressable
@@ -1275,6 +1276,7 @@ export default function DashboardScreen() {
           {/* Two-section top bar */}
           <View style={styles.tabletTopBar}>
             <View style={styles.tabletTopBarLeft}>
+              {/* eslint-disable-next-line i18next/no-literal-string -- app name, not copy */}
               <Text style={styles.appTitle}>Chronicles</Text>
               <Text style={styles.statsLine}>
                 {[
@@ -1398,6 +1400,7 @@ export default function DashboardScreen() {
         <>
           <View style={styles.topBar}>
             <View style={styles.topBarRow}>
+              {/* eslint-disable-next-line i18next/no-literal-string -- app name, not copy */}
               <Text style={styles.appTitle}>Chronicles</Text>
               <View style={styles.topBarActions}>
                 <Pressable

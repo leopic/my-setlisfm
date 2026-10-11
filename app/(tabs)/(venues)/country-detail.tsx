@@ -99,7 +99,7 @@ export default function CountryDetailScreen() {
           accessibilityRole="button"
           accessibilityLabel={t('common.goBack')}
         >
-          <Text style={styles.backBtn}>← Back</Text>
+          <Text style={styles.backBtn}>{t('common.back')}</Text>
         </Pressable>
         <Text style={styles.title}>{country as string}</Text>
         <Text style={styles.subtitle}>{t('common.city', { count: cities.length })}</Text>

@@ -5437,6 +5437,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-plugin-i18next@npm:6.1.5":
+  version: 6.1.5
+  resolution: "eslint-plugin-i18next@npm:6.1.5"
+  dependencies:
+    requireindex: "npm:~1.1.0"
+  checksum: 10c0/500cb271999e49c630015bcfa7cc635c860a1385b71731f90ca77d37eae4f15c80bd1bb50b6d8b67a468b239fbe6fe73b5346aebdf457100b553b98618a817be
+  languageName: node
+  linkType: hard
+
 "eslint-plugin-prettier@npm:^5.5.6":
   version: 5.5.6
   resolution: "eslint-plugin-prettier@npm:5.5.6"
@@ -9333,6 +9342,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"requireindex@npm:~1.1.0":
+  version: 1.1.0
+  resolution: "requireindex@npm:1.1.0"
+  checksum: 10c0/4d57e7c6d160c4d043a233a6a95a22c792ada72ff378c5ebd415be505b328f3c719f9188dd100f8fcaa8af513a85f39eee0a5047838d715e22e79544a3b7d002
+  languageName: node
+  linkType: hard
+
 "resolve-cwd@npm:^3.0.0":
   version: 3.0.0
   resolution: "resolve-cwd@npm:3.0.0"
@@ -9578,6 +9594,7 @@ __metadata:
     "@types/react-dom": "npm:^19"
     eslint: "npm:^10.12.0"
     eslint-config-prettier: "npm:^10.1.8"
+    eslint-plugin-i18next: "npm:6.1.5"
     eslint-plugin-prettier: "npm:^5.5.6"
     expo: "npm:~58.0.7"
     expo-build-properties: "npm:~58.0.10"

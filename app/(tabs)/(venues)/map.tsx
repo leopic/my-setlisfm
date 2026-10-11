@@ -52,7 +52,7 @@ export default function VenuesMapScreen() {
           accessibilityRole="button"
           accessibilityLabel={t('common.goBack')}
         >
-          <Text style={styles.back}>← Back</Text>
+          <Text style={styles.back}>{t('common.back')}</Text>
         </Pressable>
         <Text style={styles.title}>{t('map.title')}</Text>
         <Text style={styles.subtitle}>{t('map.subtitle')}</Text>
