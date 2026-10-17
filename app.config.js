@@ -46,7 +46,6 @@ module.exports = {
     ],
     extra: {
       setlistfmApiKey: process.env.SETLISTFM_API_KEY,
-      setlistfmTestUsername: process.env.SETLISTFM_TEST_USERNAME,
       googleMapsAndroidApiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY
     }
   }
