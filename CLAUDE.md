@@ -40,10 +40,7 @@ accumulate, because ESLint exits 0 on warnings.
 
 The hook only lints staged files. Types and tests are CI's job.
 
-`expo-doctor` also runs in CI. `package.json` excludes `jest` and `@types/jest` from its
-version check (`expo.install.exclude`): the SDK 58 beta's doctor still expects jest 29, but
-jest-expo 58 depends on jest 30. Don't "fix" doctor by downgrading jest; drop the exclude
-once doctor agrees with jest-expo.
+`expo-doctor` also runs in CI.
 
 ## Architecture
 
