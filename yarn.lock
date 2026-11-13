@@ -5672,6 +5672,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-app-metrics@npm:~58.0.15":
+  version: 58.0.15
+  resolution: "expo-app-metrics@npm:58.0.15"
+  dependencies:
+    expo-updates-interface: "npm:~58.0.1"
+  peerDependencies:
+    expo: "*"
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/6b920011b680b75d6c1d504404ec2e0d5f4b15ae615cc835ee3efd00c2dc2593013db22c196d6f7dd858d0bcd78b2b631d81547411baa40a9410ccb8b5839bbd
+  languageName: node
+  linkType: hard
+
 "expo-asset@npm:~58.0.21":
   version: 58.0.21
   resolution: "expo-asset@npm:58.0.21"
@@ -5759,6 +5772,13 @@ __metadata:
     expo: "*"
     react-native: "*"
   checksum: 10c0/485630bb1af81e300da5927dfc945ab9a5096de362d45a64a7c30ac5ba9e94b625cb33359d9b3588e03ca53d58e14142fda17c9a7058b5e46c2d17a738d4e8e3
+  languageName: node
+  linkType: hard
+
+"expo-eas-client@npm:~58.0.2":
+  version: 58.0.2
+  resolution: "expo-eas-client@npm:58.0.2"
+  checksum: 10c0/df5d8d6264f120ed328b9fdb470fc594d658cf74802d24b5854257b20a42e58eb19712dc11e3c42a8b5c87689b24716db52834c82a11ec61cb97e205b3081d9d
   languageName: node
   linkType: hard
 
@@ -5937,6 +5957,30 @@ __metadata:
     "@expo/modules-macros-win32-x64":
       optional: true
   checksum: 10c0/ce2e262be3769cf8b7a1b80b1e6c955ee6a5c8115f7a8ea69608c8a59f626abd9ec81617437b7ce73c39802bb3c3d8f2a3297db0c2362a1bdcc1b8a79387062e
+  languageName: node
+  linkType: hard
+
+"expo-observe@npm:~58.0.19":
+  version: 58.0.19
+  resolution: "expo-observe@npm:58.0.19"
+  dependencies:
+    expo-app-metrics: "npm:~58.0.15"
+    expo-eas-client: "npm:~58.0.2"
+  peerDependencies:
+    "@react-navigation/native": ^7.0.0
+    expo: "*"
+    expo-router: "*"
+    react: "*"
+    react-native: "*"
+    react-native-reanimated: ">=4.7.0"
+  peerDependenciesMeta:
+    "@react-navigation/native":
+      optional: true
+    expo-router:
+      optional: true
+    react-native-reanimated:
+      optional: true
+  checksum: 10c0/039af0c067d27dcd0aef98842571c438f66fc8bfa7759121f82ae31d974f11bc9ac0b7e8c3f8524ddc66c2d61ad62625328efddab7faa0f52cfc9921aeb90ff5
   languageName: node
   linkType: hard
 
@@ -9673,6 +9717,7 @@ __metadata:
     expo-image: "npm:~58.0.18"
     expo-linking: "npm:~58.0.17"
     expo-localization: "npm:~58.0.5"
+    expo-observe: "npm:~58.0.19"
     expo-router: "npm:~58.0.31"
     expo-sqlite: "npm:~58.0.17"
     expo-status-bar: "npm:~58.0.5"

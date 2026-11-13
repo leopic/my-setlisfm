@@ -2,6 +2,7 @@ module.exports = {
   expo: {
     name: "Chronicles",
     slug: "chronicles",
+    owner: "leonardo_picado",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/icon.png",
@@ -46,7 +47,10 @@ module.exports = {
     ],
     extra: {
       setlistfmApiKey: process.env.SETLISTFM_API_KEY,
-      googleMapsAndroidApiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY
+      googleMapsAndroidApiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY,
+      eas: {
+        projectId: "814a0ca2-8bf9-47c0-82db-01199b9fbc9e"
+      }
     }
   }
 };

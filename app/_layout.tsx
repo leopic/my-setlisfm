@@ -20,7 +20,9 @@ import { Alert } from 'react-native';
 import { SyncProvider } from '@/contexts/SyncContext';
 import { OnboardingContext } from '@/contexts/OnboardingContext';
 import { Stack, useRouter, useRootNavigationState } from 'expo-router';
+import { ObserveRoot, useObserve } from 'expo-observe';
 import '@/i18n';
+import '@/services/observe';
 
 // Cap SDWebImage's in-memory cache before any images are loaded.
 // Default is 0 (unlimited) — with 200 decoded 250×250 ARGB images that's ~48 MB
@@ -29,7 +31,7 @@ Image.configureCache({ maxMemoryCost: 20 * 1024 * 1024, maxMemoryCount: 50 });
 
 export { ErrorBoundary } from '@/components/ErrorBoundary';
 
-export default function Layout() {
+function Layout() {
   const colorScheme = useColorScheme();
   const router = useRouter();
   const rootNavState = useRootNavigationState();
@@ -158,7 +160,16 @@ export default function Layout() {
   };
 
   // fontError means the font CDN was unreachable — fall back to system font gracefully.
-  if (!dbReady || hasUsername === null || (!fontsLoaded && !fontError)) {
+  const isReady = dbReady && hasUsername !== null && (fontsLoaded || !!fontError);
+
+  // Time to Interactive for EAS Observe. Both entry screens (onboarding and the tabs) render
+  // from here, so one call covers every launch. Only the first call is recorded.
+  const { markInteractive } = useObserve();
+  useEffect(() => {
+    if (isReady) markInteractive();
+  }, [isReady, markInteractive]);
+
+  if (!isReady) {
     return null;
   }
 
@@ -183,3 +194,5 @@ export default function Layout() {
     </ThemeProvider>
   );
 }
+
+export default ObserveRoot.wrap(Layout);
