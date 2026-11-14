@@ -132,6 +132,28 @@ export default {
     ago: '{{span}} ago',
   },
 
+  // Demo (hidden, for talks)
+  demo: {
+    title: 'Demo',
+    intro: 'Each demo concert has one odd value. Add one, then open it where it says.',
+    concert: 'Demo {{number}} · {{artist}}',
+    add: 'Add',
+    addLabel: 'Add demo {{number}} · {{artist}}',
+    added: 'Added',
+    removeAll: 'Remove demo concerts',
+    removeTitle: 'Remove demo concerts?',
+    removeMessage: 'Deletes every demo concert. Your other concerts stay.',
+    remove: 'Remove',
+    error: 'Something went wrong. Try again.',
+    screens: {
+      setlist: 'Open: Concerts → {{target}}',
+      artistConcerts: 'Open: Artists → {{target}}',
+      venueConcerts: 'Open: Venues → {{target}}',
+      city: 'Open: Venues → Cities → {{target}}',
+      country: 'Open: Venues → Countries → {{target}}',
+    },
+  },
+
   // Settings
   settings: {
     title: 'Settings',
