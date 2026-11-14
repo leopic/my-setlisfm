@@ -13,7 +13,7 @@ jest.mock('react-native/src/private/assets/AssetRegistry', () => ({
 }));
 
 // EAS Observe runs its real JS, so the tests see what it really records. Its native metrics
-// module swaps for the package's own no-op web implementation: jest-expo 58.0.11's mock of it
+// module swaps for the package's own no-op web implementation: jest-expo 58.0.14's mock of it
 // predates methods Observe calls (setNetworkTracesConfig, a session's addMetric).
 jest.mock('../node_modules/expo-app-metrics/build/module', () =>
   jest.requireActual('../node_modules/expo-app-metrics/build/module.web'),
