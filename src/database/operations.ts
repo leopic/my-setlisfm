@@ -1,5 +1,6 @@
 // Database CRUD operations for all entities
 import { databaseManager } from '@/database/database';
+import { DEMO_DATA_SQL } from '@/demo/demoData';
 import type {
   DBArtist,
   DBCity,
@@ -2087,6 +2088,23 @@ export class DatabaseOperations {
       `);
     } catch (error) {
       console.error('Error clearing data:', error);
+      throw error;
+    }
+  }
+
+  // Replaces all concert data with the demo concerts and a demo username, all or nothing.
+  // The old data goes first: a sync that failed half-way leaves sets whose ids clash with
+  // the demo's fixed ones, and their songs would show under the demo concerts.
+  async loadDemoData(): Promise<void> {
+    await this.db.execAsync('BEGIN');
+    try {
+      await this.clearAllData();
+      await this.db.execAsync(DEMO_DATA_SQL);
+      await this.db.execAsync('COMMIT');
+    } catch (error) {
+      console.error('Error loading demo data:', error);
+      // A failed rollback must not hide the error above.
+      await this.db.execAsync('ROLLBACK').catch(() => {});
       throw error;
     }
   }

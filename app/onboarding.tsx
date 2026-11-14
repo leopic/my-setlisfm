@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +16,7 @@ import { syncConcertData, setStoredUsername } from '@/services/syncService';
 import type { SyncProgress } from '@/services/syncService';
 import { useSyncContext } from '@/contexts/SyncContext';
 import { useOnboardingContext } from '@/contexts/OnboardingContext';
+import { dbOperations } from '@/database/operations';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 
@@ -485,6 +487,27 @@ export default function OnboardingScreen() {
     }
   };
 
+  // Hidden on purpose (long-press on the wordmark): for demos on a fresh simulator,
+  // where a setlist.fm sync is slow and depends on the network.
+  const handleLoadDemoData = () => {
+    Alert.alert(t('onboarding.demoDataTitle'), t('onboarding.demoDataMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('onboarding.demoDataLoad'),
+        onPress: async () => {
+          try {
+            await dbOperations.loadDemoData();
+          } catch {
+            Alert.alert(t('onboarding.demoDataError'));
+            return;
+          }
+          notifySyncComplete();
+          completeOnboarding();
+        },
+      },
+    ]);
+  };
+
   const handleRetry = () => {
     setPhase('input');
     setProgress(null);
@@ -499,8 +522,14 @@ export default function OnboardingScreen() {
     <SafeAreaView style={styles.outer} edges={['top', 'left', 'right', 'bottom']}>
       {/* Wordmark */}
       <View style={styles.header}>
-        {/* eslint-disable-next-line i18next/no-literal-string -- app wordmark, not copy */}
-        <Text style={styles.wordmark}>CHRONICLES</Text>
+        <Pressable
+          onLongPress={handleLoadDemoData}
+          disabled={phase !== 'input'}
+          testID="onboarding-wordmark"
+        >
+          {/* eslint-disable-next-line i18next/no-literal-string -- app wordmark, not copy */}
+          <Text style={styles.wordmark}>CHRONICLES</Text>
+        </Pressable>
       </View>
 
       {/* Spine */}
