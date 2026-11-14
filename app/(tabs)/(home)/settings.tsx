@@ -276,10 +276,15 @@ export default function SettingsScreen() {
           {/* ── About ───────────────────────────────────────────────────── */}
           <Text style={styles.sectionLabel}>{t('settings.about')}</Text>
 
-          <View style={[styles.row, styles.rowFirst]}>
+          {/* Long-press opens the hidden Demo screen for the self-healing talk. */}
+          <Pressable
+            style={[styles.row, styles.rowFirst]}
+            onLongPress={() => router.push('/(home)/demo')}
+            testID="settings-version"
+          >
             <Text style={styles.rowLabel}>{t('settings.version')}</Text>
             <Text style={styles.rowValue}>{appVersion}</Text>
-          </View>
+          </Pressable>
           <View style={styles.row}>
             <Text style={styles.rowLabel}>{t('settings.dataSource')}</Text>
             {/* eslint-disable-next-line i18next/no-literal-string -- the service's name */}

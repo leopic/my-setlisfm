@@ -1,6 +1,7 @@
 // Database CRUD operations for all entities
 import { databaseManager } from '@/database/database';
 import { DEMO_DATA_SQL } from '@/demo/demoData';
+import { DEMO_CONCERTS, REMOVE_DEMO_CONCERTS_SQL } from '@/demo/demoConcerts';
 import type {
   DBArtist,
   DBCity,
@@ -2104,6 +2105,36 @@ export class DatabaseOperations {
     } catch (error) {
       console.error('Error loading demo data:', error);
       // A failed rollback must not hide the error above.
+      await this.db.execAsync('ROLLBACK').catch(() => {});
+      throw error;
+    }
+  }
+
+  // Adds one demo concert from the hidden Demo screen (see src/demo/demoConcerts.ts).
+  async addDemoConcert(number: number): Promise<void> {
+    const concert = DEMO_CONCERTS.find((c) => c.number === number);
+    if (!concert) throw new Error(`No demo concert ${number}`);
+    await this.runInTransaction(concert.sql);
+  }
+
+  async removeDemoConcerts(): Promise<void> {
+    await this.runInTransaction(REMOVE_DEMO_CONCERTS_SQL);
+  }
+
+  // Numbers of the demo concerts that are in the database.
+  async getAddedDemoConcerts(): Promise<number[]> {
+    const rows = await this.db.getAllAsync<{ id: string }>(
+      "SELECT id FROM setlists WHERE id LIKE 'demo-%'",
+    );
+    return rows.map((row) => Number(row.id.slice('demo-'.length))).sort((a, b) => a - b);
+  }
+
+  private async runInTransaction(sql: string): Promise<void> {
+    await this.db.execAsync('BEGIN');
+    try {
+      await this.db.execAsync(sql);
+      await this.db.execAsync('COMMIT');
+    } catch (error) {
       await this.db.execAsync('ROLLBACK').catch(() => {});
       throw error;
     }
