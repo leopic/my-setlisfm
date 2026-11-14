@@ -12,6 +12,15 @@ export function parseSetlistDate(dateString: string): Date {
   }
 }
 
+/**
+ * Draws the concert's day among the days of its month, e.g. "·····●·······" for the 6th.
+ */
+export function formatMonthStrip(dateString: string): string {
+  const [day, month, year] = dateString.split('-').map(Number);
+  const daysInMonth = new Date(year, month, 0).getDate();
+  return '·'.repeat(day - 1) + '●' + '·'.repeat(daysInMonth - day);
+}
+
 type DateFormat = 'short' | 'long';
 
 /**

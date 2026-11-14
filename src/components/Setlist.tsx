@@ -7,9 +7,43 @@ import { useTranslation } from 'react-i18next';
 import type { SetlistWithDetails, SetWithSongs } from '@/types/database';
 import { getConcertRecognitionFacts, type ConcertRecognitionFacts } from '@/database/factQueries';
 import { isLandmarkVisit } from '@/utils/recognition';
-import { formatDate } from '@/utils/date';
+import { dbOperations } from '@/database/operations';
+import { formatDate, formatMonthStrip } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
+
+// Intro and outro tapes, by the song's tape value.
+const TAPE_BADGES: Record<
+  number,
+  {
+    sf: React.ComponentProps<typeof Icon>['sf'];
+    md: React.ComponentProps<typeof Icon>['md'];
+    label: string;
+  }
+> = {
+  1: { sf: 'recordingtape', md: 'radio-outline', label: 'setlist.tape' },
+};
+
+function TapeBadge({ tape }: { tape: number }) {
+  const { t } = useTranslation();
+  const colors = useChronicleColors();
+  const badge = TAPE_BADGES[tape];
+  const label = t(badge.label);
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+      <Icon sf={badge.sf} md={badge.md} size={13} color={colors.textMuted} />
+      <Text style={{ ...Type.label, color: colors.textMuted, textTransform: 'uppercase' }}>
+        {label}
+      </Text>
+    </View>
+  );
+}
+
+interface SongPlays {
+  setId: number;
+  songOrder: number;
+  plays: number;
+}
 
 interface SetlistProps {
   setlist: SetlistWithDetails;
@@ -23,6 +57,23 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
 
   const [facts, setFacts] = useState<ConcertRecognitionFacts | null>(null);
   const [sheetVisible, setSheetVisible] = useState(false);
+  const [songPlays, setSongPlays] = useState<SongPlays[]>([]);
+
+  useEffect(() => {
+    if (!setlist.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const result = await dbOperations.getSongPlayCounts(setlist.id);
+        if (!cancelled) setSongPlays(result);
+      } catch (error) {
+        console.error('Failed to load song play counts:', error);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [setlist.id]);
 
   useEffect(() => {
     if (!setlist.id) return;
@@ -99,6 +150,22 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       ...Type.body,
       color: colors.textMuted,
       marginTop: 2,
+    },
+    monthStrip: {
+      ...Type.label,
+      color: colors.textDisabled,
+      letterSpacing: 1,
+      marginTop: 4,
+    },
+    guestsLine: {
+      ...Type.body,
+      color: colors.textSecondary,
+      fontStyle: 'italic',
+      marginTop: 4,
+    },
+    heardText: {
+      ...Type.label,
+      color: colors.accent,
     },
     tourName: {
       ...Type.label,
@@ -206,6 +273,21 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   );
   const eventDate = formatDate(setlist.eventDate ?? '', 'long');
 
+  // Everyone who joined the band on stage, once each.
+  const guestNames = [
+    ...new Set(
+      activeSets
+        .flatMap((set) => set.songs ?? [])
+        .flatMap((song) => (song.withArtist ? [song.withArtist] : []))
+        .map(({ name = '' }) => name.trim())
+        .filter(Boolean),
+    ),
+  ];
+
+  const playsBySong = new Map(
+    songPlays.map((row) => [`${row.setId}:${row.songOrder.toString()}`, row.plays]),
+  );
+
   return (
     <>
       {/* Back bar — hidden when used as an inline pane */}
@@ -253,6 +335,14 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
           <Text style={styles.locationLine}>{locationParts.join(', ')}</Text>
         )}
         <Text style={styles.dateLine}>{eventDate}</Text>
+        {setlist.eventDate && (
+          <Text style={styles.monthStrip}>{formatMonthStrip(setlist.eventDate)}</Text>
+        )}
+        {guestNames.length > 0 && (
+          <Text style={styles.guestsLine}>
+            {t('setlist.withGuests', { names: guestNames.join(', ') })}
+          </Text>
+        )}
         {setlist.tour?.name && <Text style={styles.tourName}>{setlist.tour.name}</Text>}
       </View>
 
@@ -265,37 +355,36 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
               <Text style={styles.sectionTitle}>{getSetTitle(set, index)}</Text>
               <View style={styles.sectionLine} />
             </View>
-            {set.songs?.map((song, songIndex) => (
-              <View key={songIndex} style={styles.songRow}>
-                <Text style={styles.songNumber}>{String(songIndex + 1).padStart(2, '0')}</Text>
-                <View style={styles.songInfo}>
-                  <View style={styles.songNameRow}>
-                    {song.tape && (
-                      <Icon
-                        sf="recordingtape"
-                        md="radio-outline"
-                        size={13}
-                        color={colors.textMuted}
-                      />
+            {set.songs?.map((song, songIndex) => {
+              const heard = playsBySong.get(`${song.setId}:${song.songOrder.toString()}`);
+              return (
+                <View key={songIndex} style={styles.songRow}>
+                  <Text style={styles.songNumber}>{String(songIndex + 1).padStart(2, '0')}</Text>
+                  <View style={styles.songInfo}>
+                    <View style={styles.songNameRow}>
+                      {song.tape && <TapeBadge tape={Number(song.tape)} />}
+                      <Text style={styles.songName}>
+                        {song.name}
+                        {song.info && ` (${song.info})`}
+                      </Text>
+                      {heard !== undefined && heard > 1 && (
+                        <Text style={styles.heardText}>{t('setlist.heard', { count: heard })}</Text>
+                      )}
+                    </View>
+                    {song.withArtist?.name && (
+                      <Text style={styles.withArtistText}>
+                        {t('setlist.withArtist', { name: song.withArtist.name })}
+                      </Text>
                     )}
-                    <Text style={styles.songName}>
-                      {song.name}
-                      {song.info && ` (${song.info})`}
-                    </Text>
+                    {song.coverArtist?.name && (
+                      <Text style={styles.coverArtistText}>
+                        {t('setlist.coverOf', { name: song.coverArtist.name })}
+                      </Text>
+                    )}
                   </View>
-                  {song.withArtist?.name && (
-                    <Text style={styles.withArtistText}>
-                      {t('setlist.withArtist', { name: song.withArtist.name })}
-                    </Text>
-                  )}
-                  {song.coverArtist?.name && (
-                    <Text style={styles.coverArtistText}>
-                      {t('setlist.coverOf', { name: song.coverArtist.name })}
-                    </Text>
-                  )}
                 </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         ))}
 
