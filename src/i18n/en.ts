@@ -410,6 +410,10 @@ export default {
 
   // Onboarding
   onboarding: {
+    demoDataTitle: 'Load demo data?',
+    demoDataMessage: 'Adds a few sample concerts so you can explore the app without a sync.',
+    demoDataLoad: 'Load demo data',
+    demoDataError: 'Could not load the demo data.',
     title: 'Welcome to Chronicles',
     subtitle: 'Track every concert you attend',
     usernamePlaceholder: 'Your setlist.fm username',
