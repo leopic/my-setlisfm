@@ -15,8 +15,14 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 
   // Render errors never reach the global error handler EAS Observe installs, so report the
   // one Expo Router caught here. reportError never throws.
+  // Observe sends non-fatal errors only when the app goes to the background, so send it now:
+  // an error on screen reaches the dashboard without leaving the app. An event it misses
+  // still goes out on the next background.
   useEffect(() => {
     Observe.reportError(error);
+    Observe.dispatchEvents().catch((dispatchError: unknown) => {
+      console.warn('Observe dispatch failed:', dispatchError);
+    });
   }, [error]);
   const styles = StyleSheet.create({
     container: {

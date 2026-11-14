@@ -28,6 +28,8 @@ env:
   # The seeded flows never call setlist.fm, but the API module throws at import
   # time without a key, so the build needs a placeholder.
   SETLISTFM_API_KEY: e2e-placeholder
+  # Tags the run's EAS Observe events, so CI errors stay apart from real ones.
+  EXPO_PUBLIC_OBSERVE_ENVIRONMENT: e2e
 
 jobs:
   maestro:

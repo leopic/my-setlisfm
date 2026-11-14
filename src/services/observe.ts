@@ -9,9 +9,14 @@ import { Observe } from 'expo-observe';
 //
 // Debug builds don't send metrics by default. Set EXPO_PUBLIC_OBSERVE_DISPATCH_IN_DEBUG=true
 // in .env to send them from a dev build, e.g. to check the setup on the simulator.
+//
+// EXPO_PUBLIC_OBSERVE_ENVIRONMENT tags every event, so the dashboard can tell builds apart
+// (e.g. `e2e` for CI runs). Unset or empty, Observe uses NODE_ENV: `production` in a release
+// build.
 export const observeConfig = {
   integrations: { 'expo-router': true },
   dispatchInDebug: process.env.EXPO_PUBLIC_OBSERVE_DISPATCH_IN_DEBUG === 'true',
+  environment: process.env.EXPO_PUBLIC_OBSERVE_ENVIRONMENT || undefined,
 } as const;
 
 Observe.configure(observeConfig);
