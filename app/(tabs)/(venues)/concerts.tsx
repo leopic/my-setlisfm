@@ -1,16 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Alert, RefreshControl, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { dbOperations } from '@/database/operations';
-import type { SetlistWithDetails } from '@/types/database';
+import type { DBVenue, SetlistWithDetails } from '@/types/database';
 import { parseSetlistDate, formatDate } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import ConcertListSkeleton from '@/components/skeletons/ConcertListSkeleton';
 import { TabScrollView } from '@/components/ui';
+
+// Up to three initials for the venue tile: "Madison Square Garden" → "MSG".
+function venueInitials({ name = '' }: DBVenue): string {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => word[0])
+    .join('')
+    .slice(0, 3)
+    .toUpperCase();
+}
+
+// The venue's setlist.fm page without the scheme, e.g. "setlist.fm/venue/astra-berlin.html".
+function setlistFmPath({ url = '' }: DBVenue): string {
+  return url.replace(/^https?:\/\/(www\.)?/, '');
+}
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -67,6 +83,32 @@ export default function VenueConcertsListScreen() {
     headerTitle: {
       ...Type.heading,
       color: colors.textPrimary,
+      flexShrink: 1,
+    },
+    titleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    initialsTile: {
+      minWidth: 36,
+      height: 36,
+      paddingHorizontal: 6,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.surfaceRaised,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    initialsText: {
+      ...Type.label,
+      color: colors.accent,
+    },
+    linkText: {
+      ...Type.label,
+      color: colors.accent,
+      marginTop: 4,
     },
     headerSubtitle: {
       ...Type.body,
@@ -176,6 +218,7 @@ export default function VenueConcertsListScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [venueName, setVenueName] = useState<string>('');
+  const [venue, setVenue] = useState<DBVenue | null>(null);
 
   // Get venue parameter from navigation
   const venueId = params.venue as string;
@@ -186,6 +229,7 @@ export default function VenueConcertsListScreen() {
     (async () => {
       try {
         const venueData = await dbOperations.getVenueById(venueId);
+        if (!cancelled) setVenue(venueData);
         if (!cancelled && venueData?.name) {
           setVenueName(venueData.name);
         }
@@ -274,8 +318,24 @@ export default function VenueConcertsListScreen() {
             <Text style={styles.backText}>{t('common.back')}</Text>
           </Pressable>
         </View>
-        <Text style={styles.headerTitle}>{venueName}</Text>
+        <View style={styles.titleRow}>
+          {venue && (
+            <View style={styles.initialsTile}>
+              <Text style={styles.initialsText}>{venueInitials(venue)}</Text>
+            </View>
+          )}
+          <Text style={styles.headerTitle}>{venueName}</Text>
+        </View>
         <Text style={styles.headerSubtitle}>{subtitleParts.join(' · ')}</Text>
+        {venue && (
+          <Pressable
+            onPress={() => venue.url && Linking.openURL(venue.url)}
+            accessibilityRole="link"
+            testID="venue-setlistfm-link"
+          >
+            <Text style={styles.linkText}>{setlistFmPath(venue)}</Text>
+          </Pressable>
+        )}
       </View>
 
       {/* Concerts list */}

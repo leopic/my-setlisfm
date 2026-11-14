@@ -9,8 +9,18 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import DetailSkeleton from '@/components/skeletons/DetailSkeleton';
 
+// The country's flag from its two-letter code: two regional indicator symbols.
+function flagEmoji(countryCode: string): string {
+  const [, first, second] = countryCode.match(/^([A-Z])([A-Z])$/) as RegExpMatchArray;
+  return String.fromCodePoint(
+    0x1f1e6 + first.charCodeAt(0) - 65,
+    0x1f1e6 + second.charCodeAt(0) - 65,
+  );
+}
+
 interface CityWithStats {
   name: string;
+  countryCode?: string;
   countryName: string;
   venueCount: number;
   lastConcertDate?: string;
@@ -101,7 +111,11 @@ export default function CountryDetailScreen() {
         >
           <Text style={styles.backBtn}>{t('common.back')}</Text>
         </Pressable>
-        <Text style={styles.title}>{country as string}</Text>
+        <Text style={styles.title}>
+          {cities[0]?.countryCode
+            ? `${flagEmoji(cities[0].countryCode)} ${country as string}`
+            : (country as string)}
+        </Text>
         <Text style={styles.subtitle}>{t('common.city', { count: cities.length })}</Text>
       </View>
 

@@ -165,6 +165,7 @@ interface CountryStatsRow {
 
 interface CityStatsRow {
   name: string;
+  countryCode: string;
   countryName: string;
   venueCount: number;
   lastConcertDate?: string;
@@ -580,6 +581,26 @@ export class DatabaseOperations {
     }
 
     return Array.from(setsMap.values());
+  }
+
+  // For each song of this concert: at how many of my concerts by the same artist I heard it.
+  async getSongPlayCounts(
+    setlistId: string,
+  ): Promise<{ setId: number; songOrder: number; plays: number }[]> {
+    return this.db.getAllAsync(
+      `
+      SELECT s.setId, s.songOrder, COUNT(DISTINCT sl2.id) AS plays
+      FROM songs s
+      JOIN sets st ON st.id = s.setId
+      JOIN setlists sl ON sl.id = st.setlistId
+      JOIN setlists sl2 ON sl2.artistMbid = sl.artistMbid
+      JOIN sets st2 ON st2.setlistId = sl2.id
+      JOIN songs s2 ON s2.setId = st2.id AND s2.name = s.name
+      WHERE sl.id = ?
+      GROUP BY s.id
+    `,
+      [setlistId],
+    );
   }
 
   // Get statistics
@@ -1406,6 +1427,7 @@ export class DatabaseOperations {
   async getCitiesWithStats(): Promise<
     {
       name: string;
+      countryCode: string;
       countryName: string;
       venueCount: number;
       lastConcertDate?: string;
@@ -1415,6 +1437,7 @@ export class DatabaseOperations {
     const result = (await this.db.getAllAsync(`
       SELECT
         c.name,
+        c.countryCode,
         co.name as countryName,
         COUNT(DISTINCT v.id) as venueCount,
         MAX(sl.eventDate) as lastConcertDate,
@@ -1424,12 +1447,13 @@ export class DatabaseOperations {
       INNER JOIN cities c ON v.cityId = c.id
       INNER JOIN countries co ON c.countryCode = co.code
       WHERE c.name IS NOT NULL AND co.name IS NOT NULL
-      GROUP BY c.name, co.name
+      GROUP BY c.name, c.countryCode, co.name
       ORDER BY c.name
     `)) as CityStatsRow[];
 
     return result.map((row) => ({
       name: row.name,
+      countryCode: row.countryCode,
       countryName: row.countryName,
       venueCount: row.venueCount || 0,
       lastConcertDate: row.lastConcertDate,

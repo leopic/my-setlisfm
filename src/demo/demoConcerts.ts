@@ -119,9 +119,9 @@ const SPECS: DemoConcertSpec[] = [
     songs: [{ name: 'Intro', tape: 2 }, { name: 'Fencepost' }, { name: 'Last Index' }],
   },
   {
-    // A day that does not exist: setlist.fm only sends real dates. Today's app shows it
-    // as 3 March. (A date that is not DD-MM-YYYY, such as 'TBA', would sort and show
-    // wrongly on the dashboard, which reads the date by position.)
+    // A day that does not exist: setlist.fm only sends real dates. (A date that is not
+    // DD-MM-YYYY, such as 'TBA', would sort and show wrongly on the dashboard, which
+    // reads the date by position.)
     number: 2,
     artist: 'The Null Pointers',
     label: 'The Null Pointers',
@@ -166,7 +166,6 @@ const SPECS: DemoConcertSpec[] = [
   },
   {
     // A last-updated stamp that is not a timestamp: setlist.fm always sends ISO 8601.
-    // No screen shows it today.
     number: 6,
     artist: 'Stack Overflow',
     label: 'Stack Overflow',
@@ -188,7 +187,7 @@ const SPECS: DemoConcertSpec[] = [
     songs: SONGS,
   },
   {
-    // A city without coordinates.
+    // A city with a latitude but no longitude: setlist.fm sends both or neither.
     number: 8,
     artist: 'Infinite Loop',
     label: 'Infinite Loop',
@@ -201,7 +200,7 @@ const SPECS: DemoConcertSpec[] = [
       stateCode: '1',
       countryCode: 'IS',
       country: 'Iceland',
-      lat: null,
+      lat: 64.1466,
       long: null,
     },
     eventDate: '18-08-2023',

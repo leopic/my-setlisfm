@@ -27,6 +27,13 @@ interface VenueWithStats {
   artists: string[];
 }
 
+// "52.52°N, 13.40°E"
+function formatCoordinates({ coordsLat = 0, coordsLong = 0 }: VenueWithStats): string {
+  const part = (value: number, positive: string, negative: string) =>
+    `${value.toFixed(2).replace('-', '')}°${value < 0 ? negative : positive}`;
+  return `${part(coordsLat, 'N', 'S')}, ${part(coordsLong, 'E', 'W')}`;
+}
+
 export default function CityDetailScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
@@ -227,6 +234,9 @@ export default function CityDetailScreen() {
         <Text style={styles.subtitle}>
           {`${country} · ${t('common.venue', { count: venues.length })}`}
         </Text>
+        {venues[0]?.coordsLat != null && (
+          <Text style={styles.subtitle}>{formatCoordinates(venues[0])}</Text>
+        )}
       </View>
 
       <TabScrollView

@@ -186,6 +186,8 @@ export default {
     subtitleSorted: '{{count}} artist (sorted by concert count)',
     subtitleSorted_other: '{{count}} artists (sorted by concert count)',
     searchPlaceholder: 'Search artists...',
+    filedUnder: 'Filed under {{letter}}',
+    setlistEdited: 'Setlist edited {{date}}',
     noMatch: 'No artists match your search',
     empty: 'No artists yet',
     emptyBody: "Everyone you've seen live will be listed here.",
@@ -299,6 +301,9 @@ export default {
     setNumber: 'Set {{number}}',
     withArtist: 'with {{name}}',
     coverOf: 'cover of {{name}}',
+    tape: 'Tape',
+    withGuests: 'With {{names}}',
+    heard: 'heard {{count}}×',
   },
 
   // Stats

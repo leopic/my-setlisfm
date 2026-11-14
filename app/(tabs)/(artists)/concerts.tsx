@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Pressable, Alert, RefreshControl } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { dbOperations } from '@/database/operations';
-import type { SetlistWithDetails } from '@/types/database';
+import type { DBArtist, SetlistWithDetails } from '@/types/database';
 import { parseSetlistDate, formatDate } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
@@ -19,6 +19,20 @@ interface ConcertWithDetails extends SetlistWithDetails {
   cityName?: string;
   stateName?: string;
   countryName?: string;
+}
+
+// The letter the artist is filed under, from setlist.fm's sort name ("Strokes, The" → S).
+function indexLetter({ sortName = '' }: DBArtist): string {
+  return sortName.charAt(0).toUpperCase();
+}
+
+const EDITED_FORMAT = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' });
+
+// When the setlist was last edited on setlist.fm, e.g. "Jan 2024".
+function formatEdited(lastUpdated: string): string {
+  // setlist.fm stamps look like 2024-01-15T10:00:00.000+0000.
+  const [year, month] = lastUpdated.split('-').map(Number);
+  return EDITED_FORMAT.format(new Date(year, month - 1));
 }
 
 interface YearGroup {
@@ -186,6 +200,7 @@ export default function ArtistConcertsListScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [artistName, setArtistName] = useState<string>('');
+  const [artist, setArtist] = useState<DBArtist | null>(null);
   const [artistImageUrl, setArtistImageUrl] = useState<string | undefined>(undefined);
 
   // Get artist parameter from navigation
@@ -197,6 +212,7 @@ export default function ArtistConcertsListScreen() {
     (async () => {
       try {
         const artistData = await dbOperations.getArtistByMbid(artistMbid);
+        if (!cancelled) setArtist(artistData);
         if (!cancelled && artistData?.name) {
           setArtistName(artistData.name);
           setArtistImageUrl(artistData.imageUrl ?? undefined);
@@ -295,6 +311,11 @@ export default function ArtistConcertsListScreen() {
           <View style={styles.artistTextBlock}>
             <Text style={styles.headerTitle}>{artistName}</Text>
             <Text style={styles.headerSubtitle}>{subtitleParts.join(' · ')}</Text>
+            {artist && (
+              <Text style={styles.headerSubtitle}>
+                {t('artists.filedUnder', { letter: indexLetter(artist) })}
+              </Text>
+            )}
           </View>
         </View>
       </View>
@@ -349,6 +370,13 @@ export default function ArtistConcertsListScreen() {
                           {location ? <Text style={styles.entrySecondary}>{location}</Text> : null}
                           {concert.tour?.name && (
                             <Text style={styles.entryTour}>{concert.tour.name}</Text>
+                          )}
+                          {concert.lastUpdated && (
+                            <Text style={styles.entrySecondary}>
+                              {t('artists.setlistEdited', {
+                                date: formatEdited(concert.lastUpdated),
+                              })}
+                            </Text>
                           )}
                         </View>
                         <Text style={styles.entryChevron}>›</Text>
