@@ -4,12 +4,20 @@ import type { ErrorBoundaryProps } from 'expo-router';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
+import { Observe } from 'expo-observe';
 
 // Layouts export this as `ErrorBoundary`: Expo Router catches the error itself and renders
 // it with the error and a retry callback, so it has no children and keeps no state.
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   const { t } = useTranslation();
   const colors = useChronicleColors();
+
+  // Render errors never reach the global error handler EAS Observe installs, so report the
+  // one Expo Router caught here. reportError never throws.
+  useEffect(() => {
+    Observe.reportError(error);
+  }, [error]);
   const styles = StyleSheet.create({
     container: {
       flex: 1,

@@ -2,6 +2,7 @@ module.exports = {
   expo: {
     name: "Chronicles",
     slug: "chronicles",
+    owner: "leopic",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/icon.png",
@@ -46,7 +47,10 @@ module.exports = {
     ],
     extra: {
       setlistfmApiKey: process.env.SETLISTFM_API_KEY,
-      googleMapsAndroidApiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY
+      googleMapsAndroidApiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY,
+      eas: {
+        projectId: "9906e5cd-8403-4484-8864-346fd65d2475"
+      }
     }
   }
 };
