@@ -57,3 +57,9 @@ jobs:
       - name: Typecheck
         if: ${{ !cancelled() }}
         run: npx tsc --noEmit
+
+      # Builds the iOS JavaScript bundle the way an EAS update does. A broken import or
+      # a missing asset fails here; tsc and Jest can both miss them.
+      - name: Bundle
+        if: ${{ !cancelled() }}
+        run: npx expo export --platform ios --output-dir "$RUNNER_TEMP/export"
