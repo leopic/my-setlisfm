@@ -9,6 +9,7 @@
       "environment": "preview",
       "channel": "preview",
       "uploadSourceMaps": true,
+      "corepack": true,
       "ios": {
         "simulator": true
       }

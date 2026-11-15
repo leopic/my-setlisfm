@@ -12,6 +12,11 @@ on:
 concurrency:
   group: ship-main
 
+# Yarn 4 ships via Corepack (packageManager in package.json); the EAS image has Yarn 1.
+defaults:
+  tools:
+    corepack: true
+
 jobs:
   fingerprint:
     name: Fingerprint
