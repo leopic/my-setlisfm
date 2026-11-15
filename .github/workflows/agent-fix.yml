@@ -28,8 +28,9 @@ jobs:
           ISSUE: ${{ github.event.issue.number }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          gh issue comment "$ISSUE" -R "$GITHUB_REPOSITORY" --body \
-            "🤖 An agent picked this up. It reproduces the bug with a test, fixes it and opens a PR. Live run: $RUN_URL"
+          gh issue comment "$ISSUE" -R "$GITHUB_REPOSITORY" --body "🤖 A robot operator picked up this ticket, please stand-by...
+
+          Live run: $RUN_URL"
 
   fix:
     if: github.event.label.name == 'fixer:gh' && !github.event.issue.pull_request
