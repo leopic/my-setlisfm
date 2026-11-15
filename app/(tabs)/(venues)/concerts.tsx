@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert, RefreshControl, Linking } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,7 @@ import type { TFunction } from 'i18next';
 import { dbOperations } from '@/database/operations';
 import type { DBVenue, SetlistWithDetails } from '@/types/database';
 import { parseSetlistDate, formatDate } from '@/utils/date';
+import { openWebUrl } from '@/utils/links';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import ConcertListSkeleton from '@/components/skeletons/ConcertListSkeleton';
@@ -329,7 +330,7 @@ export default function VenueConcertsListScreen() {
         <Text style={styles.headerSubtitle}>{subtitleParts.join(' · ')}</Text>
         {venue && (
           <Pressable
-            onPress={() => venue.url && Linking.openURL(venue.url)}
+            onPress={() => openWebUrl(venue.url)}
             accessibilityRole="link"
             testID="venue-setlistfm-link"
           >
