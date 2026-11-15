@@ -85,7 +85,8 @@ it('floats above the tab bar, clear of the screen header', async () => {
 
   const style = StyleSheet.flatten(screen.getByTestId('update-banner').props.style);
   expect(style.top).toBeUndefined();
-  expect(style.bottom).toBeGreaterThan(0);
+  // At least the tab bar's height (62) plus the gap, so it never sits behind the bar.
+  expect(style.bottom).toBeGreaterThanOrEqual(70);
 });
 
 it('hides the banner when the update is put off', async () => {

@@ -6,7 +6,7 @@ import * as Updates from 'expo-updates';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 
-// The iOS 26 tab bar floats this far above the bottom safe area (measured on an iPhone 17 Pro).
+// Height of the iOS 26 tab bar above the bottom safe area (measured on an iPhone 17 Pro).
 // The banner sits just above it, so it never covers a screen's header or back button.
 const TAB_BAR_HEIGHT = 62;
 
