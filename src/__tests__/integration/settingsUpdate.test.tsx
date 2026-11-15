@@ -24,21 +24,36 @@ async function findUpdateRow() {
 
 beforeAll(seedDatabase);
 
-it('shows the date, id and channel of a downloaded update', async () => {
-  mockUpdates = {
-    isEnabled: true,
-    currentlyRunning: {
-      isEmbeddedLaunch: false,
-      updateId: 'a1b2c3d4-0000-4000-8000-000000000000',
-      channel: 'preview',
-      // Local time, so the text is the same in any time zone; 16:05 pins the 24-hour clock.
-      createdAt: new Date(2026, 10, 15, 16, 5),
-    },
-  };
+const downloadedUpdate = {
+  isEnabled: true,
+  currentlyRunning: {
+    isEmbeddedLaunch: false,
+    // EAS update ids start with a timestamp, so only the end tells updates apart.
+    updateId: '01a1dfbd-37c4-7c56-9e46-d098b3a487ad',
+    channel: 'preview',
+    // Local time, so the text is the same in any time zone; 16:05 pins the 24-hour clock.
+    createdAt: new Date(2026, 10, 15, 16, 5),
+  },
+};
+
+afterEach(() => {
+  delete process.env.EXPO_PUBLIC_COMMIT;
+});
+
+it('shows the date, commit and channel of a downloaded update', async () => {
+  // The ship workflow bundles the commit into the update.
+  process.env.EXPO_PUBLIC_COMMIT = 'fefd511';
+  mockUpdates = downloadedUpdate;
 
   const row = await findUpdateRow();
   expect(row).toHaveTextContent(/Nov 15, 16:05/);
-  expect(row).toHaveTextContent(/a1b2c3d · preview/);
+  expect(row).toHaveTextContent(/fefd511 · preview/);
+});
+
+it('falls back to the end of the update id when the update has no commit', async () => {
+  mockUpdates = downloadedUpdate;
+
+  expect(await findUpdateRow()).toHaveTextContent(/3a487ad · preview/);
 });
 
 it('says the JS is built in when no update has been downloaded', async () => {

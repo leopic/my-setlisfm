@@ -197,7 +197,9 @@ export default function SettingsScreen() {
       : {
           date: formatDateTime(currentlyRunning.createdAt),
           detail: t('settings.updateDetail', {
-            id: currentlyRunning.updateId?.slice(0, 7) || '—',
+            // The commit the ship workflow bundles in; an update published another way has
+            // only its id, whose first characters are a timestamp.
+            id: process.env.EXPO_PUBLIC_COMMIT || currentlyRunning.updateId?.slice(-7) || '—',
             // Native sends "" for a build without a channel.
             channel: currentlyRunning.channel || '—',
           }),

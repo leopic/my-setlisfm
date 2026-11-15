@@ -51,8 +51,9 @@ jobs:
     if: ${{ needs.get_build.outputs.build_id }}
     environment: preview
     env:
-      # Empty for a manual `eas workflow:run`.
+      # Both are empty for a manual `eas workflow:run`; Settings then shows the update id.
       COMMIT_MESSAGE: ${{ github.commit_message || github.sha }}
+      COMMIT_SHA: ${{ github.sha }}
     steps:
       - uses: eas/checkout
       - uses: eas/install_node_modules
@@ -64,10 +65,11 @@ jobs:
             echo "SETLISTFM_API_KEY is missing from the EAS preview environment" >&2
             exit 1
           fi
-      # Custom jobs have EXPO_TOKEN but no `eas` binary on the PATH.
+      # Custom jobs have EXPO_TOKEN but no `eas` binary on the PATH. EXPO_PUBLIC_COMMIT goes into
+      # the bundle, so Settings can show which commit the update holds.
       - name: Publish to preview
         run: |
-          npx -y eas-cli@latest update \
+          EXPO_PUBLIC_COMMIT="${COMMIT_SHA:0:7}" npx -y eas-cli@latest update \
             --channel preview \
             --environment preview \
             --platform ios \
