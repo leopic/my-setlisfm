@@ -1,8 +1,8 @@
 name: Agent fix
 
 # Adding the label `fixer:gh` to a bug issue starts an agent: it reproduces the bug with a
-# failing Jest test, fixes it, and opens a draft PR. Only people with write access can add
-# labels. The agent cannot merge: the `main` ruleset needs a code owner's approval.
+# failing Jest test, fixes it, and opens a PR with auto-merge on. Only people with write access
+# can add labels. Nothing merges without a code owner's approval and green CI (`main` ruleset).
 on:
   issues:
     types: [labeled]
@@ -100,7 +100,8 @@ jobs:
                `Fixes #${{ github.event.issue.number }}`, then
                `git push -u origin agent/issue-${{ github.event.issue.number }}`.
                Never use --no-verify.
-            6. Open a draft PR into main with mcp__github__create_pull_request (draft: true).
+            6. Open a PR into main with mcp__github__create_pull_request (draft: false). Its
+               title is the squash commit, so write it as a conventional commit.
                Body: the cause, the fix, the test that failed before and passes now, and this
                last line: "Agents did everything up to here. A human reviews before anything
                ships." Then give the PR the label `needs-human:review` with
@@ -151,3 +152,35 @@ jobs:
           name: agent-transcript-issue-${{ github.event.issue.number }}-${{ github.run_attempt }}
           path: ${{ steps.claude.outputs.execution_file }}
           retention-days: 14
+
+  # Auto-merge on the agent's PR, so approving it is the only human step: GitHub merges it once
+  # a code owner approves and CI passes. A separate job keeps write access away from the agent.
+  auto-merge:
+    needs: fix
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Turn on auto-merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: agent/issue-${{ github.event.issue.number }}
+        run: |
+          # Only a PR the Claude app opened here, not one from a fork with the same branch name.
+          pr=$(gh pr list -R "$GITHUB_REPOSITORY" --head "$BRANCH" --state open \
+            --json number,author,isCrossRepository \
+            --jq '.[] | select(.author.login == "app/claude" and (.isCrossRepository | not)) | .number')
+          if [ -z "$pr" ]; then
+            echo "The agent opened no PR, so there is nothing to merge."
+            exit 0
+          fi
+          # Native, dependency and CI changes need Maestro or a closer look: Leo merges those.
+          if gh pr diff "$pr" -R "$GITHUB_REPOSITORY" --name-only \
+            | grep -qE '^(\.github/|\.eas/|package\.json$|yarn\.lock$|app\.config\.js$)'; then
+            echo "::notice::PR #$pr changes native, dependency or CI files; no auto-merge."
+            exit 0
+          fi
+          gh pr ready "$pr" -R "$GITHUB_REPOSITORY" || true
+          gh pr merge "$pr" -R "$GITHUB_REPOSITORY" --auto --squash
