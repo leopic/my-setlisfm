@@ -21,6 +21,19 @@ export function formatMonthStrip(dateString: string): string {
   return '·'.repeat(day - 1) + '●' + '·'.repeat(daysInMonth - day);
 }
 
+/**
+ * Formats a moment as a short date and a 24-hour time, e.g. "Nov 15, 16:05".
+ */
+export function formatDateTime(date: Date): string {
+  return date.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  });
+}
+
 type DateFormat = 'short' | 'long';
 
 /**
