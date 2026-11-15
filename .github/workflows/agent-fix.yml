@@ -1,8 +1,8 @@
 name: Agent fix
 
-# Adding the label `fixer:gh` to a bug issue starts an agent: it reproduces the bug with a
-# failing Jest test, fixes it, and opens a PR with auto-merge on. Only people with write access
-# can add labels. Nothing merges without a code owner's approval and green CI (`main` ruleset).
+# Adding the label `fixer:gh` to a bug issue Leo opened starts an agent: it reproduces the bug
+# with a failing Jest test, fixes it, and opens a PR with auto-merge on. Only Leo's own issues,
+# labeled by Leo, start it. Nothing merges without a code owner's approval and green CI (`main` ruleset).
 on:
   issues:
     types: [labeled]
@@ -16,7 +16,11 @@ jobs:
   # Tells the issue right away that an agent took it, with a link to the run. In its own job
   # (runs no agent code), next to `fix`, so the comment comes before any work.
   pick-up:
-    if: github.event.label.name == 'fixer:gh' && !github.event.issue.pull_request
+    # Only Leo's own issues, labeled by Leo: issue text from anyone else never reaches the agent.
+    if: >-
+      github.event.label.name == 'fixer:gh' && !github.event.issue.pull_request
+      && github.event.issue.user.login == github.repository_owner
+      && github.event.sender.login == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -33,7 +37,11 @@ jobs:
           Live run: $RUN_URL"
 
   fix:
-    if: github.event.label.name == 'fixer:gh' && !github.event.issue.pull_request
+    # Only Leo's own issues, labeled by Leo: issue text from anyone else never reaches the agent.
+    if: >-
+      github.event.label.name == 'fixer:gh' && !github.event.issue.pull_request
+      && github.event.issue.user.login == github.repository_owner
+      && github.event.sender.login == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # In the job, so other label events on the same issue don't queue behind it.
@@ -85,14 +93,12 @@ jobs:
             sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           fi
 
-      # The report as it was when the label went on, in a file and not in the prompt:
-      # the agent reads it as data.
+      # The report as it was when the label went on, in a file and not in the prompt: the agent
+      # reads it as data. clean-issue.jq removes what the issue page doesn't show.
       - name: Save the bug report
         env:
           ISSUE: ${{ toJSON(github.event.issue) }}
-        run: |
-          printf '%s' "$ISSUE" \
-            | jq '{number, title, body, labels: [.labels[].name]}' > "$RUNNER_TEMP/issue.json"
+        run: printf '%s' "$ISSUE" | jq -f .github/scripts/clean-issue.jq > "$RUNNER_TEMP/issue.json"
 
       - uses: anthropics/claude-code-action@f3b070c88125d33dbae5653df5f143101d4ea9dc # v1
         id: claude
