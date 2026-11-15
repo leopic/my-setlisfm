@@ -43,6 +43,9 @@ const chronicleDark = {
   tabActive: '#00e8ff',
   tabInactive: '#4a5e80', // 3.0:1  ✓ AA large (icon + label together)
   tabBar: '#060710',
+
+  // Floating cards (e.g. the update banner); a dark shadow barely shows on a dark background
+  shadow: 'rgba(0, 0, 0, 0.6)',
 } as const;
 
 const chronicleLight = {
@@ -85,6 +88,9 @@ const chronicleLight = {
   tabActive: '#0077cc',
   tabInactive: '#7090b0', // 3.1:1  ✓ AA large
   tabBar: '#edf2f9',
+
+  // Floating cards (e.g. the update banner)
+  shadow: 'rgba(8, 16, 30, 0.18)',
 } as const;
 
 export type ChronicleColors = typeof chronicleDark;

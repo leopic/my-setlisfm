@@ -190,7 +190,8 @@ function Layout() {
               <Stack.Screen name="onboarding" />
             </Stack.Protected>
           </Stack>
-          <UpdateBanner />
+          {/* The banner floats above the tab bar; onboarding has none, and its buttons sit there. */}
+          {hasUsername && <UpdateBanner />}
         </SyncProvider>
       </OnboardingContext>
     </ThemeProvider>

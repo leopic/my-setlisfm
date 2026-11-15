@@ -6,6 +6,10 @@ import * as Updates from 'expo-updates';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 
+// The iOS 26 tab bar floats this far above the bottom safe area (measured on an iPhone 17 Pro).
+// The banner sits just above it, so it never covers a screen's header or back button.
+const TAB_BAR_HEIGHT = 62;
+
 // Builds look for an update only at a cold launch, and run it at the next one. This also
 // looks when the app comes back to the foreground, and offers a restart once an update has
 // downloaded, so a fix shows up without killing the app.
@@ -46,7 +50,7 @@ export function UpdateBanner() {
   const styles = StyleSheet.create({
     banner: {
       position: 'absolute',
-      top: insets.top + 8,
+      bottom: insets.bottom + TAB_BAR_HEIGHT + 8,
       left: 16,
       right: 16,
       flexDirection: 'row',
@@ -60,6 +64,7 @@ export function UpdateBanner() {
       borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: colors.surface,
+      boxShadow: `0 6px 20px ${colors.shadow}`,
     },
     title: { ...Type.title, color: colors.textPrimary, flex: 1 },
     later: { ...Type.body, color: colors.textSecondary, paddingHorizontal: 6 },
