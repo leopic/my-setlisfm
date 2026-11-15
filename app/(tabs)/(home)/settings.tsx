@@ -12,10 +12,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
+import * as Updates from 'expo-updates';
 import { dbOperations } from '@/database/operations';
 import { getStoredUsername, setStoredUsername, syncConcertData } from '@/services/syncService';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
+import { formatDateTime } from '@/utils/date';
 import { useSyncContext } from '@/contexts/SyncContext';
 import { useOnboardingContext } from '@/contexts/OnboardingContext';
 import { TabScrollView, Icon } from '@/components/ui';
@@ -68,8 +70,13 @@ export default function SettingsScreen() {
       borderBottomColor: colors.border,
     },
     rowFirst: { borderTopWidth: 1, borderTopColor: colors.border },
+    // The label stays on the first line of a two-line value.
+    rowTop: { alignItems: 'flex-start' },
     rowLabel: { ...Type.body, color: colors.textSecondary, width: 110 },
     rowValue: { ...Type.body, color: colors.textPrimary, flex: 1 },
+    rowValueColumn: { flex: 1 },
+    rowValueText: { ...Type.body, color: colors.textPrimary },
+    rowDetail: { ...Type.label, color: colors.textSecondary, marginTop: 2 },
     rowAction: { ...Type.body, color: colors.accent },
     rowDestructive: { ...Type.title, color: colors.danger ?? '#ff453a', flex: 1 },
     // ── Username edit ─────────────────────────────────────────────────────
@@ -180,6 +187,22 @@ export default function SettingsScreen() {
 
   const appVersion = Constants.expoConfig?.version ?? '—';
 
+  // The JS the app runs: the bundle built into the app (also when updates are off), an update
+  // downloaded from EAS, or else a dev client's Metro bundle, which has no update to show.
+  const { currentlyRunning } = Updates.useUpdates();
+  const builtIn = !Updates.isEnabled || currentlyRunning.isEmbeddedLaunch;
+  const runningUpdate =
+    builtIn || !currentlyRunning.createdAt
+      ? null
+      : {
+          date: formatDateTime(currentlyRunning.createdAt),
+          detail: t('settings.updateDetail', {
+            id: currentlyRunning.updateId?.slice(0, 7) || '—',
+            // Native sends "" for a build without a channel.
+            channel: currentlyRunning.channel || '—',
+          }),
+        };
+
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <KeyboardAvoidingView
@@ -285,6 +308,19 @@ export default function SettingsScreen() {
             <Text style={styles.rowLabel}>{t('settings.version')}</Text>
             <Text style={styles.rowValue}>{appVersion}</Text>
           </Pressable>
+          <View style={[styles.row, styles.rowTop]} testID="settings-update">
+            <Text style={styles.rowLabel}>{t('settings.update')}</Text>
+            {runningUpdate ? (
+              <View style={styles.rowValueColumn}>
+                <Text style={styles.rowValueText}>{runningUpdate.date}</Text>
+                <Text style={styles.rowDetail}>{runningUpdate.detail}</Text>
+              </View>
+            ) : (
+              <Text style={styles.rowValue}>
+                {builtIn ? t('settings.updateBuiltIn') : t('settings.updateDevelopment')}
+              </Text>
+            )}
+          </View>
           <View style={styles.row}>
             <Text style={styles.rowLabel}>{t('settings.dataSource')}</Text>
             {/* eslint-disable-next-line i18next/no-literal-string -- the service's name */}
