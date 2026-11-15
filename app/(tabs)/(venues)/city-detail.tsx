@@ -234,7 +234,7 @@ export default function CityDetailScreen() {
         <Text style={styles.subtitle}>
           {`${country} · ${t('common.venue', { count: venues.length })}`}
         </Text>
-        {venues[0]?.coordsLat != null && (
+        {venues[0]?.coordsLat != null && venues[0]?.coordsLong != null && (
           <Text style={styles.subtitle}>{formatCoordinates(venues[0])}</Text>
         )}
       </View>
