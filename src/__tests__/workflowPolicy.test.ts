@@ -4,7 +4,12 @@ import { parse } from 'yaml';
 
 // The agent's code runs in the `fix` job of agent-fix.yml. These rules keep a hijacked agent
 // from pushing, reading the Claude token or reaching a write token. See the comments there.
-type Step = { uses?: string; run?: string; with?: Record<string, string | boolean> };
+type Step = {
+  uses?: string;
+  run?: string;
+  with?: Record<string, string | boolean>;
+  'continue-on-error'?: boolean;
+};
 type Job = {
   if?: string;
   env?: Record<string, unknown>;
@@ -176,4 +181,62 @@ it('runs an exact eas-cli version with the Expo token', () => {
 
 it('lets the agent workflow start CI', () => {
   expect(read('ci.yml').on).toHaveProperty('workflow_dispatch');
+});
+
+// PR code (installs, fingerprint) runs in a read-only job; the job that comments runs main's
+// script only.
+describe('native-fingerprint.yml', () => {
+  const fingerprint = read('native-fingerprint.yml');
+  const runs = (job: Job) => job.steps.map((step) => step.run ?? '').join('\n');
+
+  it('gives write access only to the comment job', () => {
+    expect(fingerprint.permissions).toEqual({});
+    expect(fingerprint.jobs.fingerprint.permissions).toEqual({ contents: 'read' });
+    expect(fingerprint.jobs.comment.permissions).toEqual({
+      contents: 'read',
+      'pull-requests': 'write',
+    });
+  });
+
+  it('runs no PR code in the comment job', () => {
+    const { steps } = fingerprint.jobs.comment;
+    const checkouts = steps.filter((step) => step.uses?.startsWith('actions/checkout@'));
+    expect(checkouts.length).toBeGreaterThan(0);
+    for (const checkout of checkouts) expect(checkout.with?.ref).toBe('${{ github.base_ref }}');
+    const download = steps.find((step) => step.uses?.startsWith('actions/download-artifact@'));
+    expect(String(download?.with?.path)).toMatch(/^\$\{\{ runner\.temp \}\}/);
+    const run = runs(fingerprint.jobs.comment);
+    expect(run).toContain('node .github/scripts/native-fingerprint-comment.mjs');
+    expect(run).not.toMatch(/\b(yarn|npx|npm)\b/);
+  });
+
+  it('keeps git credentials out of the job that runs PR code', () => {
+    const checkout = fingerprint.jobs.fingerprint.steps.find((step) =>
+      step.uses?.startsWith('actions/checkout@'),
+    );
+    expect(checkout?.with?.['persist-credentials']).toBe(false);
+  });
+
+  it('never turns the PR red from the comment job', () => {
+    const build = fingerprint.jobs.comment.steps.find((step) =>
+      step.run?.includes('native-fingerprint-comment.mjs'),
+    );
+    expect(build?.['continue-on-error']).toBe(true);
+  });
+});
+
+// Jobs that run untrusted code (the agent, a PR's install) restore no cache: another run could
+// have saved code into it.
+it.each([
+  ['agent-fix.yml', 'fix'],
+  ['native-fingerprint.yml', 'fingerprint'],
+])('%s %s restores no cache', (file, job) => {
+  const { steps } = read(file).jobs[job];
+  expect(steps.filter((step) => step.uses?.startsWith('actions/cache'))).toEqual([]);
+  const setupNode = steps.filter((step) => step.uses?.startsWith('actions/setup-node@'));
+  expect(setupNode.length).toBeGreaterThan(0);
+  for (const step of setupNode) {
+    expect(step.with?.cache).toBeUndefined();
+    expect(step.with?.['package-manager-cache']).toBe(false);
+  }
 });
