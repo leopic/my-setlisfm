@@ -76,6 +76,7 @@ jobs:
             | jq '{number, title, body, labels: [.labels[].name]}' > "$RUNNER_TEMP/issue.json"
 
       - uses: anthropics/claude-code-action@f3b070c88125d33dbae5653df5f143101d4ea9dc # v1
+        id: claude
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
@@ -114,3 +115,39 @@ jobs:
             --max-turns 80
             --permission-mode acceptEdits
             --allowedTools "Read,Edit,Write,Grep,Glob,Bash(yarn test *),Bash(yarn lint *),Bash(npx tsc --noEmit *),Bash(npx expo export *),Bash(git status *),Bash(git diff *),Bash(git log *),Bash(git switch -c agent/issue-*),Bash(git add *),Bash(git commit *),Bash(git push -u origin agent/issue-*),mcp__github__create_pull_request,mcp__github__update_issue,mcp__github__add_issue_comment"
+
+      # The tool calls the allowlist blocked, on the run's summary page.
+      - name: List blocked tool calls
+        if: always() && steps.claude.outputs.execution_file != ''
+        env:
+          TRANSCRIPT: ${{ steps.claude.outputs.execution_file }}
+        run: |
+          # @json keeps agent-written text on one line, so it can't add markdown to the page.
+          denials=$(jq -r '.[] | select(.type == "result") | .permission_denials[]?
+            | "- `\(.tool_name)`: `\(.tool_input.command // .tool_input.file_path // .tool_input | @json | .[0:300])`"' \
+            "$TRANSCRIPT")
+          { echo '### Blocked tool calls'; echo "${denials:-none}"; } >> "$GITHUB_STEP_SUMMARY"
+
+      # The transcript holds what the agent read and ran. Artifacts aren't masked like logs,
+      # and this repo is public, so skip the upload if anything in it looks like a token.
+      # It catches accidental leaks, not an agent that encodes a token on purpose.
+      - name: Check the transcript for tokens
+        id: scan
+        if: always() && steps.claude.outputs.execution_file != ''
+        env:
+          TRANSCRIPT: ${{ steps.claude.outputs.execution_file }}
+        run: |
+          if grep -qE 'sk-ant-[A-Za-z0-9_-]{10,}|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{11,}|eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}|x-access-token:' "$TRANSCRIPT"; then
+            echo "::warning::The transcript contains something like a token, so it is not uploaded."
+            echo "safe=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "safe=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload the transcript
+        if: always() && steps.scan.outputs.safe == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: agent-transcript-issue-${{ github.event.issue.number }}-${{ github.run_attempt }}
+          path: ${{ steps.claude.outputs.execution_file }}
+          retention-days: 14
