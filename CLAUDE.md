@@ -31,8 +31,8 @@ Two layers, both required — never bypass either:
 
 - **Pre-commit** (husky + lint-staged): runs `eslint --fix` on staged `.ts`/`.tsx`.
   Formatting is repaired in place and restaged; anything unfixable blocks the commit.
-- **CI** (`.github/workflows/ci.yml`): `yarn install --immutable`, then lint, tests and
-  `tsc --noEmit` on every PR and push to `main`.
+- **CI** (`.github/workflows/ci.yml`): `yarn install --immutable`, then lint, tests,
+  `tsc --noEmit` and an iOS bundle export (`expo export`) on every PR and push to `main`.
 
 `prettier/prettier` is an `error` and `yarn lint` runs with `--max-warnings 0`, so a
 warning fails the build. That is deliberate: as a warning it let ~2500 violations
