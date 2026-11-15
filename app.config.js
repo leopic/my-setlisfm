@@ -12,6 +12,14 @@ module.exports = {
       "ios",
       "android"
     ],
+    // EAS Update: a build gets the newest update on its channel (eas.json) only when the
+    // runtime version matches, and the fingerprint changes with any native change.
+    updates: {
+      url: "https://u.expo.dev/9906e5cd-8403-4484-8864-346fd65d2475"
+    },
+    runtimeVersion: {
+      policy: "fingerprint"
+    },
     experiments: {
       reactCompiler: true,
     },
