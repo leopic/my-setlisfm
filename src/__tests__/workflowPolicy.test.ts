@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse } from 'yaml';
 
@@ -155,6 +155,23 @@ it('fails the transcript scan when the scanner is missing', () => {
   const scan = fix.steps.find((step) => step.run?.includes('find-tokens.sh'));
   expect(scan?.run).toContain('[ -n "$scanner" ]');
   expect(scan?.run).not.toMatch(/git show[^\n]*\|\s*bash/);
+});
+
+// A tag can move to other code; a commit can't. Dependabot keeps the pins fresh.
+it('pins every action to a commit', () => {
+  const dir = join(__dirname, '../../.github/workflows');
+  const uses = readdirSync(dir)
+    .filter((name) => name.endsWith('.yml'))
+    .flatMap((name) => readFileSync(join(dir, name), 'utf8').match(/^\s*-?\s*uses:\s*\S+/gm) ?? []);
+  expect(uses.length).toBeGreaterThan(0);
+  for (const line of uses) expect(line).toMatch(/@[0-9a-f]{40}$/);
+});
+
+it('runs an exact eas-cli version with the Expo token', () => {
+  const ship = readFileSync(join(__dirname, '../../.eas/workflows/ship-main.yml'), 'utf8');
+  const versions = ship.match(/eas-cli@\S+/g) ?? [];
+  expect(versions.length).toBeGreaterThan(0);
+  for (const version of versions) expect(version).toMatch(/^eas-cli@\d+\.\d+\.\d+$/);
 });
 
 it('lets the agent workflow start CI', () => {
