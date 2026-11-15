@@ -4,82 +4,9 @@ import { WebView } from 'react-native-webview';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { Marker } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
-import type { TFunction } from 'i18next';
 import { dbOperations } from '@/database/operations';
-import { formatDate } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
-
-interface VenueWithCoords {
-  id: string;
-  name: string;
-  cityName?: string;
-  countryName?: string;
-  coordsLat?: number;
-  coordsLong?: number;
-  concertCount: number;
-  lastConcertDate?: string;
-}
-
-// Pin and legend colours by how often a venue was visited, fewest visits first.
-const VISIT_TIERS = [
-  { minVisits: 1, color: '#96CEB4', labelKey: 'map.legend1' },
-  { minVisits: 2, color: '#45B7D1', labelKey: 'map.legend2' },
-  { minVisits: 3, color: '#4ECDC4', labelKey: 'map.legend3' },
-  { minVisits: 5, color: '#FF6B6B', labelKey: 'map.legend5' },
-] as const;
-
-function visitColor(visits: number) {
-  return (
-    [...VISIT_TIERS].reverse().find((tier) => visits >= tier.minVisits)?.color ??
-    VISIT_TIERS[0].color
-  );
-}
-
-function buildHtml(
-  venues: VenueWithCoords[],
-  centerLat: number,
-  centerLng: number,
-  t: TFunction,
-): string {
-  const markers = venues
-    .map((v) => {
-      const color = visitColor(v.concertCount);
-      const popup = [
-        `<b>${v.name}</b>`,
-        v.cityName && v.countryName ? `${v.cityName}, ${v.countryName}` : (v.cityName ?? ''),
-        t('common.visit', { count: v.concertCount }),
-        v.lastConcertDate ? t('map.lastVisit', { date: formatDate(v.lastConcertDate) }) : '',
-      ]
-        .filter(Boolean)
-        .join('<br/>');
-      return `L.circleMarker([${v.coordsLat},${v.coordsLong}],{radius:${Math.min(6 + v.concertCount * 2, 18)},color:'${color}',fillColor:'${color}',fillOpacity:0.8,weight:2}).bindPopup('${popup.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}').addTo(map);`;
-    })
-    .join('\n');
-
-  return `<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<style>
-  html,body,#map{margin:0;padding:0;width:100%;height:100%;background:#1a1a2e}
-  .leaflet-popup-content-wrapper{border-radius:8px;font-size:13px}
-</style>
-</head>
-<body>
-<div id="map"></div>
-<script>
-var map=L.map('map',{zoomControl:true}).setView([${centerLat},${centerLng}],3);
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  maxZoom:19,
-  attribution:'© OpenStreetMap'
-}).addTo(map);
-${markers}
-</script>
-</body>
-</html>`;
-}
+import { buildHtml, visitColor, VISIT_TIERS, type VenueWithCoords } from './venuesMapHtml';
 
 export default function VenuesMapView() {
   const { t } = useTranslation();
