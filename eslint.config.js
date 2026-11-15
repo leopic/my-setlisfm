@@ -77,6 +77,7 @@ module.exports = tseslint.config(
       'jest.setup.js',
       'eslint.config.js',
       'app.config.js',
+      'fingerprint.config.js',
     ],
   },
 );

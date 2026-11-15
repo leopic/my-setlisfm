@@ -117,7 +117,9 @@ jobs:
 
       # A Release .app embeds its JS bundle, so a cached build would otherwise
       # run stale JS. Rebuild only the bundle (as Hermes bytecode, like the
-      # Xcode build phase does) and swap it into the cached app.
+      # Xcode build phase does) and swap it into the cached app. The app config
+      # expo-constants embeds is rewritten too: its `extra` is not in the
+      # fingerprint (fingerprint.config.js).
       - name: Swap in current JS bundle
         if: steps.app-cache.outputs.cache-hit == 'true'
         run: |
@@ -129,6 +131,8 @@ jobs:
             --bundle-output e2e-build/Chronicles.app/main.jsbundle \
             --assets-dest e2e-build/Chronicles.app \
             --bytecode
+          node node_modules/expo-constants/scripts/getAppConfig.js "$PWD" \
+            e2e-build/Chronicles.app/EXConstants.bundle ios false production
 
       - name: Install Maestro
         run: |
