@@ -1,0 +1,145 @@
+name: Observe intake
+
+# A new EAS Observe error group becomes a GitHub issue from a fixed template
+# (.github/scripts/observe-issue.mjs), and the fix agent starts on it (agent-fix.yml, by call:
+# a label added with this workflow's token would start nothing). An EAS workflow on
+# `observe: new_error` dispatches this with the group's fingerprint.
+# Anyone can send errors to Observe, so the guards are: no raw error text, at most one open
+# issue per error group, a daily cap on agent runs, and Leo's approval on the agent's PR.
+# Observe is asked only for iOS errors from the `preview` environment. That filters noise, not
+# forgers: the app sets the environment, and the project ID is public.
+on:
+  workflow_dispatch:
+    inputs:
+      fingerprint:
+        description: Observe error group fingerprint
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  intake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # One intake at a time, so the duplicate check and the daily count can't race. GitHub keeps
+    # only one waiting run: in a burst, the runs in between are cancelled (they show in Actions).
+    # That is the safe side for a flood of forged errors.
+    concurrency:
+      group: observe-intake
+      cancel-in-progress: false
+    # EXPO_TOKEN (a robot that can read Observe) lives here, and only `main` can use it.
+    environment: observe
+    permissions:
+      contents: read
+      issues: write
+    outputs:
+      issue: ${{ steps.open.outputs.issue }}
+      start: ${{ steps.open.outputs.start }}
+    env:
+      FINGERPRINT: ${{ inputs.fingerprint }}
+      PROJECT_ID: 9906e5cd-8403-4484-8864-346fd65d2475
+      # Agent runs per UTC day. Issues past it still open, labeled budget:paused.
+      DAILY_CAP: 3
+
+    steps:
+      # main's scripts. No install: nothing from the project runs next to EXPO_TOKEN.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+
+      # eas-cli is pinned: it runs with EXPO_TOKEN. Dependabot doesn't see it; bump by hand.
+      # Both steps run outside the checkout: eas-cli then can't load the app config (project
+      # code). Per step: GitHub refuses `runner` in job defaults.
+      - name: Fetch the error group
+        working-directory: ${{ runner.temp }}
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          if ! [[ "$FINGERPRINT" =~ ^[A-Za-z0-9_-]{8,128}$ ]]; then
+            echo "::error::The fingerprint is not in the expected form."; exit 1
+          fi
+          eas() { npx -y eas-cli@27.10.0 "$@" --project-id "$PROJECT_ID" --json; }
+          eas observe:errors --platform ios --environment preview --days 7 > groups.json
+          if ! jq -e '.errors | type == "array"' groups.json > /dev/null; then
+            echo "::error::Observe sent no list of error groups."; exit 1
+          fi
+          if jq -e .isTruncated groups.json > /dev/null; then
+            echo "::warning::Observe cut the list of error groups."
+          fi
+          if ! jq -e --arg fp "$FINGERPRINT" '[.errors[] | select(.fingerprint == $fp)][0]' \
+              groups.json > group.json; then
+            echo "::warning::No iOS preview error group $FINGERPRINT in the last 7 days."
+            echo "No issue: Observe has no iOS preview error group $FINGERPRINT in the last 7 days." \
+              >> "$GITHUB_STEP_SUMMARY"
+            echo '{}' > group.json
+            exit 0
+          fi
+          eas observe:errors --fingerprint="$FINGERPRINT" --limit 1 | jq '.occurrences[0] // null' > occurrence.json
+
+      - name: Open the issue
+        id: open
+        working-directory: ${{ runner.temp }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "$(jq -r '.fingerprint // empty' group.json)" != "$FINGERPRINT" ]; then
+            echo "start=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          node "$GITHUB_WORKSPACE/.github/scripts/observe-issue.mjs" group.json occurrence.json > issue.json
+          jq -r .body issue.json > body.md
+
+          # One open issue per error group, read from the issues (search lags behind).
+          open_issues=$(gh issue list -R "$GITHUB_REPOSITORY" --label source:observe --state open \
+            --limit 200 --json number,body)
+          existing=$(jq -r --arg line "**Observe group:** \`$FINGERPRINT\`" \
+            '[.[] | select((.body // "") | gsub("\r"; "") | split("\n") | any(. == $line))][0].number // empty' <<<"$open_issues")
+          if [ -n "$existing" ]; then
+            echo "::notice::Issue #$existing is already open for this error group."
+            echo "start=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+
+          start=$(jq -r .startAgent issue.json)
+          labels="bug,source:observe"
+          if [ "$start" != "true" ]; then
+            labels="$labels,skipped:no-app-frames"
+          else
+            today=$(date -u +%F)
+            # Agent runs today: issues the intake opened today with the agent label.
+            runs=$(gh issue list -R "$GITHUB_REPOSITORY" --label source:observe --label fixer:gh \
+              --state all --limit 200 --json createdAt \
+              --jq "[.[] | select(.createdAt | startswith(\"$today\"))] | length")
+            if [ "$runs" -ge "$DAILY_CAP" ]; then
+              labels="$labels,budget:paused"
+              start=false
+            else
+              # Shows that the agent took it. The label itself starts nothing here.
+              labels="$labels,fixer:gh"
+            fi
+          fi
+
+          url=$(gh issue create -R "$GITHUB_REPOSITORY" --title "$(jq -r .title issue.json)" \
+            --body-file body.md --label "$labels")
+          echo "issue=${url##*/}" >> "$GITHUB_OUTPUT"
+          echo "start=$start" >> "$GITHUB_OUTPUT"
+          echo "Opened $url (agent: $start)" >> "$GITHUB_STEP_SUMMARY"
+
+  fix:
+    needs: intake
+    if: needs.intake.outputs.start == 'true'
+    # The most the agent workflow's jobs need; each of its jobs asks for less.
+    permissions:
+      actions: write
+      contents: write
+      issues: write
+      pull-requests: write
+    uses: ./.github/workflows/agent-fix.yml
+    with:
+      issue_number: ${{ fromJSON(needs.intake.outputs.issue) }}

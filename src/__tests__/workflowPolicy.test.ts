@@ -8,7 +8,9 @@ type Step = {
   name?: string;
   uses?: string;
   run?: string;
+  'working-directory'?: string;
   with?: Record<string, string | boolean>;
+  env?: Record<string, unknown>;
   'continue-on-error'?: boolean;
 };
 type Job = {
@@ -16,6 +18,10 @@ type Job = {
   env?: Record<string, unknown>;
   permissions?: Record<string, string>;
   environment?: string;
+  uses?: string;
+  with?: Record<string, unknown>;
+  needs?: string | string[];
+  concurrency?: { group?: string; 'cancel-in-progress'?: boolean };
   steps: Step[];
 };
 type Workflow = { permissions?: unknown; on: Record<string, unknown>; jobs: Record<string, Job> };
@@ -36,23 +42,23 @@ it('runs the agent with a read-only token, no id-token, and the main-only enviro
   expect(fix.environment).toBe('agent');
 });
 
-it('starts only on issues Leo opened and labeled', () => {
+it('starts on a label only when Leo adds it', () => {
   for (const name of ['fix', 'pick-up']) {
     const condition = workflow.jobs[name].if ?? '';
-    expect(condition).toContain('github.event.issue.user.login == github.repository_owner');
-    expect(condition).toContain('github.event.sender.login == github.repository_owner');
+    expect(condition).toContain('&& github.event.sender.login == github.repository_owner)');
   }
 });
 
-// The Observe intake calls the workflow with the issue it opened; label events need Leo.
-it('starts from a call with an issue number, or from Leo labeling his own issue', () => {
+// The Observe intake calls the workflow with the issue it opened; label events need Leo, on his
+// own issue or on one the intake opened (one it paused over the daily cap).
+it('starts from a call with an issue number, or from Leo labeling his or an intake issue', () => {
   expect(workflow.on.workflow_call).toEqual({
     inputs: { issue_number: { type: 'number', required: true } },
   });
   for (const name of ['fix', 'pick-up']) {
     const condition = (workflow.jobs[name].if ?? '').replace(/\s+/g, ' ').trim();
     expect(condition).toBe(
-      "inputs.issue_number || (github.event_name == 'issues' && github.event.label.name == 'fixer:gh' && !github.event.issue.pull_request && github.event.issue.user.login == github.repository_owner && github.event.sender.login == github.repository_owner)",
+      "inputs.issue_number || (github.event_name == 'issues' && github.event.label.name == 'fixer:gh' && !github.event.issue.pull_request && (github.event.issue.user.login == github.repository_owner || (github.event.issue.user.login == 'github-actions[bot]' && contains(github.event.issue.labels.*.name, 'source:observe'))) && github.event.sender.login == github.repository_owner)",
     );
   }
 });
@@ -197,21 +203,41 @@ it('fails the transcript scan when the scanner is missing', () => {
   expect(scan?.run).not.toMatch(/git show[^\n]*\|\s*bash/);
 });
 
-// A tag can move to other code; a commit can't. Dependabot keeps the pins fresh.
+const workflowsDir = join(__dirname, '../../.github/workflows');
+const workflowFiles = readdirSync(workflowsDir).filter((name) => name.endsWith('.yml'));
+
+// A tag can move to other code; a commit can't. Dependabot keeps the pins fresh. A workflow in
+// this repo (`./.github/workflows/…`) runs from the same commit, so it needs no pin.
 it('pins every action to a commit', () => {
-  const dir = join(__dirname, '../../.github/workflows');
-  const uses = readdirSync(dir)
-    .filter((name) => name.endsWith('.yml'))
-    .flatMap((name) => readFileSync(join(dir, name), 'utf8').match(/^\s*-?\s*uses:\s*\S+/gm) ?? []);
+  const uses = workflowFiles.flatMap(
+    (name) => readFileSync(join(workflowsDir, name), 'utf8').match(/^\s*-?\s*uses:\s*\S+/gm) ?? [],
+  );
   expect(uses.length).toBeGreaterThan(0);
-  for (const line of uses) expect(line).toMatch(/@[0-9a-f]{40}$/);
+  for (const line of uses) {
+    expect(line).toMatch(/(@[0-9a-f]{40}|uses:\s*\.\/\.github\/workflows\/[\w-]+\.yml)$/);
+  }
 });
 
 it('runs an exact eas-cli version with the Expo token', () => {
-  const ship = readFileSync(join(__dirname, '../../.eas/workflows/ship-main.yml'), 'utf8');
-  const versions = ship.match(/eas-cli@\S+/g) ?? [];
-  expect(versions.length).toBeGreaterThan(0);
-  for (const version of versions) expect(version).toMatch(/^eas-cli@\d+\.\d+\.\d+$/);
+  for (const file of [
+    '../../.eas/workflows/ship-main.yml',
+    '../../.github/workflows/observe-intake.yml',
+  ]) {
+    const versions = readFileSync(join(__dirname, file), 'utf8').match(/eas-cli@\S+/g) ?? [];
+    expect(versions.length).toBeGreaterThan(0);
+    for (const version of versions) expect(version).toMatch(/^eas-cli@\d+\.\d+\.\d+$/);
+  }
+});
+
+// Only the intake may start the agent without Leo's label: it opens the issue from a fixed
+// template and applies the guards.
+it('lets only the Observe intake call the agent workflow', () => {
+  const callers = workflowFiles.filter((name) =>
+    /uses:\s*\.\/\.github\/workflows\/agent-fix\.yml/.test(
+      readFileSync(join(workflowsDir, name), 'utf8'),
+    ),
+  );
+  expect(callers).toEqual(['observe-intake.yml']);
 });
 
 it('lets the agent workflow start CI', () => {
@@ -274,4 +300,72 @@ it.each([
     expect(step.with?.cache).toBeUndefined();
     expect(step.with?.['package-manager-cache']).toBe(false);
   }
+});
+
+describe('observe-intake.yml', () => {
+  const intakeWorkflow = read('observe-intake.yml');
+  const intake = intakeWorkflow.jobs.intake;
+  const fixCall = intakeWorkflow.jobs.fix;
+  const steps = intake.steps;
+
+  it('starts only by hand or by dispatch, with no default permissions', () => {
+    expect(Object.keys(intakeWorkflow.on)).toEqual(['workflow_dispatch']);
+    expect(intakeWorkflow.permissions).toEqual({});
+  });
+
+  it('gives the Expo token job only issue writes, in the main-only environment', () => {
+    expect(intake.permissions).toEqual({ contents: 'read', issues: 'write' });
+    expect(intake.environment).toBe('observe');
+  });
+
+  it('runs one intake at a time, so the guards cannot race', () => {
+    expect(intake.concurrency).toEqual({ group: 'observe-intake', 'cancel-in-progress': false });
+  });
+
+  it('gives the Expo token to the fetch step only', () => {
+    expect(JSON.stringify(intake.env)).not.toContain('secrets.');
+    expect(JSON.stringify(intake.env)).not.toContain('github.token');
+    const withSecrets = steps.filter((step) => JSON.stringify(step).includes('secrets.'));
+    expect(withSecrets.map((step) => step.name)).toEqual(['Fetch the error group']);
+    expect(withSecrets[0].env).toEqual({ EXPO_TOKEN: '${{ secrets.EXPO_TOKEN }}' });
+  });
+
+  // eas-cli comes from npm with unlocked dependencies: it must not see a token that writes.
+  it('gives the GitHub token only to the step that opens the issue', () => {
+    const withToken = steps.filter((step) => JSON.stringify(step).includes('github.token'));
+    expect(withToken.map((step) => step.name)).toEqual(['Open the issue']);
+  });
+
+  it('runs no project code next to the Expo token', () => {
+    for (const step of steps.filter((step) => step.run)) {
+      expect(step['working-directory']).toBe('${{ runner.temp }}');
+    }
+    for (const step of steps) {
+      expect(step.run ?? '').not.toMatch(/\b(yarn|npm (ci|install)|corepack)\b/);
+      if (step.uses?.startsWith('actions/checkout@')) {
+        expect(step.with?.['persist-credentials']).toBe(false);
+      }
+      if (step.uses?.startsWith('actions/setup-node@')) {
+        expect(step.with?.['package-manager-cache']).toBe(false);
+      }
+      expect(step.uses ?? '').not.toMatch(/^actions\/cache/);
+    }
+  });
+
+  it('checks the fingerprint before it uses it', () => {
+    const fetch = steps.find((step) => step.name === 'Fetch the error group')?.run ?? '';
+    const check = fetch.indexOf('[[ "$FINGERPRINT" =~ ^[A-Za-z0-9_-]{8,128}$ ]]');
+    expect(check).toBeGreaterThan(-1);
+    expect(check).toBeLessThan(fetch.indexOf('eas observe:errors'));
+    // Only through env: an expression inside a script would put the text in the shell code.
+    expect(intake.env?.FINGERPRINT).toBe('${{ inputs.fingerprint }}');
+    for (const step of steps) expect(step.run ?? '').not.toContain('${{');
+  });
+
+  it('starts the agent only when the intake says so, on the issue it opened', () => {
+    expect(fixCall.needs).toBe('intake');
+    expect(fixCall.if).toBe("needs.intake.outputs.start == 'true'");
+    expect(fixCall.uses).toBe('./.github/workflows/agent-fix.yml');
+    expect(fixCall.with).toEqual({ issue_number: '${{ fromJSON(needs.intake.outputs.issue) }}' });
+  });
 });

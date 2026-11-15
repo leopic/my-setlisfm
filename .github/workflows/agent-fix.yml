@@ -1,7 +1,8 @@
 name: Agent fix
 
 # Adding the label `fixer:gh` to a bug issue Leo opened starts an agent: it reproduces the bug
-# with a failing Jest test and fixes it. Only Leo's own issues, labeled by Leo, start it this way.
+# with a failing Jest test and fixes it. Only Leo's own issues, or issues the Observe intake
+# opened (`source:observe`), labeled by Leo, start it this way.
 # The agent can't push or write to GitHub: it hands over a patch, and a job that runs no agent
 # code checks it (only src/ and app/), pushes it and opens a PR with auto-merge on. Nothing
 # merges without a code owner's approval and green CI (`main` ruleset).
@@ -22,13 +23,16 @@ jobs:
   # Tells the issue right away that an agent took it, with a link to the run. In its own job
   # (runs no agent code), next to `fix`, so the comment comes before any work.
   pick-up:
-    # Only Leo's own issues, labeled by Leo, or an issue the Observe intake opened from its fixed
-    # template: free issue text from anyone else never reaches the agent.
+    # Only Leo's own issues, or an issue the Observe intake opened from its fixed template: free
+    # issue text from anyone else never reaches the agent. The label must come from Leo (so he
+    # can start one the intake paused); the intake calls the workflow instead.
     if: >-
       inputs.issue_number
       || (github.event_name == 'issues'
         && github.event.label.name == 'fixer:gh' && !github.event.issue.pull_request
-        && github.event.issue.user.login == github.repository_owner
+        && (github.event.issue.user.login == github.repository_owner
+          || (github.event.issue.user.login == 'github-actions[bot]'
+            && contains(github.event.issue.labels.*.name, 'source:observe')))
         && github.event.sender.login == github.repository_owner)
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -46,13 +50,16 @@ jobs:
           Live run: $RUN_URL"
 
   fix:
-    # Only Leo's own issues, labeled by Leo, or an issue the Observe intake opened from its fixed
-    # template: free issue text from anyone else never reaches the agent.
+    # Only Leo's own issues, or an issue the Observe intake opened from its fixed template: free
+    # issue text from anyone else never reaches the agent. The label must come from Leo (so he
+    # can start one the intake paused); the intake calls the workflow instead.
     if: >-
       inputs.issue_number
       || (github.event_name == 'issues'
         && github.event.label.name == 'fixer:gh' && !github.event.issue.pull_request
-        && github.event.issue.user.login == github.repository_owner
+        && (github.event.issue.user.login == github.repository_owner
+          || (github.event.issue.user.login == 'github-actions[bot]'
+            && contains(github.event.issue.labels.*.name, 'source:observe')))
         && github.event.sender.login == github.repository_owner)
     runs-on: ubuntu-latest
     timeout-minutes: 30
