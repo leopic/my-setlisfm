@@ -142,6 +142,12 @@ A native change starts a new preview build instead (iOS simulator, one EAS build
 which has to be installed by hand; the old build gets no more updates. The fingerprint skips
 `extra` (`fingerprint.config.js`), so keep native settings out of it.
 
+`main` has a ruleset ("main: human gate"): changes land only through a PR approved by a code
+owner (`.github/CODEOWNERS`: Leo), and only admins can bypass it, through the PR. Adding the label `fixer:gh` to a bug issue starts
+`.github/workflows/agent-fix.yml`: an agent writes a failing test, fixes the bug and opens a
+draft PR labeled `needs-human:review`. Leo approves and merges those PRs; never bypass the
+ruleset for them.
+
 ## Environment
 
 Create a `.env` file at the repo root:
