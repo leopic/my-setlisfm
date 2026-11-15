@@ -5,6 +5,7 @@ import { parse } from 'yaml';
 // The agent's code runs in the `fix` job of agent-fix.yml. These rules keep a hijacked agent
 // from pushing, reading the Claude token or reaching a write token. See the comments there.
 type Step = {
+  name?: string;
   uses?: string;
   run?: string;
   with?: Record<string, string | boolean>;
@@ -31,7 +32,7 @@ it('gives the workflow no default permissions', () => {
 });
 
 it('runs the agent with a read-only token, no id-token, and the main-only environment', () => {
-  expect(fix.permissions).toEqual({ contents: 'read' });
+  expect(fix.permissions).toEqual({ contents: 'read', issues: 'read' });
   expect(fix.environment).toBe('agent');
 });
 
@@ -41,6 +42,39 @@ it('starts only on issues Leo opened and labeled', () => {
     expect(condition).toContain('github.event.issue.user.login == github.repository_owner');
     expect(condition).toContain('github.event.sender.login == github.repository_owner');
   }
+});
+
+// The Observe intake calls the workflow with the issue it opened; label events need Leo.
+it('starts from a call with an issue number, or from Leo labeling his own issue', () => {
+  expect(workflow.on.workflow_call).toEqual({
+    inputs: { issue_number: { type: 'number', required: true } },
+  });
+  for (const name of ['fix', 'pick-up']) {
+    const condition = (workflow.jobs[name].if ?? '').replace(/\s+/g, ' ').trim();
+    expect(condition).toBe(
+      "inputs.issue_number || (github.event_name == 'issues' && github.event.label.name == 'fixer:gh' && !github.event.issue.pull_request && github.event.issue.user.login == github.repository_owner && github.event.sender.login == github.repository_owner)",
+    );
+  }
+});
+
+it('reads only an open issue by Leo or the intake when called, and fails if it can not', () => {
+  const save = fix.steps.find((step) => step.name === 'Save the bug report')?.run ?? '';
+  expect(save).toContain('set -o pipefail');
+  expect(save).toContain('(.pull_request | not) and .state == "open"');
+  expect(save).toContain('.user.login == $owner');
+  expect(save).toContain('.user.login == "github-actions[bot]"');
+  expect(save).toContain('any(.labels[]; .name == "source:observe")');
+  expect(save).toMatch(
+    /\| jq -f \.github\/scripts\/clean-issue\.jq > "\$RUNNER_TEMP\/agent-io\/issue\.json"$/m,
+  );
+});
+
+it('takes the issue number from the call first, everywhere', () => {
+  const text = readFileSync(join(__dirname, '../../.github/workflows/agent-fix.yml'), 'utf8');
+  const uses = text.match(/[^\n]*github\.event\.issue\.number[^\n]*/g) ?? [];
+  expect(uses.length).toBeGreaterThan(0);
+  for (const line of uses)
+    expect(line).toContain('inputs.issue_number || github.event.issue.number');
 });
 
 it('isolates the commands the agent runs', () => {
@@ -148,12 +182,13 @@ it('pins the agent action to a commit', () => {
 });
 
 it('hands the patch to publish under one name for all attempts', () => {
-  const upload = fix.steps.find((step) => step.with?.name === 'agent-output');
+  const name = 'agent-output-${{ inputs.issue_number || github.event.issue.number }}';
+  const upload = fix.steps.find((step) => step.with?.name === name);
   const download = workflow.jobs.publish.steps.find((step) =>
     step.uses?.startsWith('actions/download-artifact@'),
   );
   expect(upload?.with?.overwrite).toBe(true);
-  expect(download?.with?.name).toBe('agent-output');
+  expect(download?.with?.name).toBe(name);
 });
 
 it('fails the transcript scan when the scanner is missing', () => {
