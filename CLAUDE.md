@@ -143,7 +143,7 @@ which has to be installed by hand; the old build gets no more updates. The finge
 `extra` (`fingerprint.config.js`), so keep native settings out of it.
 
 `main` has a ruleset ("main: human gate"): changes land only through a PR approved by a code
-owner (`.github/CODEOWNERS`: Leo), and only admins can bypass it, through the PR. Adding the label `fixer:gh` to a bug issue starts
+owner (`.github/CODEOWNERS`: Leo), and only admins can bypass it, through the PR. Adding the label `fixer:gh` to a bug issue Leo opened starts
 `.github/workflows/agent-fix.yml`: an agent writes a failing test, fixes the bug and opens a
 PR labeled `needs-human:review` with auto-merge on. Leo's approval merges it once CI passes
 (the ruleset requires "Lint, test, typecheck"); never bypass the ruleset for those PRs.
