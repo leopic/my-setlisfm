@@ -148,6 +148,16 @@ owner (`.github/CODEOWNERS`: Leo), and only admins can bypass it, through the PR
 PR labeled `needs-human:review` with auto-merge on. Leo's approval merges it once CI passes
 (the ruleset requires "Lint, test, typecheck"); never bypass the ruleset for those PRs.
 
+`.github/workflows/observe-intake.yml` is the other way in: dispatched with an EAS Observe error
+fingerprint, it opens an issue from a fixed template (`.github/scripts/observe-issue.mjs`,
+label `source:observe`) and calls `agent-fix.yml` on it. Anyone can send errors to Observe, so
+it opens at most one issue per error group and starts at most 3 agent runs per UTC day
+(`budget:paused` past that; Leo adding `fixer:gh` to such an issue starts the agent); an error with no frame in `src/` or `app/` gets
+`skipped:no-app-frames` and no agent. Its `observe` environment (main only) holds `EXPO_TOKEN`;
+the intake job installs nothing, so no project code runs next to it. The fix agent reads only
+open issues by Leo, or by the intake with `source:observe`. A policy test keeps
+`observe-intake.yml` the only caller of `agent-fix.yml`.
+
 ## Environment
 
 Create a `.env` file at the repo root:
