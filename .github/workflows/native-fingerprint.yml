@@ -11,12 +11,9 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
-  # To post the reminder. Dependabot runs get this too (the permissions key
-  # raises their read-only default); fork PRs stay read-only, so the comment
-  # step fails quietly there and the job summary still shows the result.
-  pull-requests: write
+# Job 1 runs the PR's code (installs, fingerprint) with a read-only token. Job 2 holds the
+# write token, runs no PR code and builds the comment with main's script.
+permissions: {}
 
 concurrency:
   group: native-fingerprint-${{ github.event.pull_request.number }}
@@ -27,6 +24,10 @@ jobs:
     name: Native fingerprint
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+    outputs:
+      ok: ${{ steps.fingerprint.outcome == 'success' }}
 
     steps:
       # The PR's merge commit: main as of the last sync, plus the PR. Its first
@@ -36,6 +37,7 @@ jobs:
         with:
           path: head
           fetch-depth: 2
+          persist-credentials: false
 
       - name: Check out base
         run: git -C head worktree add --detach ../base HEAD^1
@@ -43,21 +45,13 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: head/.nvmrc
+          package-manager-cache: false
 
       # Yarn 4 ships via Corepack, pinned by the packageManager field.
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Locate Yarn cache
-        id: yarn-cache
-        working-directory: head
-        run: echo "dir=$(yarn config get cacheFolder)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ steps.yarn-cache.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('head/yarn.lock', 'base/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-yarn-
+      # No cache: a cache another run saved could carry code into this job.
 
       # The fingerprint hashes the native modules autolinking finds in
       # node_modules, so each side needs its own install.
@@ -66,26 +60,70 @@ jobs:
       - name: Fingerprint base and head
         id: fingerprint
         continue-on-error: true
-        env:
-          # Via env, never ${{ }} in the script: branch names are PR-controlled.
-          BRANCH: ${{ github.head_ref }}
         run: |
+          mkdir -p out
           for side in base head; do
-            (cd "$side" && yarn install --immutable && npx @expo/fingerprint fingerprint:generate --platform ios > "../$side.json")
+            (cd "$side" && yarn install --immutable && npx @expo/fingerprint fingerprint:generate --platform ios > "../out/$side.json")
           done
-          (cd head && npx @expo/fingerprint fingerprint:diff ../base.json ../head.json) > diff.json
-          node head/.github/scripts/native-fingerprint-comment.mjs base.json head.json diff.json \
-            "$BRANCH" > comment.md
-          if [ -s comment.md ]; then cat comment.md; else echo "Native fingerprint unchanged."; fi >> "$GITHUB_STEP_SUMMARY"
+          (cd head && npx @expo/fingerprint fingerprint:diff ../out/base.json ../out/head.json) > out/diff.json
 
-      # One comment per PR, found by its marker and edited in place on later
-      # pushes; never created for a PR whose fingerprint never changed.
       - name: Report fingerprint failure
         if: steps.fingerprint.outcome == 'failure'
         run: echo "Native fingerprint could not be computed; see the step log." >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Update PR comment
+      - name: Upload the fingerprints
         if: steps.fingerprint.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fingerprint
+          path: out/
+          retention-days: 1
+
+  comment:
+    name: Native fingerprint comment
+    needs: fingerprint
+    if: needs.fingerprint.outputs.ok == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Fork PRs get a read-only token anyway, so the comment step fails quietly there and the
+    # job summary still shows the result.
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      # main's script, not the PR's: the PR can change its own copy.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.base_ref }}
+          sparse-checkout: .github/scripts
+          persist-credentials: false
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: fingerprint
+          path: ${{ runner.temp }}/in
+
+      # The fingerprint files come from a job that ran PR code: the script only reads them as
+      # JSON. The branch comes from the event, not from that job.
+      # Never turns the PR red: a failure here only skips the comment.
+      - name: Build the comment
+        id: build
+        continue-on-error: true
+        env:
+          # Via env, never ${{ }} in the script: branch names are PR-controlled.
+          BRANCH: ${{ github.head_ref }}
+          SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        run: |
+          in="$RUNNER_TEMP/in"
+          node .github/scripts/native-fingerprint-comment.mjs "$in/base.json" "$in/head.json" "$in/diff.json" \
+            "$BRANCH" "$SAME_REPO" > comment.md
+          if [ -s comment.md ]; then cat comment.md; else echo "Native fingerprint unchanged."; fi >> "$GITHUB_STEP_SUMMARY"
+
+      # One comment per PR, found by its marker and edited in place on later
+      # pushes; never created for a PR whose fingerprint never changed.
+      - name: Update PR comment
+        if: steps.build.outcome == 'success'
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
@@ -94,7 +132,7 @@ jobs:
         run: |
           MARKER='<!-- native-fingerprint -->'
           EXISTING=$(gh api --paginate "repos/$REPO/issues/$PR/comments" \
-            --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -n 1)
+            --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"$MARKER\"))) | .id" | head -n 1)
           if [ -s comment.md ]; then
             BODY="$MARKER"$'\n'"$(cat comment.md)"
           elif [ -n "$EXISTING" ]; then
