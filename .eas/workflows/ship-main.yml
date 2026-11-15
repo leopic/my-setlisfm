@@ -64,9 +64,10 @@ jobs:
             echo "SETLISTFM_API_KEY is missing from the EAS preview environment" >&2
             exit 1
           fi
+      # Custom jobs have EXPO_TOKEN but no `eas` binary on the PATH.
       - name: Publish to preview
         run: |
-          eas update \
+          npx -y eas-cli@latest update \
             --channel preview \
             --environment preview \
             --platform ios \
