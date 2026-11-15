@@ -44,6 +44,9 @@ jobs:
       && github.event.sender.login == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # The Claude token lives in this environment, which only `main` can use: a workflow file
+    # pushed to any other branch can't read it.
+    environment: agent
     # In the job, so other label events on the same issue don't queue behind it.
     concurrency:
       group: agent-fix-${{ github.event.issue.number }}
