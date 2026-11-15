@@ -1,0 +1,70 @@
+# Every push to main ships: an OTA update to the `preview` channel when a preview build
+# with the same native fingerprint exists, or a new preview build when the native code
+# changed (install that build on the simulator by hand).
+name: Ship main
+
+on:
+  push:
+    branches: ['main']
+
+# A ship always finishes. A newer push waits for it and replaces any push already waiting,
+# which is fine: the newest commit holds the older ones.
+concurrency:
+  group: ship-main
+
+jobs:
+  fingerprint:
+    name: Fingerprint
+    type: fingerprint
+    # The same environment as the preview build profile, so the hashes match.
+    environment: preview
+
+  get_build:
+    name: Find a matching build
+    needs: [fingerprint]
+    type: get-build
+    params:
+      platform: ios
+      profile: preview
+      fingerprint_hash: ${{ needs.fingerprint.outputs.ios_fingerprint_hash }}
+      wait_for_in_progress: true
+
+  build:
+    name: Build (native change)
+    needs: [get_build]
+    if: ${{ !needs.get_build.outputs.build_id }}
+    type: build
+    params:
+      platform: ios
+      profile: preview
+
+  # A custom job, not the `update` type: that one can't upload source maps, and EAS
+  # Observe needs them for readable stack traces.
+  update:
+    name: Publish update
+    needs: [get_build]
+    if: ${{ needs.get_build.outputs.build_id }}
+    environment: preview
+    env:
+      # Empty for a manual `eas workflow:run`.
+      COMMIT_MESSAGE: ${{ github.commit_message || github.sha }}
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      # An update without the key crashes every installed build at launch
+      # (src/services/setlistApi.ts throws at import).
+      - name: Check the setlist.fm key
+        run: |
+          if [ -z "$SETLISTFM_API_KEY" ]; then
+            echo "SETLISTFM_API_KEY is missing from the EAS preview environment" >&2
+            exit 1
+          fi
+      - name: Publish to preview
+        run: |
+          eas update \
+            --channel preview \
+            --environment preview \
+            --platform ios \
+            --upload-source-maps \
+            --message "$(printf '%s\n' "$COMMIT_MESSAGE" | head -n 1)" \
+            --non-interactive

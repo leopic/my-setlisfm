@@ -134,6 +134,14 @@ changes the iOS fingerprint as a reminder; it doesn't block merging.
 A run where no flow executed ("iOS driver not ready in time") is the runner, not the
 app — re-run it. A flow that ran and failed is a real failure.
 
+## Shipping
+
+A merge to `main` ships (`.eas/workflows/ship-main.yml`, on EAS). JS-only changes go out as an
+OTA update to the `preview` channel, for the preview build with the same native fingerprint.
+A native change starts a new preview build instead (iOS simulator, one EAS build credit),
+which has to be installed by hand; the old build gets no more updates. The fingerprint skips
+`extra` (`fingerprint.config.js`), so keep native settings out of it.
+
 ## Environment
 
 Create a `.env` file at the repo root:
