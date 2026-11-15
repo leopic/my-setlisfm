@@ -67,9 +67,11 @@ jobs:
           fi
       # Custom jobs have EXPO_TOKEN but no `eas` binary on the PATH. EXPO_PUBLIC_COMMIT goes into
       # the bundle, so Settings can show which commit the update holds.
+      # eas-cli is pinned to an exact version: it runs with EXPO_TOKEN, so a bad release must not
+      # reach it on its own. Dependabot doesn't see this line; bump it by hand.
       - name: Publish to preview
         run: |
-          EXPO_PUBLIC_COMMIT="${COMMIT_SHA:0:7}" npx -y eas-cli@latest update \
+          EXPO_PUBLIC_COMMIT="${COMMIT_SHA:0:7}" npx -y eas-cli@27.10.0 update \
             --channel preview \
             --environment preview \
             --platform ios \
