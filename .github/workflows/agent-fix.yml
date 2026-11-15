@@ -146,7 +146,11 @@ jobs:
           denials=$(jq -r '.[] | select(.type == "result") | .permission_denials[]?
             | "- `\(.tool_name)`: `\(.tool_input.command // .tool_input.file_path // .tool_input | @json | .[0:300])`"' \
             "$TRANSCRIPT")
-          { echo '### Blocked tool calls'; echo "${denials:-none}"; } >> "$GITHUB_STEP_SUMMARY"
+          # The agent wrote these commands: stop-commands keeps any "::" line in them inert.
+          marker=$(openssl rand -hex 16)
+          echo "::stop-commands::$marker"
+          { echo '### Blocked tool calls'; echo "${denials:-none}"; } | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "::$marker::"
 
       # The transcript holds what the agent read and ran. Artifacts aren't masked like logs,
       # and this repo is public, so skip the upload if anything in it looks like a token.
@@ -157,12 +161,32 @@ jobs:
         env:
           TRANSCRIPT: ${{ steps.claude.outputs.execution_file }}
         run: |
-          if grep -qE 'sk-ant-[A-Za-z0-9_-]{10,}|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{11,}|eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}|x-access-token:' "$TRANSCRIPT"; then
-            echo "::warning::The transcript contains something like a token, so it is not uploaded."
-            echo "safe=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "safe=true" >> "$GITHUB_OUTPUT"
-          fi
+          safe=true
+          marker=$(openssl rand -hex 16)
+          while IFS='=' read -r name pattern; do
+            grep -qE "$pattern" "$TRANSCRIPT"; status=$?
+            if [ "$status" -ge 2 ]; then
+              safe=false
+              echo "::warning::The scan for a $name failed, so the transcript is not uploaded."
+            elif [ "$status" -eq 0 ]; then
+              safe=false
+              echo "::warning::The transcript contains a $name, so it is not uploaded."
+              # The text before each match, with the match cut off and any run of 8+ token
+              # characters hidden. It can hold issue text: stop-commands keeps "::" lines inert.
+              echo "::stop-commands::$marker"
+              grep -oE ".{0,60}($pattern)" "$TRANSCRIPT" | head -5 \
+                | sed -E -e "s#($pattern).*#@@#" -e 's#[A-Za-z0-9_+/=-]{8,}#[HIDDEN]#g' \
+                  -e 's#^[A-Za-z0-9_+/=-]+#…#' -e 's#@@$#[REDACTED]#' -e 's#^#  #'
+              echo "::$marker::"
+            fi
+          done <<'PATTERNS'
+          Claude token=sk-ant-[A-Za-z0-9_-]{10,}
+          GitHub token=gh[pousr]_[A-Za-z0-9]{20,}
+          GitHub fine-grained token=github_pat_[A-Za-z0-9_]{11,}
+          JWT=eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}
+          git URL with a token=x-access-token:
+          PATTERNS
+          echo "safe=$safe" >> "$GITHUB_OUTPUT"
 
       - name: Upload the transcript
         if: always() && steps.scan.outputs.safe == 'true'
