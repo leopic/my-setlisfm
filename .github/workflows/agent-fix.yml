@@ -13,6 +13,25 @@ permissions:
   id-token: write
 
 jobs:
+  # Tells the issue right away that an agent took it, with a link to the run. In its own job
+  # (runs no agent code), next to `fix`, so the comment comes before any work.
+  pick-up:
+    if: github.event.label.name == 'fixer:gh' && !github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Comment on the issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ github.event.issue.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh issue comment "$ISSUE" -R "$GITHUB_REPOSITORY" --body "🤖 A robot operator picked up this ticket, please stand-by...
+
+          Live run: $RUN_URL"
+
   fix:
     if: github.event.label.name == 'fixer:gh' && !github.event.issue.pull_request
     runs-on: ubuntu-latest
@@ -184,3 +203,21 @@ jobs:
           fi
           gh pr ready "$pr" -R "$GITHUB_REPOSITORY" || true
           gh pr merge "$pr" -R "$GITHUB_REPOSITORY" --auto --squash
+
+  # A failed, timed-out or cancelled agent run says so on the issue; else it would stay silent.
+  report-failure:
+    needs: fix
+    if: failure() || cancelled()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Comment on the issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ github.event.issue.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh issue comment "$ISSUE" -R "$GITHUB_REPOSITORY" --body \
+            "⚠️ The agent run stopped before it finished, so there is no PR. Log: $RUN_URL"
