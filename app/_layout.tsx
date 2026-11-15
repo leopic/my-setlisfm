@@ -21,6 +21,7 @@ import { SyncProvider } from '@/contexts/SyncContext';
 import { OnboardingContext } from '@/contexts/OnboardingContext';
 import { Stack, useRouter, useRootNavigationState } from 'expo-router';
 import { ObserveRoot, useObserve } from 'expo-observe';
+import { UpdateBanner } from '@/components/UpdateBanner';
 import '@/i18n';
 import '@/services/observe';
 
@@ -189,6 +190,7 @@ function Layout() {
               <Stack.Screen name="onboarding" />
             </Stack.Protected>
           </Stack>
+          <UpdateBanner />
         </SyncProvider>
       </OnboardingContext>
     </ThemeProvider>

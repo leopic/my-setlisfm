@@ -154,6 +154,13 @@ export default {
     },
   },
 
+  // Update banner (a downloaded EAS update waits for a restart)
+  updates: {
+    ready: 'New version ready',
+    later: 'Later',
+    restart: 'Restart',
+  },
+
   // Settings
   settings: {
     title: 'Settings',
