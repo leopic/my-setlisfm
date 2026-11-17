@@ -35,7 +35,7 @@
     "expo-symbols": "~58.0.5",
     "expo-system-ui": "~58.0.7",
     "expo-updates": "~58.0.22",
-    "i18next": "^26.4.2",
+    "i18next": "^27.1.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-i18next": "^17.0.16",
