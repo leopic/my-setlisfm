@@ -1,9 +1,22 @@
-import { screen, within } from 'expo-router/testing-library';
+import { fireEvent, screen, within } from 'expo-router/testing-library';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
 import { findScreen, launchApp, openTab } from '../../../test/screen';
 
+// Each test picks the layout; the mock reads the flag when the hook runs.
+let mockIsTablet = false;
+jest.mock('@/utils/tablet', () => ({
+  useTabletLayout: () => ({ isTablet: mockIsTablet, sidebarWidth: 360 }),
+}));
+
+// The map is a native WebView, which Jest cannot load.
+jest.mock('@/components/VenuesMapView', () => () => null);
+
 beforeAll(seedDatabase);
+
+afterEach(() => {
+  mockIsTablet = false;
+});
 
 beforeEach(launchApp);
 
@@ -13,6 +26,93 @@ describe('with only the fixture', () => {
     await openTab('(stats)');
     await findScreen('stats-screen');
     expect(screen.queryByTestId('weekday-eras-card')).not.toBeOnTheScreen();
+  });
+});
+
+// Runs before the older concerts below are inserted into the shared database.
+// Seed: 8 shows in 2024–25 across 3 countries; the first was Radiohead at Madison Square
+// Garden, New York. Friday is the busiest day (3), 2024 ties 2025 on shows (the tie goes to
+// 2024, the last of the newest-first year list), Germany leads with 50% of shows, Berlin is
+// the most visited city.
+describe('sections', () => {
+  async function openStats() {
+    await openTab('(stats)');
+    return findScreen('stats-screen');
+  }
+
+  function expectSectionContent(stats: Awaited<ReturnType<typeof openStats>>) {
+    // The summary line under the title
+    expect(stats.getByText('Stats')).toBeOnTheScreen();
+    expect(stats.getByText('8 shows · 3 countries')).toBeOnTheScreen();
+
+    // Artists: the chart card shows only when there are artists to plot
+    expect(stats.getByText('TOP 5 OVER TIME')).toBeOnTheScreen();
+
+    // Your story: the milestone list, then the totals
+    expect(stats.getByText('MILESTONES')).toBeOnTheScreen();
+    expect(stats.getByText('1st')).toBeOnTheScreen();
+    expect(stats.getByText('Madison Square Garden · New York')).toBeOnTheScreen();
+    expect(stats.getByText('total shows')).toBeOnTheScreen();
+    expect(stats.getByText('countries visited')).toBeOnTheScreen();
+
+    // Concerts: both charts and the busiest year and day cards
+    expect(stats.getByText('SHOWS PER YEAR')).toBeOnTheScreen();
+    expect(stats.getByText('SHOWS BY DAY')).toBeOnTheScreen();
+    expect(stats.getByText('busiest year · 4 shows')).toBeOnTheScreen();
+    expect(stats.getByText('Friday')).toBeOnTheScreen();
+    expect(stats.getByText('most common day · 3 shows')).toBeOnTheScreen();
+
+    // Places: the world map card and the top country and city cards
+    expect(stats.getByText('World Map')).toBeOnTheScreen();
+    expect(stats.getByText('3 countries · tap to explore')).toBeOnTheScreen();
+    expect(stats.getByText('Germany')).toBeOnTheScreen();
+    expect(stats.getByText('50% of shows')).toBeOnTheScreen();
+    expect(stats.getByText('Berlin')).toBeOnTheScreen();
+    expect(stats.getByText('most visited city')).toBeOnTheScreen();
+  }
+
+  it('shows every section on a phone', async () => {
+    const stats = await openStats();
+    expectSectionContent(stats);
+    for (const label of ['ARTISTS', 'YOUR STORY', 'CONCERTS', 'PLACES']) {
+      expect(stats.getByText(label)).toBeOnTheScreen();
+    }
+    expect(stats.queryByTestId('stats-column-left')).not.toBeOnTheScreen();
+    expect(stats.queryByTestId('stats-column-right')).not.toBeOnTheScreen();
+  });
+
+  it('puts artists and story left, concerts and places right on a tablet', async () => {
+    mockIsTablet = true;
+    const stats = await openStats();
+    expectSectionContent(stats);
+    const left = within(stats.getByTestId('stats-column-left'));
+    const right = within(stats.getByTestId('stats-column-right'));
+    expect(left.getByText('ARTISTS')).toBeOnTheScreen();
+    expect(left.getByText('YOUR STORY')).toBeOnTheScreen();
+    expect(left.queryByText('CONCERTS')).not.toBeOnTheScreen();
+    expect(left.queryByText('PLACES')).not.toBeOnTheScreen();
+    expect(right.getByText('CONCERTS')).toBeOnTheScreen();
+    expect(right.getByText('PLACES')).toBeOnTheScreen();
+    expect(right.queryByText('ARTISTS')).not.toBeOnTheScreen();
+    expect(right.queryByText('YOUR STORY')).not.toBeOnTheScreen();
+  });
+
+  it('shows the earlier year of a tie as the busiest year', async () => {
+    const stats = await openStats();
+    expect(stats.getByText('2024')).toBeOnTheScreen();
+    expect(stats.queryByText('2025')).not.toBeOnTheScreen();
+  });
+
+  it('shows the totals in the story cards', async () => {
+    const stats = await openStats();
+    expect(stats.getByText('8')).toBeOnTheScreen();
+    expect(stats.getByText('3')).toBeOnTheScreen();
+  });
+
+  it('opens the world map from the map card', async () => {
+    const stats = await openStats();
+    await fireEvent.press(stats.getByLabelText('Open world map'));
+    expect(await screen.findByText('Venues Map')).toBeOnTheScreen();
   });
 });
 
