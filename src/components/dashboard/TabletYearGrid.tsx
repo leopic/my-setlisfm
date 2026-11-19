@@ -33,6 +33,7 @@ export default function TabletYearGrid({
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const isLandscape = windowWidth > windowHeight;
   const styles = StyleSheet.create({
+    // ── Year grid (left column) ───────────────────────────────────────────
     yearGridCol: {
       flex: 1,
       borderRightWidth: 1,

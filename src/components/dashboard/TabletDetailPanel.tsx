@@ -46,6 +46,7 @@ export default function TabletDetailPanel({
   const detailStyles = useDetailStyles();
   const { names, abbreviations } = useMonthNames();
   const styles = StyleSheet.create({
+    // ── Detail panel (right column) ───────────────────────────────────────
     detailPanel: {
       flex: 2,
       backgroundColor: colors.surface,
@@ -84,6 +85,7 @@ export default function TabletDetailPanel({
     },
   });
 
+  // ── Tablet: derived data for selected year ─────────────────────────────────
   const showCount = stats.concertsByYear.find((y) => y.year === yearStr)?.count ?? 0;
   const monthlyChartData = abbreviations.map((label, i) => ({
     id: MONTH_KEYS[i],
@@ -101,6 +103,8 @@ export default function TabletDetailPanel({
   const showAlsoOnThisDay =
     panelOnThisDay !== null && panelOnThisDay.setlistId !== onThisDay?.setlistId;
 
+  // ── Tablet: detail panel ───────────────────────────────────────────────────
+
   return (
     <ScrollView style={styles.detailPanel} keyboardShouldPersistTaps="handled">
       <View style={styles.detailPanelContent}>
@@ -112,6 +116,7 @@ export default function TabletDetailPanel({
           )}
         </View>
 
+        {/* 4-stat row */}
         <YearStatCards showCount={showCount} summary={summary} monthNames={names} />
 
         {/* Monthly chart — full width */}
@@ -120,6 +125,7 @@ export default function TabletDetailPanel({
           <BarChart data={monthlyChartData} height={90} showLabels />
         </View>
 
+        {/* Concert highlights */}
         {(isLast || isOnThisDay || isFirst || milestones.length > 0) && (
           <DetailHighlights
             stats={stats}

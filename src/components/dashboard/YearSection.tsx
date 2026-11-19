@@ -33,6 +33,8 @@ type SectionProps = {
   styles: TimelineStyles;
 };
 
+// ── Phone: shared JSX ──────────────────────────────────────────────────────
+
 // One year on the phone timeline: chapter header, then its special concerts on the spine.
 function YearSection({
   yearStr,

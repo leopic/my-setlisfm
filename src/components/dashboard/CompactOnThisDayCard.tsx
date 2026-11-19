@@ -20,6 +20,7 @@ export default function CompactOnThisDayCard({ concert, variant }: Props) {
   const openConcert = useOpenConcert();
   const isAlso = variant === 'also';
   const styles = StyleSheet.create({
+    // ── Header OTD card (compact, tablet only) ────────────────────────────
     card: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -31,6 +32,7 @@ export default function CompactOnThisDayCard({ concert, variant }: Props) {
       paddingHorizontal: 10,
       paddingVertical: 6,
     },
+    // Also On This Day — same compact style as header OTD
     cardAlso: {
       marginBottom: 4,
     },

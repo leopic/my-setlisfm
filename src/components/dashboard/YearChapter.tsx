@@ -8,6 +8,7 @@ import type { MonthCounts, YearSummary } from './types';
 function useChapterStyles() {
   const colors = useChronicleColors();
   return StyleSheet.create({
+    // ── Year chapter (phone / phone-like) ─────────────────────────────────
     yearChapter: {
       marginTop: 28,
       marginHorizontal: 20,

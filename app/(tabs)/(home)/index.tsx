@@ -51,6 +51,7 @@ export default function DashboardScreen() {
       flex: 1,
       backgroundColor: colors.background,
     },
+    // ── Tablet body ───────────────────────────────────────────────────────
     tabletBody: {
       flex: 1,
       flexDirection: 'row',
@@ -193,6 +194,7 @@ export default function DashboardScreen() {
     );
   }
 
+  // Build lookups
   const monthlyByYear = groupMonthlyByYear(monthlyData);
   const summaryByYear = indexSummariesByYear(yearSummaries);
   const milestonesByYear = groupMilestonesByYear(insightStats?.milestones ?? []);
@@ -202,7 +204,11 @@ export default function DashboardScreen() {
     artists: stats.totalArtists,
     countries: stats.totalCountries,
   };
+  // ── Tablet: derived data for selected year ─────────────────────────────────
+
   const selectedYearStr = selectedYear ?? yearsSorted[0]?.year?.toString() ?? '';
+
+  // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <SafeAreaView
@@ -211,9 +217,13 @@ export default function DashboardScreen() {
       testID="dashboard-screen"
     >
       {isTablet ? (
+        /* ── Tablet layout ──────────────────────────────────────────────────── */
         <>
+          {/* Two-section top bar */}
           <TabletTopBar totals={totals} onThisDay={onThisDay} onSync={handleSync} />
+          {/* Two-column body */}
           <View style={styles.tabletBody}>
+            {/* Left: year grid */}
             <TabletYearGrid
               years={yearsSorted}
               selectedYear={selectedYearStr}
@@ -221,6 +231,7 @@ export default function DashboardScreen() {
               refreshing={refreshing}
               onRefresh={onRefresh}
             />
+            {/* Right: year detail panel */}
             <TabletDetailPanel
               yearStr={selectedYearStr}
               stats={stats}
@@ -234,6 +245,7 @@ export default function DashboardScreen() {
           </View>
         </>
       ) : (
+        /* ── Phone layout ────────────────────────────────────────────────────── */
         <>
           <PhoneTopBar onSync={handleSync} totals={totals} lastSynced={lastSynced} />
           <TabScrollView

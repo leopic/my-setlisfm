@@ -15,6 +15,7 @@ export default function YearStatCards({ showCount, summary, monthNames }: Props)
   const colors = useChronicleColors();
   const { t } = useTranslation();
   const styles = StyleSheet.create({
+    // 4-stat row
     detailStatRow: {
       flexDirection: 'row',
       gap: 8,
