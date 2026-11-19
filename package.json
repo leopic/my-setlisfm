@@ -9,7 +9,6 @@
     "test": "jest",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
-    "verify": "scripts/verify.sh",
     "format": "prettier --write \"src/**/*.{ts,tsx}\" \"app/**/*.{ts,tsx}\"",
     "test:e2e": ".maestro/scripts/run-seeded.sh",
     "test:e2e:empty": ".maestro/scripts/run-empty.sh",

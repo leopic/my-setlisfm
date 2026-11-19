@@ -1,1 +1,1 @@
-yarn verify
+scripts/verify.sh

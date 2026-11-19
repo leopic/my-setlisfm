@@ -255,7 +255,7 @@ it('blocks on new React Doctor issues in the required CI job', () => {
   expect(doctor?.['continue-on-error']).toBeUndefined();
 });
 
-// `yarn verify` (the pre-push hook) runs what CI runs, so a push fails here first. A check
+// scripts/verify.sh (the pre-push hook) runs what CI runs, so a push fails here first. A check
 // added to CI fails this until verify.sh runs it too.
 describe('scripts/verify.sh', () => {
   const repoFile = (path: string) => readFileSync(join(__dirname, '../..', path), 'utf8');
@@ -288,8 +288,7 @@ describe('scripts/verify.sh', () => {
   });
 
   it('runs before every push', () => {
-    expect(repoFile('.husky/pre-push').trim()).toBe('yarn verify');
-    expect(JSON.parse(repoFile('package.json')).scripts.verify).toBe('scripts/verify.sh');
+    expect(repoFile('.husky/pre-push').trim()).toBe('scripts/verify.sh');
   });
 });
 

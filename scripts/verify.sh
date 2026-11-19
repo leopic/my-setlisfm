@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Runs the checks CI runs on a PR, so a push fails here in under a minute instead of on CI.
-# The pre-push hook calls it (`yarn verify`). Like CI, every check runs even after one fails,
-# then a summary lists the failures. workflowPolicy.test.ts keeps this list in step with
-# ci.yml and expo-doctor.yml. Not here: Maestro (simulator; see CLAUDE.md) and the
+# The pre-push hook calls it; run it by hand as `scripts/verify.sh`. Like CI, every check
+# runs even after one fails, then a summary lists the failures. workflowPolicy.test.ts keeps
+# this list in step with ci.yml and expo-doctor.yml. Not here: Maestro (simulator; see CLAUDE.md) and the
 # GitHub-side checks (CodeQL, native fingerprint).
 set -u
 
