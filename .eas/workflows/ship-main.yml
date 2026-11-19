@@ -11,9 +11,8 @@ on:
     # file still ships; shipMainPaths.test.ts checks what ships and what doesn't.
     paths:
       - '**'
-      # In case '**' skips dotfiles, as some glob matchers do (.nvmrc, .yarnrc.yml, .eas/).
+      # '**' matches dot folders on EAS (tested); a root dotfile (.nvmrc) wasn't tested.
       - '.*'
-      - '.*/**'
       - '!.github/**'
       - '!.husky/**'
       - '!.maestro/**'
@@ -22,6 +21,8 @@ on:
       - '!scripts/**'
       - '!src/__tests__/**'
       - '!test/**'
+      # On EAS '**/' needs at least one folder, so '**/*.md' misses CLAUDE.md and README.md.
+      - '!*.md'
       - '!**/*.md'
       - '!.prettierrc'
       - '!eslint.config.js'

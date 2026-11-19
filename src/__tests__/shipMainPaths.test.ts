@@ -9,8 +9,9 @@ const shipMain = parse(
 ) as { on: { push: { paths: string[] } } };
 const patterns = shipMain.on.push.paths;
 
-// Glob semantics as in GitHub's path filters (EAS documents the same `**` and `!` syntax):
-// the last pattern that matches a file decides. This models EAS's matcher; it can't test it.
+// Models EAS's matcher as a probe branch showed it (2026-11-19): the last pattern that
+// matches a file decides, `**` matches dot folders, and `**/` needs at least one folder, so
+// `**/*.md` misses a root file. It can't test EAS itself.
 const toRegExp = (glob: string) =>
   new RegExp(
     `^${glob
@@ -18,7 +19,7 @@ const toRegExp = (glob: string) =>
       .replace(/\*\*\//g, '%ANYDIRS%')
       .replace(/\*\*/g, '%ANY%')
       .replace(/\*/g, '[^/]*')
-      .replace(/%ANYDIRS%/g, '(?:.*/)?')
+      .replace(/%ANYDIRS%/g, '(?:.+/)')
       .replace(/%ANY%/g, '.*')}$`,
   );
 const ships = (file: string) =>
