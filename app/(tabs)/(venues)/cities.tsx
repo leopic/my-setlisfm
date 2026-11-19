@@ -10,6 +10,7 @@ import { sortByOption } from '@/utils/sort';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
+import ListScreenHeader from '@/components/ListScreenHeader';
 
 interface CityWithStats {
   name: string;
@@ -26,31 +27,6 @@ export default function CitiesScreen() {
     container: {
       flex: 1,
       backgroundColor: colors.background,
-    },
-    inlineHeader: {
-      paddingHorizontal: 16,
-      paddingTop: 12,
-      paddingBottom: 12,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    backRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 6,
-    },
-    backButton: {
-      ...Type.body,
-      color: colors.accent,
-    },
-    headerTitle: {
-      ...Type.heading,
-      color: colors.textPrimary,
-    },
-    headerSubtitle: {
-      ...Type.body,
-      color: colors.textSecondary,
-      marginTop: 2,
     },
     sortPills: {
       flexDirection: 'row',
@@ -136,27 +112,16 @@ export default function CitiesScreen() {
   }
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="cities-screen">
       {/* Inline header */}
-      <View style={styles.inlineHeader}>
-        <View style={styles.backRow}>
-          <Pressable
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-            onPress={() => router.back()}
-            testID="back-button"
-            accessibilityRole="button"
-            accessibilityLabel={t('common.goBack')}
-          >
-            <Text style={styles.backButton}>{t('common.back')}</Text>
-          </Pressable>
-        </View>
-        <Text style={styles.headerTitle}>{t('geo.citiesTitle')}</Text>
-        <Text style={styles.headerSubtitle}>
-          {sortOption === 'top'
+      <ListScreenHeader
+        title={t('geo.citiesTitle')}
+        subtitle={
+          sortOption === 'top'
             ? t('geo.citiesSubtitleSorted', { count: cities.length })
-            : t('geo.citiesSubtitle', { count: cities.length })}
-        </Text>
-      </View>
+            : t('geo.citiesSubtitle', { count: cities.length })
+        }
+      />
 
       {/* Sort pills */}
       <View style={styles.sortPills}>
