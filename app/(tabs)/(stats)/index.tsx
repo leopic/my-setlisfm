@@ -1,41 +1,43 @@
 import { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, useColorScheme } from 'react-native';
+import { View, ScrollView, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useFocusEffect } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { useSyncContext } from '@/contexts/SyncContext';
 import { dbOperations } from '@/database/operations';
 import { useChronicleColors } from '@/utils/colors';
-import { Type } from '@/utils/typography';
-import { formatDate } from '@/utils/date';
-import { toOrdinal } from '@/utils/ordinal';
-import { WEEKDAY_KEYS } from '@/i18n/calendar';
 import { EmptyState } from '@/components/ui';
-import BarChart from '@/components/charts/BarChart';
-import LineChart, { type LineSeries } from '@/components/charts/LineChart';
-import WeekdayErasCard from '@/components/WeekdayErasCard';
 import { groupWeekdaysIntoEras } from '@/utils/weekdayEras';
 import { useTabletLayout } from '@/utils/tablet';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-
-const ARTIST_COLORS_DARK = ['#00e8ff', '#ff9f0a', '#30d158', '#bf5af2', '#ff6b6b'];
-const ARTIST_COLORS_LIGHT = ['#0066bb', '#b45309', '#16a34a', '#7c3aed', '#dc2626'];
+import ArtistsSection from '@/components/stats/ArtistsSection';
+import ConcertsSection from '@/components/stats/ConcertsSection';
+import PlacesSection from '@/components/stats/PlacesSection';
+import StatsHeader from '@/components/stats/StatsHeader';
+import StorySection from '@/components/stats/StorySection';
+import {
+  ARTIST_COLORS_DARK,
+  ARTIST_COLORS_LIGHT,
+  buildArtistSeries,
+  buildArtistXLabels,
+  buildWeekdayBarData,
+  buildYearBarData,
+  findBusiestWeekday,
+  findBusiestYear,
+  type StatsChartData,
+  type YearSummaries,
+} from '@/components/stats/statsData';
+import { createStatsStyles } from '@/components/stats/statsStyles';
 
 export default function StatsScreen() {
   const { t } = useTranslation();
   const colors = useChronicleColors();
-  const router = useRouter();
   const { lastSyncTimestamp } = useSyncContext();
   const { isTablet } = useTabletLayout();
   const scheme = useColorScheme();
   const artistColors = scheme === 'dark' ? ARTIST_COLORS_DARK : ARTIST_COLORS_LIGHT;
 
-  const [yearSummaries, setYearSummaries] = useState<
-    Awaited<ReturnType<typeof dbOperations.getYearSummaries>>
-  >([]);
-  const [chartData, setChartData] = useState<
-    Awaited<ReturnType<typeof dbOperations.getStatsChartData>>
-  >({
+  const [yearSummaries, setYearSummaries] = useState<YearSummaries>([]);
+  const [chartData, setChartData] = useState<StatsChartData>({
     weekdays: [],
     weekdaysByYear: [],
     milestones: [],
@@ -80,289 +82,57 @@ export default function StatsScreen() {
     }, [lastSyncTimestamp]),
   );
 
-  const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.background },
-    header: {
-      paddingHorizontal: 20,
-      paddingTop: 16,
-      paddingBottom: 14,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    headerTitle: { ...Type.heading, color: colors.textPrimary },
-    headerSub: { ...Type.body, color: colors.textSecondary, marginTop: 2 },
-    scroll: { flex: 1 },
-    content: { paddingBottom: 48 },
-    section: {
-      paddingHorizontal: 20,
-      paddingTop: 20,
-      paddingBottom: 4,
-    },
-    sectionLabel: {
-      ...Type.label,
-      color: colors.textMuted,
-      letterSpacing: 1.5,
-      marginBottom: 12,
-    },
-    chartCard: {
-      backgroundColor: colors.surface,
-      borderRadius: 14,
-      borderWidth: 1,
-      borderColor: colors.border,
-      padding: 14,
-      marginBottom: 10,
-    },
-    chartTitle: {
-      ...Type.label,
-      color: colors.textMuted,
-      marginBottom: 10,
-      letterSpacing: 0.6,
-    },
-    cardRow: { flexDirection: 'row', gap: 10 },
-    statCard: {
-      flex: 1,
-      backgroundColor: colors.surface,
-      borderRadius: 12,
-      borderWidth: 1,
-      borderColor: colors.border,
-      padding: 14,
-    },
-    statValue: { ...Type.heading, color: colors.textPrimary, lineHeight: 26 },
-    statLabel: { ...Type.body, color: colors.textSecondary, marginTop: 3 },
-    divider: {
-      height: 1,
-      backgroundColor: colors.border,
-      marginHorizontal: 20,
-      marginTop: 16,
-    },
-    mapCard: {
-      marginHorizontal: 20,
-      marginBottom: 10,
-      backgroundColor: colors.surface,
-      borderRadius: 14,
-      borderWidth: 1,
-      borderColor: colors.border,
-      height: 160,
-      overflow: 'hidden',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    mapInner: { alignItems: 'center', gap: 6 },
-    mapLabel: { ...Type.title, color: colors.textSecondary },
-    mapSub: { ...Type.body, color: colors.textMuted },
-    // ── Milestone list ────────────────────────────────────────────────
-    milestoneRow: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      gap: 12,
-      paddingVertical: 10,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    milestoneOrdinal: {
-      ...Type.label,
-      color: colors.accent,
-      width: 36,
-      textAlign: 'right',
-      paddingTop: 1,
-    },
-    milestoneInfo: { flex: 1 },
-    milestoneTopRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'baseline',
-      gap: 8,
-    },
-    milestoneArtist: { ...Type.body, color: colors.textPrimary, fontWeight: '600', flex: 1 },
-    milestoneDate: { ...Type.label, color: colors.accent },
-    milestoneVenue: { ...Type.label, color: colors.textMuted, marginTop: 2 },
-    // ── Tablet 2-column ───────────────────────────────────────────────
-    twoColRow: { flexDirection: 'row', alignItems: 'flex-start' },
-    twoColLeft: { flex: 1 },
-    twoColRight: { flex: 1 },
-    twoColDivider: { width: 1, backgroundColor: colors.border, alignSelf: 'stretch' },
-  });
+  const styles = createStatsStyles(colors);
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
-  // ── Derived chart data ─────────────────────────────────────────────────────
-
-  const yearBarData = [...yearSummaries]
-    .sort((a, b) => a.year.localeCompare(b.year))
-    .map((r) => ({ id: r.year, label: r.year.slice(2), value: r.shows }));
-
-  const artistSeries: LineSeries[] = (() => {
-    const sorted = [...yearSummaries].sort((a, b) => a.year.localeCompare(b.year));
-    const allYears = sorted.map((r) => r.year);
-
-    // Group by artist
-    const byArtist = new Map<string, Map<string, number>>();
-    for (const row of chartData.topArtistsPerYear) {
-      if (!byArtist.has(row.artistName)) byArtist.set(row.artistName, new Map());
-      byArtist.get(row.artistName)?.set(row.year, row.shows);
-    }
-
-    return Array.from(byArtist.entries()).map(([name, yearMap], i) => {
-      let cumul = 0;
-      const data = allYears.map((yr) => {
-        cumul += yearMap.get(yr) ?? 0;
-        return cumul;
-      });
-      return { label: name, color: artistColors[i % artistColors.length], data };
-    });
-  })();
-
-  const artistXLabels = [...yearSummaries]
-    .sort((a, b) => a.year.localeCompare(b.year))
-    .map((r) => `'${r.year.slice(2)}`);
-
-  const busiestYear = (() => {
-    if (!yearSummaries.length) return null;
-    return yearSummaries.reduce((a, b) => (a.shows > b.shows ? a : b));
-  })();
-
-  const busiestWeekday = (() => {
-    if (!chartData.weekdays.length) return null;
-    const top = chartData.weekdays.reduce((a, b) => (a.concertDays > b.concertDays ? a : b));
-    const key = WEEKDAY_KEYS[top.weekday];
-    return key ? { name: t(`weekdays.long.${key}`), count: top.concertDays } : null;
-  })();
-
-  const weekdayBarData = WEEKDAY_KEYS.map((key, i) => ({
-    id: key,
-    label: t(`weekdays.short.${key}`),
-    value: chartData.weekdays.find((w) => w.weekday === i)?.concertDays ?? 0,
-  }));
-
+  const yearBarData = buildYearBarData(yearSummaries);
+  const artistSeries = buildArtistSeries(yearSummaries, chartData.topArtistsPerYear, artistColors);
+  const artistXLabels = buildArtistXLabels(yearSummaries);
+  const busiestYear = findBusiestYear(yearSummaries);
+  const busiestWeekday = findBusiestWeekday(chartData.weekdays, t);
+  const weekdayBarData = buildWeekdayBarData(chartData.weekdays, t);
   const weekdayEras = groupWeekdaysIntoEras(chartData.weekdaysByYear);
 
   // Each section renders once; the tablet layout puts them in two columns, the phone in one.
   const artistsSection = (
-    <View style={styles.section}>
-      <Text style={styles.sectionLabel}>{t('stats.sectionArtists')}</Text>
-      {artistSeries.length > 0 && (
-        <View style={styles.chartCard}>
-          <Text style={styles.chartTitle}>{t('stats.topArtistsOverTime')}</Text>
-          <LineChart series={artistSeries} xLabels={artistXLabels} height={160} />
-        </View>
-      )}
-    </View>
+    <ArtistsSection styles={styles} series={artistSeries} xLabels={artistXLabels} />
   );
 
   const storySection = (
-    <View style={styles.section}>
-      <Text style={styles.sectionLabel}>{t('stats.sectionStory')}</Text>
-      <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>{t('stats.milestones')}</Text>
-        {chartData.milestones.map((m, i) => (
-          <View
-            key={m.number}
-            style={[
-              styles.milestoneRow,
-              i === chartData.milestones.length - 1 && { borderBottomWidth: 0 },
-            ]}
-          >
-            <Text style={styles.milestoneOrdinal}>{toOrdinal(m.number)}</Text>
-            <View style={styles.milestoneInfo}>
-              <View style={styles.milestoneTopRow}>
-                <Text style={styles.milestoneArtist}>{m.artistName}</Text>
-                <Text style={styles.milestoneDate}>{formatDate(m.eventDate)}</Text>
-              </View>
-              <Text style={styles.milestoneVenue}>
-                {[m.venueName, m.cityName].filter(Boolean).join(' · ')}
-              </Text>
-            </View>
-          </View>
-        ))}
-      </View>
-      <View style={styles.cardRow}>
-        <View style={styles.statCard}>
-          <Text style={[styles.statValue, { color: colors.accent }]}>{totalShows}</Text>
-          <Text style={styles.statLabel}>{t('stats.totalShows')}</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={[styles.statValue, { color: colors.chartGreen }]}>{totalCountries}</Text>
-          <Text style={styles.statLabel}>{t('stats.countriesVisited')}</Text>
-        </View>
-      </View>
-    </View>
+    <StorySection
+      styles={styles}
+      colors={colors}
+      milestones={chartData.milestones}
+      totalShows={totalShows}
+      totalCountries={totalCountries}
+    />
   );
 
   const concertsSection = (
-    <View style={styles.section}>
-      <Text style={styles.sectionLabel}>{t('stats.sectionConcerts')}</Text>
-      <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>{t('stats.showsPerYear')}</Text>
-        <BarChart data={yearBarData} height={90} />
-      </View>
-      <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>{t('stats.showsByDay')}</Text>
-        <BarChart data={weekdayBarData} height={70} />
-      </View>
-      <View style={styles.cardRow}>
-        <View style={styles.statCard}>
-          <Text style={[styles.statValue, { color: colors.chartOrange }]}>
-            {busiestYear?.year ?? '—'}
-          </Text>
-          <Text style={styles.statLabel}>
-            {t('stats.busiestYear', { count: busiestYear?.shows ?? 0 })}
-          </Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={[styles.statValue, { color: colors.accent }]}>
-            {busiestWeekday?.name ?? '—'}
-          </Text>
-          <Text style={styles.statLabel}>
-            {t('stats.mostCommonDay', { count: busiestWeekday?.count ?? 0 })}
-          </Text>
-        </View>
-      </View>
-      {weekdayEras.length > 0 && <WeekdayErasCard eras={weekdayEras} />}
-    </View>
+    <ConcertsSection
+      styles={styles}
+      colors={colors}
+      yearBarData={yearBarData}
+      weekdayBarData={weekdayBarData}
+      busiestYear={busiestYear}
+      busiestWeekday={busiestWeekday}
+      weekdayEras={weekdayEras}
+    />
   );
 
   const placesSection = (
-    <>
-      <View style={styles.section}>
-        <Text style={styles.sectionLabel}>{t('stats.sectionPlaces')}</Text>
-      </View>
-      <Pressable
-        style={({ pressed }) => [styles.mapCard, { opacity: pressed ? 0.8 : 1 }]}
-        onPress={() => router.push('/(stats)/map')}
-        accessibilityRole="button"
-        accessibilityLabel={t('stats.openWorldMap')}
-      >
-        <View style={styles.mapInner}>
-          <Ionicons name="map-outline" size={36} color={colors.accent} style={{ opacity: 0.6 }} />
-          <Text style={styles.mapLabel}>{t('stats.worldMap')}</Text>
-          <Text style={styles.mapSub}>{t('stats.worldMapHint', { count: totalCountries })}</Text>
-        </View>
-      </Pressable>
-      <View style={[styles.cardRow, { paddingHorizontal: 20, marginBottom: 20 }]}>
-        <View style={styles.statCard}>
-          <Text style={[styles.statValue, { color: colors.chartGreen }]}>
-            {topCountry?.name ?? '—'}
-          </Text>
-          <Text style={styles.statLabel}>
-            {topCountry
-              ? t('stats.topCountryShare', { pct: topCountry.pct })
-              : t('stats.topCountry')}
-          </Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={[styles.statValue, { color: colors.accent }]}>{topCity ?? '—'}</Text>
-          <Text style={styles.statLabel}>{t('stats.mostVisitedCity')}</Text>
-        </View>
-      </View>
-    </>
+    <PlacesSection
+      styles={styles}
+      colors={colors}
+      totalCountries={totalCountries}
+      topCountry={topCountry}
+      topCity={topCity}
+    />
   );
 
   if (loading) {
     return (
       <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t('stats.title')}</Text>
-        </View>
+        <StatsHeader styles={styles} />
       </SafeAreaView>
     );
   }
@@ -370,9 +140,7 @@ export default function StatsScreen() {
   if (yearSummaries.length === 0) {
     return (
       <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="stats-screen">
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t('stats.title')}</Text>
-        </View>
+        <StatsHeader styles={styles} />
         <EmptyState
           icon={{ sf: 'chart.bar', md: 'bar-chart-outline' }}
           title={t('stats.emptyTitle')}
@@ -388,13 +156,7 @@ export default function StatsScreen() {
       style={styles.container}
       testID="stats-screen"
     >
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('stats.title')}</Text>
-        <Text style={styles.headerSub}>
-          {t('common.show', { count: totalShows })} ·{' '}
-          {t('common.country', { count: totalCountries })}
-        </Text>
-      </View>
+      <StatsHeader styles={styles} totals={{ shows: totalShows, countries: totalCountries }} />
 
       <ScrollView
         style={styles.scroll}
@@ -404,13 +166,13 @@ export default function StatsScreen() {
       >
         {isTablet ? (
           <View style={styles.twoColRow}>
-            <View style={styles.twoColLeft}>
+            <View style={styles.twoColLeft} testID="stats-column-left">
               {artistsSection}
               <View style={styles.divider} />
               {storySection}
             </View>
             <View style={styles.twoColDivider} />
-            <View style={styles.twoColRight}>
+            <View style={styles.twoColRight} testID="stats-column-right">
               {concertsSection}
               <View style={styles.divider} />
               {placesSection}
