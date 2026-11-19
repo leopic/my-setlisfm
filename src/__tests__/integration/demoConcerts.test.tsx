@@ -127,3 +127,22 @@ it('removes every demo concert and keeps the real data', async () => {
     name: 'Portuguese Republic',
   });
 });
+
+it('enables the buttons again when the reload after a change fails', async () => {
+  const demo = await openDemoScreen();
+  const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+  // The first load already ran; make the reload after the change fail once.
+  const reload = jest
+    .spyOn(dbOperations, 'getAddedDemoConcerts')
+    .mockRejectedValueOnce(new Error('reload failed'));
+
+  await fireEvent.press(demo.getByTestId('demo-add-1'));
+
+  await waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
+  await waitFor(() => expect(demo.getByTestId('demo-add-1')).toBeEnabled());
+  expect(demo.getByTestId('demo-add-2')).toBeEnabled();
+  // The failure is logged, not thrown out of the press handler.
+  expect(consoleError).toHaveBeenCalledWith('Demo concert refresh failed:', expect.any(Error));
+  consoleError.mockRestore();
+  reload.mockRestore();
+});

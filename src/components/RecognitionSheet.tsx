@@ -209,8 +209,9 @@ export default function RecognitionSheet({
           </View>
 
           <View style={styles.grid}>
-            {chips.map((chip, index) => (
-              <View key={index} style={styles.chip}>
+            {chips.map((chip) => (
+              // Chip text is unique: each chip kind has its own template and values.
+              <View key={chip.text} style={styles.chip}>
                 <View style={styles.chipIcon}>
                   <Icon sf={chip.icon.sf} md={chip.icon.md} size={15} color={colors.textMuted} />
                 </View>

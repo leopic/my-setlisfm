@@ -48,11 +48,14 @@ function Layout() {
   });
 
   useEffect(() => {
+    let cancelled = false;
     const init = async () => {
       try {
         await databaseManager.initialize();
+        if (cancelled) return;
         setDbReady(true);
         const username = await getStoredUsername();
+        if (cancelled) return;
         setHasUsername(!!username);
 
         if (__DEV__) {
@@ -128,7 +131,10 @@ function Layout() {
       }
     };
 
-    init();
+    void init();
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
 
   // Always open the dashboard on launch.

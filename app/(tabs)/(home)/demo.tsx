@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -21,13 +21,15 @@ export default function DemoScreen() {
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
 
-  const refresh = useCallback(async () => {
-    setAdded(await dbOperations.getAddedDemoConcerts());
-  }, []);
-
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    let cancelled = false;
+    void dbOperations.getAddedDemoConcerts().then((rows) => {
+      if (!cancelled) setAdded(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const run = async (change: () => Promise<void>) => {
     if (busyRef.current) return;
@@ -39,13 +41,15 @@ export default function DemoScreen() {
       console.error('Demo concert change failed:', error);
       Alert.alert(t('demo.error'));
     }
+    // No try/finally: the React Compiler cannot compile it, so reset after the catch.
     try {
       notifySyncComplete();
-      await refresh();
-    } finally {
-      busyRef.current = false;
-      setBusy(false);
+      setAdded(await dbOperations.getAddedDemoConcerts());
+    } catch (error) {
+      console.error('Demo concert refresh failed:', error);
     }
+    busyRef.current = false;
+    setBusy(false);
   };
 
   const confirmRemove = () => {
