@@ -81,3 +81,20 @@ it('venues → continents → continent detail → back chain', async () => {
   await goBackFrom('continents-screen');
   expect(screen).toHaveSegments(['(tabs)', '(venues)']);
 });
+
+it.each([
+  ['nav-continents', 'continents-screen', 'Continents', /^\d+ continents?$/],
+  ['nav-countries', 'countries-screen', 'Countries', /^\d+ countr(y|ies)$/],
+  ['nav-cities', 'cities-screen', 'Cities', /^\d+ cit(y|ies)$/],
+])('venues → %s shows its header and goes back', async (navId, screenId, title, subtitle) => {
+  await openTab('(venues)');
+  const venues = await findScreen('venues-screen');
+  await fireEvent.press(venues.getByTestId(navId));
+
+  const list = await findScreen(screenId);
+  expect(list.getByText(title)).toBeOnTheScreen();
+  expect(list.getByText(subtitle)).toBeOnTheScreen();
+
+  await goBackFrom(screenId);
+  expect(screen).toHaveSegments(['(tabs)', '(venues)']);
+});

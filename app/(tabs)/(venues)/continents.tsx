@@ -10,6 +10,7 @@ import { sortByOption } from '@/utils/sort';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
+import ListScreenHeader from '@/components/ListScreenHeader';
 import { TabScrollView } from '@/components/ui';
 
 interface ContinentWithStats {
@@ -28,31 +29,6 @@ export default function ContinentsScreen() {
     container: {
       flex: 1,
       backgroundColor: colors.background,
-    },
-    inlineHeader: {
-      paddingHorizontal: 16,
-      paddingTop: 12,
-      paddingBottom: 12,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    backRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 6,
-    },
-    backButton: {
-      ...Type.body,
-      color: colors.accent,
-    },
-    headerTitle: {
-      ...Type.heading,
-      color: colors.textPrimary,
-    },
-    headerSubtitle: {
-      ...Type.body,
-      color: colors.textSecondary,
-      marginTop: 2,
     },
     sortPills: {
       flexDirection: 'row',
@@ -256,25 +232,14 @@ export default function ContinentsScreen() {
       testID="continents-screen"
     >
       {/* Inline header */}
-      <View style={styles.inlineHeader}>
-        <View style={styles.backRow}>
-          <Pressable
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-            onPress={() => router.back()}
-            testID="back-button"
-            accessibilityRole="button"
-            accessibilityLabel={t('common.goBack')}
-          >
-            <Text style={styles.backButton}>{t('common.back')}</Text>
-          </Pressable>
-        </View>
-        <Text style={styles.headerTitle}>{t('geo.continentsTitle')}</Text>
-        <Text style={styles.headerSubtitle}>
-          {sortOption === 'top'
+      <ListScreenHeader
+        title={t('geo.continentsTitle')}
+        subtitle={
+          sortOption === 'top'
             ? t('geo.continentsSubtitleSorted', { count: continents.length })
-            : t('geo.continentsSubtitle', { count: continents.length })}
-        </Text>
-      </View>
+            : t('geo.continentsSubtitle', { count: continents.length })
+        }
+      />
 
       {/* Sort pills */}
       <View style={styles.sortPills}>
