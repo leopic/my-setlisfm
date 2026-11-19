@@ -255,6 +255,44 @@ it('blocks on new React Doctor issues in the required CI job', () => {
   expect(doctor?.['continue-on-error']).toBeUndefined();
 });
 
+// `yarn verify` (the pre-push hook) runs what CI runs, so a push fails here first. A check
+// added to CI fails this until verify.sh runs it too.
+describe('scripts/verify.sh', () => {
+  const repoFile = (path: string) => readFileSync(join(__dirname, '../..', path), 'utf8');
+  const verify = repoFile('scripts/verify.sh');
+  const setup = ['Enable Corepack', 'Locate Yarn cache'];
+  // The bundle goes to a temp folder locally, so the output path may differ.
+  const withoutOutputDir = (command: string) => command.replace(/ --output-dir \S+/, '');
+  const commands = (job: Job) =>
+    job.steps
+      .filter((step) => step.run && !setup.includes(step.name ?? ''))
+      .map((step) => withoutOutputDir(step.run ?? ''));
+  // Only real `check <Name> <command>` lines count, not comments or other text.
+  const checked = [...verify.matchAll(/^\s*check (?:"[^"]+"|\S+) (.+)$/gm)].map((m) => m[1]);
+
+  it('runs every check of the CI job', () => {
+    const ciCommands = commands(read('ci.yml').jobs.check);
+    expect(ciCommands.length).toBeGreaterThan(4);
+    for (const command of ciCommands) expect(checked.map(withoutOutputDir)).toContain(command);
+  });
+
+  it('keeps the bundle out of the repo', () => {
+    expect(checked).toContain('npx expo export --platform ios --output-dir "$bundle_dir"');
+  });
+
+  it('runs Expo Doctor for the same files as its workflow', () => {
+    const doctor = read('expo-doctor.yml');
+    for (const command of commands(doctor.jobs.doctor)) expect(checked).toContain(command);
+    const { paths } = doctor.on.pull_request as { paths: string[] };
+    expect(verify).toContain(`git diff --quiet origin/main... -- ${paths.join(' ')}`);
+  });
+
+  it('runs before every push', () => {
+    expect(repoFile('.husky/pre-push').trim()).toBe('yarn verify');
+    expect(JSON.parse(repoFile('package.json')).scripts.verify).toBe('scripts/verify.sh');
+  });
+});
+
 // PR code (installs, fingerprint) runs in a read-only job; the job that comments runs main's
 // script only.
 describe('native-fingerprint.yml', () => {

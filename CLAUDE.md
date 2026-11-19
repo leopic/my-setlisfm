@@ -11,6 +11,7 @@ yarn android        # Run on Android emulator
 yarn test           # Jest unit + integration tests (watch mode off by default)
 yarn lint           # ESLint check — fails on any warning (--max-warnings 0)
 yarn lint:fix       # ESLint auto-fix
+yarn verify         # Every check CI runs (the pre-push hook runs it)
 yarn format         # Prettier format
 
 # E2E (Maestro)
@@ -27,10 +28,11 @@ yarn test src/__tests__/setlistApi.test.ts
 
 ## Quality gates
 
-Two layers, both required — never bypass either:
+Three layers, all required — never bypass any:
 
 - **Pre-commit** (husky + lint-staged): runs `eslint --fix` on staged `.ts`/`.tsx`.
   Formatting is repaired in place and restaged; anything unfixable blocks the commit.
+- **Pre-push** (husky): `yarn verify`, the same checks as CI (below).
 - **CI** (`.github/workflows/ci.yml`): `yarn install --immutable`, then lint, tests,
   `tsc --noEmit`, React Doctor on the changed files and an iOS bundle export
   (`expo export`) on every PR and push to `main`.
@@ -39,7 +41,11 @@ Two layers, both required — never bypass either:
 warning fails the build. That is deliberate: as a warning it let ~2500 violations
 accumulate, because ESLint exits 0 on warnings.
 
-The hook only lints staged files. Types and tests are CI's job.
+The pre-commit hook only lints staged files. The pre-push hook runs `yarn verify`
+(`scripts/verify.sh`): every check of CI's job, plus Expo Doctor when `package.json`,
+`yarn.lock` or `app.config.js` changed. It runs them all, lists the failures and blocks the
+push, so a red build shows up in under a minute here, not after CI. It checks the working
+tree, so commit first. A policy test fails when CI gains a check that `verify.sh` lacks.
 
 `expo-doctor` also runs in CI.
 
