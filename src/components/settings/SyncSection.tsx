@@ -1,0 +1,53 @@
+import { View, Text, Pressable } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { useChronicleColors } from '@/utils/colors';
+import { Icon } from '@/components/ui';
+import type { SettingsStyles } from './useSettingsStyles';
+
+type SyncSectionProps = {
+  styles: SettingsStyles;
+  lastSynced: string | null;
+  isSyncing: boolean;
+  hasUsername: boolean;
+  onSync: () => void;
+};
+
+export default function SyncSection({
+  styles,
+  lastSynced,
+  isSyncing,
+  hasUsername,
+  onSync,
+}: SyncSectionProps) {
+  const { t } = useTranslation();
+  const colors = useChronicleColors();
+  const syncDisabled = isSyncing || !hasUsername;
+  return (
+    <>
+      <Text style={styles.sectionLabel}>{t('settings.sync')}</Text>
+
+      <View style={[styles.row, styles.rowFirst]}>
+        <Text style={styles.rowLabel}>{t('settings.lastSynced')}</Text>
+        <Text style={styles.rowValue}>{lastSynced ?? t('settings.never')}</Text>
+      </View>
+
+      <Pressable
+        style={({ pressed }) => [styles.syncRow, { opacity: pressed ? 0.7 : 1 }]}
+        onPress={onSync}
+        disabled={syncDisabled}
+        accessibilityRole="button"
+        accessibilityLabel={t('settings.syncNowLabel')}
+      >
+        <Icon
+          sf="arrow.clockwise"
+          md="refresh-outline"
+          size={18}
+          color={syncDisabled ? colors.textMuted : colors.accent}
+        />
+        <Text style={syncDisabled ? styles.syncTextDisabled : styles.syncText}>
+          {isSyncing ? t('settings.syncing') : t('settings.syncNow')}
+        </Text>
+      </Pressable>
+    </>
+  );
+}
