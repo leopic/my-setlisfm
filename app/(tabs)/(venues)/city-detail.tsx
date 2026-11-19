@@ -184,7 +184,7 @@ export default function CityDetailScreen() {
       style={({ pressed }) => [styles.venueRow, { opacity: pressed ? 0.7 : 1 }]}
       onPress={() => handleVenuePress(venue)}
       accessibilityRole="button"
-      accessibilityLabel={`${venue.name}, ${venue.concertCount} ${t('venues.visits')}`}
+      accessibilityLabel={`${venue.name}, ${t('common.visit', { count: venue.concertCount })}`}
     >
       <View style={styles.venueInfo}>
         <Text style={styles.venueName}>{venue.name}</Text>
@@ -209,7 +209,9 @@ export default function CityDetailScreen() {
 
       <View style={styles.concertCountContainer}>
         <Text style={styles.concertCountText}>{venue.concertCount}</Text>
-        <Text style={styles.concertCountLabel}>{t('venues.visits')}</Text>
+        <Text style={styles.concertCountLabel}>
+          {t('venues.visitsLabel', { count: venue.concertCount })}
+        </Text>
       </View>
     </Pressable>
   );

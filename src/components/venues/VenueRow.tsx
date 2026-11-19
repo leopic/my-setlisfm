@@ -34,7 +34,7 @@ export default function VenueRow({ styles, venue, isSelected, onPress }: Props) 
       testID={`venue-${venue.id}`}
       onPress={() => onPress(venue)}
       accessibilityRole="button"
-      accessibilityLabel={`${venue.name}, ${venue.concertCount} ${t('venues.visits')}`}
+      accessibilityLabel={`${venue.name}, ${t('common.visit', { count: venue.concertCount })}`}
     >
       <View style={styles.venueLeft}>
         <Text style={styles.venueName}>{venue.name}</Text>
@@ -48,7 +48,9 @@ export default function VenueRow({ styles, venue, isSelected, onPress }: Props) 
       </View>
       <View style={styles.venueRight}>
         <Text style={styles.visitCount}>{venue.concertCount}</Text>
-        <Text style={styles.visitLabel}>{t('venues.visits')}</Text>
+        <Text style={styles.visitLabel}>
+          {t('venues.visitsLabel', { count: venue.concertCount })}
+        </Text>
       </View>
     </Pressable>
   );

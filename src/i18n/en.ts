@@ -250,7 +250,8 @@ export default {
     noConcertsFound: 'No concerts found',
     continents: 'Continents',
     cities: 'Cities',
-    visits: 'visits',
+    visitsLabel_one: 'visit',
+    visitsLabel_other: 'visits',
   },
 
   // Map
