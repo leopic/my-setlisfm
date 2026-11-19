@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Icon } from '@/components/ui';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
-import { formatTimeAgo } from '@/utils/date';
 import { toOrdinal } from '@/utils/ordinal';
 import type { ConcertRecognitionFacts } from '@/database/factQueries';
+import { buildRecognitionChips } from './recognitionChips';
 
 interface Props {
   visible: boolean;
@@ -15,14 +15,6 @@ interface Props {
   currentCountryName?: string | null;
   facts: ConcertRecognitionFacts;
   isLandmark: boolean;
-}
-
-interface Chip {
-  icon: {
-    sf: React.ComponentProps<typeof Icon>['sf'];
-    md: React.ComponentProps<typeof Icon>['md'];
-  };
-  text: string;
 }
 
 export default function RecognitionSheet({
@@ -116,73 +108,13 @@ export default function RecognitionSheet({
   const location = [currentCityName, currentCountryName].filter(Boolean).join(', ');
   const heroLabel = location || t('recognition.heroSubtitle');
 
-  const chips: Chip[] = [];
-
-  if (facts.previousShowForArtist && facts.daysSincePreviousShowForArtist != null) {
-    const prevLocation = [
-      facts.previousShowForArtist.cityName,
-      facts.previousShowForArtist.countryName,
-    ]
-      .filter(Boolean)
-      .join(', ');
-    chips.push({
-      icon: { sf: 'clock', md: 'time-outline' },
-      text: prevLocation
-        ? t('recognition.lastSeen', {
-            timeAgo: formatTimeAgo(facts.daysSincePreviousShowForArtist),
-            location: prevLocation,
-          })
-        : t('recognition.lastSeenNoLocation', {
-            timeAgo: formatTimeAgo(facts.daysSincePreviousShowForArtist),
-          }),
-    });
-  }
-
-  chips.push(
-    facts.isFirstVisitToVenue
-      ? { icon: { sf: 'mappin', md: 'location-outline' }, text: t('recognition.firstVisitToVenue') }
-      : {
-          icon: { sf: 'arrow.triangle.2.circlepath', md: 'repeat-outline' },
-          text: t('recognition.venueVisitOrdinal', { ordinal: toOrdinal(facts.venueVisitOrdinal) }),
-        },
-  );
-
-  if (facts.isNewCountryForArtist && currentCountryName) {
-    chips.push({
-      icon: { sf: 'globe', md: 'globe-outline' },
-      text: t('recognition.newCountryForArtist', {
-        artist: artistName,
-        country: currentCountryName,
-      }),
-    });
-  } else if (facts.distinctCountriesForArtistSoFar > 1) {
-    chips.push({
-      icon: { sf: 'globe', md: 'globe-outline' },
-      text: t('recognition.countriesForArtist', {
-        count: facts.distinctCountriesForArtistSoFar,
-        artist: artistName,
-      }),
-    });
-  }
-
-  // A new country always means a new city too — the country chip above already says so,
-  // so only show a city-level chip when it adds information the country chip didn't.
-  if (!facts.isNewCountryForArtist) {
-    if (facts.isNewCityForArtist && currentCityName) {
-      chips.push({
-        icon: { sf: 'building.2', md: 'business-outline' },
-        text: t('recognition.newCityForArtist', { artist: artistName, city: currentCityName }),
-      });
-    } else if (facts.distinctCitiesForArtistSoFar > 1) {
-      chips.push({
-        icon: { sf: 'building.2', md: 'business-outline' },
-        text: t('recognition.citiesForArtist', {
-          count: facts.distinctCitiesForArtistSoFar,
-          artist: artistName,
-        }),
-      });
-    }
-  }
+  const chips = buildRecognitionChips({
+    facts,
+    artistName,
+    currentCityName,
+    currentCountryName,
+    t,
+  });
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
