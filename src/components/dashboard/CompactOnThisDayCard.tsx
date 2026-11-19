@@ -1,0 +1,95 @@
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import ArtistImage from '@/components/ArtistImage';
+import { formatDate } from '@/utils/date';
+import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
+import type { OnThisDayConcert } from './types';
+import { useOpenConcert } from './useOpenConcert';
+
+type Props = {
+  concert: NonNullable<OnThisDayConcert>;
+  // `header`: tablet top bar, shows venue and date. `also`: next to the year heading in the detail panel, shows the venue.
+  variant: 'header' | 'also';
+};
+
+// Compact "on this day" card for the tablet layout.
+export default function CompactOnThisDayCard({ concert, variant }: Props) {
+  const colors = useChronicleColors();
+  const { t } = useTranslation();
+  const openConcert = useOpenConcert();
+  const isAlso = variant === 'also';
+  const styles = StyleSheet.create({
+    card: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      backgroundColor: colors.accentSoft,
+      borderWidth: 1,
+      borderColor: colors.accent,
+      borderRadius: 10,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+    },
+    cardAlso: {
+      marginBottom: 4,
+    },
+    label: {
+      ...Type.label,
+      fontSize: 9,
+      color: colors.accent,
+      letterSpacing: 0.8,
+      marginBottom: 1,
+    },
+    name: {
+      ...Type.body,
+      fontWeight: '600',
+      color: colors.textPrimary,
+      fontSize: 12,
+    },
+    meta: {
+      ...Type.label,
+      fontSize: 10,
+      color: colors.textSecondary,
+    },
+  });
+  return (
+    <Pressable
+      style={({ pressed }) => [
+        styles.card,
+        isAlso && styles.cardAlso,
+        { opacity: pressed ? 0.7 : 1 },
+      ]}
+      onPress={() => openConcert(concert.setlistId)}
+      accessibilityRole="button"
+      accessibilityLabel={t(isAlso ? 'dashboard.alsoOnThisDayLabel' : 'dashboard.onThisDayLabel', {
+        count: concert.yearsAgo,
+        artist: concert.artistName,
+      })}
+    >
+      {concert.artistMbid && (
+        <ArtistImage
+          mbid={concert.artistMbid}
+          imageUrl={concert.artistImageUrl}
+          size={26}
+          name={concert.artistName}
+        />
+      )}
+      <View>
+        <Text style={styles.label}>
+          {isAlso
+            ? t('dashboard.alsoOnThisDay')
+            : t('dashboard.onThisDayShort', { count: concert.yearsAgo })}
+        </Text>
+        <Text style={styles.name}>{concert.artistName}</Text>
+        {isAlso ? (
+          <Text style={styles.meta}>{concert.venueName}</Text>
+        ) : (
+          <Text style={styles.meta}>
+            {concert.venueName} · {formatDate(concert.eventDate)}
+          </Text>
+        )}
+      </View>
+    </Pressable>
+  );
+}
