@@ -32,7 +32,8 @@ Two layers, both required — never bypass either:
 - **Pre-commit** (husky + lint-staged): runs `eslint --fix` on staged `.ts`/`.tsx`.
   Formatting is repaired in place and restaged; anything unfixable blocks the commit.
 - **CI** (`.github/workflows/ci.yml`): `yarn install --immutable`, then lint, tests,
-  `tsc --noEmit` and an iOS bundle export (`expo export`) on every PR and push to `main`.
+  `tsc --noEmit`, React Doctor on the changed files and an iOS bundle export
+  (`expo export`) on every PR and push to `main`.
 
 `prettier/prettier` is an `error` and `yarn lint` runs with `--max-warnings 0`, so a
 warning fails the build. That is deliberate: as a warning it let ~2500 violations
@@ -41,6 +42,11 @@ accumulate, because ESLint exits 0 on warnings.
 The hook only lints staged files. Types and tests are CI's job.
 
 `expo-doctor` also runs in CI.
+
+React Doctor (`yarn react-doctor`, pinned in `devDependencies`) runs with `--scope changed
+--blocking warning`: a new issue fails the build, old ones in touched files don't. Run the
+same command locally before pushing; a false positive gets an inline
+`react-doctor-disable-next-line <rule> -- <reason>`.
 
 ## Architecture
 
