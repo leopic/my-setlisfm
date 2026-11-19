@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { LegendList } from '@legendapp/list/react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { dbOperations } from '@/database/operations';
@@ -19,6 +20,11 @@ interface VenueInfo {
   cityName?: string;
   countryName?: string;
 }
+
+// One list row: a year heading, or a concert under it. Flat so the list can virtualize.
+type TimelineRow =
+  | { kind: 'year'; key: string; year: string; count: number }
+  | { kind: 'concert'; key: string; concert: SetlistWithDetails; isFirst: boolean };
 
 interface Props {
   venue: VenueInfo | null;
@@ -66,6 +72,21 @@ export default function VenueDetailPane({ venue }: Props) {
       .map(([year, cts]) => ({ year, concerts: cts }))
       .sort((a, b) => parseInt(b.year) - parseInt(a.year));
   })();
+
+  const timelineRows: TimelineRow[] = yearGroups.flatMap((yearGroup, yearIndex) => [
+    {
+      kind: 'year' as const,
+      key: `year-${yearGroup.year}`,
+      year: yearGroup.year,
+      count: yearGroup.concerts.length,
+    },
+    ...yearGroup.concerts.map((concert, concertIndex) => ({
+      kind: 'concert' as const,
+      key: `concert-${concert.id}`,
+      concert,
+      isFirst: yearIndex === 0 && concertIndex === 0,
+    })),
+  ]);
 
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
@@ -164,50 +185,55 @@ export default function VenueDetailPane({ venue }: Props) {
       </View>
 
       {/* Timeline river */}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {yearGroups.map((yearGroup, yearIndex) => (
-          <View key={yearGroup.year} style={styles.yearSection}>
-            <Text style={styles.yearGhost}>{yearGroup.year}</Text>
-            <Text style={styles.yearSubLabel}>
-              {t('common.concert', { count: yearGroup.concerts.length })}
-            </Text>
+      <LegendList
+        style={{ flex: 1 }}
+        data={timelineRows}
+        keyExtractor={(row) => row.key}
+        renderItem={({ item: row }) => {
+          if (row.kind === 'year') {
+            return (
+              <View style={styles.yearSection}>
+                <Text style={styles.yearGhost}>{row.year}</Text>
+                <Text style={styles.yearSubLabel}>{t('common.concert', { count: row.count })}</Text>
+              </View>
+            );
+          }
+          const { concert, isFirst } = row;
+          const location = [concert.city?.name, concert.city?.state, concert.country?.name]
+            .filter(Boolean)
+            .join(', ');
+          return (
             <View style={styles.spineContainer}>
-              {yearGroup.concerts.map((concert, concertIndex) => {
-                const isFirst = yearIndex === 0 && concertIndex === 0;
-                const location = [concert.city?.name, concert.city?.state, concert.country?.name]
-                  .filter(Boolean)
-                  .join(', ');
-                return (
-                  <Pressable
-                    key={concert.id}
-                    style={({ pressed }) => [styles.riverEntry, { opacity: pressed ? 0.7 : 1 }]}
-                    onPress={() =>
-                      router.push({ pathname: '/(venues)/[id]', params: { id: concert.id } })
-                    }
-                    accessibilityRole="button"
-                  >
-                    <View style={[styles.dot, isFirst && styles.dotActive]} />
-                    <View style={styles.entryRow}>
-                      <View style={styles.entryContent}>
-                        <Text style={styles.entryDate}>{formatDate(concert.eventDate ?? '')}</Text>
-                        <Text style={styles.entryPrimary}>
-                          {concert.artist?.name ?? t('common.unknownArtist')}
-                        </Text>
-                        {location ? <Text style={styles.entrySecondary}>{location}</Text> : null}
-                        {concert.tour?.name ? (
-                          <Text style={styles.entryTour}>{concert.tour.name}</Text>
-                        ) : null}
-                      </View>
-                      <Text style={styles.entryChevron}>›</Text>
-                    </View>
-                  </Pressable>
-                );
-              })}
+              <Pressable
+                style={({ pressed }) => [styles.riverEntry, { opacity: pressed ? 0.7 : 1 }]}
+                onPress={() =>
+                  router.push({ pathname: '/(venues)/[id]', params: { id: concert.id } })
+                }
+                accessibilityRole="button"
+              >
+                <View style={[styles.dot, isFirst && styles.dotActive]} />
+                <View style={styles.entryRow}>
+                  <View style={styles.entryContent}>
+                    <Text style={styles.entryDate}>{formatDate(concert.eventDate ?? '')}</Text>
+                    <Text style={styles.entryPrimary}>
+                      {concert.artist?.name ?? t('common.unknownArtist')}
+                    </Text>
+                    {location ? <Text style={styles.entrySecondary}>{location}</Text> : null}
+                    {concert.tour?.name ? (
+                      <Text style={styles.entryTour}>{concert.tour.name}</Text>
+                    ) : null}
+                  </View>
+                  <Text style={styles.entryChevron}>›</Text>
+                </View>
+              </Pressable>
             </View>
-          </View>
-        ))}
-        <View style={styles.bottomPad} />
-      </ScrollView>
+          );
+        }}
+        estimatedItemSize={90}
+        recycleItems={false}
+        ListFooterComponent={<View style={styles.bottomPad} />}
+        showsVerticalScrollIndicator={false}
+      />
     </View>
   );
 }
