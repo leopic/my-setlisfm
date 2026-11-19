@@ -1,4 +1,5 @@
-import { act, fireEvent, screen } from 'expo-router/testing-library';
+import { router } from 'expo-router';
+import { act, fireEvent, screen, within } from 'expo-router/testing-library';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
 import { findScreen, launchApp, layOutLists, openTab } from '../../../test/screen';
@@ -30,6 +31,42 @@ it('shows location, last show, artists and visit count on a row', async () => {
   expect(venues.getByText(/Kraftwerk/)).toBeOnTheScreen();
   expect(venues.getByText('3')).toBeOnTheScreen();
   expect(venues.getByLabelText('Columbiahalle, 3 visits')).toBeOnTheScreen();
+});
+
+it('says "visit" for a venue seen once', async () => {
+  await openTab('(venues)');
+  const venues = await findScreen('venues-screen');
+
+  // Astra: one concert.
+  const astra = venues.getByTestId('venue-venue-4');
+  expect(astra.props.accessibilityLabel).toBe('Astra, 1 visit');
+  expect(within(astra).getByText('visit')).toBeOnTheScreen();
+  expect(within(venues.getByTestId('venue-venue-2')).getByText('visits')).toBeOnTheScreen();
+});
+
+it('says "visit" for a venue seen once on the city screen', async () => {
+  await act(async () =>
+    router.navigate({
+      pathname: '/(venues)/city-detail',
+      params: { city: 'Berlin', country: 'Germany' },
+    }),
+  );
+
+  const astra = await screen.findByLabelText('Astra, 1 visit');
+  expect(within(astra).getByText('visit')).toBeOnTheScreen();
+  expect(screen.getByLabelText('Columbiahalle, 3 visits')).toBeOnTheScreen();
+});
+
+it('reads the continent count as venues, as the row shows', async () => {
+  await openTab('(venues)');
+  const venues = await findScreen('venues-screen');
+  await fireEvent.press(venues.getByTestId('nav-continents'));
+
+  const continents = await findScreen('continents-screen');
+  // Europe: Columbiahalle and Astra in Berlin, O2 Arena in London.
+  expect(continents.getByTestId('continent-Europe').props.accessibilityLabel).toBe(
+    'Europe, 2 countries, 2 cities, 3 venues',
+  );
 });
 
 it('sorts by the pill pressed and words the subtitle to match', async () => {

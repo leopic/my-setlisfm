@@ -190,7 +190,7 @@ export default function ContinentsScreen() {
       testID={`continent-${continent.name}`}
       onPress={() => handleContinentPress(continent)}
       accessibilityRole="button"
-      accessibilityLabel={`${continent.name}, ${t('common.country', { count: continent.countryCount })}, ${t('common.city', { count: continent.cityCount })}, ${continent.venueCount} ${t('venues.visits')}`}
+      accessibilityLabel={`${continent.name}, ${t('common.country', { count: continent.countryCount })}, ${t('common.city', { count: continent.cityCount })}, ${t('common.venue', { count: continent.venueCount })}`}
     >
       <View style={styles.leftContent}>
         <Text style={styles.name}>{continent.name}</Text>
