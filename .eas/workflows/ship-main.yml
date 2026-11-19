@@ -1,11 +1,32 @@
-# Every push to main ships: an OTA update to the `preview` channel when a preview build
-# with the same native fingerprint exists, or a new preview build when the native code
-# changed (install that build on the simulator by hand).
+# Every push to main that can change the app ships: an OTA update to the `preview` channel
+# when a preview build with the same native fingerprint exists, or a new preview build when
+# the native code changed (install that build on the simulator by hand).
 name: Ship main
 
 on:
   push:
     branches: ['main']
+    # Skip pushes that can't change the app: CI, tests, docs and dev tooling. Each ship costs
+    # EAS CI/CD minutes (the free plan has 60 a month). A deny list, so a new kind of app
+    # file still ships; shipMainPaths.test.ts checks what ships and what doesn't.
+    paths:
+      - '**'
+      # In case '**' skips dotfiles, as some glob matchers do (.nvmrc, .yarnrc.yml, .eas/).
+      - '.*'
+      - '.*/**'
+      - '!.github/**'
+      - '!.husky/**'
+      - '!.maestro/**'
+      - '!.react-doctor/**'
+      - '!docs/**'
+      - '!scripts/**'
+      - '!src/__tests__/**'
+      - '!test/**'
+      - '!**/*.md'
+      - '!.prettierrc'
+      - '!eslint.config.js'
+      - '!jest.config.js'
+      - '!jest.setup.js'
 
 # A ship always finishes. A newer push waits for it and replaces any push already waiting,
 # which is fine: the newest commit holds the older ones.
