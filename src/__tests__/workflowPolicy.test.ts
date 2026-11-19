@@ -244,6 +244,17 @@ it('lets the agent workflow start CI', () => {
   expect(read('ci.yml').on).toHaveProperty('workflow_dispatch');
 });
 
+// Only the change is scanned, so the step needs main's history and must block on warnings.
+it('blocks on new React Doctor issues in the required CI job', () => {
+  const steps = read('ci.yml').jobs.check.steps;
+  const checkout = steps.find((step) => step.uses?.startsWith('actions/checkout@'));
+  expect(checkout?.with?.['fetch-depth']).toBe(0);
+  const doctor = steps.find((step) => step.run?.startsWith('yarn react-doctor '));
+  for (const flag of ['--scope changed', '--base origin/main', '--blocking warning', '--no-score'])
+    expect(doctor?.run).toContain(flag);
+  expect(doctor?.['continue-on-error']).toBeUndefined();
+});
+
 // PR code (installs, fingerprint) runs in a read-only job; the job that comments runs main's
 // script only.
 describe('native-fingerprint.yml', () => {
