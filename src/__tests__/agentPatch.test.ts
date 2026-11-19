@@ -40,7 +40,18 @@ beforeEach(() => {
   write('.eas/workflows/ship.yml', 'name: ship\n');
   write('package.json', '{}\n');
   git('add', '-A');
-  git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'base');
+  // No signing: a global commit.gpgsign (e.g. through 1Password) can't sign in a test.
+  git(
+    '-c',
+    'user.name=t',
+    '-c',
+    'user.email=t@t',
+    '-c',
+    'commit.gpgsign=false',
+    'commit',
+    '-qm',
+    'base',
+  );
 });
 
 afterEach(() => rmSync(join(repo, '..'), { recursive: true, force: true }));
