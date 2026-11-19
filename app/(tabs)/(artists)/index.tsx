@@ -1,194 +1,29 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert, RefreshControl } from 'react-native';
+import { View, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { LegendList } from '@legendapp/list/react-native';
 import { dbOperations } from '@/database/operations';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
-import { formatDate } from '@/utils/date';
 import type { SortOption } from '@/utils/sort';
 import { sortByOption } from '@/utils/sort';
-import { useChronicleColors } from '@/utils/colors';
-import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
-import { EmptyState, SearchInput } from '@/components/ui';
+import { EmptyState } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
-import ArtistImage from '@/components/ArtistImage';
 import ArtistDetailPane from '@/components/panes/ArtistDetailPane';
+import ArtistRow from '@/components/artists/ArtistRow';
+import ArtistsControls from '@/components/artists/ArtistsControls';
+import ArtistsHeader from '@/components/artists/ArtistsHeader';
+import type { ArtistWithStats } from '@/components/artists/types';
+import { useArtistsStyles } from '@/components/artists/useArtistsStyles';
 import { useTabletLayout } from '@/utils/tablet';
-
-const SORT_OPTIONS: SortOption[] = ['recent', 'top', 'alphabetical'];
-
-interface ArtistWithStats {
-  mbid: string;
-  name: string;
-  sortName?: string;
-  disambiguation?: string;
-  url?: string;
-  imageUrl?: string;
-  concertCount: number;
-  lastConcertDate?: string;
-  venues: string[];
-}
 
 const CONTENT_PADDING_BOTTOM = 100;
 
 export default function ArtistsScreen() {
   const { t } = useTranslation();
-  const colors = useChronicleColors();
   const { isTablet, sidebarWidth } = useTabletLayout();
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    header: {
-      paddingHorizontal: 20,
-      paddingTop: 16,
-      paddingBottom: 14,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    headerTitle: {
-      ...Type.heading,
-      color: colors.textPrimary,
-    },
-    headerSubtitle: {
-      ...Type.body,
-      color: colors.textSecondary,
-      marginTop: 2,
-    },
-    controls: {
-      backgroundColor: colors.background,
-      paddingTop: 12,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    searchRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: colors.surface,
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: 10,
-      paddingHorizontal: 14,
-      paddingVertical: 10,
-      marginHorizontal: 20,
-      marginBottom: 8,
-    },
-    searchInput: {
-      flex: 1,
-      ...Type.body,
-      color: colors.textPrimary,
-      padding: 0,
-    },
-    sortStrip: {
-      flexDirection: 'row',
-      gap: 8,
-      paddingHorizontal: 20,
-      paddingBottom: 10,
-    },
-    sortPill: {
-      borderRadius: 16,
-      paddingHorizontal: 12,
-      paddingVertical: 5,
-      borderWidth: 1,
-    },
-    sortPillActive: {
-      backgroundColor: colors.accentSoft,
-      borderColor: colors.accent,
-    },
-    sortPillInactive: {
-      backgroundColor: 'transparent',
-      borderColor: colors.border,
-    },
-    sortPillText: {
-      ...Type.label,
-    },
-    sortPillTextActive: {
-      color: colors.accent,
-    },
-    sortPillTextInactive: {
-      color: colors.textMuted,
-    },
-    artistRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingVertical: 12,
-      paddingRight: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    artistRowAccent: {
-      borderLeftWidth: 2.5,
-      borderLeftColor: colors.accent,
-      paddingLeft: 13.5,
-    },
-    artistRowNoAccent: {
-      paddingLeft: 16,
-    },
-    artistImageWrapper: {
-      marginRight: 12,
-    },
-    artistCenter: {
-      flex: 1,
-      paddingRight: 12,
-    },
-    artistName: {
-      ...Type.title,
-      color: colors.textPrimary,
-    },
-    lastSeenText: {
-      ...Type.body,
-      color: colors.textSecondary,
-      marginTop: 2,
-    },
-    venuesText: {
-      ...Type.body,
-      color: colors.textMuted,
-      marginTop: 1,
-    },
-    countText: {
-      ...Type.count,
-    },
-    countTextTop: {
-      color: colors.accent,
-    },
-    countTextDefault: {
-      color: colors.textMuted,
-    },
-    chevron: {
-      ...Type.body,
-      color: colors.textDisabled,
-      marginLeft: 8,
-    },
-    emptyState: {
-      alignItems: 'center',
-      paddingVertical: 60,
-      paddingHorizontal: 20,
-    },
-    emptyStateText: {
-      ...Type.body,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      marginBottom: 20,
-    },
-    refreshButton: {
-      backgroundColor: colors.accent,
-      paddingHorizontal: 20,
-      paddingVertical: 12,
-      borderRadius: 20,
-    },
-    refreshButtonText: {
-      ...Type.label,
-      color: colors.textOnAccent,
-    },
-    // ── Tablet master-detail ─────────────────────────────────────────
-    masterDetail: { flex: 1, flexDirection: 'row' },
-    sidebar: { borderRightWidth: 1, borderRightColor: colors.border },
-    detailPane: { flex: 1 },
-    artistRowSelected: { backgroundColor: colors.accentSoft },
-  });
+  const styles = useArtistsStyles();
 
   const { lastSyncTimestamp } = useSyncContext();
   const router = useRouter();
@@ -259,51 +94,15 @@ export default function ArtistsScreen() {
     setRefreshing(false);
   };
 
-  const renderArtist = ({ item: artist, index }: { item: ArtistWithStats; index: number }) => {
-    const hasAccentBar = index < 2;
-    const isSelected = isTablet && selectedArtistMbid === artist.mbid;
-
-    return (
-      <Pressable
-        style={({ pressed }) => [
-          styles.artistRow,
-          hasAccentBar ? styles.artistRowAccent : styles.artistRowNoAccent,
-          isSelected && styles.artistRowSelected,
-          { opacity: pressed ? 0.7 : 1 },
-        ]}
-        testID={`artist-${artist.mbid}`}
-        onPress={() => handleViewConcerts(artist)}
-        accessibilityRole="button"
-        accessibilityLabel={`${artist.name}, ${t('common.show', { count: artist.concertCount })}`}
-        accessibilityHint={t('artists.viewConcertsHint')}
-      >
-        <View style={styles.artistImageWrapper}>
-          <ArtistImage mbid={artist.mbid} imageUrl={artist.imageUrl} size={40} name={artist.name} />
-        </View>
-
-        <View style={styles.artistCenter}>
-          <Text style={styles.artistName}>{artist.name}</Text>
-          {artist.lastConcertDate && (
-            <Text style={styles.lastSeenText}>
-              {t('common.lastSeen', { date: formatDate(artist.lastConcertDate) })}
-            </Text>
-          )}
-          {artist.venues.length > 0 && (
-            <Text style={styles.venuesText} numberOfLines={1}>
-              {artist.venues.slice(0, 3).join(', ')}
-              {artist.venues.length > 3 &&
-                ` ${t('common.moreCount', { count: artist.venues.length - 3 })}`}
-            </Text>
-          )}
-        </View>
-
-        <Text style={[styles.countText, index < 3 ? styles.countTextTop : styles.countTextDefault]}>
-          {artist.concertCount}
-        </Text>
-        <Text style={styles.chevron}>›</Text>
-      </Pressable>
-    );
-  };
+  const renderArtist = ({ item: artist, index }: { item: ArtistWithStats; index: number }) => (
+    <ArtistRow
+      styles={styles}
+      artist={artist}
+      index={index}
+      isSelected={isTablet && selectedArtistMbid === artist.mbid}
+      onPress={handleViewConcerts}
+    />
+  );
 
   if (loading) {
     return <ListSkeleton variant="artists" />;
@@ -317,9 +116,7 @@ export default function ArtistsScreen() {
         style={styles.container}
         testID="artists-screen"
       >
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t('artists.title')}</Text>
-        </View>
+        <ArtistsHeader styles={styles} />
         <EmptyState
           icon={{ sf: 'person', md: 'person-outline' }}
           title={t('artists.empty')}
@@ -332,59 +129,23 @@ export default function ArtistsScreen() {
   const artistList = (
     <>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('artists.title')}</Text>
-        <Text style={styles.headerSubtitle}>
-          {sortOption === 'top'
+      <ArtistsHeader
+        styles={styles}
+        subtitle={
+          sortOption === 'top'
             ? t('artists.subtitleSorted', { count: artists.length })
-            : t('artists.subtitle', { count: artists.length })}
-        </Text>
-      </View>
+            : t('artists.subtitle', { count: artists.length })
+        }
+      />
 
       {/* Search + sort */}
-      <View style={styles.controls}>
-        <SearchInput
-          style={styles.searchRow}
-          placeholder={t('artists.searchPlaceholder')}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          accessibilityLabel={t('artists.searchPlaceholder')}
-        />
-        <View style={styles.sortStrip}>
-          {SORT_OPTIONS.map((option) => {
-            const isActive = sortOption === option;
-            const label =
-              option === 'recent'
-                ? t('sort.mostRecent')
-                : option === 'top'
-                  ? t('sort.top')
-                  : t('sort.byName');
-            return (
-              <Pressable
-                key={option}
-                style={({ pressed }) => [
-                  styles.sortPill,
-                  isActive ? styles.sortPillActive : styles.sortPillInactive,
-                  { opacity: pressed ? 0.7 : 1 },
-                ]}
-                onPress={() => handleSortChange(option)}
-                accessibilityRole="button"
-                accessibilityState={{ selected: isActive }}
-                accessibilityLabel={label}
-              >
-                <Text
-                  style={[
-                    styles.sortPillText,
-                    isActive ? styles.sortPillTextActive : styles.sortPillTextInactive,
-                  ]}
-                >
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </View>
+      <ArtistsControls
+        styles={styles}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        sortOption={sortOption}
+        onSortChange={handleSortChange}
+      />
 
       <LegendList
         style={{ flex: 1 }}
