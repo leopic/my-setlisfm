@@ -26,6 +26,7 @@ export class DataProcessor {
   async importSetlistsFromResponse(response: SetlistsResponse): Promise<number> {
     let newCount = 0;
     for (const setlist of response.setlist) {
+      // react-doctor-disable-next-line react-doctor/async-await-in-loop -- setlists upsert in order: country → city → venue → artist → setlist; concurrent writes could break foreign keys
       const wasNew = await this.processSetlist(setlist);
       if (wasNew) newCount++;
     }
@@ -34,6 +35,7 @@ export class DataProcessor {
 
   async importSetlistsFromPages(responses: SetlistsResponse[]): Promise<void> {
     for (const response of responses) {
+      // react-doctor-disable-next-line react-doctor/async-await-in-loop -- pages write in order, same foreign-key dependency as importSetlistsFromResponse
       await this.importSetlistsFromResponse(response);
     }
   }
@@ -184,6 +186,7 @@ export class DataProcessor {
         songOrder: setIndex,
       };
 
+      // react-doctor-disable-next-line react-doctor/async-await-in-loop -- the set must exist before its ID is read back for the child songs
       await dbOperations.insertSet(dbSet);
 
       // Get the inserted set ID for songs
@@ -203,6 +206,7 @@ export class DataProcessor {
 
       // Process cover artist if exists
       if (song.cover?.mbid) {
+        // react-doctor-disable-next-line react-doctor/async-await-in-loop -- sequential upserts; no safe parallelism without an explicit transaction
         await this.processArtist(song.cover);
       }
 

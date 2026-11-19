@@ -1,41 +1,49 @@
 # React Doctor — false positives
 
+Each entry below is suppressed inline with
+`// react-doctor-disable-next-line <rule> -- <reason>` on the line above the
+reported line. Keep a suppression only while its predicate still holds.
+
 ## react-doctor/async-await-in-loop
 
-All 8 instances are intentionally sequential:
+All 4 instances are in `src/services/dataProcessor.ts`. Predicate: each loop
+body writes to SQLite in a fixed order, and a later iteration or step depends
+on rows from an earlier one.
 
-- `src/services/artistImageService.ts:67` — outer loop processes batches with a
-  mandatory 150 ms inter-batch rate-limit delay; parallelising batches would
-  break the Deezer API rate limit.
+- `importSetlistsFromResponse` (`await this.processSetlist`) — each setlist
+  upserts country → city → venue → artist → setlist in dependency order;
+  concurrent upserts could violate foreign-key constraints.
 
-- `src/services/setlistApi.ts:40` — retry loop; each attempt reads
-  `lastRequestTime` written by the previous attempt and applies exponential
-  back-off, so iterations are explicitly order-dependent.
+- `importSetlistsFromPages` (`await this.importSetlistsFromResponse`) — pages
+  write in order; same foreign-key concern as above.
 
-- `src/services/setlistApi.ts:114` — pagination loop; `currentPage` is
-  incremented based on `pageData.total / pageData.itemsPerPage` returned by
-  the previous response — cumulative state, must stay sequential.
+- `processSets` (`await dbOperations.insertSet`) — inserts a set, then queries
+  it back to get the auto-generated ID before inserting its songs.
 
-- `src/services/syncService.ts:90` — same pagination pattern as above.
+- `processSongs` (`await this.processArtist(song.cover)`) — sequential DB
+  upserts per song; no safe parallelism without an explicit transaction.
 
-- `src/services/dataProcessor.ts:29` — iterates over setlists and inserts
-  country → city → venue → artist → setlist in dependency order; concurrent
-  upserts could violate foreign-key constraints.
+Not reported any more, so no suppression: the retry and pagination loops in
+`src/services/setlistApi.ts` and `src/services/syncService.ts`, and the batch
+loop in `src/services/artistImageService.ts`. If React Doctor reports them
+again, they are sequential on purpose (rate limit, back-off,
+page counter read from the previous response).
 
-- `src/services/dataProcessor.ts:37` — iterates over pages of setlists;
-  same DB ordering concern as above.
+## react-doctor/exhaustive-deps
 
-- `src/services/dataProcessor.ts:187` — loop over sets within a single setlist;
-  inserts each set then queries it back to obtain the auto-generated ID before
-  inserting child songs.
+4 instances, one per list screen: `app/(tabs)/(artists)/index.tsx`,
+`app/(tabs)/(concerts)/index.tsx`, `app/(tabs)/(stats)/index.tsx`,
+`app/(tabs)/(venues)/index.tsx`.
 
-- `src/services/dataProcessor.ts:206` — loop over songs within a set;
-  sequential DB inserts, no safe parallelism without explicit transactions.
+Predicate: `lastSyncTimestamp` (from `useSyncContext()`) is in the deps of the
+`useCallback` passed to `useFocusEffect`, and the callback body never reads it.
+It is there on purpose, so the screen reloads after a sync finishes while the
+screen is open. Removing it stops the reload. If the callback starts reading
+`lastSyncTimestamp`, the warning is correct and the suppression is
+not needed.
 
 ## react-doctor/js-index-maps
 
-- `src/services/dataProcessor.ts:192` — `insertedSets.find(…)` is called after
-  a fresh `getSetsForSetlist` query inside the loop.  The searched array grows
-  on every iteration (each loop pass inserts a new row), so a Map built before
-  the loop would be stale by the next iteration — a pre-built index cannot be
-  reused.
+Not reported any more; entry removed. (It was the `insertedSets.find(…)` in
+`processSets`: the array is re-queried on every iteration, so a pre-built Map
+would be stale.)

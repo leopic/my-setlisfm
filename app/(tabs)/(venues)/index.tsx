@@ -267,6 +267,7 @@ export default function VenuesScreen() {
       return () => {
         cancelled = true;
       };
+      // react-doctor-disable-next-line react-doctor/exhaustive-deps -- lastSyncTimestamp is a dep on purpose: the screen reloads after a sync while open; the callback does not read it
     }, [lastSyncTimestamp, t]),
   );
 
