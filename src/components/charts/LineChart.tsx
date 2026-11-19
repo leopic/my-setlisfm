@@ -193,7 +193,7 @@ export default function LineChart({
             const x = (i / (nPts - 1)) * chartW;
             return (
               <SvgText
-                key={lbl}
+                key={i}
                 x={x}
                 y={height + LABEL_HEIGHT}
                 fontSize={10}
