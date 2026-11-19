@@ -287,6 +287,13 @@ describe('scripts/verify.sh', () => {
     expect(verify).toContain(`git diff --quiet origin/main... -- ${paths.join(' ')}`);
   });
 
+  // Inside a hook GIT_DIR points at this repo; a test's temp repo would write to it.
+  it("clears git's hook variables before any check", () => {
+    const clear = verify.indexOf('unset $(git rev-parse --local-env-vars)');
+    expect(clear).toBeGreaterThan(-1);
+    expect(clear).toBeLessThan(verify.search(/^check /m));
+  });
+
   it('runs before every push', () => {
     expect(repoFile('.husky/pre-push').trim()).toBe('scripts/verify.sh');
   });

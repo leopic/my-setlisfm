@@ -2,9 +2,15 @@
 # Runs the checks CI runs on a PR, so a push fails here in under a minute instead of on CI.
 # The pre-push hook calls it; run it by hand as `scripts/verify.sh`. Like CI, every check
 # runs even after one fails, then a summary lists the failures. workflowPolicy.test.ts keeps
-# this list in step with ci.yml and expo-doctor.yml. Not here: Maestro (simulator; see CLAUDE.md) and the
-# GitHub-side checks (CodeQL, native fingerprint).
+# this list in step with ci.yml and expo-doctor.yml. Not here: Maestro (simulator; see
+# CLAUDE.md) and the GitHub-side checks (CodeQL, native fingerprint).
 set -u
+
+# Git runs hooks with GIT_DIR and friends set (in a worktree, always). Tests that make their
+# own temp repos (agentPatch.test.ts) would then commit to and re-init this one, so clear them;
+# git finds the repo from the current folder.
+# shellcheck disable=SC2046
+unset $(git rev-parse --local-env-vars)
 
 # CI uses the Node version in .nvmrc. Git hooks start without nvm, so load it here.
 nvm_sh="${NVM_DIR:-$HOME/.nvm}/nvm.sh"
