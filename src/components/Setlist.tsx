@@ -55,7 +55,13 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   const { t } = useTranslation();
   const colors = useChronicleColors();
 
-  const [facts, setFacts] = useState<ConcertRecognitionFacts | null>(null);
+  // Facts are stored with the setlist id they belong to, so a changed id hides them
+  // during render instead of resetting state inside the effect.
+  const [loadedFacts, setLoadedFacts] = useState<{
+    setlistId: string;
+    facts: ConcertRecognitionFacts | null;
+  } | null>(null);
+  const facts = loadedFacts?.setlistId === setlist.id ? loadedFacts.facts : null;
   const [sheetVisible, setSheetVisible] = useState(false);
   const [songPlays, setSongPlays] = useState<SongPlays[]>([]);
 
@@ -78,11 +84,10 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   useEffect(() => {
     if (!setlist.id) return;
     let cancelled = false;
-    setFacts(null);
     (async () => {
       try {
         const result = await getConcertRecognitionFacts(setlist.id);
-        if (!cancelled) setFacts(result);
+        if (!cancelled) setLoadedFacts({ setlistId: setlist.id, facts: result });
       } catch (error) {
         console.error('Failed to load recognition facts:', error);
       }

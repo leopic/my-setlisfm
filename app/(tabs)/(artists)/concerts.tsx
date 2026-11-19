@@ -212,8 +212,9 @@ export default function ArtistConcertsListScreen() {
     (async () => {
       try {
         const artistData = await dbOperations.getArtistByMbid(artistMbid);
-        if (!cancelled) setArtist(artistData);
-        if (!cancelled && artistData?.name) {
+        if (cancelled) return;
+        setArtist(artistData);
+        if (artistData?.name) {
           setArtistName(artistData.name);
           setArtistImageUrl(artistData.imageUrl ?? undefined);
         }

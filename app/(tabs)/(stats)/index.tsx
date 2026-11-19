@@ -188,7 +188,7 @@ export default function StatsScreen() {
 
   const yearBarData = [...yearSummaries]
     .sort((a, b) => a.year.localeCompare(b.year))
-    .map((r) => ({ label: r.year.slice(2), value: r.shows }));
+    .map((r) => ({ id: r.year, label: r.year.slice(2), value: r.shows }));
 
   const artistSeries: LineSeries[] = (() => {
     const sorted = [...yearSummaries].sort((a, b) => a.year.localeCompare(b.year));
@@ -228,6 +228,7 @@ export default function StatsScreen() {
   })();
 
   const weekdayBarData = WEEKDAY_KEYS.map((key, i) => ({
+    id: key,
     label: t(`weekdays.short.${key}`),
     value: chartData.weekdays.find((w) => w.weekday === i)?.concertDays ?? 0,
   }));

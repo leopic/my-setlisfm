@@ -4,7 +4,7 @@ import Svg, { Rect, Text as SvgText, G } from 'react-native-svg';
 import { useChronicleColors } from '@/utils/colors';
 
 interface BarChartProps {
-  data: Array<{ label: string; value: number }>;
+  data: Array<{ id: string; label: string; value: number }>;
   color?: string;
   height?: number;
   showLabels?: boolean;
@@ -42,7 +42,7 @@ export default function BarChart({ data, color, height = 80, showLabels = true }
               const by = height - bh;
               const opacity = ratio === 1 ? 1 : ratio > 0.5 ? 0.55 : 0.25;
               return (
-                <G key={i}>
+                <G key={d.id}>
                   <Rect
                     x={bx}
                     y={by}

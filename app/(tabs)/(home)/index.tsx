@@ -541,7 +541,8 @@ export default function DashboardScreen() {
   const usernameRef = useRef('');
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
 
-  const loadDashboard = async () => {
+  // `isCancelled` lets an effect drop a stale result once its cleanup has run.
+  const loadDashboard = async (isCancelled: () => boolean = () => false) => {
     try {
       const [dashStats, fetchedAt, onThisDayResult, monthly, summaries, insights] =
         await Promise.all([
@@ -552,6 +553,7 @@ export default function DashboardScreen() {
           dbOperations.getYearSummaries(),
           dbOperations.getInsightStats(),
         ]);
+      if (isCancelled()) return;
       setStats(dashStats);
       setMonthlyData(monthly);
       setYearSummaries(summaries);
@@ -569,12 +571,17 @@ export default function DashboardScreen() {
   };
 
   useEffect(() => {
+    let cancelled = false;
     const init = async () => {
       const stored = await getStoredUsername();
+      if (cancelled) return;
       if (stored) usernameRef.current = stored;
-      await loadDashboard();
+      await loadDashboard(() => cancelled);
     };
-    init();
+    void init();
+    return () => {
+      cancelled = true;
+    };
   }, [lastSyncTimestamp]);
 
   const [yearConcerts, setYearConcerts] = useState<
@@ -614,7 +621,13 @@ export default function DashboardScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await handleSync();
+    // No try/finally: the React Compiler cannot compile it, so reset on both paths.
+    try {
+      await handleSync();
+    } catch (error) {
+      setRefreshing(false);
+      throw error;
+    }
     setRefreshing(false);
   };
 
@@ -802,14 +815,15 @@ export default function DashboardScreen() {
           )}
           {monthlyByYear[yearStr] && (
             <View style={styles.monthGrid}>
-              {MONTH_ABBR.map((abbr, idx) => {
+              {MONTH_KEYS.map((monthKey, idx) => {
                 const month = idx + 1;
+                const abbr = MONTH_ABBR[idx];
                 const count = monthlyByYear[yearStr]?.[month] ?? 0;
                 const yearMonths = monthlyByYear[yearStr] ?? {};
                 const peak = Math.max(...Object.values(yearMonths), 0);
                 const isPeak = count > 0 && count === peak;
                 return (
-                  <View key={month} style={styles.monthCell}>
+                  <View key={monthKey} style={styles.monthCell}>
                     <Text style={styles.monthLabel}>{abbr}</Text>
                     <View
                       style={
@@ -985,6 +999,7 @@ export default function DashboardScreen() {
     stats.concertsByYear.find((y) => y.year === selectedYearStr)?.count ?? 0;
   const selectedMonthlyMap = monthlyByYear[selectedYearStr] ?? {};
   const monthlyChartData = MONTH_ABBR.map((label, i) => ({
+    id: MONTH_KEYS[i],
     label,
     value: selectedMonthlyMap[i + 1] ?? 0,
   }));

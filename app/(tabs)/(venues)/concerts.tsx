@@ -230,8 +230,9 @@ export default function VenueConcertsListScreen() {
     (async () => {
       try {
         const venueData = await dbOperations.getVenueById(venueId);
-        if (!cancelled) setVenue(venueData);
-        if (!cancelled && venueData?.name) {
+        if (cancelled) return;
+        setVenue(venueData);
+        if (venueData?.name) {
           setVenueName(venueData.name);
         }
         const rawConcerts = await dbOperations.getSetlistsByVenue(venueId);
