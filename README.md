@@ -2,9 +2,25 @@
 
 An iOS and Android app for your concert history. It syncs the concerts you've marked as attended on [setlist.fm](https://www.setlist.fm/) into a local SQLite database and lets you browse them by concert, artist and venue, with stats and maps on top.
 
+<table>
+  <tr>
+    <td><img src="docs/screenshots/dashboard.jpg" alt="Dashboard: totals, on this day, habits and a timeline per year" width="200"></td>
+    <td><img src="docs/screenshots/setlist.jpg" alt="Setlist of a concert, with how often each song was heard live" width="200"></td>
+    <td><img src="docs/screenshots/stats.jpg" alt="Stats: top 5 artists over time and milestones" width="200"></td>
+    <td><img src="docs/screenshots/map.jpg" alt="Map of every venue, colored by number of visits" width="200"></td>
+  </tr>
+  <tr>
+    <td align="center">Dashboard</td>
+    <td align="center">Setlist</td>
+    <td align="center">Stats</td>
+    <td align="center">Venues map</td>
+  </tr>
+</table>
+
 ## Features
 
 - Concert timeline with full setlists, covers and guest appearances
+- How often you heard each song live, and an "on this day" card for past shows
 - Artists and venues, venues broken down by continent, country and city
 - Stats: shows per year, top artists over time, top day by era, milestones and a world map
 - Incremental sync: re-syncing only fetches what's new
