@@ -146,7 +146,8 @@ export default function LineChart({
                 fontSize={10}
                 fontWeight="400"
                 fill={colors.textMuted}
-                textAnchor="middle"
+                // The first point sits on the left edge: a centred label would hang half outside.
+                textAnchor={i === 0 ? 'start' : 'middle'}
               >
                 {lbl}
               </SvgText>
