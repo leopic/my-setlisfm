@@ -369,3 +369,16 @@ describe('observe-intake.yml', () => {
     expect(fixCall.with).toEqual({ issue_number: '${{ fromJSON(needs.intake.outputs.issue) }}' });
   });
 });
+
+// An unpinned install script can change under us. The zip is pinned to a version and checked
+// against a SHA-256 before it is unpacked.
+it('installs Maestro only from a pinned version with a checksum check', () => {
+  const text = readFileSync(join(workflowsDir, 'e2e.yml'), 'utf8');
+  const step = read('e2e.yml').jobs.maestro?.steps.find((s) => s.name === 'Install Maestro');
+  expect(step).toBeDefined();
+  expect(String(step?.env?.MAESTRO_VERSION)).toMatch(/^\d+\.\d+\.\d+$/);
+  expect(String(step?.env?.MAESTRO_EXPECTED_SHA256)).toMatch(/^[0-9a-f]{64}$/);
+  expect(step?.run).toMatch(/shasum -a 256 -c/);
+  expect(step?.run?.indexOf('shasum')).toBeLessThan(step?.run?.indexOf('unzip') ?? -1);
+  expect(text).not.toMatch(/curl[^\n]*\|\s*(ba)?sh/);
+});

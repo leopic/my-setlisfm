@@ -134,10 +134,18 @@ jobs:
           node node_modules/expo-constants/scripts/getAppConfig.js "$PWD" \
             e2e-build/Chronicles.app/EXConstants.bundle ios false production
 
+      # Pinned release zip with a checksum, not the unpinned get.maestro.mobile.dev script.
+      # To bump: change both values (shasum -a 256 of the downloaded zip).
       - name: Install Maestro
+        env:
+          MAESTRO_VERSION: 2.3.0
+          MAESTRO_EXPECTED_SHA256: aaf524c6bcd456013855b1337464f964d9a65e2fb88861affea9b4c014644e50
         run: |
-          curl -fsSL "https://get.maestro.mobile.dev" | bash
-          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+          curl -fsSL -o "$RUNNER_TEMP/maestro.zip" \
+            "https://github.com/mobile-dev-inc/maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip"
+          echo "${MAESTRO_EXPECTED_SHA256}  $RUNNER_TEMP/maestro.zip" | shasum -a 256 -c -
+          unzip -q "$RUNNER_TEMP/maestro.zip" -d "$HOME/.maestro"
+          echo "$HOME/.maestro/maestro/bin" >> "$GITHUB_PATH"
 
       - name: Boot simulator and install app
         run: |
