@@ -12,6 +12,7 @@ import { useOpenConcert } from './useOpenConcert';
 export function useTimelineStyles() {
   const colors = useChronicleColors();
   return StyleSheet.create({
+    // ── Timeline spine ────────────────────────────────────────────────────
     spineContainer: {
       borderLeftWidth: 1.5,
       borderLeftColor: colors.spineColor,

@@ -16,6 +16,7 @@ export default function PhoneTopBar({ onSync, totals, lastSynced }: Props) {
   const colors = useChronicleColors();
   const { t } = useTranslation();
   const styles = StyleSheet.create({
+    // ── Phone top bar ─────────────────────────────────────────────────────
     topBar: {
       paddingHorizontal: 20,
       paddingTop: 12,

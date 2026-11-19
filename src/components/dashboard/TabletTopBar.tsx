@@ -11,6 +11,7 @@ type Props = { totals: StatsTotals; onThisDay: OnThisDayConcert; onSync: () => v
 export default function TabletTopBar({ totals, onThisDay, onSync }: Props) {
   const colors = useChronicleColors();
   const styles = StyleSheet.create({
+    // ── Tablet top bar ────────────────────────────────────────────────────
     tabletTopBar: {
       flexDirection: 'row',
       alignItems: 'stretch',

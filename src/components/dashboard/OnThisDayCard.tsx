@@ -13,6 +13,7 @@ export default function OnThisDayCard({ onThisDay }: { onThisDay: NonNullable<On
   const { t } = useTranslation();
   const openConcert = useOpenConcert();
   const styles = StyleSheet.create({
+    // ── On this day (phone) ───────────────────────────────────────────────
     onThisDayCard: {
       marginHorizontal: 20,
       marginTop: 16,

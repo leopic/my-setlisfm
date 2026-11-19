@@ -13,6 +13,7 @@ import type { ConcertEntry, DashboardStats, Milestone, OnThisDayConcert } from '
 export function useDetailStyles() {
   const colors = useChronicleColors();
   return StyleSheet.create({
+    // Highlights
     detailHighlightsLabel: {
       ...Type.label,
       color: colors.textMuted,
