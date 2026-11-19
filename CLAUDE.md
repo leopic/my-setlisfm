@@ -146,6 +146,31 @@ changes the iOS fingerprint as a reminder; it doesn't block merging.
 A run where no flow executed ("iOS driver not ready in time") is the runner, not the
 app — re-run it. A flow that ran and failed is a real failure.
 
+### Driving the app (agent-device)
+
+[agent-device](https://github.com/callstack/agent-device) lets an agent use the app on a
+simulator: check a change in the real app, take before/after screenshots, run an
+accessibility audit and profile React renders. It is a host tool, like Maestro, and stays
+out of `package.json`. CLI and skills are pinned to the same version; bump them together.
+
+- Setup (once per Mac): `npm install -g agent-device@0.21.41`, then the skills (local,
+  `.claude/` is gitignored):
+  `npx skills@1.9.0 add https://github.com/callstack/agent-device/tree/v0.21.41/skills -s agent-device -s dogfood -s ios-simulator -a claude-code -y`.
+  Check with `agent-device doctor` (Metro must run).
+- Run `agent-device` outside Claude Code's Bash sandbox: inside it the daemon fails
+  ("Daemon startup did not establish a reachable owner").
+- Start directly, without probing first:
+  `agent-device open com.leopicado.chronicles --platform ios --foreground`.
+  Add `--device "<simulator name>"` when more than one simulator is booted.
+  Finish with `agent-device close` (`close --shutdown` if the session booted the simulator).
+- Use a simulator without real data, as for Maestro: an exploratory run can tap "Clear All
+  Data" in settings.
+- `agent-device audit` lists accessibility findings for the current screen.
+- Help topics, read only when needed: `agent-device help dogfood` (exploratory QA, runs
+  `audit`), `help accessibility`, `help react-devtools` (render profiling), `help debugging`.
+- Snapshots come from the accessibility tree, so clear `accessibilityLabel`s and `testID`s
+  make agent runs reliable.
+
 ## Shipping
 
 A merge to `main` ships (`.eas/workflows/ship-main.yml`, on EAS), unless it only touches CI,
