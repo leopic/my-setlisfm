@@ -1,120 +1,25 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Alert,
-  RefreshControl,
-  Modal,
-  FlatList,
-  Pressable,
-} from 'react-native';
+import { View, Text, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { LegendList } from '@legendapp/list/react-native';
 import { dbOperations } from '@/database/operations';
-import type { SetlistWithDetails } from '@/types/database';
-import { parseSetlistDate, formatDate } from '@/utils/date';
+import { parseSetlistDate } from '@/utils/date';
 import type { SortOption } from '@/utils/sort';
-import { useChronicleColors } from '@/utils/colors';
-import { Type } from '@/utils/typography';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
-import { EmptyState, SearchInput } from '@/components/ui';
+import { EmptyState } from '@/components/ui';
 import SetlistDetailPane from '@/components/panes/SetlistDetailPane';
+import ConcertFlatRow from '@/components/concerts/ConcertFlatRow';
+import ConcertsControls from '@/components/concerts/ConcertsControls';
+import ConcertsHeader from '@/components/concerts/ConcertsHeader';
+import ConcertYearGroup from '@/components/concerts/ConcertYearGroup';
+import type { ConcertListItem, ConcertWithDetails, YearGroup } from '@/components/concerts/types';
+import { useConcertsStyles } from '@/components/concerts/useConcertsStyles';
 import { useTabletLayout } from '@/utils/tablet';
 
-const SORT_OPTIONS: SortOption[] = ['recent', 'alphabetical'];
-
-interface ConcertWithDetails extends SetlistWithDetails {
-  artistName: string;
-  venueName: string;
-  cityName?: string;
-  stateName?: string;
-  countryName?: string;
-}
-
-interface YearGroup {
-  year: string;
-  concerts: ConcertWithDetails[];
-  monthStats: { [month: string]: number };
-  totalConcerts: number;
-}
-
-type ConcertListItem =
-  | { type: 'year'; yearGroup: YearGroup; yearIndex: number }
-  | { type: 'concert'; concert: ConcertWithDetails };
-
 const CONTENT_PADDING_BOTTOM = 100;
-
-interface YearFilterListProps {
-  years: string[];
-  selected: string | null;
-  allLabel: string;
-  onSelect: (year: string | null) => void;
-}
-
-function YearFilterItem({
-  year,
-  isLast,
-  isActive,
-  label,
-  onSelect,
-}: {
-  year: string | null;
-  isLast: boolean;
-  isActive: boolean;
-  label: string;
-  onSelect: (year: string | null) => void;
-}) {
-  const colors = useChronicleColors();
-  const styles = StyleSheet.create({
-    item: {
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-      borderBottomWidth: isLast ? 0 : StyleSheet.hairlineWidth,
-      borderBottomColor: colors.border,
-    },
-    text: { ...Type.body, color: colors.textPrimary },
-    textActive: { color: colors.accent, fontWeight: '600' as const },
-  });
-  return (
-    <Pressable
-      style={({ pressed }) => [styles.item, { opacity: pressed ? 0.7 : 1 }]}
-      onPress={() => onSelect(year)}
-      accessibilityRole="button"
-      accessibilityState={{ selected: isActive }}
-    >
-      <Text style={[styles.text, isActive && styles.textActive]}>{label}</Text>
-    </Pressable>
-  );
-}
-
-function yearFilterKeyExtractor(item: string | null) {
-  return item ?? 'all';
-}
-
-function YearFilterList({ years, selected, allLabel, onSelect }: YearFilterListProps) {
-  const data: (string | null)[] = [null, ...years];
-  const renderItem = ({ item: year, index }: { item: string | null; index: number }) => (
-    <YearFilterItem
-      year={year}
-      isLast={index === data.length - 1}
-      isActive={selected === year}
-      label={year ?? allLabel}
-      onSelect={onSelect}
-    />
-  );
-  return (
-    <FlatList
-      data={data}
-      keyExtractor={yearFilterKeyExtractor}
-      keyboardShouldPersistTaps="handled"
-      renderItem={renderItem}
-    />
-  );
-}
 
 function groupConcertsByYear(concertsToGroup: ConcertWithDetails[]): YearGroup[] {
   const groups: { [year: string]: ConcertWithDetails[] } = {};
@@ -164,245 +69,8 @@ function sortConcerts(
 
 export default function ConcertsScreen() {
   const { t } = useTranslation();
-  const colors = useChronicleColors();
   const { isTablet, sidebarWidth } = useTabletLayout();
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    // ── Header ──────────────────────────────────────────────────────────
-    header: {
-      paddingHorizontal: 16,
-      paddingTop: 12,
-      paddingBottom: 8,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    headerTitle: {
-      ...Type.heading,
-      color: colors.textPrimary,
-    },
-    headerSubtitle: {
-      ...Type.body,
-      color: colors.textSecondary,
-      marginTop: 2,
-    },
-    // ── Controls (pinned above list) ────────────────────────────────────
-    controls: {
-      backgroundColor: colors.background,
-      paddingTop: 10,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    searchContainer: {
-      paddingHorizontal: 16,
-      paddingBottom: 10,
-    },
-    searchInputWrapper: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: colors.surface,
-      borderRadius: 10,
-      borderWidth: 1,
-      borderColor: colors.border,
-      paddingHorizontal: 10,
-      paddingVertical: 12,
-    },
-    searchInput: {
-      flex: 1,
-      ...Type.body,
-      color: colors.textPrimary,
-      padding: 0,
-      margin: 0,
-    },
-    sortContainer: {
-      flexDirection: 'row',
-      paddingHorizontal: 16,
-      paddingBottom: 8,
-      gap: 8,
-    },
-    sortPill: {
-      paddingVertical: 6,
-      paddingHorizontal: 14,
-      borderRadius: 20,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: 'transparent',
-    },
-    sortPillActive: {
-      backgroundColor: colors.accentSoft,
-      borderColor: colors.accent,
-    },
-    sortPillText: {
-      ...Type.label,
-      color: colors.textMuted,
-    },
-    sortPillTextActive: {
-      color: colors.accent,
-    },
-    yearDropdownTrigger: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 6,
-      paddingVertical: 6,
-      paddingHorizontal: 14,
-      borderRadius: 20,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: 'transparent',
-      alignSelf: 'flex-start',
-    },
-    yearDropdownTriggerActive: {
-      backgroundColor: colors.accentSoft,
-      borderColor: colors.accent,
-    },
-    yearDropdownTriggerText: {
-      ...Type.label,
-      color: colors.textMuted,
-    },
-    yearDropdownTriggerTextActive: {
-      color: colors.accent,
-    },
-    yearDropdownChevron: {
-      ...Type.label,
-      color: colors.textMuted,
-      fontSize: 10,
-    },
-    yearDropdownChevronActive: {
-      color: colors.accent,
-    },
-    // Modal overlay + sheet
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.35)',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    dropdownSheet: {
-      width: 220,
-      maxHeight: 360,
-      backgroundColor: colors.surface,
-      borderRadius: 14,
-      overflow: 'hidden',
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    dropdownItem: {
-      paddingVertical: 13,
-      paddingHorizontal: 18,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    dropdownItemLast: {
-      borderBottomWidth: 0,
-    },
-    dropdownItemText: {
-      ...Type.body,
-      color: colors.textPrimary,
-    },
-    dropdownItemTextActive: {
-      color: colors.accent,
-      fontWeight: '600',
-    },
-    // ── Timeline river ──────────────────────────────────────────────────
-    yearSection: {
-      paddingHorizontal: 16,
-      paddingTop: 12,
-    },
-    yearGhost: {
-      ...Type.display,
-      fontSize: 56,
-      opacity: 0.18,
-      color: colors.textPrimary,
-      letterSpacing: -2,
-      lineHeight: 56,
-      marginTop: -4,
-    },
-    yearSubLabel: {
-      ...Type.label,
-      color: colors.textMuted,
-      marginBottom: 8,
-    },
-    spineContainer: {
-      borderLeftWidth: 1.5,
-      borderLeftColor: colors.spineColor,
-      marginLeft: 28,
-      paddingLeft: 20,
-    },
-    riverEntry: {
-      paddingVertical: 10,
-      position: 'relative',
-    },
-    dot: {
-      position: 'absolute',
-      left: -25.5,
-      top: 16,
-      width: 9,
-      height: 9,
-      borderRadius: 4.5,
-      backgroundColor: colors.dotInactive,
-      borderWidth: 2,
-      borderColor: colors.background,
-    },
-    dotActive: {
-      backgroundColor: colors.dotActive,
-    },
-    entryRow: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      justifyContent: 'space-between',
-    },
-    entryContent: {
-      flex: 1,
-      marginRight: 8,
-    },
-    entryDate: {
-      ...Type.label,
-      color: colors.accent,
-      letterSpacing: 0.8,
-      marginBottom: 2,
-    },
-    entryArtist: {
-      ...Type.title,
-      color: colors.textPrimary,
-    },
-    entryVenue: {
-      ...Type.body,
-      color: colors.textSecondary,
-    },
-    entryTour: {
-      ...Type.body,
-      color: colors.accent,
-      marginTop: 2,
-    },
-    entryChevron: {
-      ...Type.body,
-      color: colors.textDisabled,
-      alignSelf: 'center',
-    },
-    // ── Tablet master-detail ─────────────────────────────────────────────
-    masterDetail: { flex: 1, flexDirection: 'row' },
-    sidebar: { borderRightWidth: 1, borderRightColor: colors.border },
-    detailPane: { flex: 1 },
-    riverEntrySelected: { backgroundColor: colors.accentSoft },
-    // ── Alphabetical list ────────────────────────────────────────────────
-    alphabeticalEntry: {
-      paddingVertical: 10,
-      paddingHorizontal: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    alphabeticalEntryRow: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      justifyContent: 'space-between',
-    },
-    alphabeticalEntryContent: {
-      flex: 1,
-      marginRight: 8,
-    },
-  });
+  const styles = useConcertsStyles();
 
   const { lastSyncTimestamp } = useSyncContext();
   const router = useRouter();
@@ -515,84 +183,28 @@ export default function ConcertsScreen() {
     }
   };
 
-  const renderYearGroup = (yearGroup: YearGroup, yearIndex: number) => (
-    <View style={styles.yearSection}>
-      <Text style={styles.yearGhost}>{yearGroup.year}</Text>
-      <Text style={styles.yearSubLabel}>
-        {t('common.concert', { count: yearGroup.totalConcerts })}
-      </Text>
-      <View style={styles.spineContainer}>
-        {yearGroup.concerts.map((concert, concertIndex) => {
-          const isFirstOfMostRecentYear = yearIndex === 0 && concertIndex === 0;
-          const isSelected = isTablet && selectedConcertId === concert.id;
-          return (
-            <Pressable
-              key={concert.id}
-              style={({ pressed }) => [
-                styles.riverEntry,
-                isSelected && styles.riverEntrySelected,
-                { opacity: pressed ? 0.7 : 1 },
-              ]}
-              testID={`concert-${concert.id}`}
-              onPress={() => handleConcertPress(concert)}
-              accessibilityRole="button"
-              accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
-              accessibilityHint={t('concerts.viewConcertDetails')}
-            >
-              <View style={[styles.dot, isFirstOfMostRecentYear && styles.dotActive]} />
-              <View style={styles.entryRow}>
-                <View style={styles.entryContent}>
-                  <Text style={styles.entryDate}>{formatDate(concert.eventDate ?? '')}</Text>
-                  <Text style={styles.entryArtist}>{concert.artistName}</Text>
-                  <Text style={styles.entryVenue}>
-                    {concert.venueName}
-                    {concert.cityName ? ` · ${concert.cityName}` : ''}
-                  </Text>
-                  {concert.tour?.name && <Text style={styles.entryTour}>{concert.tour.name}</Text>}
-                </View>
-                <Text style={styles.entryChevron}>›</Text>
-              </View>
-            </Pressable>
-          );
-        })}
-      </View>
-    </View>
-  );
-
-  const renderFlatConcert = (concert: ConcertWithDetails) => {
-    const isSelected = isTablet && selectedConcertId === concert.id;
-    return (
-      <Pressable
-        style={({ pressed }) => [
-          styles.alphabeticalEntry,
-          isSelected && styles.riverEntrySelected,
-          { opacity: pressed ? 0.7 : 1 },
-        ]}
-        testID={`concert-${concert.id}`}
-        onPress={() => handleConcertPress(concert)}
-        accessibilityRole="button"
-        accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
-        accessibilityHint={t('concerts.viewConcertDetails')}
-      >
-        <View style={styles.alphabeticalEntryRow}>
-          <View style={styles.alphabeticalEntryContent}>
-            <Text style={styles.entryDate}>{formatDate(concert.eventDate ?? '')}</Text>
-            <Text style={styles.entryArtist}>{concert.artistName}</Text>
-            <Text style={styles.entryVenue}>
-              {concert.venueName}
-              {concert.cityName ? ` · ${concert.cityName}` : ''}
-            </Text>
-            {concert.tour?.name && <Text style={styles.entryTour}>{concert.tour.name}</Text>}
-          </View>
-          <Text style={styles.entryChevron}>›</Text>
-        </View>
-      </Pressable>
-    );
-  };
-
   const renderItem = ({ item }: { item: ConcertListItem }) => {
-    if (item.type === 'year') return renderYearGroup(item.yearGroup, item.yearIndex);
-    return renderFlatConcert(item.concert);
+    if (item.type === 'year') {
+      return (
+        <ConcertYearGroup
+          yearGroup={item.yearGroup}
+          yearIndex={item.yearIndex}
+          isTablet={isTablet}
+          selectedConcertId={selectedConcertId}
+          onConcertPress={handleConcertPress}
+          styles={styles}
+        />
+      );
+    }
+    return (
+      <ConcertFlatRow
+        concert={item.concert}
+        isTablet={isTablet}
+        selectedConcertId={selectedConcertId}
+        onConcertPress={handleConcertPress}
+        styles={styles}
+      />
+    );
   };
 
   if (loading) {
@@ -622,104 +234,25 @@ export default function ConcertsScreen() {
   const concertList = (
     <>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('concerts.title')}</Text>
-        <Text style={styles.headerSubtitle}>
-          {sortOption === 'alphabetical'
-            ? t('concerts.subtitleAlphabetical', { count: totalConcerts })
-            : t('concerts.subtitleByYear', { count: totalConcerts })}
-        </Text>
-      </View>
+      <ConcertsHeader sortOption={sortOption} totalConcerts={totalConcerts} styles={styles} />
 
       {/* Search + sort */}
-      <View style={styles.controls}>
-        <View style={styles.searchContainer}>
-          <SearchInput
-            style={styles.searchInputWrapper}
-            placeholder={t('concerts.searchPlaceholder')}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            accessibilityLabel={t('concerts.searchPlaceholder')}
-          />
-        </View>
-        <Modal
-          visible={yearDropdownOpen}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setYearDropdownOpen(false)}
-        >
-          <Pressable style={styles.modalOverlay} onPress={() => setYearDropdownOpen(false)}>
-            <View style={styles.dropdownSheet}>
-              <YearFilterList
-                years={yearGroups.map((g) => g.year)}
-                selected={yearFilter}
-                onSelect={(year) => {
-                  setYearFilter(year);
-                  setYearDropdownOpen(false);
-                }}
-                allLabel={t('common.all')}
-              />
-            </View>
-          </Pressable>
-        </Modal>
-
-        <View style={styles.sortContainer}>
-          {/* Year filter — grouped with sort pills */}
-          <Pressable
-            style={({ pressed }) => [
-              styles.yearDropdownTrigger,
-              yearFilter && styles.yearDropdownTriggerActive,
-              { opacity: pressed ? 0.7 : 1 },
-            ]}
-            onPress={() => setYearDropdownOpen(true)}
-            accessibilityRole="button"
-            accessibilityLabel={
-              yearFilter
-                ? t('concerts.filteredByYear', { year: yearFilter })
-                : t('concerts.filterByYear')
-            }
-            accessibilityHint={t('concerts.opensYearPicker')}
-          >
-            <Text
-              style={[
-                styles.yearDropdownTriggerText,
-                yearFilter && styles.yearDropdownTriggerTextActive,
-              ]}
-            >
-              {yearFilter ?? t('concerts.yearFilter')}
-            </Text>
-            <Text
-              style={[styles.yearDropdownChevron, yearFilter && styles.yearDropdownChevronActive]}
-            >
-              ▾
-            </Text>
-          </Pressable>
-
-          {SORT_OPTIONS.map((option) => {
-            const isActive = sortOption === option;
-            const label =
-              option === 'recent' ? t('concerts.mostRecent') : t('concerts.alphabetical');
-            return (
-              <Pressable
-                key={option}
-                style={({ pressed }) => [
-                  styles.sortPill,
-                  isActive && styles.sortPillActive,
-                  { opacity: pressed ? 0.7 : 1 },
-                ]}
-                onPress={() => handleSortChange(option)}
-                accessibilityRole="button"
-                accessibilityState={{ selected: isActive }}
-                accessibilityLabel={label}
-              >
-                <Text style={[styles.sortPillText, isActive && styles.sortPillTextActive]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </View>
+      <ConcertsControls
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        years={yearGroups.map((g) => g.year)}
+        yearFilter={yearFilter}
+        yearDropdownOpen={yearDropdownOpen}
+        onOpenYearDropdown={() => setYearDropdownOpen(true)}
+        onCloseYearDropdown={() => setYearDropdownOpen(false)}
+        onSelectYear={(year) => {
+          setYearFilter(year);
+          setYearDropdownOpen(false);
+        }}
+        sortOption={sortOption}
+        onSortChange={handleSortChange}
+        styles={styles}
+      />
 
       <LegendList
         style={{ flex: 1 }}
