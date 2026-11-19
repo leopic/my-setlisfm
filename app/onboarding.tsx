@@ -1,15 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  Pressable,
-  KeyboardAvoidingView,
-  Platform,
-  Animated,
-  Alert,
-} from 'react-native';
+import { useState } from 'react';
+import { View, Text, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { syncConcertData, setStoredUsername } from '@/services/syncService';
@@ -18,135 +8,21 @@ import { useSyncContext } from '@/contexts/SyncContext';
 import { useOnboardingContext } from '@/contexts/OnboardingContext';
 import { dbOperations } from '@/database/operations';
 import { useChronicleColors } from '@/utils/colors';
-import { Type } from '@/utils/typography';
-
-type Phase = 'input' | 'syncing' | 'done' | 'error';
-type StepStatus = 'waiting' | 'active' | 'done' | 'error';
-
-// Spine geometry constants
-const SPINE_MARGIN_LEFT = 24;
-const SPINE_PADDING_LEFT = 28;
-
-interface StepRowProps {
-  status: StepStatus;
-  title: string;
-  detail?: string;
-  progressPct?: number;
-  isLast: boolean;
-  fadeAnim: Animated.Value;
-  glowAnim: Animated.Value;
-  quipOpacity: Animated.Value;
-  displayedQuip?: string;
-}
-
-function StepRow({
-  status,
-  title,
-  detail,
-  progressPct,
-  isLast,
-  fadeAnim,
-  glowAnim,
-  quipOpacity,
-  displayedQuip,
-}: StepRowProps) {
-  const colors = useChronicleColors();
-  const styles = StyleSheet.create({
-    stepEntry: { paddingTop: 2, paddingBottom: 40, position: 'relative' },
-    stepEntryLast: { paddingBottom: 8 },
-    dotBase: { position: 'absolute', top: 6 },
-    glowHalo: { position: 'absolute', borderRadius: 25, backgroundColor: colors.accent },
-    stepTitle: { ...Type.title, color: colors.textPrimary, marginBottom: 3 },
-    stepTitleWaiting: { color: colors.textDisabled, fontWeight: '400' as const },
-    stepTitleDone: { color: colors.textMuted },
-    stepTitleError: { color: colors.danger },
-    stepDetail: { ...Type.body, color: colors.textSecondary, marginTop: 1 },
-    stepDetailWaiting: { color: colors.textDisabled },
-    progressBar: {
-      width: '100%',
-      height: 2,
-      backgroundColor: colors.border,
-      borderRadius: 1,
-      overflow: 'hidden',
-      marginTop: 10,
-    },
-    progressFill: { height: '100%', backgroundColor: colors.accent, borderRadius: 1 },
-    quipContainer: {
-      marginTop: 12,
-      height: 44,
-      overflow: 'hidden',
-      justifyContent: 'flex-start',
-    },
-    quipText: { ...Type.body, color: colors.textMuted, fontStyle: 'italic', lineHeight: 20 },
-  });
-
-  const isActive = status === 'active';
-  const isDone = status === 'done';
-  const isWaiting = status === 'waiting';
-  const isError = status === 'error';
-
-  const dotSize = isActive ? 22 : 13;
-  const dotLeft = -(SPINE_PADDING_LEFT + dotSize / 2 + 1);
-  const haloSize = 52;
-  const haloLeft = dotLeft - (haloSize - dotSize) / 2;
-  const haloTop = 6 - (haloSize - dotSize) / 2;
-  const dotBg = isError ? colors.danger : isActive || isDone ? colors.dotActive : 'transparent';
-
-  return (
-    <Animated.View
-      style={[styles.stepEntry, isLast && styles.stepEntryLast, { opacity: fadeAnim }]}
-    >
-      {isActive && (
-        <Animated.View
-          style={[
-            styles.glowHalo,
-            { width: haloSize, height: haloSize, left: haloLeft, top: haloTop, opacity: glowAnim },
-          ]}
-        />
-      )}
-      <View
-        style={[
-          styles.dotBase,
-          {
-            width: dotSize,
-            height: dotSize,
-            borderRadius: dotSize / 2,
-            left: dotLeft,
-            backgroundColor: dotBg,
-            borderWidth: isWaiting ? 1.5 : 0,
-            borderColor: colors.dotInactive,
-            opacity: isDone ? 0.55 : 1,
-          },
-        ]}
-      />
-      <Text
-        style={[
-          styles.stepTitle,
-          isWaiting && styles.stepTitleWaiting,
-          isDone && styles.stepTitleDone,
-          isError && styles.stepTitleError,
-        ]}
-      >
-        {title}
-      </Text>
-      {detail ? (
-        <Text numberOfLines={1} style={[styles.stepDetail, isWaiting && styles.stepDetailWaiting]}>
-          {detail}
-        </Text>
-      ) : null}
-      <View style={[styles.progressBar, { opacity: progressPct !== undefined ? 1 : 0 }]}>
-        <View style={[styles.progressFill, { width: `${progressPct ?? 0}%` }]} />
-      </View>
-      <View style={styles.quipContainer}>
-        {isActive && displayedQuip ? (
-          <Animated.Text style={[styles.quipText, { opacity: quipOpacity }]}>
-            {displayedQuip}
-          </Animated.Text>
-        ) : null}
-      </View>
-    </Animated.View>
-  );
-}
+import StepRow from '@/components/onboarding/StepRow';
+import OnboardingBottom from '@/components/onboarding/OnboardingBottom';
+import { createOnboardingStyles } from '@/components/onboarding/styles';
+import {
+  useGlowPulse,
+  useQuipFade,
+  useStepCrossfade,
+} from '@/components/onboarding/useOnboardingAnimations';
+import {
+  concertsStepStatus,
+  concertsStepContent,
+  photosStepStatus,
+  photosStepContent,
+} from '@/components/onboarding/stepContent';
+import type { Phase } from '@/components/onboarding/types';
 
 export default function OnboardingScreen() {
   const { t } = useTranslation();
@@ -160,308 +36,22 @@ export default function OnboardingScreen() {
   const [totalFound, setTotalFound] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Pulsing glow for whichever dot is currently active
-  const [glowAnim] = useState(() => new Animated.Value(0.35));
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(glowAnim, { toValue: 1, duration: 1300, useNativeDriver: true }),
-        Animated.timing(glowAnim, { toValue: 0.25, duration: 1300, useNativeDriver: true }),
-      ]),
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [glowAnim]);
+  const glowAnim = useGlowPulse();
+  const { quipOpacity, displayedQuip, resetQuip } = useQuipFade(progress?.quip);
 
-  // Per-step crossfade — Animated.Values and display states.
-  // The useEffects that drive these are placed after step status derivations
-  // (they reference step1Status/step2Status which are declared later).
-  const [step1Fade] = useState(() => new Animated.Value(1));
-  const [step2Fade] = useState(() => new Animated.Value(1));
-  const [step1Display, setStep1Display] = useState<StepStatus>('waiting');
-  const [step2Display, setStep2Display] = useState<StepStatus>('waiting');
+  const styles = createOnboardingStyles(colors);
 
-  // Quip fade animation — same as before
-  const [quipOpacity] = useState(() => new Animated.Value(0));
-  const [displayedQuip, setDisplayedQuip] = useState<string | undefined>(undefined);
-  const latestQuipRef = useRef<string | undefined>(undefined);
-  useEffect(() => {
-    const incoming = progress?.quip;
-    if (!incoming || incoming === latestQuipRef.current) return;
-    latestQuipRef.current = incoming;
-    Animated.timing(quipOpacity, { toValue: 0, duration: 250, useNativeDriver: true }).start(() => {
-      setDisplayedQuip(incoming);
-      Animated.timing(quipOpacity, { toValue: 1, duration: 350, useNativeDriver: true }).start();
-    });
-  }, [progress?.quip, quipOpacity]);
-
-  const styles = StyleSheet.create({
-    outer: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    header: {
-      paddingTop: 28,
-      paddingBottom: 8,
-      alignItems: 'center',
-    },
-    wordmark: {
-      ...Type.label,
-      color: colors.accent,
-      letterSpacing: 4,
-    },
-
-    // ── Spine area ───────────────────────────────────────────────────
-    spineArea: {
-      flex: 1,
-      justifyContent: 'center',
-      paddingHorizontal: 36,
-    },
-    spineTrack: {
-      borderLeftWidth: 1.5,
-      borderLeftColor: colors.spineColor,
-      marginLeft: SPINE_MARGIN_LEFT,
-      paddingLeft: SPINE_PADDING_LEFT,
-    },
-
-    // ── Step entry ───────────────────────────────────────────────────
-    stepEntry: {
-      paddingTop: 2,
-      paddingBottom: 40,
-      position: 'relative',
-    },
-    stepEntryLast: {
-      paddingBottom: 8,
-    },
-
-    // Dot (base — position/size set inline)
-    dotBase: {
-      position: 'absolute',
-      top: 6,
-    },
-
-    // Glow halo behind active dot (size/position set inline)
-    glowHalo: {
-      position: 'absolute',
-      borderRadius: 25,
-      backgroundColor: colors.accent,
-    },
-
-    // Step text
-    stepTitle: {
-      ...Type.title,
-      color: colors.textPrimary,
-      marginBottom: 3,
-    },
-    stepTitleWaiting: {
-      color: colors.textDisabled,
-      fontWeight: '400',
-    },
-    stepTitleDone: {
-      color: colors.textMuted,
-    },
-    stepTitleError: {
-      color: colors.danger,
-    },
-    stepDetail: {
-      ...Type.body,
-      color: colors.textSecondary,
-      marginTop: 1,
-    },
-    stepDetailWaiting: {
-      color: colors.textDisabled,
-    },
-
-    // Progress bar
-    progressBar: {
-      width: '100%',
-      height: 2,
-      backgroundColor: colors.border,
-      borderRadius: 1,
-      overflow: 'hidden',
-      marginTop: 10,
-    },
-    progressFill: {
-      height: '100%',
-      backgroundColor: colors.accent,
-      borderRadius: 1,
-    },
-
-    // Quip — fixed-height container prevents layout shift between
-    // 0, 1, and 2-line quips. Height = 2 lines × lineHeight 20 + buffer.
-    quipContainer: {
-      marginTop: 12,
-      height: 44,
-      overflow: 'hidden',
-      justifyContent: 'flex-start',
-    },
-    quipText: {
-      ...Type.body,
-      color: colors.textMuted,
-      fontStyle: 'italic',
-      lineHeight: 20,
-    },
-
-    // ── Bottom section ───────────────────────────────────────────────
-    bottom: {
-      paddingHorizontal: 36,
-      paddingBottom: 36,
-      paddingTop: 8,
-    },
-    input: {
-      ...Type.body,
-      color: colors.textPrimary,
-      backgroundColor: colors.surface,
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: 12,
-      paddingHorizontal: 16,
-      paddingVertical: 14,
-      marginBottom: 14,
-      textAlign: 'center',
-    },
-    button: {
-      backgroundColor: colors.accent,
-      borderRadius: 12,
-      paddingVertical: 16,
-      alignItems: 'center',
-    },
-    buttonDisabled: { opacity: 0.35 },
-    buttonText: {
-      ...Type.title,
-      color: colors.textOnAccent,
-    },
-    doneTitle: {
-      ...Type.heading,
-      color: colors.textPrimary,
-      marginBottom: 4,
-    },
-    doneMessage: {
-      ...Type.body,
-      color: colors.textSecondary,
-      marginBottom: 24,
-    },
-    errorButton: {
-      backgroundColor: colors.accentSoft,
-      borderWidth: 1,
-      borderColor: colors.danger,
-      borderRadius: 12,
-      paddingVertical: 16,
-      alignItems: 'center',
-    },
-    errorButtonText: {
-      ...Type.title,
-      color: colors.danger,
-    },
-  });
-
-  // ── Step status derivation ─────────────────────────────────────────────────
-  const step1Status: StepStatus =
-    phase === 'input'
-      ? 'waiting'
-      : phase === 'error'
-        ? 'error'
-        : phase === 'done'
-          ? 'done'
-          : progress?.phase === 'fetching'
-            ? 'active'
-            : 'done';
-
-  const step2Status: StepStatus =
-    phase === 'input' || phase === 'error'
-      ? 'waiting'
-      : phase === 'done'
-        ? 'done'
-        : progress?.phase === 'images'
-          ? 'active'
-          : progress?.phase === 'done'
-            ? 'done'
-            : 'waiting';
-
-  // Crossfade: when a step's real status changes, fade out → swap display → fade in.
   // step2 waits 320 ms so it wakes up after step1 has settled.
-  useEffect(() => {
-    if (step1Status === step1Display) return;
-    Animated.timing(step1Fade, { toValue: 0, duration: 160, useNativeDriver: true }).start(() => {
-      setStep1Display(step1Status);
-      Animated.timing(step1Fade, { toValue: 1, duration: 260, useNativeDriver: true }).start();
-    });
-  }, [step1Status, step1Display, step1Fade]);
+  const { display: step1Display, fade: step1Fade } = useStepCrossfade(
+    concertsStepStatus(phase, progress),
+  );
+  const { display: step2Display, fade: step2Fade } = useStepCrossfade(
+    photosStepStatus(phase, progress),
+    320,
+  );
 
-  useEffect(() => {
-    if (step2Status === step2Display) return;
-    const timer = setTimeout(() => {
-      Animated.timing(step2Fade, { toValue: 0, duration: 160, useNativeDriver: true }).start(() => {
-        setStep2Display(step2Status);
-        Animated.timing(step2Fade, { toValue: 1, duration: 260, useNativeDriver: true }).start();
-      });
-    }, 320);
-    return () => clearTimeout(timer);
-  }, [step2Status, step2Display, step2Fade]);
-
-  // Content derived from DISPLAY states so the crossfade carries the right text.
-  // Live progress values (page numbers, counts) still read from `progress` directly
-  // since those only matter when the display status is 'active' anyway.
-
-  // Step 1: Concerts
-  const step1Title =
-    step1Display === 'waiting'
-      ? t('onboarding.concertsStep')
-      : step1Display === 'error'
-        ? t('onboarding.error')
-        : step1Display === 'done'
-          ? t('common.concert', { count: progress?.totalConcerts ?? totalFound })
-          : t('onboarding.findingConcerts');
-
-  const step1Detail =
-    step1Display === 'waiting'
-      ? t('onboarding.concertsStepDetail')
-      : step1Display === 'active' && progress
-        ? progress.totalConcerts > 0
-          ? t('onboarding.fetchingPageWithTotal', {
-              current: progress.currentPage,
-              total: progress.totalPages,
-              concerts: progress.totalConcerts,
-            })
-          : t('onboarding.fetchingPage', {
-              current: progress.currentPage,
-              total: progress.totalPages,
-            })
-        : step1Display === 'done'
-          ? t('onboarding.allSaved')
-          : step1Display === 'error'
-            ? errorMessage
-            : undefined;
-
-  const step1Progress =
-    step1Display === 'active' && progress && progress.totalPages > 0
-      ? Math.round((progress.currentPage / progress.totalPages) * 100)
-      : undefined;
-
-  // Step 2: Photos
-  const step2Title =
-    step2Display === 'waiting'
-      ? t('onboarding.photosStep')
-      : step2Display === 'active'
-        ? t('onboarding.fetchingPhotos')
-        : t('onboarding.photosReady');
-
-  const step2Detail =
-    step2Display === 'waiting'
-      ? t('onboarding.photosStepDetail')
-      : step2Display === 'active' && progress?.imagesTotal
-        ? t('onboarding.photosProgress', {
-            done: progress.imagesDone ?? 0,
-            total: progress.imagesTotal,
-          })
-        : step2Display === 'done'
-          ? t('onboarding.allMatched')
-          : undefined;
-
-  const step2Progress =
-    step2Display === 'active' && progress?.imagesTotal
-      ? Math.round(((progress.imagesDone ?? 0) / progress.imagesTotal) * 100)
-      : undefined;
+  const step1 = concertsStepContent(step1Display, t, progress, totalFound, errorMessage);
+  const step2 = photosStepContent(step2Display, t, progress);
 
   // ── Handlers (unchanged) ──────────────────────────────────────────────────
   const handleStart = async () => {
@@ -513,8 +103,7 @@ export default function OnboardingScreen() {
     setProgress(null);
     setTotalFound(0);
     setErrorMessage('');
-    latestQuipRef.current = undefined;
-    setDisplayedQuip(undefined);
+    resetQuip();
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -537,75 +126,40 @@ export default function OnboardingScreen() {
         <View style={styles.spineTrack}>
           <StepRow
             status={step1Display}
-            title={step1Title}
-            detail={step1Detail}
-            progressPct={step1Progress}
+            title={step1.title}
+            detail={step1.detail}
+            progressPct={step1.progressPct}
             isLast={false}
             fadeAnim={step1Fade}
             glowAnim={glowAnim}
             quipOpacity={quipOpacity}
             displayedQuip={displayedQuip}
+            styles={styles}
           />
           <StepRow
             status={step2Display}
-            title={step2Title}
-            detail={step2Detail}
-            progressPct={step2Progress}
+            title={step2.title}
+            detail={step2.detail}
+            progressPct={step2.progressPct}
             isLast
             fadeAnim={step2Fade}
             glowAnim={glowAnim}
             quipOpacity={quipOpacity}
             displayedQuip={displayedQuip}
+            styles={styles}
           />
         </View>
       </View>
 
       {/* Bottom: input / done / error / empty during sync */}
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.bottom}
-      >
-        {phase === 'input' && (
-          <View>
-            <TextInput
-              style={styles.input}
-              placeholder={t('onboarding.usernamePlaceholder')}
-              placeholderTextColor={colors.textMuted}
-              value={username}
-              onChangeText={setUsername}
-              autoCapitalize="none"
-              autoCorrect={false}
-              returnKeyType="go"
-              onSubmitEditing={handleStart}
-              accessibilityLabel={t('onboarding.usernamePlaceholder')}
-            />
-            <Pressable
-              style={({ pressed }) => [
-                styles.button,
-                !username.trim() && styles.buttonDisabled,
-                { opacity: pressed ? 0.7 : 1 },
-              ]}
-              onPress={handleStart}
-              disabled={!username.trim()}
-              accessibilityRole="button"
-              accessibilityLabel={t('onboarding.getStarted')}
-            >
-              <Text style={styles.buttonText}>{t('onboarding.getStarted')}</Text>
-            </Pressable>
-          </View>
-        )}
-
-        {phase === 'error' && (
-          <Pressable
-            style={({ pressed }) => [styles.errorButton, { opacity: pressed ? 0.7 : 1 }]}
-            onPress={handleRetry}
-            accessibilityRole="button"
-            accessibilityLabel={t('onboarding.retry')}
-          >
-            <Text style={styles.errorButtonText}>{t('onboarding.retry')}</Text>
-          </Pressable>
-        )}
-      </KeyboardAvoidingView>
+      <OnboardingBottom
+        phase={phase}
+        username={username}
+        onChangeUsername={setUsername}
+        onStart={handleStart}
+        onRetry={handleRetry}
+        styles={styles}
+      />
     </SafeAreaView>
   );
 }
