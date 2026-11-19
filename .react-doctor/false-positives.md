@@ -47,3 +47,11 @@ not needed.
 Not reported any more; entry removed. (It was the `insertedSets.find(…)` in
 `processSets`: the array is re-queried on every iteration, so a pre-built Map
 would be stale.)
+
+## react-doctor/no-set-state-after-await-in-effect
+
+- `app/(tabs)/(home)/index.tsx`, the `[lastSyncTimestamp]` effect: it calls
+  `loadDashboard(() => cancelled)`, and `loadDashboard` checks `isCancelled()`
+  before each state update (after `Promise.all` and in the catch path). The
+  rule does not follow the callback. If `loadDashboard` gains a state update
+  without that check, the warning is correct.
