@@ -1,32 +1,21 @@
 import { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  TextInput,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import Constants from 'expo-constants';
-import * as Updates from 'expo-updates';
 import { dbOperations } from '@/database/operations';
 import { getStoredUsername, setStoredUsername, syncConcertData } from '@/services/syncService';
-import { useChronicleColors } from '@/utils/colors';
-import { Type } from '@/utils/typography';
-import { formatDateTime } from '@/utils/date';
 import { useSyncContext } from '@/contexts/SyncContext';
 import { useOnboardingContext } from '@/contexts/OnboardingContext';
-import { TabScrollView, Icon } from '@/components/ui';
+import { TabScrollView } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
+import { useSettingsStyles } from '@/components/settings/useSettingsStyles';
+import SettingsHeader from '@/components/settings/SettingsHeader';
+import AccountSection from '@/components/settings/AccountSection';
+import SyncSection from '@/components/settings/SyncSection';
+import AboutSection from '@/components/settings/AboutSection';
+import DataSection from '@/components/settings/DataSection';
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
-  const colors = useChronicleColors();
-  const router = useRouter();
   const { notifySyncComplete } = useSyncContext();
   const { restartOnboarding } = useOnboardingContext();
 
@@ -36,88 +25,7 @@ export default function SettingsScreen() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSynced, setLastSynced] = useState<string | null>(null);
 
-  const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.background },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: 16,
-      paddingVertical: 14,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-      gap: 10,
-    },
-    backButton: { padding: 4 },
-    headerTitle: { ...Type.heading, color: colors.textPrimary, flex: 1 },
-    // ── Section ──────────────────────────────────────────────────────────
-    sectionLabel: {
-      ...Type.label,
-      color: colors.textMuted,
-      letterSpacing: 1,
-      textTransform: 'uppercase',
-      paddingHorizontal: 20,
-      paddingTop: 28,
-      paddingBottom: 8,
-    },
-    // ── Rows ─────────────────────────────────────────────────────────────
-    row: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: 20,
-      paddingVertical: 14,
-      backgroundColor: colors.surface,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    rowFirst: { borderTopWidth: 1, borderTopColor: colors.border },
-    // The label stays on the first line of a two-line value.
-    rowTop: { alignItems: 'flex-start' },
-    rowLabel: { ...Type.body, color: colors.textSecondary, width: 110 },
-    rowValue: { ...Type.body, color: colors.textPrimary, flex: 1 },
-    rowValueColumn: { flex: 1 },
-    rowValueText: { ...Type.body, color: colors.textPrimary },
-    rowDetail: { ...Type.label, color: colors.textSecondary, marginTop: 2 },
-    rowAction: { ...Type.body, color: colors.accent },
-    rowDestructive: { ...Type.title, color: colors.danger ?? '#ff453a', flex: 1 },
-    // ── Username edit ─────────────────────────────────────────────────────
-    usernameInput: {
-      flex: 1,
-      ...Type.body,
-      color: colors.textPrimary,
-      borderWidth: 1,
-      borderColor: colors.accent,
-      borderRadius: 8,
-      paddingHorizontal: 10,
-      paddingVertical: 6,
-    },
-    saveButton: {
-      marginLeft: 10,
-      paddingHorizontal: 14,
-      paddingVertical: 7,
-      backgroundColor: colors.accent,
-      borderRadius: 8,
-    },
-    saveButtonText: {
-      ...Type.label,
-      color: colors.textOnAccent,
-    },
-    cancelButton: { marginLeft: 8, padding: 6 },
-    // ── Sync button ───────────────────────────────────────────────────────
-    syncRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: 20,
-      paddingVertical: 14,
-      backgroundColor: colors.surface,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
-      gap: 10,
-    },
-    syncText: { ...Type.title, color: colors.accent, flex: 1 },
-    syncTextDisabled: { ...Type.title, color: colors.textMuted, flex: 1 },
-  });
+  const styles = useSettingsStyles();
 
   useEffect(() => {
     (async () => {
@@ -185,26 +93,6 @@ export default function SettingsScreen() {
     ]);
   };
 
-  const appVersion = Constants.expoConfig?.version ?? '—';
-
-  // The JS the app runs: the bundle built into the app (also when updates are off), an update
-  // downloaded from EAS, or else a dev client's Metro bundle, which has no update to show.
-  const { currentlyRunning } = Updates.useUpdates();
-  const builtIn = !Updates.isEnabled || currentlyRunning.isEmbeddedLaunch;
-  const runningUpdate =
-    builtIn || !currentlyRunning.createdAt
-      ? null
-      : {
-          date: formatDateTime(currentlyRunning.createdAt),
-          detail: t('settings.updateDetail', {
-            // The commit the ship workflow bundles in; an update published another way has
-            // only its id, whose first characters are a timestamp.
-            id: process.env.EXPO_PUBLIC_COMMIT || currentlyRunning.updateId?.slice(-7) || '—',
-            // Native sends "" for a build without a channel.
-            channel: currentlyRunning.channel || '—',
-          }),
-        };
-
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <KeyboardAvoidingView
@@ -212,140 +100,35 @@ export default function SettingsScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* Header */}
-        <View style={styles.header}>
-          <Pressable
-            style={({ pressed }) => [styles.backButton, { opacity: pressed ? 0.7 : 1 }]}
-            onPress={() => router.back()}
-            testID="back-button"
-            accessibilityRole="button"
-            accessibilityLabel={t('common.goBack')}
-          >
-            <Icon sf="chevron.left" md="chevron-back-outline" size={20} color={colors.accent} />
-          </Pressable>
-          <Text style={styles.headerTitle}>{t('settings.title')}</Text>
-        </View>
+        <SettingsHeader styles={styles} />
 
         <TabScrollView showsVerticalScrollIndicator={false}>
           {/* ── Account ─────────────────────────────────────────────────── */}
-          <Text style={styles.sectionLabel}>{t('settings.account')}</Text>
-
-          <View style={[styles.row, styles.rowFirst]}>
-            <Text style={styles.rowLabel}>{t('settings.username')}</Text>
-            {isEditing ? (
-              <>
-                <TextInput
-                  style={styles.usernameInput}
-                  value={editingUsername}
-                  onChangeText={setEditingUsername}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  autoFocus
-                  returnKeyType="done"
-                  onSubmitEditing={handleSaveUsername}
-                  placeholderTextColor={colors.textMuted}
-                />
-                <Pressable
-                  style={({ pressed }) => [styles.saveButton, { opacity: pressed ? 0.7 : 1 }]}
-                  onPress={handleSaveUsername}
-                >
-                  <Text style={styles.saveButtonText}>{t('settings.save')}</Text>
-                </Pressable>
-                <Pressable
-                  style={({ pressed }) => [styles.cancelButton, { opacity: pressed ? 0.7 : 1 }]}
-                  onPress={() => setIsEditing(false)}
-                  accessibilityRole="button"
-                >
-                  <Icon sf="xmark" md="close-outline" size={18} color={colors.textMuted} />
-                </Pressable>
-              </>
-            ) : (
-              <>
-                <Text style={styles.rowValue}>{username || '—'}</Text>
-                <Pressable
-                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-                  onPress={handleStartEdit}
-                  accessibilityRole="button"
-                >
-                  <Text style={styles.rowAction}>{t('settings.change')}</Text>
-                </Pressable>
-              </>
-            )}
-          </View>
-
+          <AccountSection
+            styles={styles}
+            username={username}
+            editingUsername={editingUsername}
+            isEditing={isEditing}
+            onChangeEditingUsername={setEditingUsername}
+            onStartEdit={handleStartEdit}
+            onSave={handleSaveUsername}
+            onCancelEdit={() => setIsEditing(false)}
+          />
           {/* ── Sync ────────────────────────────────────────────────────── */}
-          <Text style={styles.sectionLabel}>{t('settings.sync')}</Text>
-
-          <View style={[styles.row, styles.rowFirst]}>
-            <Text style={styles.rowLabel}>{t('settings.lastSynced')}</Text>
-            <Text style={styles.rowValue}>{lastSynced ?? t('settings.never')}</Text>
-          </View>
-
-          <Pressable
-            style={({ pressed }) => [styles.syncRow, { opacity: pressed ? 0.7 : 1 }]}
-            onPress={() => handleSync()}
-            disabled={isSyncing || !username}
-            accessibilityRole="button"
-            accessibilityLabel={t('settings.syncNowLabel')}
-          >
-            <Icon
-              sf={isSyncing ? 'arrow.clockwise' : 'arrow.clockwise'}
-              md="refresh-outline"
-              size={18}
-              color={isSyncing || !username ? colors.textMuted : colors.accent}
-            />
-            <Text style={isSyncing || !username ? styles.syncTextDisabled : styles.syncText}>
-              {isSyncing ? t('settings.syncing') : t('settings.syncNow')}
-            </Text>
-          </Pressable>
-
+          <SyncSection
+            styles={styles}
+            lastSynced={lastSynced}
+            isSyncing={isSyncing}
+            hasUsername={!!username}
+            // Not returned: the test library waits for a returned promise, so a pending sync would hang a press.
+            onSync={() => {
+              void handleSync();
+            }}
+          />
           {/* ── About ───────────────────────────────────────────────────── */}
-          <Text style={styles.sectionLabel}>{t('settings.about')}</Text>
-
-          {/* Long-press opens the hidden Demo screen for the self-healing talk. */}
-          <Pressable
-            style={[styles.row, styles.rowFirst]}
-            onLongPress={() => router.push('/(home)/demo')}
-            testID="settings-version"
-          >
-            <Text style={styles.rowLabel}>{t('settings.version')}</Text>
-            <Text style={styles.rowValue}>{appVersion}</Text>
-          </Pressable>
-          <View style={[styles.row, styles.rowTop]} testID="settings-update">
-            <Text style={styles.rowLabel}>{t('settings.update')}</Text>
-            {runningUpdate ? (
-              <View style={styles.rowValueColumn}>
-                <Text style={styles.rowValueText}>{runningUpdate.date}</Text>
-                <Text style={styles.rowDetail}>{runningUpdate.detail}</Text>
-              </View>
-            ) : (
-              <Text style={styles.rowValue}>
-                {builtIn ? t('settings.updateBuiltIn') : t('settings.updateDevelopment')}
-              </Text>
-            )}
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.rowLabel}>{t('settings.dataSource')}</Text>
-            {/* eslint-disable-next-line i18next/no-literal-string -- the service's name */}
-            <Text style={styles.rowValue}>setlist.fm</Text>
-          </View>
-
+          <AboutSection styles={styles} />
           {/* ── Danger zone ─────────────────────────────────────────────── */}
-          <Text style={styles.sectionLabel}>{t('settings.data')}</Text>
-
-          <Pressable
-            style={({ pressed }) => [styles.row, styles.rowFirst, { opacity: pressed ? 0.7 : 1 }]}
-            onPress={handleClearData}
-            accessibilityRole="button"
-            accessibilityLabel={t('settings.clearAllDataLabel')}
-          >
-            <Text style={styles.rowDestructive}>{t('settings.clearAllData')}</Text>
-            <Icon
-              sf="chevron.right"
-              md="chevron-forward-outline"
-              size={16}
-              color={colors.textDisabled}
-            />
-          </Pressable>
+          <DataSection styles={styles} onClearData={handleClearData} />
         </TabScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
