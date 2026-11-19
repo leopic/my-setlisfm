@@ -95,10 +95,11 @@ export default function DashboardScreen() {
       setLoading(false);
     } catch (error) {
       console.error('Failed to load dashboard:', error);
-      setLoading(false);
+      if (!isCancelled()) setLoading(false);
     }
   };
 
+  // react-doctor-disable-next-line react-doctor/no-set-state-after-await-in-effect -- loadDashboard checks isCancelled() before every state update
   useEffect(() => {
     let cancelled = false;
     const init = async () => {
@@ -118,8 +119,16 @@ export default function DashboardScreen() {
   // Load panel OTD and year concerts whenever selected year changes (tablet only)
   useEffect(() => {
     if (!isTablet || !selectedYear) return;
-    dbOperations.getOnThisDayConcertForYear(selectedYear).then(setPanelOnThisDay);
-    dbOperations.getSetlistsByYear(selectedYear).then(setYearConcerts);
+    let cancelled = false;
+    void dbOperations.getOnThisDayConcertForYear(selectedYear).then((concert) => {
+      if (!cancelled) setPanelOnThisDay(concert);
+    });
+    void dbOperations.getSetlistsByYear(selectedYear).then((concerts) => {
+      if (!cancelled) setYearConcerts(concerts);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [selectedYear, isTablet]);
 
   const handleSync = async () => {
