@@ -15,14 +15,12 @@ function useChapterStyles() {
       marginBottom: 8,
     },
     yearGhost: {
-      ...Type.display,
-      fontSize: 64,
-      lineHeight: 68,
+      ...Type.yearGhost,
       color: colors.textPrimary,
       opacity: 0.18,
     },
     yearMeta: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
       marginTop: 2,
     },
@@ -38,12 +36,11 @@ function useChapterStyles() {
       gap: 4,
     },
     yearStatValue: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textSecondary,
-      fontWeight: '600',
     },
     yearStatLabel: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
     },
     monthGrid: {
@@ -57,8 +54,7 @@ function useChapterStyles() {
       flex: 1,
     },
     monthLabel: {
-      ...Type.label,
-      fontSize: 8,
+      ...Type.captionStrong,
       color: colors.textDisabled,
       marginBottom: 3,
     },

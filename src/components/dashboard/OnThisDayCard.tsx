@@ -25,7 +25,7 @@ export default function OnThisDayCard({ onThisDay }: { onThisDay: NonNullable<On
       padding: 14,
     },
     onThisDayLabel: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.accent,
       letterSpacing: 0.8,
       marginBottom: 6,
@@ -36,12 +36,12 @@ export default function OnThisDayCard({ onThisDay }: { onThisDay: NonNullable<On
       justifyContent: 'space-between',
     },
     onThisDayArtist: {
-      ...Type.title,
+      ...Type.headline,
       color: colors.textPrimary,
       flex: 1,
     },
     onThisDayMeta: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 3,
     },

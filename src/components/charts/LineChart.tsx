@@ -11,6 +11,7 @@ import Svg, {
   Rect,
 } from 'react-native-svg';
 import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
 
 export interface LineSeries {
   label: string;
@@ -25,8 +26,8 @@ interface LineChartProps {
   height?: number;
 }
 
-const LABEL_HEIGHT = 14;
-const END_LABEL_FONT_SIZE = 10;
+const LABEL_HEIGHT = Type.caption.lineHeight;
+const END_LABEL_FONT_SIZE = Type.caption.fontSize;
 const END_LABEL_GAP = 6; // between the last point and its label
 const END_LABEL_EDGE = 4; // between the longest label and the chart's right edge
 const MIN_RIGHT_PAD = 40;
@@ -34,7 +35,7 @@ const MAX_RIGHT_PAD_RATIO = 0.4;
 // Width guess per character until the hidden labels report their real width
 // (and under Jest, where nothing lays out).
 const AVG_CHAR_WIDTH = 0.62 * END_LABEL_FONT_SIZE;
-const LABEL_MIN_SPACING = 13;
+const LABEL_MIN_SPACING = Type.caption.lineHeight;
 const LABEL_MIN_Y = 12;
 const TOP_PAD = 10; // prevent highest data point from hitting the clip boundary
 const EMPTY_LABELS: string[] = [];
@@ -196,7 +197,7 @@ export default function LineChart({
                 key={lbl}
                 x={x}
                 y={height + LABEL_HEIGHT}
-                fontSize={10}
+                fontSize={Type.caption.fontSize}
                 fontWeight="400"
                 fill={colors.textMuted}
                 // The first point sits on the left edge: a centred label would hang half outside.

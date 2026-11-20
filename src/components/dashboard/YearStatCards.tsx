@@ -31,13 +31,10 @@ export default function YearStatCards({ showCount, summary, monthNames }: Props)
       alignItems: 'center',
     },
     detailStatValue: {
-      fontSize: 20,
-      fontWeight: '700',
-      letterSpacing: -0.5,
+      ...Type.title3,
     },
     detailStatLabel: {
-      ...Type.label,
-      fontSize: 10,
+      ...Type.captionStrong,
       color: colors.textMuted,
       marginTop: 2,
     },

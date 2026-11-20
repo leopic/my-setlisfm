@@ -50,11 +50,11 @@ export default function CitiesScreen() {
       borderColor: colors.border,
     },
     pillTextActive: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.accent,
     },
     pillTextInactive: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
     },
   });

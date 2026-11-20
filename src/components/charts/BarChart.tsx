@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import Svg, { Rect, Text as SvgText, G } from 'react-native-svg';
 import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
 
 interface BarChartProps {
   data: Array<{ id: string; label: string; value: number }>;
@@ -10,7 +11,7 @@ interface BarChartProps {
   showLabels?: boolean;
 }
 
-const LABEL_HEIGHT = 14;
+const LABEL_HEIGHT = Type.caption.lineHeight;
 const GAP = 3;
 
 export default function BarChart({ data, color, height = 80, showLabels = true }: BarChartProps) {
@@ -56,7 +57,7 @@ export default function BarChart({ data, color, height = 80, showLabels = true }
                     <SvgText
                       x={bx + barW / 2}
                       y={height + LABEL_HEIGHT}
-                      fontSize={10}
+                      fontSize={Type.caption.fontSize}
                       fontWeight="400"
                       fill={colors.textMuted}
                       textAnchor="middle"

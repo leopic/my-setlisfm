@@ -39,16 +39,16 @@ export default function CityList({ cities, onCityPress, emptyMessage }: CityList
       marginRight: 12,
     },
     name: {
-      ...Type.title,
+      ...Type.headline,
       color: colors.textPrimary,
     },
     subtitle: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 2,
     },
     meta: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textMuted,
       marginTop: 2,
     },
@@ -57,11 +57,11 @@ export default function CityList({ cities, onCityPress, emptyMessage }: CityList
       minWidth: 44,
     },
     countNumber: {
-      ...Type.count,
+      ...Type.title3,
       color: colors.accent,
     },
     countLabel: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
       marginTop: 1,
     },

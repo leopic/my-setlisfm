@@ -54,11 +54,11 @@ export default function CityDetailScreen() {
       marginBottom: 6,
     },
     title: {
-      ...Type.heading,
+      ...Type.title1,
       color: colors.textPrimary,
     },
     subtitle: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 2,
     },
@@ -78,21 +78,21 @@ export default function CityDetailScreen() {
       marginRight: 12,
     },
     venueName: {
-      ...Type.title,
+      ...Type.headline,
       color: colors.textPrimary,
     },
     venueLocation: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 2,
     },
     lastConcertText: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textMuted,
       marginTop: 2,
     },
     artistsText: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textMuted,
       marginTop: 2,
     },
@@ -101,11 +101,11 @@ export default function CityDetailScreen() {
       minWidth: 44,
     },
     concertCountText: {
-      ...Type.count,
+      ...Type.title3,
       color: colors.accent,
     },
     concertCountLabel: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
       marginTop: 1,
     },

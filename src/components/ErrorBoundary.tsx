@@ -32,8 +32,13 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
       padding: 24,
       backgroundColor: colors.background,
     },
-    title: { ...Type.heading, color: colors.textPrimary, marginBottom: 8 },
-    message: { ...Type.body, color: colors.textSecondary, textAlign: 'center', marginBottom: 24 },
+    title: { ...Type.title1, color: colors.textPrimary, marginBottom: 8 },
+    message: {
+      ...Type.subheadline,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 24,
+    },
     button: {
       backgroundColor: colors.accent,
       paddingHorizontal: 24,
@@ -41,7 +46,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
       borderRadius: 8,
       borderCurve: 'continuous',
     },
-    buttonText: { ...Type.title, color: colors.textOnAccent },
+    buttonText: { ...Type.headline, color: colors.textOnAccent },
   });
 
   return (

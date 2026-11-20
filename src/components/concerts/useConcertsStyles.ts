@@ -20,11 +20,11 @@ export function useConcertsStyles() {
       borderBottomColor: colors.border,
     },
     headerTitle: {
-      ...Type.heading,
+      ...Type.largeTitle,
       color: colors.textPrimary,
     },
     headerSubtitle: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 2,
     },
@@ -75,7 +75,7 @@ export function useConcertsStyles() {
       borderColor: colors.accent,
     },
     sortPillText: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
     },
     sortPillTextActive: {
@@ -98,16 +98,15 @@ export function useConcertsStyles() {
       borderColor: colors.accent,
     },
     yearDropdownTriggerText: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
     },
     yearDropdownTriggerTextActive: {
       color: colors.accent,
     },
     yearDropdownChevron: {
-      ...Type.label,
+      ...Type.captionStrong,
       color: colors.textMuted,
-      fontSize: 10,
     },
     yearDropdownChevronActive: {
       color: colors.accent,
@@ -142,8 +141,8 @@ export function useConcertsStyles() {
       color: colors.textPrimary,
     },
     dropdownItemTextActive: {
+      ...Type.headline,
       color: colors.accent,
-      fontWeight: '600',
     },
     // ── Timeline river ──────────────────────────────────────────────────
     yearSection: {
@@ -151,16 +150,13 @@ export function useConcertsStyles() {
       paddingTop: 12,
     },
     yearGhost: {
-      ...Type.display,
-      fontSize: 56,
+      ...Type.yearGhost,
       opacity: 0.18,
       color: colors.textPrimary,
-      letterSpacing: -2,
-      lineHeight: 56,
       marginTop: -4,
     },
     yearSubLabel: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
       marginBottom: 8,
     },
@@ -198,21 +194,21 @@ export function useConcertsStyles() {
       marginRight: 8,
     },
     entryDate: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.accent,
       letterSpacing: 0.8,
       marginBottom: 2,
     },
     entryArtist: {
-      ...Type.title,
+      ...Type.headline,
       color: colors.textPrimary,
     },
     entryVenue: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
     },
     entryTour: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.accent,
       marginTop: 2,
     },

@@ -6,6 +6,7 @@ import { dbOperations } from '@/database/operations';
 import type { SetlistWithDetails, SetWithSongs } from '@/types/database';
 import Setlist from '@/components/Setlist';
 import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
 import SetlistSkeleton from '@/components/skeletons/SetlistSkeleton';
 import { useTranslation } from 'react-i18next';
 
@@ -14,14 +15,8 @@ export default function SetlistDetailScreen() {
   const colors = useChronicleColors();
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
-    loadingText: {
-      fontSize: 18,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      marginTop: 100,
-    },
     errorText: {
-      fontSize: 18,
+      ...Type.body,
       color: colors.accent,
       textAlign: 'center',
       marginTop: 100,

@@ -50,16 +50,15 @@ export default function EmptyState({
       opacity: 0.22,
     },
     title: {
-      ...Type.title,
+      ...Type.headline,
       color: colors.textMuted,
       textAlign: 'center',
       marginBottom: 8,
     },
     body: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textDisabled,
       textAlign: 'center',
-      lineHeight: 20,
     },
   });
 

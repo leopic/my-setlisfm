@@ -35,7 +35,7 @@ export default function TabletTopBar({ totals, onThisDay, onSync }: Props) {
       borderLeftColor: colors.border,
     },
     appTitle: {
-      ...Type.display,
+      ...Type.largeTitle,
       color: colors.textPrimary,
     },
   });

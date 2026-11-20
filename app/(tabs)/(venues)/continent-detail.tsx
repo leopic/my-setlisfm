@@ -37,11 +37,11 @@ export default function ContinentDetailScreen() {
       marginBottom: 6,
     },
     title: {
-      ...Type.heading,
+      ...Type.title1,
       color: colors.textPrimary,
     },
     subtitle: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 2,
     },

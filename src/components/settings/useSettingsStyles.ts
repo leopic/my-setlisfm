@@ -18,10 +18,10 @@ export function useSettingsStyles() {
       gap: 10,
     },
     backButton: { padding: 4 },
-    headerTitle: { ...Type.heading, color: colors.textPrimary, flex: 1 },
+    headerTitle: { ...Type.title1, color: colors.textPrimary, flex: 1 },
     // ── Section ──────────────────────────────────────────────────────────
     sectionLabel: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
       letterSpacing: 1,
       textTransform: 'uppercase',
@@ -46,9 +46,9 @@ export function useSettingsStyles() {
     rowValue: { ...Type.body, color: colors.textPrimary, flex: 1 },
     rowValueColumn: { flex: 1 },
     rowValueText: { ...Type.body, color: colors.textPrimary },
-    rowDetail: { ...Type.label, color: colors.textSecondary, marginTop: 2 },
+    rowDetail: { ...Type.footnote, color: colors.textSecondary, marginTop: 2 },
     rowAction: { ...Type.body, color: colors.accent },
-    rowDestructive: { ...Type.title, color: colors.danger ?? '#ff453a', flex: 1 },
+    rowDestructive: { ...Type.headline, color: colors.danger ?? '#ff453a', flex: 1 },
     // ── Username edit ─────────────────────────────────────────────────────
     usernameInput: {
       flex: 1,
@@ -68,7 +68,7 @@ export function useSettingsStyles() {
       borderRadius: 8,
     },
     saveButtonText: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textOnAccent,
     },
     cancelButton: { marginLeft: 8, padding: 6 },
@@ -85,8 +85,8 @@ export function useSettingsStyles() {
       borderTopColor: colors.border,
       gap: 10,
     },
-    syncText: { ...Type.title, color: colors.accent, flex: 1 },
-    syncTextDisabled: { ...Type.title, color: colors.textMuted, flex: 1 },
+    syncText: { ...Type.headline, color: colors.accent, flex: 1 },
+    syncTextDisabled: { ...Type.headline, color: colors.textMuted, flex: 1 },
   });
 }
 

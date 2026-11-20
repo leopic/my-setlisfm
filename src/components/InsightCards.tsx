@@ -23,7 +23,7 @@ export default function InsightCards({ stats }: Props) {
       marginHorizontal: 20,
     },
     sectionLabel: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
       letterSpacing: 1.2,
       marginBottom: 10,
@@ -49,21 +49,19 @@ export default function InsightCards({ stats }: Props) {
       marginBottom: 10,
     },
     cardLabel: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
       marginBottom: 4,
       letterSpacing: 0.6,
     },
     cardValue: {
-      ...Type.heading,
+      ...Type.title2,
       color: colors.textPrimary,
-      lineHeight: 26,
     },
     cardSub: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 3,
-      lineHeight: 18,
     },
   });
 

@@ -50,17 +50,17 @@ export function useTimelineStyles() {
       flex: 1,
     },
     entryDate: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.accent,
       letterSpacing: 0.8,
       marginBottom: 2,
     },
     entryArtist: {
-      ...Type.title,
+      ...Type.headline,
       color: colors.textPrimary,
     },
     entryVenue: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 1,
     },
@@ -80,7 +80,7 @@ export function useTimelineStyles() {
       transform: [{ rotate: '45deg' }],
     },
     milestoneTag: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.accent,
       letterSpacing: 0.8,
       marginBottom: 1,

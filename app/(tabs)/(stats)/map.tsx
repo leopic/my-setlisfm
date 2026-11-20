@@ -29,11 +29,11 @@ export default function VenuesMapScreen() {
       marginBottom: 4,
     },
     title: {
-      ...Type.heading,
+      ...Type.title1,
       color: colors.textPrimary,
     },
     subtitle: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
     },
     mapWrapper: {

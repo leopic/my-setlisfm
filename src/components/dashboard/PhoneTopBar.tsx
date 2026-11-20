@@ -31,11 +31,11 @@ export default function PhoneTopBar({ onSync, totals, lastSynced }: Props) {
       marginBottom: 6,
     },
     appTitle: {
-      ...Type.display,
+      ...Type.largeTitle,
       color: colors.textPrimary,
     },
     lastSynced: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
       marginTop: 4,
     },
