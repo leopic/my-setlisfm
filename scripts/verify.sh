@@ -41,6 +41,7 @@ trap 'rm -rf "$bundle_dir"' EXIT
 
 check Install yarn install --immutable
 check Lint yarn lint
+check "Markdown format" npx prettier --check '**/*.md'
 check Test yarn test
 check Typecheck npx tsc --noEmit
 check "React Doctor" yarn react-doctor --scope changed --base origin/main --blocking warning --no-score --no-supply-chain
