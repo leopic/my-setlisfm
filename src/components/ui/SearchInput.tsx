@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
+import { TOUCH_TARGET } from '@/utils/touchTarget';
 import Icon from './Icon';
 import { useTranslation } from 'react-i18next';
 
@@ -34,17 +35,21 @@ export default function SearchInput({ value, onChangeText, style, ...rest }: Sea
       borderColor: colors.border,
       borderRadius: 10,
       paddingHorizontal: 14,
-      paddingVertical: 10,
     },
     input: {
       flex: 1,
       ...Type.body,
       color: colors.textPrimary,
       padding: 0,
+      minHeight: TOUCH_TARGET,
     },
     clearButton: {
-      marginLeft: 6,
-      padding: 2,
+      width: TOUCH_TARGET,
+      height: TOUCH_TARGET,
+      alignItems: 'center',
+      justifyContent: 'center',
+      // The icon stays where the padding put it; the target reaches into the padding.
+      marginRight: -14,
     },
   });
 
@@ -76,7 +81,6 @@ export default function SearchInput({ value, onChangeText, style, ...rest }: Sea
           }}
           accessibilityLabel={t('common.clearSearch')}
           accessibilityRole="button"
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Ionicons name="close-circle" size={16} color={colors.textMuted} />
         </Pressable>

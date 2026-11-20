@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { TabScrollView, Icon } from '@/components/ui';
+import { BackButton, Icon, TabScrollView } from '@/components/ui';
 import ArtistImage from '@/components/ArtistImage';
 import RecognitionSheet from '@/components/RecognitionSheet';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +11,7 @@ import { dbOperations } from '@/database/operations';
 import { formatDate, formatMonthStrip } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
+import { TOUCH_TARGET } from '@/utils/touchTarget';
 
 // Intro and outro tapes, by the song's tape value.
 const TAPE_BADGES: Record<
@@ -102,8 +103,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   const styles = StyleSheet.create({
     backBar: {
       paddingHorizontal: 16,
-      paddingTop: 12,
-      paddingBottom: 10,
+      paddingVertical: 8,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -111,15 +111,21 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 10,
-    },
-    backButton: {
-      ...Type.body,
-      color: colors.accent,
+      // As tall as the 44 pt back button and badge, also in a pane that has neither.
+      minHeight: TOUCH_TARGET,
     },
     artistName: {
       ...Type.title1,
       color: colors.textPrimary,
       flex: 1,
+    },
+    // 44 pt target with a 30 pt badge inside.
+    navBadgeTarget: {
+      width: TOUCH_TARGET,
+      height: TOUCH_TARGET,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: -(TOUCH_TARGET - 30) / 2,
     },
     navBadge: {
       width: 30,
@@ -298,16 +304,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       {/* Back bar — hidden when used as an inline pane */}
       <View style={styles.backBar}>
         <View style={styles.backBarRow}>
-          {onBackPress && (
-            <Pressable
-              onPress={onBackPress}
-              testID="back-button"
-              accessibilityRole="button"
-              accessibilityLabel={t('common.goBack')}
-            >
-              <Text style={styles.backButton}>{t('common.back')}</Text>
-            </Pressable>
-          )}
+          {onBackPress && <BackButton onPress={onBackPress} />}
           {setlist.artist?.mbid && (
             <ArtistImage mbid={setlist.artist.mbid} size={28} name={setlist.artist.name} />
           )}
@@ -317,17 +314,19 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
           {facts && (
             <Pressable
               testID="recognition-badge"
-              style={[styles.navBadge, isLandmark && styles.navBadgeLandmark]}
+              style={({ pressed }) => [styles.navBadgeTarget, { opacity: pressed ? 0.7 : 1 }]}
               onPress={() => setSheetVisible(true)}
               accessibilityRole="button"
               accessibilityLabel={t('recognition.badgeAccessibilityLabel')}
             >
-              <Icon
-                sf={isLandmark ? 'trophy.fill' : 'sparkles'}
-                md={isLandmark ? 'trophy' : 'sparkles-outline'}
-                size={14}
-                color={isLandmark ? colors.gold : colors.accent}
-              />
+              <View style={[styles.navBadge, isLandmark && styles.navBadgeLandmark]}>
+                <Icon
+                  sf={isLandmark ? 'trophy.fill' : 'sparkles'}
+                  md={isLandmark ? 'trophy' : 'sparkles-outline'}
+                  size={14}
+                  color={isLandmark ? colors.gold : colors.accent}
+                />
+              </View>
             </Pressable>
           )}
         </View>

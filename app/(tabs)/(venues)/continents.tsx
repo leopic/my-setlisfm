@@ -9,6 +9,7 @@ import type { SortOption } from '@/utils/sort';
 import { sortByOption } from '@/utils/sort';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
+import { TOUCH_TARGET } from '@/utils/touchTarget';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import ListScreenHeader from '@/components/ListScreenHeader';
 import { TabScrollView } from '@/components/ui';
@@ -38,9 +39,10 @@ export default function ContinentsScreen() {
       paddingTop: 10,
     },
     pill: {
-      borderRadius: 20,
+      minHeight: TOUCH_TARGET,
+      justifyContent: 'center',
+      borderRadius: TOUCH_TARGET / 2,
       paddingHorizontal: 12,
-      paddingVertical: 6,
       borderWidth: 1,
     },
     pillActive: {

@@ -7,6 +7,7 @@ import { dbOperations } from '@/database/operations';
 import { DEMO_CONCERTS } from '@/demo/demoConcerts';
 import { useSyncContext } from '@/contexts/SyncContext';
 import { useChronicleColors } from '@/utils/colors';
+import { TOUCH_TARGET } from '@/utils/touchTarget';
 import { Type } from '@/utils/typography';
 import { TabScrollView, Icon } from '@/components/ui';
 
@@ -72,9 +73,13 @@ export default function DemoScreen() {
       paddingVertical: 14,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
-      gap: 10,
     },
-    backButton: { padding: 4 },
+    backButton: {
+      width: TOUCH_TARGET,
+      height: TOUCH_TARGET,
+      // The chevron stays on the screen margin; the target reaches toward the title.
+      justifyContent: 'center',
+    },
     headerTitle: { ...Type.title1, color: colors.textPrimary, flex: 1 },
     intro: { ...Type.subheadline, color: colors.textSecondary, padding: 20 },
     row: {

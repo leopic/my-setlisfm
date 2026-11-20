@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
+import { TOUCH_TARGET } from '@/utils/touchTarget';
 
 // One StyleSheet for the whole screen: the screen calls this once and passes the result
 // down to its sections.
@@ -41,7 +42,6 @@ export function useArtistsStyles() {
       borderColor: colors.border,
       borderRadius: 10,
       paddingHorizontal: 14,
-      paddingVertical: 10,
       marginHorizontal: 20,
       marginBottom: 8,
     },
@@ -58,9 +58,10 @@ export function useArtistsStyles() {
       paddingBottom: 10,
     },
     sortPill: {
-      borderRadius: 16,
+      minHeight: TOUCH_TARGET,
+      justifyContent: 'center',
+      borderRadius: TOUCH_TARGET / 2,
       paddingHorizontal: 12,
-      paddingVertical: 5,
       borderWidth: 1,
     },
     sortPillActive: {

@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { Type } from '@/utils/typography';
+import { TOUCH_TARGET } from '@/utils/touchTarget';
 import type { ChronicleColors } from '@/utils/colors';
 
 // One StyleSheet for the whole venues screen, created once per parent render and passed down.
@@ -38,7 +39,8 @@ export function createVenueStyles(colors: ChronicleColors) {
     },
     geoButton: {
       paddingHorizontal: 14,
-      paddingVertical: 8,
+      minHeight: TOUCH_TARGET,
+      justifyContent: 'center',
       borderRadius: 8,
       backgroundColor: colors.accentSoft,
       borderWidth: 1,
@@ -65,8 +67,6 @@ export function createVenueStyles(colors: ChronicleColors) {
       borderWidth: 1,
       borderColor: colors.border,
       borderRadius: 10,
-      paddingHorizontal: 10,
-      paddingVertical: 8,
     },
     searchInput: {
       flex: 1,
@@ -81,9 +81,10 @@ export function createVenueStyles(colors: ChronicleColors) {
       paddingBottom: 10,
     },
     sortPill: {
+      minHeight: TOUCH_TARGET,
+      justifyContent: 'center',
+      borderRadius: TOUCH_TARGET / 2,
       paddingHorizontal: 14,
-      paddingVertical: 6,
-      borderRadius: 20,
       borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: 'transparent',
