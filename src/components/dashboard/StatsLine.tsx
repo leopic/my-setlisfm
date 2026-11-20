@@ -10,7 +10,7 @@ export default function StatsLine({ totals }: { totals: StatsTotals }) {
   const { t } = useTranslation();
   const styles = StyleSheet.create({
     statsLine: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
     },
   });

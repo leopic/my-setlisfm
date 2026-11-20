@@ -65,18 +65,14 @@ export default function TabletYearGrid({
       backgroundColor: colors.accentSoft,
     },
     yearTileYear: {
-      ...Type.display,
-      fontSize: 26,
-      letterSpacing: -1,
+      ...Type.title1,
       color: colors.textDisabled,
-      lineHeight: 30,
     },
     yearTileYearSelected: {
       color: colors.accent,
     },
     yearTileCount: {
-      ...Type.label,
-      fontSize: 11,
+      ...Type.captionStrong,
       color: colors.textMuted,
       marginTop: 3,
     },

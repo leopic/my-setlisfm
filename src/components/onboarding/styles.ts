@@ -19,7 +19,7 @@ export function createOnboardingStyles(colors: ChronicleColors) {
       alignItems: 'center',
     },
     wordmark: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.accent,
       letterSpacing: 4,
     },
@@ -62,13 +62,13 @@ export function createOnboardingStyles(colors: ChronicleColors) {
 
     // Step text
     stepTitle: {
-      ...Type.title,
+      ...Type.headline,
       color: colors.textPrimary,
       marginBottom: 3,
     },
     stepTitleWaiting: {
+      fontFamily: Type.body.fontFamily,
       color: colors.textDisabled,
-      fontWeight: '400',
     },
     stepTitleDone: {
       color: colors.textMuted,
@@ -77,7 +77,7 @@ export function createOnboardingStyles(colors: ChronicleColors) {
       color: colors.danger,
     },
     stepDetail: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 1,
     },
@@ -109,10 +109,9 @@ export function createOnboardingStyles(colors: ChronicleColors) {
       justifyContent: 'flex-start',
     },
     quipText: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textMuted,
       fontStyle: 'italic',
-      lineHeight: 20,
     },
 
     // ── Bottom section ───────────────────────────────────────────────
@@ -141,7 +140,7 @@ export function createOnboardingStyles(colors: ChronicleColors) {
     },
     buttonDisabled: { opacity: 0.35 },
     buttonText: {
-      ...Type.title,
+      ...Type.headline,
       color: colors.textOnAccent,
     },
     errorButton: {
@@ -153,7 +152,7 @@ export function createOnboardingStyles(colors: ChronicleColors) {
       alignItems: 'center',
     },
     errorButtonText: {
-      ...Type.title,
+      ...Type.headline,
       color: colors.danger,
     },
   });

@@ -9,6 +9,8 @@ import { WEEKDAY_KEYS } from '@/i18n/calendar';
 const EMPTY_ALPHA = 0.03;
 const MIN_ALPHA = 0.08;
 const MAX_ALPHA = 0.8;
+// Fits a 13 pt era label such as "2010–15" (the empty corner cell above the labels uses it too).
+const ERA_LABEL_WIDTH = 64;
 
 function toRgb(hex: string) {
   const n = parseInt(hex.slice(1), 16);
@@ -56,7 +58,7 @@ export default function WeekdayErasCard({ eras }: { eras: WeekdayEra[] }) {
       padding: 14,
       marginTop: 10,
     },
-    title: { ...Type.label, color: colors.textMuted, letterSpacing: 0.6, marginBottom: 14 },
+    title: { ...Type.footnote, color: colors.textMuted, letterSpacing: 0.6, marginBottom: 14 },
     timeline: { flexDirection: 'row' },
     spine: {
       position: 'absolute',
@@ -75,13 +77,13 @@ export default function WeekdayErasCard({ eras }: { eras: WeekdayEra[] }) {
       backgroundColor: colors.dotActive,
       marginBottom: 6,
     },
-    topDay: { ...Type.heading, color: colors.textPrimary },
-    eraLabel: { ...Type.label, color: colors.textSecondary },
-    eraShare: { ...Type.body, fontSize: 11, color: colors.textMuted },
+    topDay: { ...Type.title2, color: colors.textPrimary },
+    eraLabel: { ...Type.footnote, color: colors.textSecondary },
+    eraShare: { ...Type.caption, color: colors.textMuted },
     heatmap: { marginTop: 18, gap: 4 },
     row: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-    rowLabel: { ...Type.label, color: colors.textSecondary, width: 56 },
-    dayLabel: { ...Type.label, color: colors.textMuted, flex: 1, textAlign: 'center' },
+    rowLabel: { ...Type.footnote, color: colors.textSecondary, width: ERA_LABEL_WIDTH },
+    dayLabel: { ...Type.footnote, color: colors.textMuted, flex: 1, textAlign: 'center' },
     cell: {
       flex: 1,
       height: 30,
@@ -90,8 +92,8 @@ export default function WeekdayErasCard({ eras }: { eras: WeekdayEra[] }) {
       justifyContent: 'center',
     },
     topCell: { borderWidth: 1.5, borderColor: colors.textPrimary },
-    cellText: { ...Type.label, fontSize: 11 },
-    hint: { ...Type.body, fontSize: 11, color: colors.textSecondary, marginTop: 10 },
+    cellText: { ...Type.captionStrong },
+    hint: { ...Type.caption, color: colors.textSecondary, marginTop: 10 },
   });
 
   return (
@@ -137,7 +139,7 @@ export default function WeekdayErasCard({ eras }: { eras: WeekdayEra[] }) {
         importantForAccessibility="no-hide-descendants"
       >
         <View style={styles.row}>
-          <View style={{ width: 56 }} />
+          <View style={{ width: ERA_LABEL_WIDTH }} />
           {dayLabels.map((day) => (
             <Text key={day} style={styles.dayLabel}>
               {day}

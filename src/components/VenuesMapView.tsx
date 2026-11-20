@@ -6,6 +6,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { useTranslation } from 'react-i18next';
 import { dbOperations } from '@/database/operations';
 import { useChronicleColors } from '@/utils/colors';
+import { Type } from '@/utils/typography';
 import { buildHtml, visitColor, VISIT_TIERS, type VenueWithCoords } from './venuesMapHtml';
 
 export default function VenuesMapView() {
@@ -20,7 +21,7 @@ export default function VenuesMapView() {
       alignItems: 'center',
       backgroundColor: colors.background,
     },
-    loadingText: { marginTop: 10, fontSize: 16, color: colors.textSecondary },
+    loadingText: { ...Type.body, marginTop: 10, color: colors.textSecondary },
     emptyContainer: {
       flex: 1,
       justifyContent: 'center',
@@ -29,17 +30,15 @@ export default function VenuesMapView() {
       backgroundColor: colors.background,
     },
     emptyText: {
-      fontSize: 18,
-      fontWeight: '600',
+      ...Type.headline,
       color: colors.textPrimary,
       textAlign: 'center',
       marginBottom: 10,
     },
     emptySubtext: {
-      fontSize: 14,
+      ...Type.subheadline,
       color: colors.textSecondary,
       textAlign: 'center',
-      lineHeight: 20,
     },
     venueCount: {
       backgroundColor: colors.background,
@@ -48,7 +47,7 @@ export default function VenuesMapView() {
       borderTopColor: colors.border,
       alignItems: 'center',
     },
-    venueCountText: { fontSize: 14, color: colors.textSecondary, fontWeight: '500' },
+    venueCountText: { ...Type.subheadline, color: colors.textSecondary },
     legend: {
       backgroundColor: colors.background,
       padding: 15,
@@ -58,15 +57,14 @@ export default function VenuesMapView() {
       borderTopColor: colors.border,
     },
     legendTitle: {
-      fontSize: 14,
-      fontWeight: '600',
+      ...Type.footnote,
       color: colors.textPrimary,
       marginBottom: 10,
     },
     legendItems: { flexDirection: 'row', justifyContent: 'space-around' },
     legendItem: { flexDirection: 'row', alignItems: 'center' },
     legendDot: { width: 12, height: 12, borderRadius: 6, marginRight: 5 },
-    legendText: { fontSize: 12, color: colors.textSecondary },
+    legendText: { ...Type.caption, color: colors.textSecondary },
   });
 
   const [venues, setVenues] = useState<VenueWithCoords[]>([]);

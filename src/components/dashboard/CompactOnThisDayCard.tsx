@@ -37,21 +37,17 @@ export default function CompactOnThisDayCard({ concert, variant }: Props) {
       marginBottom: 4,
     },
     label: {
-      ...Type.label,
-      fontSize: 9,
+      ...Type.captionStrong,
       color: colors.accent,
       letterSpacing: 0.8,
       marginBottom: 1,
     },
     name: {
-      ...Type.body,
-      fontWeight: '600',
+      ...Type.footnote,
       color: colors.textPrimary,
-      fontSize: 12,
     },
     meta: {
-      ...Type.label,
-      fontSize: 10,
+      ...Type.caption,
       color: colors.textSecondary,
     },
   });

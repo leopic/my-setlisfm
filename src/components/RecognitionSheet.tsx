@@ -63,11 +63,11 @@ export default function RecognitionSheet({
     },
     heroIcon: { marginBottom: 8 },
     heroCount: {
-      ...Type.display,
+      ...Type.largeTitle,
       color: accent,
     },
     heroLabel: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 2,
     },
@@ -88,7 +88,7 @@ export default function RecognitionSheet({
     },
     chipIcon: { marginBottom: 6 },
     chipText: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
     },
     doneButton: {
@@ -100,7 +100,7 @@ export default function RecognitionSheet({
       borderColor: colors.border,
     },
     doneText: {
-      ...Type.title,
+      ...Type.headline,
       color: colors.textPrimary,
     },
   });

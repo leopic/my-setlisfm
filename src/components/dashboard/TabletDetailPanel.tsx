@@ -62,11 +62,8 @@ export default function TabletDetailPanel({
       marginBottom: 12,
     },
     detailYearHeading: {
-      ...Type.display,
-      fontSize: 52,
-      letterSpacing: -2,
+      ...Type.yearGhost,
       color: colors.textPrimary,
-      lineHeight: 54,
     },
     detailChartBox: {
       flex: 1,
@@ -77,8 +74,7 @@ export default function TabletDetailPanel({
       padding: 10,
     },
     detailChartLabel: {
-      ...Type.label,
-      fontSize: 10,
+      ...Type.captionStrong,
       color: colors.textMuted,
       letterSpacing: 0.8,
       marginBottom: 6,

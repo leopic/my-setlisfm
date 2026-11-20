@@ -32,7 +32,7 @@ function TapeBadge({ tape }: { tape: number }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
       <Icon sf={badge.sf} md={badge.md} size={13} color={colors.textMuted} />
-      <Text style={{ ...Type.label, color: colors.textMuted, textTransform: 'uppercase' }}>
+      <Text style={{ ...Type.footnote, color: colors.textMuted, textTransform: 'uppercase' }}>
         {label}
       </Text>
     </View>
@@ -117,7 +117,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       color: colors.accent,
     },
     artistName: {
-      ...Type.heading,
+      ...Type.title1,
       color: colors.textPrimary,
       flex: 1,
     },
@@ -143,37 +143,37 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       borderBottomColor: colors.border,
     },
     venueName: {
-      ...Type.title,
+      ...Type.headline,
       color: colors.textPrimary,
     },
     locationLine: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 2,
     },
     dateLine: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textMuted,
       marginTop: 2,
     },
     monthStrip: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textDisabled,
       letterSpacing: 1,
       marginTop: 4,
     },
     guestsLine: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       fontStyle: 'italic',
       marginTop: 4,
     },
     heardText: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.accent,
     },
     tourName: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.accent,
       letterSpacing: 0.8,
       marginTop: 6,
@@ -196,7 +196,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       backgroundColor: colors.border,
     },
     sectionTitle: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
       textTransform: 'uppercase',
     },
@@ -210,7 +210,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       gap: 10,
     },
     songNumber: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textDisabled,
       width: 24,
       paddingTop: 1,
@@ -229,13 +229,13 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       color: colors.textPrimary,
     },
     withArtistText: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       fontStyle: 'italic',
       marginTop: 2,
     },
     coverArtistText: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       fontStyle: 'italic',
       marginTop: 2,

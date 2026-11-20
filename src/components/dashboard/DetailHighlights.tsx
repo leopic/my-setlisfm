@@ -15,7 +15,7 @@ export function useDetailStyles() {
   return StyleSheet.create({
     // Highlights
     detailHighlightsLabel: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
       letterSpacing: 1,
       marginBottom: 8,
@@ -36,17 +36,17 @@ export function useDetailStyles() {
       flex: 1,
     },
     detailMilestoneTag: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.accent,
       letterSpacing: 0.8,
       marginBottom: 1,
     },
     detailArtistName: {
-      ...Type.title,
+      ...Type.headline,
       color: colors.textPrimary,
     },
     detailMeta: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 1,
     },

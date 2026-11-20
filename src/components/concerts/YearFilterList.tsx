@@ -71,7 +71,7 @@ export default function YearFilterList({
       borderBottomColor: colors.border,
     },
     text: { ...Type.body, color: colors.textPrimary },
-    textActive: { color: colors.accent, fontWeight: '600' as const },
+    textActive: { ...Type.headline, color: colors.accent },
   });
   const data: (string | null)[] = [null, ...years];
   const renderItem = ({ item: year, index }: { item: string | null; index: number }) => (

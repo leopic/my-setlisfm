@@ -19,11 +19,11 @@ export function useArtistsStyles() {
       borderBottomColor: colors.border,
     },
     headerTitle: {
-      ...Type.heading,
+      ...Type.largeTitle,
       color: colors.textPrimary,
     },
     headerSubtitle: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 2,
     },
@@ -72,7 +72,7 @@ export function useArtistsStyles() {
       borderColor: colors.border,
     },
     sortPillText: {
-      ...Type.label,
+      ...Type.footnote,
     },
     sortPillTextActive: {
       color: colors.accent,
@@ -104,21 +104,21 @@ export function useArtistsStyles() {
       paddingRight: 12,
     },
     artistName: {
-      ...Type.title,
+      ...Type.headline,
       color: colors.textPrimary,
     },
     lastSeenText: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 2,
     },
     venuesText: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textMuted,
       marginTop: 1,
     },
     countText: {
-      ...Type.count,
+      ...Type.title3,
     },
     countTextTop: {
       color: colors.accent,
@@ -149,7 +149,7 @@ export function useArtistsStyles() {
       borderRadius: 20,
     },
     refreshButtonText: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textOnAccent,
     },
     // ── Tablet master-detail ─────────────────────────────────────────

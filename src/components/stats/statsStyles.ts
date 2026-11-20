@@ -13,8 +13,8 @@ export function createStatsStyles(colors: ChronicleColors) {
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
-    headerTitle: { ...Type.heading, color: colors.textPrimary },
-    headerSub: { ...Type.body, color: colors.textSecondary, marginTop: 2 },
+    headerTitle: { ...Type.largeTitle, color: colors.textPrimary },
+    headerSub: { ...Type.subheadline, color: colors.textSecondary, marginTop: 2 },
     scroll: { flex: 1 },
     content: { paddingBottom: 48 },
     section: {
@@ -23,7 +23,7 @@ export function createStatsStyles(colors: ChronicleColors) {
       paddingBottom: 4,
     },
     sectionLabel: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
       letterSpacing: 1.5,
       marginBottom: 12,
@@ -37,7 +37,7 @@ export function createStatsStyles(colors: ChronicleColors) {
       marginBottom: 10,
     },
     chartTitle: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
       marginBottom: 10,
       letterSpacing: 0.6,
@@ -51,8 +51,8 @@ export function createStatsStyles(colors: ChronicleColors) {
       borderColor: colors.border,
       padding: 14,
     },
-    statValue: { ...Type.heading, color: colors.textPrimary, lineHeight: 26 },
-    statLabel: { ...Type.body, color: colors.textSecondary, marginTop: 3 },
+    statValue: { ...Type.title2, color: colors.textPrimary },
+    statLabel: { ...Type.subheadline, color: colors.textSecondary, marginTop: 3 },
     divider: {
       height: 1,
       backgroundColor: colors.border,
@@ -72,8 +72,8 @@ export function createStatsStyles(colors: ChronicleColors) {
       justifyContent: 'center',
     },
     mapInner: { alignItems: 'center', gap: 6 },
-    mapLabel: { ...Type.title, color: colors.textSecondary },
-    mapSub: { ...Type.body, color: colors.textMuted },
+    mapLabel: { ...Type.headline, color: colors.textSecondary },
+    mapSub: { ...Type.subheadline, color: colors.textMuted },
     // ── Milestone list ────────────────────────────────────────────────
     milestoneRow: {
       flexDirection: 'row',
@@ -84,9 +84,9 @@ export function createStatsStyles(colors: ChronicleColors) {
       borderBottomColor: colors.border,
     },
     milestoneOrdinal: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.accent,
-      width: 36,
+      width: 44,
       textAlign: 'right',
       paddingTop: 1,
     },
@@ -97,9 +97,9 @@ export function createStatsStyles(colors: ChronicleColors) {
       alignItems: 'baseline',
       gap: 8,
     },
-    milestoneArtist: { ...Type.body, color: colors.textPrimary, fontWeight: '600', flex: 1 },
-    milestoneDate: { ...Type.label, color: colors.accent },
-    milestoneVenue: { ...Type.label, color: colors.textMuted, marginTop: 2 },
+    milestoneArtist: { ...Type.headline, color: colors.textPrimary, flex: 1 },
+    milestoneDate: { ...Type.footnote, color: colors.accent },
+    milestoneVenue: { ...Type.footnote, color: colors.textMuted, marginTop: 2 },
     // ── Tablet 2-column ───────────────────────────────────────────────
     twoColRow: { flexDirection: 'row', alignItems: 'flex-start' },
     twoColLeft: { flex: 1 },

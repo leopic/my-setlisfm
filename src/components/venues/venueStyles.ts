@@ -19,11 +19,11 @@ export function createVenueStyles(colors: ChronicleColors) {
       borderBottomColor: colors.border,
     },
     headerTitle: {
-      ...Type.heading,
+      ...Type.largeTitle,
       color: colors.textPrimary,
     },
     headerSubtitle: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 2,
     },
@@ -45,7 +45,7 @@ export function createVenueStyles(colors: ChronicleColors) {
       borderColor: colors.accent,
     },
     geoButtonLabel: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.accent,
     },
 
@@ -93,7 +93,7 @@ export function createVenueStyles(colors: ChronicleColors) {
       borderColor: colors.accent,
     },
     sortPillText: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
     },
     sortPillTextActive: {
@@ -114,21 +114,21 @@ export function createVenueStyles(colors: ChronicleColors) {
       marginRight: 12,
     },
     venueName: {
-      ...Type.title,
+      ...Type.headline,
       color: colors.textPrimary,
     },
     venueLocation: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 1,
     },
     venueLastShow: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textMuted,
       marginTop: 2,
     },
     venueArtists: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textMuted,
       marginTop: 2,
     },
@@ -137,11 +137,11 @@ export function createVenueStyles(colors: ChronicleColors) {
       minWidth: 44,
     },
     visitCount: {
-      ...Type.count,
+      ...Type.title3,
       color: colors.accent,
     },
     visitLabel: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textMuted,
       marginTop: 1,
     },
@@ -164,7 +164,7 @@ export function createVenueStyles(colors: ChronicleColors) {
       borderRadius: 20,
     },
     refreshButtonText: {
-      ...Type.label,
+      ...Type.footnote,
       color: colors.textOnAccent,
     },
     // ── Tablet master-detail ─────────────────────────────────────────

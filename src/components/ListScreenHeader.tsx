@@ -32,11 +32,11 @@ export default function ListScreenHeader({ title, subtitle }: ListScreenHeaderPr
       color: colors.accent,
     },
     headerTitle: {
-      ...Type.heading,
+      ...Type.title1,
       color: colors.textPrimary,
     },
     headerSubtitle: {
-      ...Type.body,
+      ...Type.subheadline,
       color: colors.textSecondary,
       marginTop: 2,
     },

@@ -66,7 +66,7 @@ export function UpdateBanner() {
       backgroundColor: colors.surface,
       boxShadow: `0 6px 20px ${colors.shadow}`,
     },
-    title: { ...Type.title, color: colors.textPrimary, flex: 1 },
+    title: { ...Type.headline, color: colors.textPrimary, flex: 1 },
     later: { ...Type.body, color: colors.textSecondary, paddingHorizontal: 6 },
     restart: {
       backgroundColor: colors.accent,
@@ -75,7 +75,7 @@ export function UpdateBanner() {
       borderRadius: 8,
       borderCurve: 'continuous',
     },
-    restartText: { ...Type.title, color: colors.textOnAccent },
+    restartText: { ...Type.headline, color: colors.textOnAccent },
   });
 
   return (
