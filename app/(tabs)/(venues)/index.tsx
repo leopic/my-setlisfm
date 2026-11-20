@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useFocusEffect } from 'expo-router';
+import { useRouter, useIsFocused } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { dbOperations } from '@/database/operations';
 import type { SortOption } from '@/utils/sort';
@@ -44,34 +44,36 @@ export default function VenuesScreen() {
       )
     : venues;
 
-  useFocusEffect(
-    useCallback(() => {
-      let cancelled = false;
-      (async () => {
-        try {
-          const [venuesWithStats, geoData] = await Promise.all([
-            dbOperations.getVenuesWithStats(),
-            dbOperations.getGeographicBreakdown(),
-          ]);
-          if (!cancelled) {
-            setRawVenues(venuesWithStats);
-            setGeoStats(geoData);
-            setLoading(false);
-          }
-        } catch (error) {
-          console.error('Failed to load venues:', error);
-          if (!cancelled) {
-            Alert.alert(t('common.error'), t('venues.failedToLoad'));
-            setLoading(false);
-          }
+  // Load on focus, and again when a sync ends while the screen is open. Not
+  // useFocusEffect(useCallback(…)): React Compiler keeps only the useCallback deps the
+  // callback reads, so it dropped lastSyncTimestamp. It keeps an effect's deps as written.
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    if (!isFocused) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [venuesWithStats, geoData] = await Promise.all([
+          dbOperations.getVenuesWithStats(),
+          dbOperations.getGeographicBreakdown(),
+        ]);
+        if (!cancelled) {
+          setRawVenues(venuesWithStats);
+          setGeoStats(geoData);
+          setLoading(false);
         }
-      })();
-      return () => {
-        cancelled = true;
-      };
-      // react-doctor-disable-next-line react-doctor/exhaustive-deps -- lastSyncTimestamp is a dep on purpose: the screen reloads after a sync while open; the callback does not read it
-    }, [lastSyncTimestamp, t]),
-  );
+      } catch (error) {
+        console.error('Failed to load venues:', error);
+        if (!cancelled) {
+          Alert.alert(t('common.error'), t('venues.failedToLoad'));
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isFocused, lastSyncTimestamp, t]);
 
   const handleViewConcerts = (venue: VenueWithStats) => {
     if (isTablet) {
