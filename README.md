@@ -25,6 +25,7 @@ An iOS and Android app for your concert history. It syncs the concerts you've ma
 - Stats: shows per year, top artists over time, top day by era, milestones and a world map
 - Incremental sync: re-syncing only fetches what's new
 - Light and dark mode, phone and tablet layouts
+- Accessible: every control is at least 44 pt, text uses Apple's text styles, and VoiceOver reads each card, chart and row as one item
 
 ## Setup
 
