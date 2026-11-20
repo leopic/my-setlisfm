@@ -3,6 +3,9 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@/components/ui';
 import { useChronicleColors } from '@/utils/colors';
+import { TOUCH_TARGET } from '@/utils/touchTarget';
+
+const ICON_SIZE = 22;
 
 type Props = { onSync: () => void; style?: StyleProp<ViewStyle> };
 
@@ -14,26 +17,34 @@ export default function HeaderActions({ onSync, style }: Props) {
     topBarActions: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 14,
+      // The icon sits in the middle of its 44 pt target; pull the row out so the gear still
+      // lines up with the screen margin.
+      marginRight: -(TOUCH_TARGET - ICON_SIZE) / 2,
+    },
+    action: {
+      width: TOUCH_TARGET,
+      height: TOUCH_TARGET,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
   });
   return (
     <View style={[styles.topBarActions, style]}>
       <Pressable
-        style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+        style={({ pressed }) => [styles.action, { opacity: pressed ? 0.7 : 1 }]}
         onPress={onSync}
         accessibilityRole="button"
         accessibilityLabel={t('dashboard.syncData')}
       >
-        <Icon sf="arrow.clockwise" md="refresh-outline" size={20} color={colors.textMuted} />
+        <Icon sf="arrow.clockwise" md="refresh-outline" size={ICON_SIZE} color={colors.textMuted} />
       </Pressable>
       <Pressable
-        style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+        style={({ pressed }) => [styles.action, { opacity: pressed ? 0.7 : 1 }]}
         onPress={() => router.push('/(home)/settings')}
         accessibilityRole="button"
         accessibilityLabel={t('dashboard.openSettings')}
       >
-        <Icon sf="gearshape" md="settings-outline" size={20} color={colors.textMuted} />
+        <Icon sf="gearshape" md="settings-outline" size={ICON_SIZE} color={colors.textMuted} />
       </Pressable>
     </View>
   );

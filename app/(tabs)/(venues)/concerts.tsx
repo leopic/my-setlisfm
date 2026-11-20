@@ -10,8 +10,9 @@ import { parseSetlistDate, formatDate } from '@/utils/date';
 import { openWebUrl } from '@/utils/links';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
+import { TOUCH_TARGET } from '@/utils/touchTarget';
 import ConcertListSkeleton from '@/components/skeletons/ConcertListSkeleton';
-import { TabScrollView } from '@/components/ui';
+import { BackButton, TabScrollView } from '@/components/ui';
 
 // Up to three initials for the venue tile: "Madison Square Garden" → "MSG".
 function venueInitials({ name = '' }: DBVenue): string {
@@ -64,7 +65,8 @@ export default function VenueConcertsListScreen() {
     // ── Inline header ──────────────────────────────────────────────────
     inlineHeader: {
       paddingHorizontal: 16,
-      paddingTop: 12,
+      // The back button's 44 pt target already adds space above its text.
+      paddingTop: 4,
       paddingBottom: 12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
@@ -72,14 +74,6 @@ export default function VenueConcertsListScreen() {
     backRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 6,
-    },
-    backButton: {
-      // Pressable wrapper — no extra styles needed
-    },
-    backText: {
-      ...Type.body,
-      color: colors.accent,
     },
     headerTitle: {
       ...Type.title1,
@@ -109,7 +103,13 @@ export default function VenueConcertsListScreen() {
     linkText: {
       ...Type.footnote,
       color: colors.accent,
-      marginTop: 4,
+    },
+    link: {
+      minHeight: TOUCH_TARGET,
+      justifyContent: 'center',
+      alignSelf: 'flex-start',
+      // The target reaches over the blank space around the line; it isn't layout height.
+      marginVertical: -8,
     },
     headerSubtitle: {
       ...Type.subheadline,
@@ -308,14 +308,7 @@ export default function VenueConcertsListScreen() {
       {/* Inline header */}
       <View style={styles.inlineHeader}>
         <View style={styles.backRow}>
-          <Pressable
-            style={({ pressed }) => [styles.backButton, { opacity: pressed ? 0.7 : 1 }]}
-            onPress={() => router.back()}
-            testID="back-button"
-            accessibilityRole="button"
-          >
-            <Text style={styles.backText}>{t('common.back')}</Text>
-          </Pressable>
+          <BackButton onPress={() => router.back()} />
         </View>
         <View style={styles.titleRow}>
           {venue && (
@@ -328,6 +321,7 @@ export default function VenueConcertsListScreen() {
         <Text style={styles.headerSubtitle}>{subtitleParts.join(' · ')}</Text>
         {venue && (
           <Pressable
+            style={styles.link}
             onPress={() => openWebUrl(venue.url)}
             accessibilityRole="link"
             testID="venue-setlistfm-link"

@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
+import { TOUCH_TARGET } from '@/utils/touchTarget';
 
 // One StyleSheet for the whole screen: the screen calls this once and passes the result
 // down to its sections.
@@ -46,8 +47,6 @@ export function useConcertsStyles() {
       borderRadius: 10,
       borderWidth: 1,
       borderColor: colors.border,
-      paddingHorizontal: 10,
-      paddingVertical: 12,
     },
     searchInput: {
       flex: 1,
@@ -63,9 +62,10 @@ export function useConcertsStyles() {
       gap: 8,
     },
     sortPill: {
-      paddingVertical: 6,
+      minHeight: TOUCH_TARGET,
+      justifyContent: 'center',
+      borderRadius: TOUCH_TARGET / 2,
       paddingHorizontal: 14,
-      borderRadius: 20,
       borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: 'transparent',
@@ -85,9 +85,9 @@ export function useConcertsStyles() {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 6,
-      paddingVertical: 6,
+      minHeight: TOUCH_TARGET,
       paddingHorizontal: 14,
-      borderRadius: 20,
+      borderRadius: TOUCH_TARGET / 2,
       borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: 'transparent',

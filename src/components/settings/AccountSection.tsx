@@ -49,6 +49,7 @@ export default function AccountSection({
             <Pressable
               style={({ pressed }) => [styles.saveButton, { opacity: pressed ? 0.7 : 1 }]}
               onPress={onSave}
+              accessibilityRole="button"
             >
               <Text style={styles.saveButtonText}>{t('settings.save')}</Text>
             </Pressable>
@@ -56,6 +57,7 @@ export default function AccountSection({
               style={({ pressed }) => [styles.cancelButton, { opacity: pressed ? 0.7 : 1 }]}
               onPress={onCancelEdit}
               accessibilityRole="button"
+              accessibilityLabel={t('common.cancel')}
             >
               <Icon sf="xmark" md="close-outline" size={18} color={colors.textMuted} />
             </Pressable>
@@ -64,7 +66,7 @@ export default function AccountSection({
           <>
             <Text style={styles.rowValue}>{username || '—'}</Text>
             <Pressable
-              style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+              style={({ pressed }) => [styles.rowActionButton, { opacity: pressed ? 0.7 : 1 }]}
               onPress={onStartEdit}
               accessibilityRole="button"
             >

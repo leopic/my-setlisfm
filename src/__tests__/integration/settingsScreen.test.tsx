@@ -69,12 +69,7 @@ it('leaves the username alone when the edit is cancelled', async () => {
 
   await fireEvent.press(screen.getByText('Change'));
   await fireEvent.changeText(screen.getByDisplayValue('e2e-seed'), 'discarded');
-  // The cancel button holds only an icon, so find it in the username row.
-  const cancel = screen
-    .getByText('Username')
-    .parent?.queryAll((n) => n.props.accessibilityRole === 'button')[0];
-  if (!cancel) throw new Error('No cancel button in the username row');
-  await fireEvent.press(cancel);
+  await fireEvent.press(screen.getByLabelText('Cancel'));
 
   expect(await screen.findByText('e2e-seed')).toBeOnTheScreen();
   expect(screen.queryByDisplayValue('discarded')).not.toBeOnTheScreen();

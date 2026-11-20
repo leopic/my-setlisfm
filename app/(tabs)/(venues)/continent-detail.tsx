@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import CountryList from '@/components/CountryList';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import DetailSkeleton from '@/components/skeletons/DetailSkeleton';
+import { BackButton } from '@/components/ui';
 
 interface CountryWithStats {
   name: string;
@@ -27,14 +28,11 @@ export default function ContinentDetailScreen() {
     },
     header: {
       paddingHorizontal: 16,
-      paddingVertical: 12,
+      // The back button's 44 pt target already adds space above its text.
+      paddingTop: 4,
+      paddingBottom: 12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
-    },
-    backBtn: {
-      ...Type.body,
-      color: colors.accent,
-      marginBottom: 6,
     },
     title: {
       ...Type.title1,
@@ -95,15 +93,7 @@ export default function ContinentDetailScreen() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
       <View style={styles.header}>
-        <Pressable
-          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-          onPress={() => router.back()}
-          testID="back-button"
-          accessibilityRole="button"
-          accessibilityLabel={t('common.goBack')}
-        >
-          <Text style={styles.backBtn}>{t('common.back')}</Text>
-        </Pressable>
+        <BackButton onPress={() => router.back()} />
         <Text style={styles.title}>{continentName as string}</Text>
         <Text style={styles.subtitle}>{t('common.country', { count: countries.length })}</Text>
       </View>

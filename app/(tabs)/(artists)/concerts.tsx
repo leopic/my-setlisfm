@@ -9,7 +9,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import ConcertListSkeleton from '@/components/skeletons/ConcertListSkeleton';
 import ArtistImage from '@/components/ArtistImage';
-import { TabScrollView } from '@/components/ui';
+import { BackButton, TabScrollView } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 
@@ -62,7 +62,8 @@ export default function ArtistConcertsListScreen() {
     // ── Inline header ──────────────────────────────────────────────────
     inlineHeader: {
       paddingHorizontal: 16,
-      paddingTop: 12,
+      // The back button's 44 pt target already adds space above its text.
+      paddingTop: 4,
       paddingBottom: 12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
@@ -70,14 +71,6 @@ export default function ArtistConcertsListScreen() {
     backRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 6,
-    },
-    backButton: {
-      // Pressable wrapper — no extra styles needed
-    },
-    backText: {
-      ...Type.body,
-      color: colors.accent,
     },
     artistRow: {
       flexDirection: 'row',
@@ -295,14 +288,7 @@ export default function ArtistConcertsListScreen() {
       {/* Inline header */}
       <View style={styles.inlineHeader}>
         <View style={styles.backRow}>
-          <Pressable
-            style={({ pressed }) => [styles.backButton, { opacity: pressed ? 0.7 : 1 }]}
-            onPress={() => router.back()}
-            testID="back-button"
-            accessibilityRole="button"
-          >
-            <Text style={styles.backText}>{t('common.back')}</Text>
-          </Pressable>
+          <BackButton onPress={() => router.back()} />
         </View>
         <View style={styles.artistRow}>
           <ArtistImage mbid={artistMbid} imageUrl={artistImageUrl} size={56} name={artistName} />

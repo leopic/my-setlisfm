@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { useChronicleColors } from '@/utils/colors';
+import { TOUCH_TARGET } from '@/utils/touchTarget';
 import { Type } from '@/utils/typography';
 
 // One StyleSheet for the whole screen: the screen calls this once and passes the result
@@ -15,9 +16,13 @@ export function useSettingsStyles() {
       paddingVertical: 14,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
-      gap: 10,
     },
-    backButton: { padding: 4 },
+    backButton: {
+      width: TOUCH_TARGET,
+      height: TOUCH_TARGET,
+      // The chevron stays on the screen margin; the target reaches toward the title.
+      justifyContent: 'center',
+    },
     headerTitle: { ...Type.title1, color: colors.textPrimary, flex: 1 },
     // ── Section ──────────────────────────────────────────────────────────
     sectionLabel: {
@@ -48,6 +53,13 @@ export function useSettingsStyles() {
     rowValueText: { ...Type.body, color: colors.textPrimary },
     rowDetail: { ...Type.footnote, color: colors.textSecondary, marginTop: 2 },
     rowAction: { ...Type.body, color: colors.accent },
+    // 44 pt tall inside the row: the target reaches into the row's padding.
+    rowActionButton: {
+      minHeight: TOUCH_TARGET,
+      justifyContent: 'center',
+      marginVertical: -11,
+      paddingLeft: 12,
+    },
     rowDestructive: { ...Type.headline, color: colors.danger ?? '#ff453a', flex: 1 },
     // ── Username edit ─────────────────────────────────────────────────────
     usernameInput: {
@@ -58,12 +70,15 @@ export function useSettingsStyles() {
       borderColor: colors.accent,
       borderRadius: 8,
       paddingHorizontal: 10,
-      paddingVertical: 6,
+      minHeight: TOUCH_TARGET,
+      marginVertical: -11,
     },
     saveButton: {
       marginLeft: 10,
       paddingHorizontal: 14,
-      paddingVertical: 7,
+      minHeight: TOUCH_TARGET,
+      marginVertical: -11,
+      justifyContent: 'center',
       backgroundColor: colors.accent,
       borderRadius: 8,
     },
@@ -71,7 +86,14 @@ export function useSettingsStyles() {
       ...Type.footnote,
       color: colors.textOnAccent,
     },
-    cancelButton: { marginLeft: 8, padding: 6 },
+    cancelButton: {
+      width: TOUCH_TARGET,
+      height: TOUCH_TARGET,
+      marginVertical: -11,
+      marginRight: -12,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     // ── Sync button ───────────────────────────────────────────────────────
     syncRow: {
       flexDirection: 'row',
