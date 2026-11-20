@@ -13,6 +13,8 @@ import { Type } from '@/utils/typography';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
 import ConcertListSkeleton from '@/components/skeletons/ConcertListSkeleton';
 import { BackButton, TabScrollView } from '@/components/ui';
+import { Space } from '@/utils/spacing';
+import { RIVER_DOT_TOP } from '@/components/river';
 
 // Up to three initials for the venue tile: "Madison Square Garden" → "MSG".
 function venueInitials({ name = '' }: DBVenue): string {
@@ -64,10 +66,10 @@ export default function VenueConcertsListScreen() {
     },
     // ── Inline header ──────────────────────────────────────────────────
     inlineHeader: {
-      paddingHorizontal: 16,
+      paddingHorizontal: Space.edge,
       // The back button's 44 pt target already adds space above its text.
-      paddingTop: 4,
-      paddingBottom: 12,
+      paddingTop: Space.s4,
+      paddingBottom: Space.s12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -83,12 +85,12 @@ export default function VenueConcertsListScreen() {
     titleRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 10,
+      gap: Space.s12,
     },
     initialsTile: {
       minWidth: 36,
       height: 36,
-      paddingHorizontal: 6,
+      paddingHorizontal: Space.s4,
       borderRadius: 8,
       alignItems: 'center',
       justifyContent: 'center',
@@ -109,12 +111,11 @@ export default function VenueConcertsListScreen() {
       justifyContent: 'center',
       alignSelf: 'flex-start',
       // The target reaches over the blank space around the line; it isn't layout height.
-      marginVertical: -8,
+      marginVertical: -Space.s8,
     },
     headerSubtitle: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 2,
     },
     // ── Timeline river ──────────────────────────────────────────────────
     scrollView: {
@@ -122,36 +123,36 @@ export default function VenueConcertsListScreen() {
     },
     yearSection: {
       paddingHorizontal: 0,
-      marginTop: 16,
+      marginTop: Space.s16,
     },
     yearGhost: {
       ...Type.yearGhost,
       opacity: 0.18,
       color: colors.textPrimary,
-      paddingHorizontal: 16,
+      paddingHorizontal: Space.edge,
       marginTop: 0,
     },
     yearSubLabel: {
       ...Type.footnote,
       color: colors.textMuted,
-      paddingHorizontal: 16,
-      marginBottom: 4,
+      paddingHorizontal: Space.edge,
+      marginBottom: Space.s4,
     },
     spineContainer: {
       borderLeftWidth: 1.5,
       borderLeftColor: colors.spineColor,
-      marginLeft: 28,
-      paddingLeft: 20,
+      marginLeft: Space.s32,
+      paddingLeft: Space.s20,
     },
     // ── Concert entry (river) ────────────────────────────────────────────
     riverEntry: {
-      paddingVertical: 10,
+      paddingVertical: Space.s12,
       position: 'relative',
     },
     dot: {
       position: 'absolute',
       left: -26,
-      top: 14,
+      top: RIVER_DOT_TOP,
       width: 9,
       height: 9,
       borderRadius: 4.5,
@@ -169,13 +170,12 @@ export default function VenueConcertsListScreen() {
     },
     entryContent: {
       flex: 1,
-      marginRight: 8,
+      marginRight: Space.s8,
     },
     entryDate: {
       ...Type.footnote,
       color: colors.accent,
       letterSpacing: 0.8,
-      marginBottom: 2,
     },
     entryPrimary: {
       ...Type.headline,
@@ -188,7 +188,6 @@ export default function VenueConcertsListScreen() {
     entryTour: {
       ...Type.subheadline,
       color: colors.accent,
-      marginTop: 2,
     },
     entryChevron: {
       ...Type.body,
@@ -200,7 +199,7 @@ export default function VenueConcertsListScreen() {
     emptyState: {
       alignItems: 'center',
       justifyContent: 'center',
-      paddingVertical: 60,
+      paddingVertical: Space.s64,
     },
     emptyStateText: {
       ...Type.body,

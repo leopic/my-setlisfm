@@ -12,6 +12,7 @@ import { Type } from '@/utils/typography';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import ListScreenHeader from '@/components/ListScreenHeader';
+import { Space } from '@/utils/spacing';
 
 interface CityWithStats {
   name: string;
@@ -31,16 +32,16 @@ export default function CitiesScreen() {
     },
     sortPills: {
       flexDirection: 'row',
-      gap: 8,
-      paddingHorizontal: 16,
-      paddingBottom: 10,
-      paddingTop: 10,
+      gap: Space.s8,
+      paddingHorizontal: Space.edge,
+      paddingBottom: Space.s12,
+      paddingTop: Space.s12,
     },
     pill: {
       minHeight: TOUCH_TARGET,
       justifyContent: 'center',
       borderRadius: TOUCH_TARGET / 2,
-      paddingHorizontal: 12,
+      paddingHorizontal: Space.s12,
       borderWidth: 1,
     },
     pillActive: {

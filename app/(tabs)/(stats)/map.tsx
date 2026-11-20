@@ -7,6 +7,7 @@ import VenuesMapView from '@/components/VenuesMapView';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { BackButton } from '@/components/ui';
+import { Space } from '@/utils/spacing';
 
 export default function VenuesMapScreen() {
   const colors = useChronicleColors();
@@ -19,10 +20,10 @@ export default function VenuesMapScreen() {
       backgroundColor: colors.background,
     },
     header: {
-      paddingHorizontal: 16,
+      paddingHorizontal: Space.edge,
       // The back button's 44 pt target already adds space above its text.
-      paddingTop: 4,
-      paddingBottom: 12,
+      paddingTop: Space.s4,
+      paddingBottom: Space.s12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },

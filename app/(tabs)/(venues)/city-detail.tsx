@@ -9,6 +9,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import DetailSkeleton from '@/components/skeletons/DetailSkeleton';
 import { BackButton, TabScrollView } from '@/components/ui';
+import { Space } from '@/utils/spacing';
 
 interface VenueWithStats {
   id: string;
@@ -43,10 +44,10 @@ export default function CityDetailScreen() {
       backgroundColor: colors.background,
     },
     header: {
-      paddingHorizontal: 16,
+      paddingHorizontal: Space.edge,
       // The back button's 44 pt target already adds space above its text.
-      paddingTop: 4,
-      paddingBottom: 12,
+      paddingTop: Space.s4,
+      paddingBottom: Space.s12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -57,14 +58,13 @@ export default function CityDetailScreen() {
     subtitle: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 2,
     },
     venuesList: {
       flex: 1,
     },
     venueRow: {
-      paddingVertical: 12,
-      paddingHorizontal: 16,
+      paddingVertical: Space.s12,
+      paddingHorizontal: Space.edge,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
       flexDirection: 'row',
@@ -72,7 +72,7 @@ export default function CityDetailScreen() {
     },
     venueInfo: {
       flex: 1,
-      marginRight: 12,
+      marginRight: Space.s12,
     },
     venueName: {
       ...Type.headline,
@@ -81,17 +81,14 @@ export default function CityDetailScreen() {
     venueLocation: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 2,
     },
     lastConcertText: {
       ...Type.subheadline,
       color: colors.textMuted,
-      marginTop: 2,
     },
     artistsText: {
       ...Type.subheadline,
       color: colors.textMuted,
-      marginTop: 2,
     },
     concertCountContainer: {
       alignItems: 'center',
@@ -104,11 +101,10 @@ export default function CityDetailScreen() {
     concertCountLabel: {
       ...Type.footnote,
       color: colors.textMuted,
-      marginTop: 1,
     },
     emptyState: {
       alignItems: 'center',
-      paddingVertical: 60,
+      paddingVertical: Space.s64,
     },
     emptyStateText: {
       ...Type.body,

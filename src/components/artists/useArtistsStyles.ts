@@ -2,6 +2,9 @@ import { StyleSheet } from 'react-native';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
+import { Space } from '@/utils/spacing';
+
+const ACCENT_WIDTH = 2.5;
 
 // One StyleSheet for the whole screen: the screen calls this once and passes the result
 // down to its sections.
@@ -13,9 +16,9 @@ export function useArtistsStyles() {
       backgroundColor: colors.background,
     },
     header: {
-      paddingHorizontal: 20,
-      paddingTop: 16,
-      paddingBottom: 14,
+      paddingHorizontal: Space.edge,
+      paddingTop: Space.s16,
+      paddingBottom: Space.s16,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -26,11 +29,10 @@ export function useArtistsStyles() {
     headerSubtitle: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 2,
     },
     controls: {
       backgroundColor: colors.background,
-      paddingTop: 12,
+      paddingTop: Space.s12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -41,9 +43,8 @@ export function useArtistsStyles() {
       borderWidth: 1,
       borderColor: colors.border,
       borderRadius: 10,
-      paddingHorizontal: 14,
-      marginHorizontal: 20,
-      marginBottom: 8,
+      marginHorizontal: Space.edge,
+      marginBottom: Space.s8,
     },
     searchInput: {
       flex: 1,
@@ -53,15 +54,15 @@ export function useArtistsStyles() {
     },
     sortStrip: {
       flexDirection: 'row',
-      gap: 8,
-      paddingHorizontal: 20,
-      paddingBottom: 10,
+      gap: Space.s8,
+      paddingHorizontal: Space.edge,
+      paddingBottom: Space.s12,
     },
     sortPill: {
       minHeight: TOUCH_TARGET,
       justifyContent: 'center',
       borderRadius: TOUCH_TARGET / 2,
-      paddingHorizontal: 12,
+      paddingHorizontal: Space.s12,
       borderWidth: 1,
     },
     sortPillActive: {
@@ -84,25 +85,26 @@ export function useArtistsStyles() {
     artistRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingVertical: 12,
-      paddingRight: 16,
+      paddingVertical: Space.s12,
+      paddingRight: Space.edge,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
+    // The blue bar takes part of the edge, so the photo lines up with the rows without it.
     artistRowAccent: {
-      borderLeftWidth: 2.5,
+      borderLeftWidth: ACCENT_WIDTH,
       borderLeftColor: colors.accent,
-      paddingLeft: 13.5,
+      paddingLeft: Space.edge - ACCENT_WIDTH,
     },
     artistRowNoAccent: {
-      paddingLeft: 16,
+      paddingLeft: Space.edge,
     },
     artistImageWrapper: {
-      marginRight: 12,
+      marginRight: Space.s12,
     },
     artistCenter: {
       flex: 1,
-      paddingRight: 12,
+      paddingRight: Space.s12,
     },
     artistName: {
       ...Type.headline,
@@ -111,12 +113,10 @@ export function useArtistsStyles() {
     lastSeenText: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 2,
     },
     venuesText: {
       ...Type.subheadline,
       color: colors.textMuted,
-      marginTop: 1,
     },
     countText: {
       ...Type.title3,
@@ -130,23 +130,23 @@ export function useArtistsStyles() {
     chevron: {
       ...Type.body,
       color: colors.textDisabled,
-      marginLeft: 8,
+      marginLeft: Space.s8,
     },
     emptyState: {
       alignItems: 'center',
-      paddingVertical: 60,
-      paddingHorizontal: 20,
+      paddingVertical: Space.s64,
+      paddingHorizontal: Space.edge,
     },
     emptyStateText: {
       ...Type.body,
       color: colors.textSecondary,
       textAlign: 'center',
-      marginBottom: 20,
+      marginBottom: Space.s20,
     },
     refreshButton: {
       backgroundColor: colors.accent,
-      paddingHorizontal: 20,
-      paddingVertical: 12,
+      paddingHorizontal: Space.s20,
+      paddingVertical: Space.s12,
       borderRadius: 20,
     },
     refreshButtonText: {

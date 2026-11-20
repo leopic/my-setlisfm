@@ -5,6 +5,7 @@ import HeaderActions from './HeaderActions';
 import CompactOnThisDayCard from './CompactOnThisDayCard';
 import StatsLine, { type StatsTotals } from './StatsLine';
 import type { OnThisDayConcert } from './types';
+import { Space } from '@/utils/spacing';
 
 type Props = { totals: StatsTotals; onThisDay: OnThisDayConcert; onSync: () => void };
 
@@ -20,17 +21,17 @@ export default function TabletTopBar({ totals, onThisDay, onSync }: Props) {
     },
     tabletTopBarLeft: {
       flex: 1,
-      paddingHorizontal: 16,
-      paddingVertical: 10,
+      paddingHorizontal: Space.edge,
+      paddingVertical: Space.s12,
       justifyContent: 'center',
     },
     tabletTopBarRight: {
       flex: 2,
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: 14,
-      paddingVertical: 8,
-      gap: 12,
+      paddingHorizontal: Space.edge,
+      paddingVertical: Space.s8,
+      gap: Space.s12,
       borderLeftWidth: 1,
       borderLeftColor: colors.border,
     },

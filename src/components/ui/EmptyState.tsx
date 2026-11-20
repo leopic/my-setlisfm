@@ -5,6 +5,7 @@ import type { Ionicons } from '@expo/vector-icons';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import Icon from './Icon';
+import { Space } from '@/utils/spacing';
 
 interface EmptyStateProps {
   /** SF Symbol (ios) + Material icon (android) */
@@ -37,23 +38,23 @@ export default function EmptyState({
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      paddingHorizontal: 52,
-      paddingVertical: 64,
+      paddingHorizontal: Space.s48,
+      paddingVertical: Space.s64,
     },
     inline: {
       alignItems: 'center',
-      paddingHorizontal: 40,
-      paddingVertical: 48,
+      paddingHorizontal: Space.s48,
+      paddingVertical: Space.s48,
     },
     iconWrap: {
-      marginBottom: 20,
+      marginBottom: Space.s20,
       opacity: 0.22,
     },
     title: {
       ...Type.headline,
       color: colors.textMuted,
       textAlign: 'center',
-      marginBottom: 8,
+      marginBottom: Space.s8,
     },
     body: {
       ...Type.subheadline,

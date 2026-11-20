@@ -8,7 +8,7 @@ import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import type { SortOption } from '@/utils/sort';
 import { sortByOption } from '@/utils/sort';
 import { useSyncContext } from '@/contexts/SyncContext';
-import { EmptyState } from '@/components/ui';
+import { EmptyState, tabBarContentStyle } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import ArtistDetailPane from '@/components/panes/ArtistDetailPane';
 import ArtistRow from '@/components/artists/ArtistRow';
@@ -17,8 +17,6 @@ import ArtistsHeader from '@/components/artists/ArtistsHeader';
 import type { ArtistWithStats } from '@/components/artists/types';
 import { useArtistsStyles } from '@/components/artists/useArtistsStyles';
 import { useTabletLayout } from '@/utils/tablet';
-
-const CONTENT_PADDING_BOTTOM = 100;
 
 export default function ArtistsScreen() {
   const { t } = useTranslation();
@@ -149,7 +147,7 @@ export default function ArtistsScreen() {
 
       <LegendList
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: CONTENT_PADDING_BOTTOM }}
+        contentContainerStyle={tabBarContentStyle}
         keyboardShouldPersistTaps="handled"
         data={filteredArtists}
         keyExtractor={(item) => item.mbid}

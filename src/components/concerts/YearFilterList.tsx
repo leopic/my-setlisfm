@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
+import { Space } from '@/utils/spacing';
 
 interface YearFilterListProps {
   years: string[];
@@ -66,8 +67,8 @@ export default function YearFilterList({
   const colors = useChronicleColors();
   const styles = StyleSheet.create({
     item: {
-      paddingHorizontal: 16,
-      paddingVertical: 12,
+      paddingHorizontal: Space.edge,
+      paddingVertical: Space.s12,
       borderBottomColor: colors.border,
     },
     text: { ...Type.body, color: colors.textPrimary },

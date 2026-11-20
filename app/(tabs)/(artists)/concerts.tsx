@@ -12,6 +12,8 @@ import ArtistImage from '@/components/ArtistImage';
 import { BackButton, TabScrollView } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
+import { Space } from '@/utils/spacing';
+import { RIVER_DOT_TOP } from '@/components/river';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -61,10 +63,10 @@ export default function ArtistConcertsListScreen() {
     },
     // ── Inline header ──────────────────────────────────────────────────
     inlineHeader: {
-      paddingHorizontal: 16,
+      paddingHorizontal: Space.edge,
       // The back button's 44 pt target already adds space above its text.
-      paddingTop: 4,
-      paddingBottom: 12,
+      paddingTop: Space.s4,
+      paddingBottom: Space.s12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -75,8 +77,8 @@ export default function ArtistConcertsListScreen() {
     artistRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 12,
-      marginTop: 4,
+      gap: Space.s12,
+      marginTop: Space.s4,
     },
     artistTextBlock: {
       flex: 1,
@@ -88,7 +90,6 @@ export default function ArtistConcertsListScreen() {
     headerSubtitle: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 2,
     },
     // ── Timeline river ──────────────────────────────────────────────────
     scrollView: {
@@ -96,36 +97,36 @@ export default function ArtistConcertsListScreen() {
     },
     yearSection: {
       paddingHorizontal: 0,
-      marginTop: 16,
+      marginTop: Space.s16,
     },
     yearGhost: {
       ...Type.yearGhost,
       opacity: 0.18,
       color: colors.textPrimary,
-      paddingHorizontal: 16,
+      paddingHorizontal: Space.edge,
       marginTop: 0,
     },
     yearSubLabel: {
       ...Type.footnote,
       color: colors.textMuted,
-      paddingHorizontal: 16,
-      marginBottom: 4,
+      paddingHorizontal: Space.edge,
+      marginBottom: Space.s4,
     },
     spineContainer: {
       borderLeftWidth: 1.5,
       borderLeftColor: colors.spineColor,
-      marginLeft: 28,
-      paddingLeft: 20,
+      marginLeft: Space.s32,
+      paddingLeft: Space.s20,
     },
     // ── Concert entry (river) ────────────────────────────────────────────
     riverEntry: {
-      paddingVertical: 10,
+      paddingVertical: Space.s12,
       position: 'relative',
     },
     dot: {
       position: 'absolute',
       left: -26,
-      top: 14,
+      top: RIVER_DOT_TOP,
       width: 9,
       height: 9,
       borderRadius: 4.5,
@@ -143,13 +144,12 @@ export default function ArtistConcertsListScreen() {
     },
     entryContent: {
       flex: 1,
-      marginRight: 8,
+      marginRight: Space.s8,
     },
     entryDate: {
       ...Type.footnote,
       color: colors.accent,
       letterSpacing: 0.8,
-      marginBottom: 2,
     },
     entryPrimary: {
       ...Type.headline,
@@ -162,7 +162,6 @@ export default function ArtistConcertsListScreen() {
     entryTour: {
       ...Type.subheadline,
       color: colors.accent,
-      marginTop: 2,
     },
     entryChevron: {
       ...Type.body,
@@ -174,7 +173,7 @@ export default function ArtistConcertsListScreen() {
     emptyState: {
       alignItems: 'center',
       justifyContent: 'center',
-      paddingVertical: 60,
+      paddingVertical: Space.s64,
     },
     emptyStateText: {
       ...Type.body,

@@ -8,6 +8,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { useOpenConcert } from './useOpenConcert';
 import type { ConcertEntry, DashboardStats, Milestone, OnThisDayConcert } from './types';
+import { Space } from '@/utils/spacing';
 
 // Styles shared by the entries in the tablet detail panel. Call once in the panel and pass the result down.
 export function useDetailStyles() {
@@ -18,19 +19,19 @@ export function useDetailStyles() {
       ...Type.footnote,
       color: colors.textMuted,
       letterSpacing: 1,
-      marginBottom: 8,
+      marginBottom: Space.s8,
     },
     detailHighlightEntry: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 10,
-      paddingVertical: 8,
-      paddingHorizontal: 10,
+      gap: Space.s12,
+      paddingVertical: Space.s8,
+      paddingHorizontal: Space.s12,
       backgroundColor: colors.background,
       borderWidth: 1,
       borderColor: colors.border,
       borderRadius: 10,
-      marginBottom: 6,
+      marginBottom: Space.s4,
     },
     detailHighlightText: {
       flex: 1,
@@ -39,7 +40,6 @@ export function useDetailStyles() {
       ...Type.footnote,
       color: colors.accent,
       letterSpacing: 0.8,
-      marginBottom: 1,
     },
     detailArtistName: {
       ...Type.headline,
@@ -48,7 +48,6 @@ export function useDetailStyles() {
     detailMeta: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 1,
     },
     detailChevron: {
       ...Type.body,

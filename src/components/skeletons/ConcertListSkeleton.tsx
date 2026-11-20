@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '@/components/SkeletonBox';
 import { useChronicleColors } from '@/utils/colors';
+import { Space } from '@/utils/spacing';
 
 interface Props {
   showHeader?: boolean;
@@ -15,25 +16,25 @@ function buildStyles(colors: ReturnType<typeof useChronicleColors>) {
       backgroundColor: colors.background,
     },
     header: {
-      paddingHorizontal: 16,
-      paddingVertical: 12,
+      paddingHorizontal: Space.edge,
+      paddingVertical: Space.s12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
     yearChapter: {
-      marginTop: 20,
-      marginHorizontal: 20,
+      marginTop: Space.s20,
+      marginHorizontal: Space.edge,
     },
     spine: {
-      marginLeft: 28,
-      paddingLeft: 20,
+      marginLeft: Space.s32,
+      paddingLeft: Space.s20,
       borderLeftWidth: 1.5,
       borderLeftColor: colors.border,
     },
     spineEntry: {
-      paddingVertical: 10,
+      paddingVertical: Space.s12,
       flexDirection: 'row',
-      gap: 8,
+      gap: Space.s8,
     },
     spineEntryColumn: {
       flex: 1,
@@ -46,8 +47,8 @@ function SpineEntry({ styles }: { styles: ReturnType<typeof buildStyles> }) {
     <View style={styles.spineEntry}>
       <View style={styles.spineEntryColumn}>
         <SkeletonBox width={52} height={10} borderRadius={4} />
-        <SkeletonBox width={130} height={15} borderRadius={4} style={{ marginTop: 4 }} />
-        <SkeletonBox width={100} height={12} borderRadius={4} style={{ marginTop: 3 }} />
+        <SkeletonBox width={130} height={15} borderRadius={4} style={{ marginTop: Space.s4 }} />
+        <SkeletonBox width={100} height={12} borderRadius={4} style={{ marginTop: Space.s4 }} />
       </View>
     </View>
   );
@@ -71,7 +72,7 @@ function YearChapter({
           borderRadius={4}
           style={{ opacity: dim ? 0.25 : 0.4 }}
         />
-        <SkeletonBox width={70} height={11} borderRadius={4} style={{ marginTop: 4 }} />
+        <SkeletonBox width={70} height={11} borderRadius={4} style={{ marginTop: Space.s4 }} />
       </View>
       <View style={styles.spine}>
         {Array.from({ length: entryCount }).map((_, i) => (
@@ -94,9 +95,9 @@ export default function ConcertListSkeleton({ showHeader = true }: Props) {
     >
       {showHeader && (
         <View style={styles.header}>
-          <SkeletonBox width={48} height={13} borderRadius={6} style={{ marginBottom: 6 }} />
+          <SkeletonBox width={48} height={13} borderRadius={6} style={{ marginBottom: Space.s4 }} />
           <SkeletonBox width={180} height={22} borderRadius={4} />
-          <SkeletonBox width={140} height={13} borderRadius={4} style={{ marginTop: 5 }} />
+          <SkeletonBox width={140} height={13} borderRadius={4} style={{ marginTop: Space.s4 }} />
         </View>
       )}
 

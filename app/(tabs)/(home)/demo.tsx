@@ -10,6 +10,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
 import { Type } from '@/utils/typography';
 import { TabScrollView, Icon } from '@/components/ui';
+import { Space } from '@/utils/spacing';
 
 // Hidden screen for the self-healing talk (long-press the version in Settings).
 export default function DemoScreen() {
@@ -69,8 +70,8 @@ export default function DemoScreen() {
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: 16,
-      paddingVertical: 14,
+      paddingHorizontal: Space.edge,
+      paddingVertical: Space.s16,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -81,24 +82,24 @@ export default function DemoScreen() {
       justifyContent: 'center',
     },
     headerTitle: { ...Type.title1, color: colors.textPrimary, flex: 1 },
-    intro: { ...Type.subheadline, color: colors.textSecondary, padding: 20 },
+    intro: { ...Type.subheadline, color: colors.textSecondary, padding: Space.edge },
     row: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: 20,
-      paddingVertical: 12,
+      paddingHorizontal: Space.edge,
+      paddingVertical: Space.s12,
       backgroundColor: colors.surface,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
-      gap: 12,
+      gap: Space.s12,
     },
     rowFirst: { borderTopWidth: 1, borderTopColor: colors.border },
     rowText: { flex: 1 },
     rowTitle: { ...Type.body, color: colors.textPrimary },
-    rowHint: { ...Type.footnote, color: colors.textSecondary, marginTop: 2 },
+    rowHint: { ...Type.footnote, color: colors.textSecondary },
     addText: { ...Type.body, color: colors.accent },
     addedText: { ...Type.body, color: colors.textMuted },
-    removeRow: { marginTop: 28 },
+    removeRow: { marginTop: Space.s32 },
     removeText: { ...Type.headline, color: colors.danger, flex: 1 },
   });
 

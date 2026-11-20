@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { BackButton } from '@/components/ui';
+import { Space } from '@/utils/spacing';
 
 interface ListScreenHeaderProps {
   title: string;
@@ -15,10 +16,10 @@ export default function ListScreenHeader({ title, subtitle }: ListScreenHeaderPr
   const router = useRouter();
   const styles = StyleSheet.create({
     inlineHeader: {
-      paddingHorizontal: 16,
+      paddingHorizontal: Space.edge,
       // The back button's 44 pt target already adds space above its text.
-      paddingTop: 4,
-      paddingBottom: 12,
+      paddingTop: Space.s4,
+      paddingBottom: Space.s12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -33,7 +34,6 @@ export default function ListScreenHeader({ title, subtitle }: ListScreenHeaderPr
     headerSubtitle: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 2,
     },
   });
 

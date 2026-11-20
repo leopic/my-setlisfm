@@ -9,7 +9,7 @@ import { parseSetlistDate } from '@/utils/date';
 import type { SortOption } from '@/utils/sort';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
-import { EmptyState } from '@/components/ui';
+import { EmptyState, tabBarContentStyle } from '@/components/ui';
 import SetlistDetailPane from '@/components/panes/SetlistDetailPane';
 import ConcertFlatRow from '@/components/concerts/ConcertFlatRow';
 import ConcertsControls from '@/components/concerts/ConcertsControls';
@@ -18,8 +18,6 @@ import ConcertYearGroup from '@/components/concerts/ConcertYearGroup';
 import type { ConcertListItem, ConcertWithDetails, YearGroup } from '@/components/concerts/types';
 import { useConcertsStyles } from '@/components/concerts/useConcertsStyles';
 import { useTabletLayout } from '@/utils/tablet';
-
-const CONTENT_PADDING_BOTTOM = 100;
 
 function groupConcertsByYear(concertsToGroup: ConcertWithDetails[]): YearGroup[] {
   const groups: { [year: string]: ConcertWithDetails[] } = {};
@@ -256,7 +254,7 @@ export default function ConcertsScreen() {
 
       <LegendList
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: CONTENT_PADDING_BOTTOM }}
+        contentContainerStyle={tabBarContentStyle}
         data={listData}
         keyExtractor={keyExtractor}
         renderItem={renderItem}

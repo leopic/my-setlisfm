@@ -13,6 +13,7 @@ import { TOUCH_TARGET } from '@/utils/touchTarget';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import ListScreenHeader from '@/components/ListScreenHeader';
 import { TabScrollView } from '@/components/ui';
+import { Space } from '@/utils/spacing';
 
 interface ContinentWithStats {
   name: string;
@@ -33,16 +34,16 @@ export default function ContinentsScreen() {
     },
     sortPills: {
       flexDirection: 'row',
-      gap: 8,
-      paddingHorizontal: 16,
-      paddingBottom: 10,
-      paddingTop: 10,
+      gap: Space.s8,
+      paddingHorizontal: Space.edge,
+      paddingBottom: Space.s12,
+      paddingTop: Space.s12,
     },
     pill: {
       minHeight: TOUCH_TARGET,
       justifyContent: 'center',
       borderRadius: TOUCH_TARGET / 2,
-      paddingHorizontal: 12,
+      paddingHorizontal: Space.s12,
       borderWidth: 1,
     },
     pillActive: {
@@ -64,14 +65,14 @@ export default function ContinentsScreen() {
     row: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingVertical: 12,
-      paddingHorizontal: 16,
+      paddingVertical: Space.s12,
+      paddingHorizontal: Space.edge,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
     leftContent: {
       flex: 1,
-      marginRight: 12,
+      marginRight: Space.s12,
     },
     name: {
       ...Type.headline,
@@ -80,12 +81,10 @@ export default function ContinentsScreen() {
     subtitle: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 2,
     },
     meta: {
       ...Type.subheadline,
       color: colors.textMuted,
-      marginTop: 2,
     },
     rightContent: {
       alignItems: 'center',
@@ -98,23 +97,22 @@ export default function ContinentsScreen() {
     countLabel: {
       ...Type.footnote,
       color: colors.textMuted,
-      marginTop: 1,
     },
     emptyState: {
       alignItems: 'center',
-      paddingVertical: 60,
-      paddingHorizontal: 16,
+      paddingVertical: Space.s64,
+      paddingHorizontal: Space.edge,
     },
     emptyStateText: {
       ...Type.body,
       color: colors.textSecondary,
       textAlign: 'center',
-      marginBottom: 20,
+      marginBottom: Space.s20,
     },
     refreshButton: {
       borderRadius: 20,
-      paddingHorizontal: 20,
-      paddingVertical: 12,
+      paddingHorizontal: Space.s20,
+      paddingVertical: Space.s12,
       backgroundColor: colors.accentSoft,
       borderWidth: 1,
       borderColor: colors.accent,

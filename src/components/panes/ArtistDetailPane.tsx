@@ -9,6 +9,8 @@ import { parseSetlistDate, formatDate } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import ArtistImage from '@/components/ArtistImage';
+import { Space } from '@/utils/spacing';
+import { RIVER_DOT_TOP } from '@/components/river';
 
 interface YearGroup {
   year: string;
@@ -96,45 +98,45 @@ export default function ArtistDetailPane({ artistMbid }: Props) {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 8,
+      gap: Space.s8,
     },
     placeholderText: { ...Type.body, color: colors.textMuted },
     header: {
-      paddingHorizontal: 20,
-      paddingVertical: 16,
+      paddingHorizontal: Space.edge,
+      paddingVertical: Space.s16,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 14,
+      gap: Space.s16,
     },
     headerText: { flex: 1 },
     headerTitle: { ...Type.title1, color: colors.textPrimary },
-    headerSubtitle: { ...Type.subheadline, color: colors.textSecondary, marginTop: 2 },
-    yearSection: { paddingHorizontal: 0, marginTop: 16 },
+    headerSubtitle: { ...Type.subheadline, color: colors.textSecondary },
+    yearSection: { paddingHorizontal: 0, marginTop: Space.s16 },
     yearGhost: {
       ...Type.yearGhost,
       opacity: 0.18,
       color: colors.textPrimary,
-      paddingHorizontal: 20,
+      paddingHorizontal: Space.edge,
     },
     yearSubLabel: {
       ...Type.footnote,
       color: colors.textMuted,
-      paddingHorizontal: 20,
-      marginBottom: 4,
+      paddingHorizontal: Space.edge,
+      marginBottom: Space.s4,
     },
     spineContainer: {
       borderLeftWidth: 1.5,
       borderLeftColor: colors.spineColor,
-      marginLeft: 36,
-      paddingLeft: 20,
+      marginLeft: Space.s32,
+      paddingLeft: Space.s20,
     },
-    riverEntry: { paddingVertical: 10, position: 'relative' },
+    riverEntry: { paddingVertical: Space.s12, position: 'relative' },
     dot: {
       position: 'absolute',
       left: -26,
-      top: 14,
+      top: RIVER_DOT_TOP,
       width: 9,
       height: 9,
       borderRadius: 4.5,
@@ -148,11 +150,11 @@ export default function ArtistDetailPane({ artistMbid }: Props) {
       alignItems: 'flex-start',
       justifyContent: 'space-between',
     },
-    entryContent: { flex: 1, marginRight: 8 },
-    entryDate: { ...Type.footnote, color: colors.accent, letterSpacing: 0.8, marginBottom: 2 },
+    entryContent: { flex: 1, marginRight: Space.s8 },
+    entryDate: { ...Type.footnote, color: colors.accent, letterSpacing: 0.8 },
     entryPrimary: { ...Type.headline, color: colors.textPrimary },
     entrySecondary: { ...Type.subheadline, color: colors.textSecondary },
-    entryTour: { ...Type.subheadline, color: colors.accent, marginTop: 2 },
+    entryTour: { ...Type.subheadline, color: colors.accent },
     entryChevron: { ...Type.body, color: colors.textDisabled, alignSelf: 'center' },
     bottomPad: { height: 48 },
   });

@@ -1,3 +1,4 @@
+import { StyleSheet, type ViewStyle } from 'react-native';
 import { router } from 'expo-router';
 import { act, fireEvent, screen } from 'expo-router/testing-library';
 import { seedDatabase } from '../../../test/database';
@@ -68,4 +69,11 @@ it('shows city coordinates and the country flag', async () => {
     router.navigate({ pathname: '/(venues)/country-detail', params: { country: 'Germany' } }),
   );
   expect(await screen.findByText('🇩🇪 Germany')).toBeOnTheScreen();
+});
+
+it('shows "Setlist not found" in the middle of the screen', async () => {
+  await act(async () => router.navigate('/(concerts)/no-such-setlist'));
+  const message = await screen.findByText('Setlist not found');
+  const page = StyleSheet.flatten(message.parent?.props.style as ViewStyle);
+  expect(page?.justifyContent).toBe('center');
 });

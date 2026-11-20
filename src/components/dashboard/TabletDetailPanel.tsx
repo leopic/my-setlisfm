@@ -18,6 +18,7 @@ import type {
   YearConcerts,
   YearSummary,
 } from './types';
+import { Space } from '@/utils/spacing';
 
 type Props = {
   yearStr: string;
@@ -52,14 +53,14 @@ export default function TabletDetailPanel({
       backgroundColor: colors.surface,
     },
     detailPanelContent: {
-      padding: 16,
+      padding: Space.edge,
     },
     // Year row: large heading + "Also On This Day" card inline
     detailYearRow: {
       flexDirection: 'row',
       alignItems: 'flex-end',
-      gap: 12,
-      marginBottom: 12,
+      gap: Space.s12,
+      marginBottom: Space.s12,
     },
     detailYearHeading: {
       ...Type.yearGhost,
@@ -71,13 +72,13 @@ export default function TabletDetailPanel({
       borderWidth: 1,
       borderColor: colors.border,
       borderRadius: 12,
-      padding: 10,
+      padding: Space.s12,
     },
     detailChartLabel: {
       ...Type.captionStrong,
       color: colors.textMuted,
       letterSpacing: 0.8,
-      marginBottom: 6,
+      marginBottom: Space.s4,
     },
   });
 
@@ -116,7 +117,7 @@ export default function TabletDetailPanel({
         <YearStatCards showCount={showCount} summary={summary} monthNames={names} />
 
         {/* Monthly chart — full width */}
-        <View style={[styles.detailChartBox, { marginBottom: 14 }]}>
+        <View style={[styles.detailChartBox, { marginBottom: Space.s16 }]}>
           <Text style={styles.detailChartLabel}>{t('dashboard.monthly')}</Text>
           <BarChart data={monthlyChartData} height={90} showLabels />
         </View>

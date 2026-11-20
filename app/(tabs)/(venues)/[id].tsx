@@ -9,6 +9,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import SetlistSkeleton from '@/components/skeletons/SetlistSkeleton';
 import { useTranslation } from 'react-i18next';
+import { Space } from '@/utils/spacing';
 
 export default function SetlistDetailScreen() {
   const { t } = useTranslation();
@@ -19,8 +20,10 @@ export default function SetlistDetailScreen() {
       ...Type.body,
       color: colors.danger,
       textAlign: 'center',
-      marginTop: 100,
+      paddingHorizontal: Space.edge,
     },
+    // "Not found" sits in the middle of the screen, like an empty state.
+    notFound: { justifyContent: 'center' },
   });
 
   const router = useRouter();
@@ -58,7 +61,7 @@ export default function SetlistDetailScreen() {
 
   if (!setlist) {
     return (
-      <SafeAreaView edges={['top', 'left', 'right']} style={styles.container}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={[styles.container, styles.notFound]}>
         <Text style={styles.errorText}>{t('setlist.notFound')}</Text>
       </SafeAreaView>
     );

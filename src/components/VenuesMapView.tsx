@@ -8,6 +8,7 @@ import { dbOperations } from '@/database/operations';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { buildHtml, visitColor, VISIT_TIERS, type VenueWithCoords } from './venuesMapHtml';
+import { Space } from '@/utils/spacing';
 
 export default function VenuesMapView() {
   const { t } = useTranslation();
@@ -21,19 +22,19 @@ export default function VenuesMapView() {
       alignItems: 'center',
       backgroundColor: colors.background,
     },
-    loadingText: { ...Type.body, marginTop: 10, color: colors.textSecondary },
+    loadingText: { ...Type.body, marginTop: Space.s12, color: colors.textSecondary },
     emptyContainer: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      padding: 40,
+      padding: Space.s48,
       backgroundColor: colors.background,
     },
     emptyText: {
       ...Type.headline,
       color: colors.textPrimary,
       textAlign: 'center',
-      marginBottom: 10,
+      marginBottom: Space.s12,
     },
     emptySubtext: {
       ...Type.subheadline,
@@ -42,7 +43,7 @@ export default function VenuesMapView() {
     },
     venueCount: {
       backgroundColor: colors.background,
-      padding: 15,
+      padding: Space.s16,
       borderTopWidth: 1,
       borderTopColor: colors.border,
       alignItems: 'center',
@@ -50,20 +51,20 @@ export default function VenuesMapView() {
     venueCountText: { ...Type.subheadline, color: colors.textSecondary },
     legend: {
       backgroundColor: colors.background,
-      padding: 15,
+      padding: Space.s16,
       // The native tab bar floats over the bottom of the screen; keep the legend above it.
-      paddingBottom: 15 + insets.bottom,
+      paddingBottom: Space.s16 + insets.bottom,
       borderTopWidth: 1,
       borderTopColor: colors.border,
     },
     legendTitle: {
       ...Type.footnote,
       color: colors.textPrimary,
-      marginBottom: 10,
+      marginBottom: Space.s12,
     },
     legendItems: { flexDirection: 'row', justifyContent: 'space-around' },
     legendItem: { flexDirection: 'row', alignItems: 'center' },
-    legendDot: { width: 12, height: 12, borderRadius: 6, marginRight: 5 },
+    legendDot: { width: 12, height: 12, borderRadius: 6, marginRight: Space.s4 },
     legendText: { ...Type.caption, color: colors.textSecondary },
   });
 

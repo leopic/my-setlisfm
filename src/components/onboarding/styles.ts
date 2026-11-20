@@ -1,10 +1,13 @@
 import { StyleSheet } from 'react-native';
 import type { ChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
+import { Space } from '@/utils/spacing';
 
 // Spine geometry constants
-const SPINE_MARGIN_LEFT = 24;
-export const SPINE_PADDING_LEFT = 28;
+const SPINE_MARGIN_LEFT = Space.s24;
+// Puts the 13 pt dot level with the step title's first line.
+export const STEP_DOT_TOP = (Type.headline.lineHeight - 13) / 2;
+export const SPINE_PADDING_LEFT = Space.s32;
 
 // Built once per screen render and passed down, so rows share one StyleSheet.
 export function createOnboardingStyles(colors: ChronicleColors) {
@@ -14,8 +17,8 @@ export function createOnboardingStyles(colors: ChronicleColors) {
       backgroundColor: colors.background,
     },
     header: {
-      paddingTop: 28,
-      paddingBottom: 8,
+      paddingTop: Space.s32,
+      paddingBottom: Space.s8,
       alignItems: 'center',
     },
     wordmark: {
@@ -28,7 +31,7 @@ export function createOnboardingStyles(colors: ChronicleColors) {
     spineArea: {
       flex: 1,
       justifyContent: 'center',
-      paddingHorizontal: 36,
+      paddingHorizontal: Space.s32,
     },
     spineTrack: {
       borderLeftWidth: 1.5,
@@ -39,18 +42,17 @@ export function createOnboardingStyles(colors: ChronicleColors) {
 
     // ── Step entry ───────────────────────────────────────────────────
     stepEntry: {
-      paddingTop: 2,
-      paddingBottom: 40,
+      paddingBottom: Space.s48,
       position: 'relative',
     },
     stepEntryLast: {
-      paddingBottom: 8,
+      paddingBottom: Space.s8,
     },
 
     // Dot (base — position/size set inline)
     dotBase: {
       position: 'absolute',
-      top: 6,
+      top: STEP_DOT_TOP,
     },
 
     // Glow halo behind active dot (size/position set inline)
@@ -64,7 +66,6 @@ export function createOnboardingStyles(colors: ChronicleColors) {
     stepTitle: {
       ...Type.headline,
       color: colors.textPrimary,
-      marginBottom: 3,
     },
     stepTitleWaiting: {
       fontFamily: Type.body.fontFamily,
@@ -79,7 +80,6 @@ export function createOnboardingStyles(colors: ChronicleColors) {
     stepDetail: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 1,
     },
     stepDetailWaiting: {
       color: colors.textDisabled,
@@ -92,7 +92,7 @@ export function createOnboardingStyles(colors: ChronicleColors) {
       backgroundColor: colors.border,
       borderRadius: 1,
       overflow: 'hidden',
-      marginTop: 10,
+      marginTop: Space.s12,
     },
     progressFill: {
       height: '100%',
@@ -103,7 +103,7 @@ export function createOnboardingStyles(colors: ChronicleColors) {
     // Quip — fixed-height container prevents layout shift between
     // 0, 1, and 2-line quips. Height = 2 lines × lineHeight 20 + buffer.
     quipContainer: {
-      marginTop: 12,
+      marginTop: Space.s12,
       height: 44,
       overflow: 'hidden',
       justifyContent: 'flex-start',
@@ -116,9 +116,9 @@ export function createOnboardingStyles(colors: ChronicleColors) {
 
     // ── Bottom section ───────────────────────────────────────────────
     bottom: {
-      paddingHorizontal: 36,
-      paddingBottom: 36,
-      paddingTop: 8,
+      paddingHorizontal: Space.s32,
+      paddingBottom: Space.s32,
+      paddingTop: Space.s8,
     },
     input: {
       ...Type.body,
@@ -127,15 +127,15 @@ export function createOnboardingStyles(colors: ChronicleColors) {
       borderWidth: 1,
       borderColor: colors.border,
       borderRadius: 12,
-      paddingHorizontal: 16,
-      paddingVertical: 14,
-      marginBottom: 14,
+      paddingHorizontal: Space.s16,
+      paddingVertical: Space.s16,
+      marginBottom: Space.s16,
       textAlign: 'center',
     },
     button: {
       backgroundColor: colors.accent,
       borderRadius: 12,
-      paddingVertical: 16,
+      paddingVertical: Space.s16,
       alignItems: 'center',
     },
     buttonDisabled: { opacity: 0.35 },
@@ -148,7 +148,7 @@ export function createOnboardingStyles(colors: ChronicleColors) {
       borderWidth: 1,
       borderColor: colors.danger,
       borderRadius: 12,
-      paddingVertical: 16,
+      paddingVertical: Space.s16,
       alignItems: 'center',
     },
     errorButtonText: {

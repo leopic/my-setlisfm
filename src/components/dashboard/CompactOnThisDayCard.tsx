@@ -6,6 +6,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import type { OnThisDayConcert } from './types';
 import { useOpenConcert } from './useOpenConcert';
+import { Space } from '@/utils/spacing';
 
 type Props = {
   concert: NonNullable<OnThisDayConcert>;
@@ -24,23 +25,22 @@ export default function CompactOnThisDayCard({ concert, variant }: Props) {
     card: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 8,
+      gap: Space.s8,
       backgroundColor: colors.accentSoft,
       borderWidth: 1,
       borderColor: colors.accent,
       borderRadius: 10,
-      paddingHorizontal: 10,
-      paddingVertical: 6,
+      paddingHorizontal: Space.s12,
+      paddingVertical: Space.s4,
     },
     // Also On This Day — same compact style as header OTD
     cardAlso: {
-      marginBottom: 4,
+      marginBottom: Space.s4,
     },
     label: {
       ...Type.captionStrong,
       color: colors.accent,
       letterSpacing: 0.8,
-      marginBottom: 1,
     },
     name: {
       ...Type.footnote,

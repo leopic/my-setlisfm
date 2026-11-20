@@ -4,15 +4,16 @@ import { MONTH_KEYS } from '@/i18n/calendar';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import type { MonthCounts, YearSummary } from './types';
+import { Space } from '@/utils/spacing';
 
 function useChapterStyles() {
   const colors = useChronicleColors();
   return StyleSheet.create({
     // ── Year chapter (phone / phone-like) ─────────────────────────────────
     yearChapter: {
-      marginTop: 28,
-      marginHorizontal: 20,
-      marginBottom: 8,
+      marginTop: Space.s32,
+      marginHorizontal: Space.edge,
+      marginBottom: Space.s8,
     },
     yearGhost: {
       ...Type.yearGhost,
@@ -22,18 +23,17 @@ function useChapterStyles() {
     yearMeta: {
       ...Type.footnote,
       color: colors.textMuted,
-      marginTop: 2,
     },
     yearStatRow: {
       flexDirection: 'row',
-      gap: 10,
-      marginTop: 4,
+      gap: Space.s12,
+      marginTop: Space.s4,
       flexWrap: 'wrap',
     },
     yearStatChip: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 4,
+      gap: Space.s4,
     },
     yearStatValue: {
       ...Type.footnote,
@@ -45,9 +45,9 @@ function useChapterStyles() {
     },
     monthGrid: {
       flexDirection: 'row',
-      marginTop: 6,
-      marginBottom: 4,
-      gap: 4,
+      marginTop: Space.s4,
+      marginBottom: Space.s4,
+      gap: Space.s4,
     },
     monthCell: {
       alignItems: 'center',
@@ -56,7 +56,7 @@ function useChapterStyles() {
     monthLabel: {
       ...Type.captionStrong,
       color: colors.textDisabled,
-      marginBottom: 3,
+      marginBottom: Space.s4,
     },
     monthDotEmpty: {
       width: 7,

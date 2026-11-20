@@ -6,6 +6,7 @@ import { Type } from '@/utils/typography';
 import { toOrdinal } from '@/utils/ordinal';
 import type { ConcertRecognitionFacts } from '@/database/factQueries';
 import { buildRecognitionChips } from './recognitionChips';
+import { Space } from '@/utils/spacing';
 
 interface Props {
   visible: boolean;
@@ -42,9 +43,9 @@ export default function RecognitionSheet({
       borderTopRightRadius: 22,
       borderTopWidth: 1,
       borderColor: colors.border,
-      paddingHorizontal: 18,
-      paddingTop: 10,
-      paddingBottom: 34,
+      paddingHorizontal: Space.s20,
+      paddingTop: Space.s12,
+      paddingBottom: Space.s32,
     },
     grip: {
       alignSelf: 'center',
@@ -52,16 +53,16 @@ export default function RecognitionSheet({
       height: 4,
       borderRadius: 3,
       backgroundColor: colors.borderLight,
-      marginBottom: 14,
+      marginBottom: Space.s16,
     },
     hero: {
       alignItems: 'center',
-      paddingBottom: 16,
+      paddingBottom: Space.s16,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
-      marginBottom: 14,
+      marginBottom: Space.s16,
     },
-    heroIcon: { marginBottom: 8 },
+    heroIcon: { marginBottom: Space.s8 },
     heroCount: {
       ...Type.largeTitle,
       color: accent,
@@ -69,13 +70,12 @@ export default function RecognitionSheet({
     heroLabel: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 2,
     },
     grid: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: 8,
-      marginBottom: 18,
+      gap: Space.s8,
+      marginBottom: Space.s20,
     },
     chip: {
       flexBasis: '48%',
@@ -84,16 +84,16 @@ export default function RecognitionSheet({
       borderWidth: 1,
       borderColor: colors.border,
       borderRadius: 10,
-      padding: 10,
+      padding: Space.s12,
     },
-    chipIcon: { marginBottom: 6 },
+    chipIcon: { marginBottom: Space.s4 },
     chipText: {
       ...Type.subheadline,
       color: colors.textSecondary,
     },
     doneButton: {
       alignItems: 'center',
-      paddingVertical: 12,
+      paddingVertical: Space.s12,
       borderRadius: 10,
       backgroundColor: colors.surfaceRaised,
       borderWidth: 1,

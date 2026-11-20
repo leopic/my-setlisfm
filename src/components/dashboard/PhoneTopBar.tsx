@@ -4,6 +4,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import HeaderActions from './HeaderActions';
 import StatsLine, { type StatsTotals } from './StatsLine';
+import { Space } from '@/utils/spacing';
 
 type Props = {
   onSync: () => void;
@@ -18,9 +19,9 @@ export default function PhoneTopBar({ onSync, totals, lastSynced }: Props) {
   const styles = StyleSheet.create({
     // ── Phone top bar ─────────────────────────────────────────────────────
     topBar: {
-      paddingHorizontal: 20,
-      paddingTop: 12,
-      paddingBottom: 14,
+      paddingHorizontal: Space.edge,
+      paddingTop: Space.s12,
+      paddingBottom: Space.s16,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -28,7 +29,7 @@ export default function PhoneTopBar({ onSync, totals, lastSynced }: Props) {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginBottom: 6,
+      marginBottom: Space.s4,
     },
     appTitle: {
       ...Type.largeTitle,
@@ -37,7 +38,7 @@ export default function PhoneTopBar({ onSync, totals, lastSynced }: Props) {
     lastSynced: {
       ...Type.footnote,
       color: colors.textMuted,
-      marginTop: 4,
+      marginTop: Space.s4,
     },
   });
   return (
