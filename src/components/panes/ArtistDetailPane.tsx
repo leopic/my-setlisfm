@@ -215,6 +215,15 @@ export default function ArtistDetailPane({ artistMbid }: Props) {
                   router.push({ pathname: '/(artists)/[id]', params: { id: concert.id } })
                 }
                 accessibilityRole="button"
+                // Without a label VoiceOver also reads the "›" arrow.
+                accessibilityLabel={[
+                  formatDate(concert.eventDate ?? ''),
+                  concert.venue?.name ?? t('common.unknownVenue'),
+                  location,
+                  concert.tour?.name,
+                ]
+                  .filter(Boolean)
+                  .join(', ')}
               >
                 <View style={[styles.dot, isFirst && styles.dotActive]} />
                 <View style={styles.entryRow}>

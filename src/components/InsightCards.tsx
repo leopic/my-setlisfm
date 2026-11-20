@@ -77,9 +77,10 @@ export default function InsightCards({ stats }: Props) {
   return (
     <View style={styles.section}>
       <Text style={styles.sectionLabel}>{t('insights.habits')}</Text>
+      {/* Each card is one element for VoiceOver, so the two cards aren't read row by row. */}
       <View style={styles.row}>
         {topWeekday && (
-          <View style={styles.halfCard}>
+          <View style={styles.halfCard} accessible>
             <Text style={styles.cardLabel}>{t('insights.topDay')}</Text>
             <Text style={styles.cardValue}>
               {t(`weekdays.long.${WEEKDAY_KEYS[topWeekday.dow]}`)}
@@ -90,7 +91,7 @@ export default function InsightCards({ stats }: Props) {
           </View>
         )}
         {busiest7Days && (
-          <View style={styles.halfCard}>
+          <View style={styles.halfCard} accessible>
             <Text style={styles.cardLabel}>{t('insights.busiestWeek')}</Text>
             <Text style={styles.cardValue}>
               {t('insights.concertDays', { count: busiest7Days.days })}

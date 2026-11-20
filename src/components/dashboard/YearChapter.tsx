@@ -93,10 +93,11 @@ function YearStatRow({
   styles: ChapterStyles;
 }) {
   const { t } = useTranslation();
+  // Each chip is one element for VoiceOver, so "3" is read with "countries".
   return (
     <View style={styles.yearStatRow}>
       {summary.countries > 1 && (
-        <View style={styles.yearStatChip}>
+        <View style={styles.yearStatChip} accessible>
           <Text style={styles.yearStatValue}>{summary.countries}</Text>
           <Text style={styles.yearStatLabel}>
             {t('dashboard.countryLabel', { count: summary.countries })}
@@ -104,7 +105,7 @@ function YearStatRow({
         </View>
       )}
       {summary.cities > 1 && (
-        <View style={styles.yearStatChip}>
+        <View style={styles.yearStatChip} accessible>
           <Text style={styles.yearStatValue}>{summary.cities}</Text>
           <Text style={styles.yearStatLabel}>
             {t('dashboard.cityLabel', { count: summary.cities })}
@@ -112,7 +113,7 @@ function YearStatRow({
         </View>
       )}
       {summary.peakMonth > 0 && summary.peakMonthCount > 1 && (
-        <View style={styles.yearStatChip}>
+        <View style={styles.yearStatChip} accessible>
           <Text style={styles.yearStatLabel}>{t('dashboard.peak')}</Text>
           <Text style={styles.yearStatValue}>{monthNames[summary.peakMonth - 1]}</Text>
           <Text style={styles.yearStatLabel}>({summary.peakMonthCount})</Text>
@@ -131,9 +132,18 @@ function MonthGrid({
   monthAbbreviations: string[];
   styles: ChapterStyles;
 }) {
+  const { t } = useTranslation();
   const peak = Math.max(...Object.values(monthly), 0);
+  // VoiceOver reads the grid as one sentence, not as twelve single letters.
+  const monthsWithShows = MONTH_KEYS.flatMap((key, idx) =>
+    (monthly[idx + 1] ?? 0) > 0 ? [t(`months.long.${key}`)] : [],
+  );
   return (
-    <View style={styles.monthGrid}>
+    <View
+      style={styles.monthGrid}
+      accessible
+      accessibilityLabel={t('dashboard.monthsWithShows', { months: monthsWithShows.join(', ') })}
+    >
       {MONTH_KEYS.map((monthKey, idx) => {
         const count = monthly[idx + 1] ?? 0;
         const isPeak = count > 0 && count === peak;
@@ -181,7 +191,9 @@ export default function YearChapter({
   const showStats = isPastYear && summary && (summary.countries > 1 || summary.cities > 1);
   return (
     <View style={styles.yearChapter}>
-      <Text style={styles.yearGhost}>{yearStr}</Text>
+      <Text style={styles.yearGhost} accessibilityRole="header">
+        {yearStr}
+      </Text>
       <Text style={styles.yearMeta}>{t('common.show', { count: showsInYear })}</Text>
       {showStats && <YearStatRow summary={summary} monthNames={monthNames} styles={styles} />}
       {monthly && (

@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import ArtistImage from '@/components/ArtistImage';
@@ -61,8 +60,9 @@ export type DetailStyles = ReturnType<typeof useDetailStyles>;
 
 type ConcertRowProps = {
   concert: ConcertEntry;
-  // The line under the artist name, e.g. the venue and the date.
-  meta: ReactNode;
+  // The line under the artist name, e.g. the venue and the date. Plain text, as it is
+  // also part of the row's VoiceOver label.
+  meta: string;
   styles: DetailStyles;
 };
 
@@ -74,6 +74,8 @@ export function DetailConcertEntry({ concert, meta, styles }: ConcertRowProps) {
       style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
       onPress={() => openConcert(concert.setlistId)}
       accessibilityRole="button"
+      // Without a label VoiceOver also reads the "›" arrow.
+      accessibilityLabel={`${concert.artistName}, ${meta}`}
     >
       {concert.artistMbid && (
         <ArtistImage
@@ -110,6 +112,15 @@ function DetailMilestoneEntry({
       style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
       onPress={() => openConcert(milestone.setlistId)}
       accessibilityRole="button"
+      // Without a label VoiceOver also reads the "›" arrow.
+      accessibilityLabel={[
+        label,
+        milestone.artistName,
+        milestone.cityName,
+        formatDate(milestone.eventDate),
+      ]
+        .filter(Boolean)
+        .join(', ')}
     >
       <View style={styles.detailHighlightText}>
         <Text style={styles.detailMilestoneTag}>{label}</Text>
@@ -164,11 +175,8 @@ export default function DetailHighlights({
       {isOnThisDay && onThisDay && (
         <DetailConcertEntry
           concert={onThisDay}
-          meta={
-            <>
-              {onThisDay.venueName} · {formatDate(onThisDay.eventDate)}
-            </>
-          }
+          // The venue can be missing (left join), so it is left out, not printed as "null".
+          meta={[onThisDay.venueName, formatDate(onThisDay.eventDate)].filter(Boolean).join(' · ')}
           styles={styles}
         />
       )}

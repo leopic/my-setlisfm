@@ -41,14 +41,15 @@ export default function YearStatCards({ showCount, summary, monthNames }: Props)
     },
   });
   return (
+    // Each card is one element for VoiceOver, so a value is read with its label.
     <View style={styles.detailStatRow}>
-      <View style={styles.detailStatCard}>
+      <View style={styles.detailStatCard} accessible>
         <Text style={[styles.detailStatValue, { color: colors.accent }]}>{showCount}</Text>
         <Text style={styles.detailStatLabel}>
           {t('dashboard.showsLabel', { count: showCount })}
         </Text>
       </View>
-      <View style={styles.detailStatCard}>
+      <View style={styles.detailStatCard} accessible>
         <Text style={[styles.detailStatValue, { color: colors.chartGreen }]}>
           {summary?.countries ?? '—'}
         </Text>
@@ -56,7 +57,7 @@ export default function YearStatCards({ showCount, summary, monthNames }: Props)
           {t('dashboard.countryLabel', { count: summary?.countries ?? 0 })}
         </Text>
       </View>
-      <View style={styles.detailStatCard}>
+      <View style={styles.detailStatCard} accessible>
         <Text style={[styles.detailStatValue, { color: colors.chartOrange }]}>
           {summary?.cities ?? '—'}
         </Text>
@@ -64,7 +65,7 @@ export default function YearStatCards({ showCount, summary, monthNames }: Props)
           {t('dashboard.cityLabel', { count: summary?.cities ?? 0 })}
         </Text>
       </View>
-      <View style={styles.detailStatCard}>
+      <View style={styles.detailStatCard} accessible>
         <Text style={[styles.detailStatValue, { color: colors.chartPurple }]}>
           {summary?.peakMonthCount ?? '—'}
         </Text>

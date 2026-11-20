@@ -21,6 +21,7 @@ export function buildYearBarData(yearSummaries: YearSummaries) {
   return sortByYear(yearSummaries).map((r) => ({
     id: r.year,
     label: r.year.slice(2),
+    spokenLabel: r.year,
     value: r.shows,
   }));
 }
@@ -70,6 +71,7 @@ export function buildWeekdayBarData(weekdays: StatsChartData['weekdays'], t: Tra
   return WEEKDAY_KEYS.map((key, i) => ({
     id: key,
     label: t(`weekdays.short.${key}`),
+    spokenLabel: t(`weekdays.long.${key}`),
     value: weekdays.find((w) => w.weekday === i)?.concertDays ?? 0,
   }));
 }
