@@ -1,6 +1,7 @@
 #!/bin/bash
 # Seeds the app's SQLite database on the iOS simulator with test data.
 # Usage: ./seed-db.sh [--clear]
+# Set SIMULATOR_UDID to choose the simulator when several are booted.
 #
 # --clear: Remove all data (for empty-state tests)
 
@@ -12,22 +13,8 @@ SCHEMA_SQL="$SCRIPT_DIR/../../src/database/schema.ts"
 APP_ID="com.leopicado.chronicles"
 DB_NAME="setlistfm.db"
 
-# Find the booted simulator
-DEVICE_ID=$(xcrun simctl list devices booted -j | python3 -c "
-import sys, json
-data = json.load(sys.stdin)
-for runtime, devices in data['devices'].items():
-    for d in devices:
-        if d['state'] == 'Booted':
-            print(d['udid'])
-            sys.exit(0)
-print('', end='')
-")
-
-if [ -z "$DEVICE_ID" ]; then
-  echo "Error: No booted simulator found" >&2
-  exit 1
-fi
+# The simulator: $SIMULATOR_UDID, or the one booted simulator with the app.
+DEVICE_ID=$("$SCRIPT_DIR/pick-simulator.sh")
 
 # Find the app's SQLite database
 DB_PATH=$(find ~/Library/Developer/CoreSimulator/Devices/"$DEVICE_ID" \

@@ -139,6 +139,8 @@ changes the iOS fingerprint as a reminder; it doesn't block merging.
 
 - Locally: `yarn test:e2e` needs a booted simulator with the app installed and launched
   once (it seeds the app's database, so use a dedicated simulator, not one with real data).
+  With more than one booted simulator that has the app, the scripts stop and list them; pick
+  one with `SIMULATOR_UDID=<udid> yarn test:e2e` (the seed and the flows use the same one).
 - On CI: `gh workflow run e2e.yml --ref <branch>`. The native build is cached by
   fingerprint, but caches from a PR branch aren't shared, so the first run on a branch
   usually rebuilds from scratch (~27 min); re-runs on the same branch take ~9 min.
