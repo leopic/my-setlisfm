@@ -47,6 +47,8 @@ android/
 # Skills / agents (installed locally)
 .agents/
 .agent/
+# agent-device test artifacts (.maestro/scripts/run-agent-device.sh)
+.agent-device/
 skills-lock.json
 
 # Claude Code

@@ -32,7 +32,12 @@ function fakeTool(bin: string, name: string, body: string) {
 
 // xcrun lists the simulators (the real one filters by state itself, the script must too);
 // sqlite3 and maestro write down where they were sent.
-function run(script: string, simulators: Simulator[], env: Record<string, string> = {}) {
+function run(
+  script: string,
+  simulators: Simulator[],
+  env: Record<string, string> = {},
+  args: string[] = [],
+) {
   const bin = join(home, 'bin');
   mkdirSync(bin, { recursive: true });
   const devices = simulators.map(({ state = 'Booted', ...s }) => ({ ...s, state }));
@@ -40,6 +45,9 @@ function run(script: string, simulators: Simulator[], env: Record<string, string
   fakeTool(bin, 'xcrun', `[ "$2" = list ] && echo '${json}'; exit 0`);
   fakeTool(bin, 'sqlite3', 'cat >/dev/null; echo "$1" >> "$HOME/sqlite.log"');
   fakeTool(bin, 'maestro', 'echo "$*" >> "$HOME/maestro.log"');
+  fakeTool(bin, 'agent-device', 'echo "$*" >> "$HOME/agent-device.log"; exit ${AD_EXIT:-0}');
+  // Metro's status page; METRO=down stands for Metro not running.
+  fakeTool(bin, 'curl', '[ "${METRO:-up}" = up ] && echo packager-status:running; exit 0');
   for (const sim of simulators.filter((s) => s.hasApp)) {
     mkdirSync(join(dbPath(sim.udid), '..'), { recursive: true });
     writeFileSync(dbPath(sim.udid), '');
@@ -51,7 +59,8 @@ function run(script: string, simulators: Simulator[], env: Record<string, string
     HOME: home,
   };
   delete base.SIMULATOR_UDID;
-  const result = spawnSync('bash', [join(SCRIPTS, script)], {
+  const flows = args.map((flow) => join(SCRIPTS, '..', flow));
+  const result = spawnSync('bash', [join(SCRIPTS, script), ...flows], {
     encoding: 'utf8',
     env: { ...base, ...env },
   });
@@ -63,6 +72,7 @@ function run(script: string, simulators: Simulator[], env: Record<string, string
     err: result.stderr,
     sqlite: log('sqlite.log'),
     maestro: log('maestro.log'),
+    agentDevice: log('agent-device.log'),
   };
 }
 
@@ -130,5 +140,58 @@ describe('the scripts that use it', () => {
     expect(new Set(sqlite)).toEqual(new Set([dbPath('IPHONE-1')]));
     expect(maestro).toHaveLength(1);
     expect(maestro[0]).toMatch(new RegExp(`^--device IPHONE-1 test .*${tags}$`));
+  });
+});
+
+describe('run-agent-device.sh', () => {
+  const seededFlows = [
+    '01-dashboard-loads.yaml',
+    '02-concerts-setlist-back.yaml',
+    '03-artists-drilldown.yaml',
+    '04-venues-geo-drilldown.yaml',
+    '05-venues-countries-cities.yaml',
+    '06-venues-concerts-setlist.yaml',
+  ];
+  const flowNames = (line: string) =>
+    line
+      .split(' ')
+      .filter((word) => word.endsWith('.yaml'))
+      .map((path) => path.split('/').pop());
+
+  it('seeds, then runs the seeded flows as one suite on the picked simulator', () => {
+    const { status, sqlite, agentDevice } = run('run-agent-device.sh', [ipad, iphone], {
+      SIMULATOR_UDID: 'IPHONE-1',
+    });
+    expect(status).toBe(0);
+    expect(new Set(sqlite)).toEqual(new Set([dbPath('IPHONE-1')]));
+    // One `test` call: it closes each flow's session, so none holds the simulator.
+    expect(agentDevice).toHaveLength(1);
+    expect(agentDevice[0]).toMatch(
+      /^test .* --maestro --platform ios --udid IPHONE-1 --retries 1 --artifacts-dir .*\/\.agent-device\/test-artifacts$/,
+    );
+    // Every flow but the empty-state one (onboarding).
+    expect(flowNames(agentDevice[0])).toEqual(seededFlows);
+  });
+
+  it('runs only the flows it is given', () => {
+    const { agentDevice } = run('run-agent-device.sh', [iphone], {}, ['03-artists-drilldown.yaml']);
+    expect(flowNames(agentDevice[0])).toEqual(['03-artists-drilldown.yaml']);
+  });
+
+  it('stops before agent-device when it cannot pick a simulator', () => {
+    const { status, agentDevice } = run('run-agent-device.sh', [ipad, iphone]);
+    expect(status).toBe(1);
+    expect(agentDevice).toEqual([]);
+  });
+
+  it('fails when the suite fails', () => {
+    expect(run('run-agent-device.sh', [iphone], { AD_EXIT: '1' }).status).toBe(1);
+  });
+
+  it('warns when Metro is not running', () => {
+    expect(run('run-agent-device.sh', [iphone], { METRO: 'down' }).err).toContain(
+      "Metro isn't running",
+    );
+    expect(run('run-agent-device.sh', [iphone]).err).not.toContain('Metro');
   });
 });
