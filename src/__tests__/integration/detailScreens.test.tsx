@@ -1,6 +1,6 @@
 import { StyleSheet, type ViewStyle } from 'react-native';
 import { router } from 'expo-router';
-import { act, fireEvent, screen } from 'expo-router/testing-library';
+import { act, fireEvent, screen, within } from 'expo-router/testing-library';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
 import { findScreen, launchApp, openTab } from '../../../test/screen';
@@ -27,9 +27,25 @@ it('shows the tape, guests, month strip and repeat songs on a setlist', async ()
   const setlist = await findScreen('setlist-screen');
   expect(setlist.getByText('Tape')).toBeOnTheScreen();
   expect(setlist.getByText('With The Strokes')).toBeOnTheScreen();
-  // 15 March: 14 days before, 16 after.
-  expect(setlist.getByText(`${'·'.repeat(14)}●${'·'.repeat(16)}`)).toBeOnTheScreen();
+  // 15 March: 14 days before, 16 after. VoiceOver skips it; the date line says the same.
+  const strip = `${'·'.repeat(14)}●${'·'.repeat(16)}`;
+  expect(setlist.getByText(strip, { includeHiddenElements: true })).toBeOnTheScreen();
+  expect(setlist.queryByText(strip)).not.toBeOnTheScreen();
   expect(await setlist.findByText('heard 2×')).toBeOnTheScreen();
+  expect(setlist.getByLabelText('heard 2 times')).toBeOnTheScreen();
+});
+
+it('reads a song with its number', async () => {
+  await openTab('(concerts)');
+  const concerts = await findScreen('concerts-screen');
+  await fireEvent.press(concerts.getByTestId('concert-set-1'));
+
+  const setlist = await findScreen('setlist-screen');
+  let row = setlist.getByText('15 Step').parent;
+  while (row && row.props.accessible !== true) row = row.parent;
+  expect(row).not.toBeNull();
+  // Read as "1", not "zero one".
+  expect(within(row as NonNullable<typeof row>).getByLabelText('1')).toBeOnTheScreen();
 });
 
 it('shows where an artist is filed and when a setlist was edited', async () => {

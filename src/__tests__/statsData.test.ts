@@ -81,9 +81,9 @@ describe('findBusiestYear', () => {
 describe('buildYearBarData', () => {
   it('sorts the years oldest first and leaves the input alone', () => {
     expect(buildYearBarData(NEWEST_FIRST)).toEqual([
-      { id: '2023', label: '23', value: 1 },
-      { id: '2024', label: '24', value: 4 },
-      { id: '2025', label: '25', value: 4 },
+      { id: '2023', label: '23', spokenLabel: '2023', value: 1 },
+      { id: '2024', label: '24', spokenLabel: '2024', value: 4 },
+      { id: '2025', label: '25', spokenLabel: '2025', value: 4 },
     ]);
     expect(NEWEST_FIRST.map((r) => r.year)).toEqual(['2025', '2024', '2023']);
   });

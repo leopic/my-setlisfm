@@ -342,7 +342,14 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
         )}
         <Text style={styles.dateLine}>{eventDate}</Text>
         {setlist.eventDate && (
-          <Text style={styles.monthStrip}>{formatMonthStrip(setlist.eventDate)}</Text>
+          // A drawing of the day in its month; the date line above already says it.
+          <Text
+            style={styles.monthStrip}
+            accessibilityElementsHidden
+            importantForAccessibility="no"
+          >
+            {formatMonthStrip(setlist.eventDate)}
+          </Text>
         )}
         {guestNames.length > 0 && (
           <Text style={styles.guestsLine}>
@@ -364,8 +371,11 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
             {set.songs?.map((song, songIndex) => {
               const heard = playsBySong.get(`${song.setId}:${song.songOrder.toString()}`);
               return (
-                <View key={songIndex} style={styles.songRow}>
-                  <Text style={styles.songNumber}>{String(songIndex + 1).padStart(2, '0')}</Text>
+                // One element for VoiceOver, so the number is read with its song.
+                <View key={songIndex} style={styles.songRow} accessible>
+                  <Text style={styles.songNumber} accessibilityLabel={String(songIndex + 1)}>
+                    {String(songIndex + 1).padStart(2, '0')}
+                  </Text>
                   <View style={styles.songInfo}>
                     <View style={styles.songNameRow}>
                       {song.tape && <TapeBadge tape={Number(song.tape)} />}
@@ -374,7 +384,12 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
                         {song.info && ` (${song.info})`}
                       </Text>
                       {heard !== undefined && heard > 1 && (
-                        <Text style={styles.heardText}>{t('setlist.heard', { count: heard })}</Text>
+                        <Text
+                          style={styles.heardText}
+                          accessibilityLabel={t('setlist.heardLabel', { count: heard })}
+                        >
+                          {t('setlist.heard', { count: heard })}
+                        </Text>
                       )}
                     </View>
                     {song.withArtist?.name && (

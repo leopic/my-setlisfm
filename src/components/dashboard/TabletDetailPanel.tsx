@@ -88,6 +88,7 @@ export default function TabletDetailPanel({
   const monthlyChartData = abbreviations.map((label, i) => ({
     id: MONTH_KEYS[i],
     label,
+    spokenLabel: t(`months.long.${MONTH_KEYS[i]}`),
     value: monthly?.[i + 1] ?? 0,
   }));
   const { isLast, isFirst, isOnThisDay, milestones } = getYearHighlights(
@@ -144,12 +145,7 @@ export default function TabletDetailPanel({
               <DetailConcertEntry
                 key={c.setlistId}
                 concert={c}
-                meta={
-                  <>
-                    {c.venueName ? `${c.venueName} · ` : ''}
-                    {formatDate(c.eventDate)}
-                  </>
-                }
+                meta={`${c.venueName ? `${c.venueName} · ` : ''}${formatDate(c.eventDate)}`}
                 styles={detailStyles}
               />
             ))}

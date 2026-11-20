@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Svg, {
   Polyline,
   Circle,
@@ -45,6 +46,7 @@ export default function LineChart({
   xLabels = EMPTY_LABELS,
   height = 100,
 }: LineChartProps) {
+  const { t } = useTranslation();
   const colors = useChronicleColors();
   const [chartWidth, setChartWidth] = useState(0);
   const [labelWidths, setLabelWidths] = useState<Record<string, number>>({});
@@ -101,9 +103,18 @@ export default function LineChart({
     return map;
   })();
 
+  // The lines are SVG, which VoiceOver can't read, so the chart is one image that says
+  // where each line ends (the values are cumulative, so that is the total).
+  const spokenSummary = series
+    .map((s) => t('charts.value', { label: s.label, count: s.data[s.data.length - 1] ?? 0 }))
+    .join(', ');
+
   return (
     <View
       style={{ width: '100%', height: totalHeight }}
+      accessible
+      accessibilityRole="image"
+      accessibilityLabel={spokenSummary}
       onLayout={(e) => setChartWidth(e.nativeEvent.layout.width)}
     >
       {/* Invisible copies of the end labels, laid out only to measure their width */}

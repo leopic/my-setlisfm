@@ -10,7 +10,8 @@ type Props = {
 
 export default function StatCard({ styles, value, valueColor, label }: Props) {
   return (
-    <View style={styles.statCard}>
+    // One element for VoiceOver, so the value and its label are read together, not row by row.
+    <View style={styles.statCard} accessible>
       <Text style={[styles.statValue, { color: valueColor }]}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
     </View>

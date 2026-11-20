@@ -99,6 +99,8 @@ export default {
     highlightsLabel: 'HIGHLIGHTS',
     showsHeading: 'SHOWS',
     milestoneShow: '{{ordinal}} SHOW',
+    // Read by VoiceOver for the month dots under a year.
+    monthsWithShows: 'Shows in {{months}}',
   },
 
   // Error boundary
@@ -316,6 +318,8 @@ export default {
     tape: 'Tape',
     withGuests: 'With {{names}}',
     heard: 'heard {{count}}×',
+    heardLabel_one: 'heard {{count}} time',
+    heardLabel_other: 'heard {{count}} times',
   },
 
   // Stats
@@ -348,6 +352,12 @@ export default {
     eraShare: '{{top}} of {{total}}',
     eraHeatmapHint: 'Brighter means a bigger share of that era. Ringed is the top day.',
     eraSummary: '{{era}}: {{days}}, {{top}} of {{total}} shows',
+  },
+
+  // What VoiceOver reads for a chart: one entry per bar or line.
+  charts: {
+    value_one: '{{label}}: {{count}} show',
+    value_other: '{{label}}: {{count}} shows',
   },
 
   // Weekdays and months, keyed as in src/i18n/calendar.ts
@@ -386,6 +396,20 @@ export default {
       oct: 'Oct',
       nov: 'Nov',
       dec: 'Dec',
+    },
+    long: {
+      jan: 'January',
+      feb: 'February',
+      mar: 'March',
+      apr: 'April',
+      may: 'May',
+      jun: 'June',
+      jul: 'July',
+      aug: 'August',
+      sep: 'September',
+      oct: 'October',
+      nov: 'November',
+      dec: 'December',
     },
   },
 

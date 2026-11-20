@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Svg, { Rect, Text as SvgText, G } from 'react-native-svg';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 
 interface BarChartProps {
-  data: Array<{ id: string; label: string; value: number }>;
+  // `spokenLabel` is what VoiceOver says for a bar whose drawn label is short, e.g. "2024" for "24".
+  data: Array<{ id: string; label: string; spokenLabel?: string; value: number }>;
   color?: string;
   height?: number;
   showLabels?: boolean;
@@ -15,6 +17,7 @@ const LABEL_HEIGHT = Type.caption.lineHeight;
 const GAP = 3;
 
 export default function BarChart({ data, color, height = 80, showLabels = true }: BarChartProps) {
+  const { t } = useTranslation();
   const colors = useChronicleColors();
   const barColor = color ?? colors.accent;
   const totalHeight = height + (showLabels ? LABEL_HEIGHT + 4 : 0);
@@ -28,9 +31,20 @@ export default function BarChart({ data, color, height = 80, showLabels = true }
   const labelStride = n > 14 ? 2 : 1;
   const barW = chartWidth > 0 ? (chartWidth - GAP * (n - 1)) / n : 0;
 
+  // The bars are SVG, which VoiceOver can't read, so the chart is one image with the
+  // values spelled out. Empty bars are left out.
+  const spokenSummary = data
+    .filter((d) => d.value > 0)
+    .map((d) => t('charts.value', { label: d.spokenLabel ?? d.label, count: d.value }))
+    .join(', ');
+
   return (
     <View
       style={{ width: '100%', height: totalHeight }}
+      // With every bar at 0 there is nothing to say, and a bare "image" helps no one.
+      accessible={spokenSummary !== ''}
+      accessibilityRole="image"
+      accessibilityLabel={spokenSummary}
       onLayout={(e) => setChartWidth(e.nativeEvent.layout.width)}
     >
       {chartWidth > 0 && (
