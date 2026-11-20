@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useFocusEffect } from 'expo-router';
+import { useRouter, useIsFocused } from 'expo-router';
 import { LegendList } from '@legendapp/list/react-native';
 import { dbOperations } from '@/database/operations';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
@@ -43,30 +43,32 @@ export default function ArtistsScreen() {
       )
     : artists;
 
-  useFocusEffect(
-    useCallback(() => {
-      let cancelled = false;
-      (async () => {
-        try {
-          const artistsWithStats = await dbOperations.getArtistsWithStats();
-          if (!cancelled) {
-            setRawArtists(artistsWithStats);
-            setLoading(false);
-          }
-        } catch (error) {
-          console.error('Failed to load artists:', error);
-          if (!cancelled) {
-            Alert.alert(t('common.error'), t('artists.failedToLoad'));
-            setLoading(false);
-          }
+  // Load on focus, and again when a sync ends while the screen is open. Not
+  // useFocusEffect(useCallback(…)): React Compiler keeps only the useCallback deps the
+  // callback reads, so it dropped lastSyncTimestamp. It keeps an effect's deps as written.
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    if (!isFocused) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const artistsWithStats = await dbOperations.getArtistsWithStats();
+        if (!cancelled) {
+          setRawArtists(artistsWithStats);
+          setLoading(false);
         }
-      })();
-      return () => {
-        cancelled = true;
-      };
-      // react-doctor-disable-next-line react-doctor/exhaustive-deps -- lastSyncTimestamp is a dep on purpose: the screen reloads after a sync while open; the callback does not read it
-    }, [lastSyncTimestamp, t]),
-  );
+      } catch (error) {
+        console.error('Failed to load artists:', error);
+        if (!cancelled) {
+          Alert.alert(t('common.error'), t('artists.failedToLoad'));
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isFocused, lastSyncTimestamp, t]);
 
   const handleViewConcerts = (artist: ArtistWithStats) => {
     if (isTablet) {

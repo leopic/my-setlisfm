@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useFocusEffect } from 'expo-router';
+import { useRouter, useIsFocused } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { LegendList } from '@legendapp/list/react-native';
 import { dbOperations } from '@/database/operations';
@@ -84,38 +84,40 @@ export default function ConcertsScreen() {
   const concerts = sortConcerts(rawConcerts, sortOption);
   const yearGroups = groupConcertsByYear(concerts);
 
-  useFocusEffect(
-    useCallback(() => {
-      let cancelled = false;
-      (async () => {
-        try {
-          const fetched = await dbOperations.getAllSetlists();
-          const concertsWithDetails: ConcertWithDetails[] = fetched.map((concert) => ({
-            ...concert,
-            artistName: concert.artist?.name || t('common.unknownArtist'),
-            venueName: concert.venue?.name || t('common.unknownVenue'),
-            cityName: concert.city?.name,
-            stateName: concert.city?.state,
-            countryName: concert.country?.name,
-          }));
-          if (!cancelled) {
-            setRawConcerts(concertsWithDetails);
-            setLoading(false);
-          }
-        } catch (error) {
-          console.error('Failed to load concerts:', error);
-          if (!cancelled) {
-            Alert.alert(t('common.error'), t('concerts.failedToLoad'));
-            setLoading(false);
-          }
+  // Load on focus, and again when a sync ends while the screen is open. Not
+  // useFocusEffect(useCallback(…)): React Compiler keeps only the useCallback deps the
+  // callback reads, so it dropped lastSyncTimestamp. It keeps an effect's deps as written.
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    if (!isFocused) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const fetched = await dbOperations.getAllSetlists();
+        const concertsWithDetails: ConcertWithDetails[] = fetched.map((concert) => ({
+          ...concert,
+          artistName: concert.artist?.name || t('common.unknownArtist'),
+          venueName: concert.venue?.name || t('common.unknownVenue'),
+          cityName: concert.city?.name,
+          stateName: concert.city?.state,
+          countryName: concert.country?.name,
+        }));
+        if (!cancelled) {
+          setRawConcerts(concertsWithDetails);
+          setLoading(false);
         }
-      })();
-      return () => {
-        cancelled = true;
-      };
-      // react-doctor-disable-next-line react-doctor/exhaustive-deps -- lastSyncTimestamp is a dep on purpose: the screen reloads after a sync while open; the callback does not read it
-    }, [lastSyncTimestamp, t]),
-  );
+      } catch (error) {
+        console.error('Failed to load concerts:', error);
+        if (!cancelled) {
+          Alert.alert(t('common.error'), t('concerts.failedToLoad'));
+          setLoading(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isFocused, lastSyncTimestamp, t]);
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);

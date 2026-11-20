@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { View, ScrollView, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from 'expo-router';
+import { useIsFocused } from 'expo-router';
 import { useSyncContext } from '@/contexts/SyncContext';
 import { dbOperations } from '@/database/operations';
 import { useChronicleColors } from '@/utils/colors';
@@ -51,36 +51,38 @@ export default function StatsScreen() {
   const [topCity, setTopCity] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useFocusEffect(
-    useCallback(() => {
-      let cancelled = false;
-      (async () => {
-        try {
-          const [summaries, charts, placesInsights] = await Promise.all([
-            dbOperations.getYearSummaries(),
-            dbOperations.getStatsChartData(),
-            dbOperations.getPlacesInsights(),
-          ]);
-          if (!cancelled) {
-            setYearSummaries(summaries);
-            setChartData(charts);
-            setTotalShows(summaries.reduce((s, r) => s + r.shows, 0));
-            setTotalCountries(placesInsights.countryTimeline.total);
-            setTopCountry(charts.topCountry);
-            setTopCity(charts.topCity);
-            setLoading(false);
-          }
-        } catch (e) {
-          console.error('Stats load error:', e);
-          if (!cancelled) setLoading(false);
+  // Load on focus, and again when a sync ends while the screen is open. Not
+  // useFocusEffect(useCallback(…)): React Compiler keeps only the useCallback deps the
+  // callback reads, so it dropped lastSyncTimestamp. It keeps an effect's deps as written.
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    if (!isFocused) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [summaries, charts, placesInsights] = await Promise.all([
+          dbOperations.getYearSummaries(),
+          dbOperations.getStatsChartData(),
+          dbOperations.getPlacesInsights(),
+        ]);
+        if (!cancelled) {
+          setYearSummaries(summaries);
+          setChartData(charts);
+          setTotalShows(summaries.reduce((s, r) => s + r.shows, 0));
+          setTotalCountries(placesInsights.countryTimeline.total);
+          setTopCountry(charts.topCountry);
+          setTopCity(charts.topCity);
+          setLoading(false);
         }
-      })();
-      return () => {
-        cancelled = true;
-      };
-      // react-doctor-disable-next-line react-doctor/exhaustive-deps -- lastSyncTimestamp is a dep on purpose: the screen reloads after a sync while open; the callback does not read it
-    }, [lastSyncTimestamp]),
-  );
+      } catch (e) {
+        console.error('Stats load error:', e);
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isFocused, lastSyncTimestamp]);
 
   const styles = createStatsStyles(colors);
 
