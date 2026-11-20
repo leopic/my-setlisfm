@@ -123,6 +123,8 @@ export default function ArtistConcertsListScreen() {
     // ── Concert entry (river) ────────────────────────────────────────────
     riverEntry: {
       paddingVertical: Space.s12,
+      // Keeps the › arrow off the screen edge; the row stays tappable up to it.
+      paddingRight: Space.edge,
       position: 'relative',
     },
     dot: {

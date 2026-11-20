@@ -129,7 +129,8 @@ export default function VenueDetailPane({ venue }: Props) {
       marginLeft: Space.s32,
       paddingLeft: Space.s20,
     },
-    riverEntry: { paddingVertical: Space.s12, position: 'relative' },
+    // Keeps the › arrow off the pane edge; the row stays tappable up to it.
+    riverEntry: { paddingVertical: Space.s12, paddingRight: Space.edge, position: 'relative' },
     dot: {
       position: 'absolute',
       left: -26,
