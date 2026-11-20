@@ -18,8 +18,7 @@ import ConcertYearGroup from '@/components/concerts/ConcertYearGroup';
 import type { ConcertListItem, ConcertWithDetails, YearGroup } from '@/components/concerts/types';
 import { useConcertsStyles } from '@/components/concerts/useConcertsStyles';
 import { useTabletLayout } from '@/utils/tablet';
-
-const CONTENT_PADDING_BOTTOM = 100;
+import { TAB_BAR_PADDING } from '@/utils/spacing';
 
 function groupConcertsByYear(concertsToGroup: ConcertWithDetails[]): YearGroup[] {
   const groups: { [year: string]: ConcertWithDetails[] } = {};
@@ -256,7 +255,7 @@ export default function ConcertsScreen() {
 
       <LegendList
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: CONTENT_PADDING_BOTTOM }}
+        contentContainerStyle={{ paddingBottom: TAB_BAR_PADDING }}
         data={listData}
         keyExtractor={keyExtractor}
         renderItem={renderItem}

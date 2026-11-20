@@ -8,8 +8,7 @@ import VenueGeoStrip from './VenueGeoStrip';
 import VenueRow from './VenueRow';
 import type { VenueStyles } from './venueStyles';
 import type { GeoStats, VenueWithStats } from './types';
-
-const CONTENT_PADDING_BOTTOM = 100;
+import { TAB_BAR_PADDING } from '@/utils/spacing';
 
 type Props = {
   styles: VenueStyles;
@@ -70,7 +69,7 @@ export default function VenueListPane({
 
       <LegendList
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: CONTENT_PADDING_BOTTOM }}
+        contentContainerStyle={{ paddingBottom: TAB_BAR_PADDING }}
         data={filteredVenues}
         keyExtractor={(item) => item.id}
         renderItem={({ item: venue }) => (

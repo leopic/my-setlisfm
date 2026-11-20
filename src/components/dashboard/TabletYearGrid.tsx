@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import type { DashboardStats } from './types';
+import { Space } from '@/utils/spacing';
 
 type Props = {
   years: DashboardStats['concertsByYear'];
@@ -41,12 +42,12 @@ export default function TabletYearGrid({
       backgroundColor: colors.background,
     },
     yearGridContent: {
-      padding: 12,
+      padding: Space.edge,
     },
     yearGrid: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: 8,
+      gap: Space.s8,
     },
     yearTile: {
       // flexBasis 30% + flexGrow: 3 items fill the row, 4th wraps
@@ -56,8 +57,8 @@ export default function TabletYearGrid({
       borderWidth: 1.5,
       borderColor: colors.border,
       borderRadius: 14,
-      paddingVertical: 12,
-      paddingHorizontal: 8,
+      paddingVertical: Space.s12,
+      paddingHorizontal: Space.s8,
       alignItems: 'center',
     },
     yearTileSelected: {
@@ -74,7 +75,6 @@ export default function TabletYearGrid({
     yearTileCount: {
       ...Type.captionStrong,
       color: colors.textMuted,
-      marginTop: 3,
     },
     yearTileCountSelected: {
       color: colors.accent,

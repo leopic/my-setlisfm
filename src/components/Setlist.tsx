@@ -12,6 +12,7 @@ import { formatDate, formatMonthStrip } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
+import { Space } from '@/utils/spacing';
 
 // Intro and outro tapes, by the song's tape value.
 const TAPE_BADGES: Record<
@@ -31,7 +32,7 @@ function TapeBadge({ tape }: { tape: number }) {
   const badge = TAPE_BADGES[tape];
   const label = t(badge.label);
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: Space.s4 }}>
       <Icon sf={badge.sf} md={badge.md} size={13} color={colors.textMuted} />
       <Text style={{ ...Type.footnote, color: colors.textMuted, textTransform: 'uppercase' }}>
         {label}
@@ -51,6 +52,9 @@ interface SetlistProps {
   sets: SetWithSongs[];
   onBackPress?: () => void;
 }
+
+// The round recognition badge in the top bar.
+const BADGE_SIZE = 30;
 
 export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   const { t } = useTranslation();
@@ -102,15 +106,15 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
 
   const styles = StyleSheet.create({
     backBar: {
-      paddingHorizontal: 16,
-      paddingVertical: 8,
+      paddingHorizontal: Space.edge,
+      paddingVertical: Space.s8,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
     backBarRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 10,
+      gap: Space.s12,
       // As tall as the 44 pt back button and badge, also in a pane that has neither.
       minHeight: TOUCH_TARGET,
     },
@@ -119,18 +123,18 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       color: colors.textPrimary,
       flex: 1,
     },
-    // 44 pt target with a 30 pt badge inside.
+    // 44 pt target with the badge inside.
     navBadgeTarget: {
       width: TOUCH_TARGET,
       height: TOUCH_TARGET,
       alignItems: 'center',
       justifyContent: 'center',
-      marginRight: -(TOUCH_TARGET - 30) / 2,
+      marginRight: -(TOUCH_TARGET - BADGE_SIZE) / 2,
     },
     navBadge: {
-      width: 30,
-      height: 30,
-      borderRadius: 15,
+      width: BADGE_SIZE,
+      height: BADGE_SIZE,
+      borderRadius: BADGE_SIZE / 2,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: colors.surfaceRaised,
@@ -142,9 +146,9 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       borderColor: colors.gold,
     },
     hero: {
-      paddingHorizontal: 16,
-      paddingTop: 10,
-      paddingBottom: 14,
+      paddingHorizontal: Space.edge,
+      paddingTop: Space.s12,
+      paddingBottom: Space.s16,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -155,24 +159,22 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
     locationLine: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 2,
     },
     dateLine: {
       ...Type.subheadline,
       color: colors.textMuted,
-      marginTop: 2,
     },
     monthStrip: {
       ...Type.footnote,
       color: colors.textDisabled,
       letterSpacing: 1,
-      marginTop: 4,
+      marginTop: Space.s4,
     },
     guestsLine: {
       ...Type.subheadline,
       color: colors.textSecondary,
       fontStyle: 'italic',
-      marginTop: 4,
+      marginTop: Space.s4,
     },
     heardText: {
       ...Type.footnote,
@@ -182,19 +184,19 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       ...Type.footnote,
       color: colors.accent,
       letterSpacing: 0.8,
-      marginTop: 6,
+      marginTop: Space.s4,
       textTransform: 'uppercase',
     },
     scrollView: {
       flex: 1,
     },
     sectionHeader: {
-      paddingHorizontal: 16,
-      paddingTop: 20,
-      paddingBottom: 6,
+      paddingHorizontal: Space.edge,
+      paddingTop: Space.s20,
+      paddingBottom: Space.s4,
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 10,
+      gap: Space.s12,
     },
     sectionLine: {
       flex: 1,
@@ -207,19 +209,20 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       textTransform: 'uppercase',
     },
     songRow: {
-      paddingVertical: 10,
-      paddingHorizontal: 16,
+      paddingVertical: Space.s12,
+      paddingHorizontal: Space.edge,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
       flexDirection: 'row',
       alignItems: 'flex-start',
-      gap: 10,
+      gap: Space.s12,
     },
     songNumber: {
       ...Type.footnote,
       color: colors.textDisabled,
       width: 24,
-      paddingTop: 1,
+      // Level with the song title's first line.
+      paddingTop: (Type.body.lineHeight - Type.footnote.lineHeight) / 2,
     },
     songInfo: {
       flex: 1,
@@ -227,7 +230,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
     songNameRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 5,
+      gap: Space.s4,
       flexWrap: 'wrap',
     },
     songName: {
@@ -238,17 +241,15 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       ...Type.subheadline,
       color: colors.textSecondary,
       fontStyle: 'italic',
-      marginTop: 2,
     },
     coverArtistText: {
       ...Type.subheadline,
       color: colors.textSecondary,
       fontStyle: 'italic',
-      marginTop: 2,
     },
     emptyState: {
       alignItems: 'center',
-      paddingVertical: 60,
+      paddingVertical: Space.s64,
     },
     emptyStateText: {
       ...Type.body,

@@ -2,6 +2,14 @@ import { StyleSheet } from 'react-native';
 import { useChronicleColors } from '@/utils/colors';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
 import { Type } from '@/utils/typography';
+import { Space } from '@/utils/spacing';
+
+// A 44 pt control in a row of one text line reaches into the row's padding by this much.
+const ROW_LINE = Type.body.lineHeight;
+const ROW_TARGET_MARGIN = -(TOUCH_TARGET - ROW_LINE) / 2;
+export const CANCEL_ICON = 18;
+// iOS reports a text field's frame inside its 1 pt border, so add both borders to the target.
+const FIELD_HEIGHT = TOUCH_TARGET + 2;
 
 // One StyleSheet for the whole screen: the screen calls this once and passes the result
 // down to its sections.
@@ -12,8 +20,8 @@ export function useSettingsStyles() {
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: 16,
-      paddingVertical: 14,
+      paddingHorizontal: Space.edge,
+      paddingVertical: Space.s16,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -30,16 +38,16 @@ export function useSettingsStyles() {
       color: colors.textMuted,
       letterSpacing: 1,
       textTransform: 'uppercase',
-      paddingHorizontal: 20,
-      paddingTop: 28,
-      paddingBottom: 8,
+      paddingHorizontal: Space.edge,
+      paddingTop: Space.s32,
+      paddingBottom: Space.s8,
     },
     // ── Rows ─────────────────────────────────────────────────────────────
     row: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: 20,
-      paddingVertical: 14,
+      paddingHorizontal: Space.edge,
+      paddingVertical: Space.s16,
       backgroundColor: colors.surface,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
@@ -51,14 +59,14 @@ export function useSettingsStyles() {
     rowValue: { ...Type.body, color: colors.textPrimary, flex: 1 },
     rowValueColumn: { flex: 1 },
     rowValueText: { ...Type.body, color: colors.textPrimary },
-    rowDetail: { ...Type.footnote, color: colors.textSecondary, marginTop: 2 },
+    rowDetail: { ...Type.footnote, color: colors.textSecondary },
     rowAction: { ...Type.body, color: colors.accent },
     // 44 pt tall inside the row: the target reaches into the row's padding.
     rowActionButton: {
       minHeight: TOUCH_TARGET,
       justifyContent: 'center',
-      marginVertical: -11,
-      paddingLeft: 12,
+      marginVertical: ROW_TARGET_MARGIN,
+      paddingLeft: Space.s12,
     },
     rowDestructive: { ...Type.headline, color: colors.danger ?? '#ff453a', flex: 1 },
     // ── Username edit ─────────────────────────────────────────────────────
@@ -69,15 +77,15 @@ export function useSettingsStyles() {
       borderWidth: 1,
       borderColor: colors.accent,
       borderRadius: 8,
-      paddingHorizontal: 10,
-      minHeight: TOUCH_TARGET,
-      marginVertical: -11,
+      paddingHorizontal: Space.s12,
+      minHeight: FIELD_HEIGHT,
+      marginVertical: -(FIELD_HEIGHT - ROW_LINE) / 2,
     },
     saveButton: {
-      marginLeft: 10,
-      paddingHorizontal: 14,
+      marginLeft: Space.s12,
+      paddingHorizontal: Space.s16,
       minHeight: TOUCH_TARGET,
-      marginVertical: -11,
+      marginVertical: ROW_TARGET_MARGIN,
       justifyContent: 'center',
       backgroundColor: colors.accent,
       borderRadius: 8,
@@ -89,8 +97,9 @@ export function useSettingsStyles() {
     cancelButton: {
       width: TOUCH_TARGET,
       height: TOUCH_TARGET,
-      marginVertical: -11,
-      marginRight: -12,
+      marginVertical: ROW_TARGET_MARGIN,
+      // Puts the icon's edge on the screen margin.
+      marginRight: -(TOUCH_TARGET - CANCEL_ICON) / 2,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -98,14 +107,14 @@ export function useSettingsStyles() {
     syncRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: 20,
-      paddingVertical: 14,
+      paddingHorizontal: Space.edge,
+      paddingVertical: Space.s16,
       backgroundColor: colors.surface,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
       borderTopWidth: 1,
       borderTopColor: colors.border,
-      gap: 10,
+      gap: Space.s12,
     },
     syncText: { ...Type.headline, color: colors.accent, flex: 1 },
     syncTextDisabled: { ...Type.headline, color: colors.textMuted, flex: 1 },

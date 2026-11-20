@@ -4,6 +4,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { formatEraLabel, type WeekdayEra } from '@/utils/weekdayEras';
 import { WEEKDAY_KEYS } from '@/i18n/calendar';
+import { Space } from '@/utils/spacing';
 
 // Heatmap cells go from a faint tint (a day with one show) to full accent (the era's top day)
 const EMPTY_ALPHA = 0.03;
@@ -55,10 +56,15 @@ export default function WeekdayErasCard({ eras }: { eras: WeekdayEra[] }) {
       borderRadius: 14,
       borderWidth: 1,
       borderColor: colors.border,
-      padding: 14,
-      marginTop: 10,
+      padding: Space.s16,
+      marginTop: Space.s12,
     },
-    title: { ...Type.footnote, color: colors.textMuted, letterSpacing: 0.6, marginBottom: 14 },
+    title: {
+      ...Type.footnote,
+      color: colors.textMuted,
+      letterSpacing: 0.6,
+      marginBottom: Space.s16,
+    },
     timeline: { flexDirection: 'row' },
     spine: {
       position: 'absolute',
@@ -69,19 +75,19 @@ export default function WeekdayErasCard({ eras }: { eras: WeekdayEra[] }) {
       height: 1,
       backgroundColor: colors.spineColor,
     },
-    era: { flex: 1, alignItems: 'center', gap: 2 },
+    era: { flex: 1, alignItems: 'center' },
     dot: {
       width: 11,
       height: 11,
       borderRadius: 6,
       backgroundColor: colors.dotActive,
-      marginBottom: 6,
+      marginBottom: Space.s4,
     },
     topDay: { ...Type.title2, color: colors.textPrimary },
     eraLabel: { ...Type.footnote, color: colors.textSecondary },
     eraShare: { ...Type.caption, color: colors.textMuted },
-    heatmap: { marginTop: 18, gap: 4 },
-    row: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    heatmap: { marginTop: Space.s20, gap: Space.s4 },
+    row: { flexDirection: 'row', alignItems: 'center', gap: Space.s4 },
     rowLabel: { ...Type.footnote, color: colors.textSecondary, width: ERA_LABEL_WIDTH },
     dayLabel: { ...Type.footnote, color: colors.textMuted, flex: 1, textAlign: 'center' },
     cell: {
@@ -93,7 +99,7 @@ export default function WeekdayErasCard({ eras }: { eras: WeekdayEra[] }) {
     },
     topCell: { borderWidth: 1.5, borderColor: colors.textPrimary },
     cellText: { ...Type.captionStrong },
-    hint: { ...Type.caption, color: colors.textSecondary, marginTop: 10 },
+    hint: { ...Type.caption, color: colors.textSecondary, marginTop: Space.s12 },
   });
 
   return (

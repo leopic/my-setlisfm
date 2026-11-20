@@ -1,6 +1,6 @@
 import { View, Text, Animated } from 'react-native';
 import { useChronicleColors } from '@/utils/colors';
-import { SPINE_PADDING_LEFT, type OnboardingStyles } from './styles';
+import { SPINE_PADDING_LEFT, STEP_DOT_TOP, type OnboardingStyles } from './styles';
 import type { StepStatus } from './types';
 
 type StepDotProps = {
@@ -22,7 +22,7 @@ function StepDot({ status, glowAnim, styles }: StepDotProps) {
   const dotLeft = -(SPINE_PADDING_LEFT + dotSize / 2 + 1);
   const haloSize = 52;
   const haloLeft = dotLeft - (haloSize - dotSize) / 2;
-  const haloTop = 6 - (haloSize - dotSize) / 2;
+  const haloTop = STEP_DOT_TOP - (haloSize - dotSize) / 2;
   const dotBg = isError ? colors.danger : isActive || isDone ? colors.dotActive : 'transparent';
 
   return (

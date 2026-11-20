@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { formatDate } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
+import { Space } from '@/utils/spacing';
+import { TAB_BAR_PADDING } from '@/utils/spacing';
 
 interface CityWithStats {
   name: string;
@@ -29,14 +31,14 @@ export default function CityList({ cities, onCityPress, emptyMessage }: CityList
     row: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingVertical: 12,
-      paddingHorizontal: 16,
+      paddingVertical: Space.s12,
+      paddingHorizontal: Space.edge,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
     leftContent: {
       flex: 1,
-      marginRight: 12,
+      marginRight: Space.s12,
     },
     name: {
       ...Type.headline,
@@ -45,12 +47,10 @@ export default function CityList({ cities, onCityPress, emptyMessage }: CityList
     subtitle: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 2,
     },
     meta: {
       ...Type.subheadline,
       color: colors.textMuted,
-      marginTop: 2,
     },
     rightContent: {
       alignItems: 'center',
@@ -63,12 +63,11 @@ export default function CityList({ cities, onCityPress, emptyMessage }: CityList
     countLabel: {
       ...Type.footnote,
       color: colors.textMuted,
-      marginTop: 1,
     },
     emptyState: {
       alignItems: 'center',
-      paddingVertical: 60,
-      paddingHorizontal: 16,
+      paddingVertical: Space.s64,
+      paddingHorizontal: Space.edge,
     },
     emptyStateText: {
       ...Type.body,
@@ -112,7 +111,7 @@ export default function CityList({ cities, onCityPress, emptyMessage }: CityList
     <ScrollView
       style={styles.list}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 100 }}
+      contentContainerStyle={{ paddingBottom: TAB_BAR_PADDING }}
     >
       {cities.length === 0 ? (
         <View style={styles.emptyState}>

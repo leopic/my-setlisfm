@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import * as Updates from 'expo-updates';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
+import { Space } from '@/utils/spacing';
 
 // Height of the iOS 26 tab bar above the bottom safe area (measured on an iPhone 17 Pro).
 // The banner sits just above it, so it never covers a screen's header or back button.
@@ -50,15 +51,15 @@ export function UpdateBanner() {
   const styles = StyleSheet.create({
     banner: {
       position: 'absolute',
-      bottom: insets.bottom + TAB_BAR_HEIGHT + 8,
-      left: 16,
-      right: 16,
+      bottom: insets.bottom + TAB_BAR_HEIGHT + Space.s8,
+      left: Space.edge,
+      right: Space.edge,
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 12,
-      paddingVertical: 10,
-      paddingLeft: 16,
-      paddingRight: 10,
+      gap: Space.s12,
+      paddingVertical: Space.s12,
+      paddingLeft: Space.s16,
+      paddingRight: Space.s12,
       borderRadius: 12,
       borderCurve: 'continuous',
       borderWidth: 1,
@@ -67,11 +68,11 @@ export function UpdateBanner() {
       boxShadow: `0 6px 20px ${colors.shadow}`,
     },
     title: { ...Type.headline, color: colors.textPrimary, flex: 1 },
-    later: { ...Type.body, color: colors.textSecondary, paddingHorizontal: 6 },
+    later: { ...Type.body, color: colors.textSecondary, paddingHorizontal: Space.s4 },
     restart: {
       backgroundColor: colors.accent,
-      paddingHorizontal: 14,
-      paddingVertical: 8,
+      paddingHorizontal: Space.s16,
+      paddingVertical: Space.s8,
       borderRadius: 8,
       borderCurve: 'continuous',
     },

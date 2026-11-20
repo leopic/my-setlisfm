@@ -9,6 +9,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import DetailSkeleton from '@/components/skeletons/DetailSkeleton';
 import { BackButton } from '@/components/ui';
+import { Space } from '@/utils/spacing';
 
 // The country's flag from its two-letter code: two regional indicator symbols.
 function flagEmoji(countryCode: string): string {
@@ -37,10 +38,10 @@ export default function CountryDetailScreen() {
       backgroundColor: colors.background,
     },
     header: {
-      paddingHorizontal: 16,
+      paddingHorizontal: Space.edge,
       // The back button's 44 pt target already adds space above its text.
-      paddingTop: 4,
-      paddingBottom: 12,
+      paddingTop: Space.s4,
+      paddingBottom: Space.s12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -51,7 +52,6 @@ export default function CountryDetailScreen() {
     subtitle: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 2,
     },
   });
 

@@ -7,6 +7,8 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import type { ConcertEntry, Milestone } from './types';
 import { useOpenConcert } from './useOpenConcert';
+import { Space } from '@/utils/spacing';
+import { RIVER_DOT_TOP } from '@/components/river';
 
 // Styles for the entries on the phone timeline spine. Call once in the timeline and pass the result down.
 export function useTimelineStyles() {
@@ -16,19 +18,19 @@ export function useTimelineStyles() {
     spineContainer: {
       borderLeftWidth: 1.5,
       borderLeftColor: colors.spineColor,
-      marginLeft: 36,
-      paddingLeft: 20,
-      marginBottom: 4,
+      marginLeft: Space.s32,
+      paddingLeft: Space.s20,
+      marginBottom: Space.s4,
     },
     concertEntry: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingVertical: 10,
+      paddingVertical: Space.s12,
     },
     dotWrapper: {
       position: 'absolute',
       left: -25,
-      top: 14,
+      top: RIVER_DOT_TOP,
     },
     dotActive: {
       width: 9,
@@ -53,7 +55,6 @@ export function useTimelineStyles() {
       ...Type.footnote,
       color: colors.accent,
       letterSpacing: 0.8,
-      marginBottom: 2,
     },
     entryArtist: {
       ...Type.headline,
@@ -62,15 +63,14 @@ export function useTimelineStyles() {
     entryVenue: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 1,
     },
     entryChevron: {
       ...Type.body,
       color: colors.textDisabled,
-      marginLeft: 8,
+      marginLeft: Space.s8,
     },
     entryImageWrapper: {
-      marginRight: 10,
+      marginRight: Space.s12,
     },
     milestoneMarker: {
       width: 9,
@@ -83,7 +83,6 @@ export function useTimelineStyles() {
       ...Type.footnote,
       color: colors.accent,
       letterSpacing: 0.8,
-      marginBottom: 1,
     },
   });
 }

@@ -2,6 +2,8 @@ import { StyleSheet } from 'react-native';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
+import { Space } from '@/utils/spacing';
+import { RIVER_DOT_TOP } from '@/components/river';
 
 // One StyleSheet for the whole screen: the screen calls this once and passes the result
 // down to its sections.
@@ -14,9 +16,9 @@ export function useConcertsStyles() {
     },
     // ── Header ──────────────────────────────────────────────────────────
     header: {
-      paddingHorizontal: 16,
-      paddingTop: 12,
-      paddingBottom: 8,
+      paddingHorizontal: Space.edge,
+      paddingTop: Space.s12,
+      paddingBottom: Space.s8,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -27,18 +29,17 @@ export function useConcertsStyles() {
     headerSubtitle: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 2,
     },
     // ── Controls (pinned above list) ────────────────────────────────────
     controls: {
       backgroundColor: colors.background,
-      paddingTop: 10,
+      paddingTop: Space.s12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
     searchContainer: {
-      paddingHorizontal: 16,
-      paddingBottom: 10,
+      paddingHorizontal: Space.edge,
+      paddingBottom: Space.s12,
     },
     searchInputWrapper: {
       flexDirection: 'row',
@@ -57,15 +58,15 @@ export function useConcertsStyles() {
     },
     sortContainer: {
       flexDirection: 'row',
-      paddingHorizontal: 16,
-      paddingBottom: 8,
-      gap: 8,
+      paddingHorizontal: Space.edge,
+      paddingBottom: Space.s8,
+      gap: Space.s8,
     },
     sortPill: {
       minHeight: TOUCH_TARGET,
       justifyContent: 'center',
       borderRadius: TOUCH_TARGET / 2,
-      paddingHorizontal: 14,
+      paddingHorizontal: Space.s16,
       borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: 'transparent',
@@ -84,9 +85,9 @@ export function useConcertsStyles() {
     yearDropdownTrigger: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 6,
+      gap: Space.s4,
       minHeight: TOUCH_TARGET,
-      paddingHorizontal: 14,
+      paddingHorizontal: Space.s16,
       borderRadius: TOUCH_TARGET / 2,
       borderWidth: 1,
       borderColor: colors.border,
@@ -128,8 +129,8 @@ export function useConcertsStyles() {
       borderColor: colors.border,
     },
     dropdownItem: {
-      paddingVertical: 13,
-      paddingHorizontal: 18,
+      paddingVertical: Space.s12,
+      paddingHorizontal: Space.edge,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -146,34 +147,34 @@ export function useConcertsStyles() {
     },
     // ── Timeline river ──────────────────────────────────────────────────
     yearSection: {
-      paddingHorizontal: 16,
-      paddingTop: 12,
+      paddingHorizontal: Space.edge,
+      paddingTop: Space.s12,
     },
     yearGhost: {
       ...Type.yearGhost,
       opacity: 0.18,
       color: colors.textPrimary,
-      marginTop: -4,
+      marginTop: -Space.s4,
     },
     yearSubLabel: {
       ...Type.footnote,
       color: colors.textMuted,
-      marginBottom: 8,
+      marginBottom: Space.s8,
     },
     spineContainer: {
       borderLeftWidth: 1.5,
       borderLeftColor: colors.spineColor,
-      marginLeft: 28,
-      paddingLeft: 20,
+      marginLeft: Space.s32,
+      paddingLeft: Space.s20,
     },
     riverEntry: {
-      paddingVertical: 10,
+      paddingVertical: Space.s12,
       position: 'relative',
     },
     dot: {
       position: 'absolute',
       left: -25.5,
-      top: 16,
+      top: RIVER_DOT_TOP,
       width: 9,
       height: 9,
       borderRadius: 4.5,
@@ -191,13 +192,12 @@ export function useConcertsStyles() {
     },
     entryContent: {
       flex: 1,
-      marginRight: 8,
+      marginRight: Space.s8,
     },
     entryDate: {
       ...Type.footnote,
       color: colors.accent,
       letterSpacing: 0.8,
-      marginBottom: 2,
     },
     entryArtist: {
       ...Type.headline,
@@ -210,7 +210,6 @@ export function useConcertsStyles() {
     entryTour: {
       ...Type.subheadline,
       color: colors.accent,
-      marginTop: 2,
     },
     entryChevron: {
       ...Type.body,
@@ -224,8 +223,8 @@ export function useConcertsStyles() {
     riverEntrySelected: { backgroundColor: colors.accentSoft },
     // ── Alphabetical list ────────────────────────────────────────────────
     alphabeticalEntry: {
-      paddingVertical: 10,
-      paddingHorizontal: 16,
+      paddingVertical: Space.s12,
+      paddingHorizontal: Space.edge,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -236,7 +235,7 @@ export function useConcertsStyles() {
     },
     alphabeticalEntryContent: {
       flex: 1,
-      marginRight: 8,
+      marginRight: Space.s8,
     },
   });
 }

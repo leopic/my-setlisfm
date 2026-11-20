@@ -17,8 +17,7 @@ import ArtistsHeader from '@/components/artists/ArtistsHeader';
 import type { ArtistWithStats } from '@/components/artists/types';
 import { useArtistsStyles } from '@/components/artists/useArtistsStyles';
 import { useTabletLayout } from '@/utils/tablet';
-
-const CONTENT_PADDING_BOTTOM = 100;
+import { TAB_BAR_PADDING } from '@/utils/spacing';
 
 export default function ArtistsScreen() {
   const { t } = useTranslation();
@@ -149,7 +148,7 @@ export default function ArtistsScreen() {
 
       <LegendList
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: CONTENT_PADDING_BOTTOM }}
+        contentContainerStyle={{ paddingBottom: TAB_BAR_PADDING }}
         keyboardShouldPersistTaps="handled"
         data={filteredArtists}
         keyExtractor={(item) => item.mbid}

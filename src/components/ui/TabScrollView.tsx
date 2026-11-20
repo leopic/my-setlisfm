@@ -1,6 +1,5 @@
 import { ScrollView, type ScrollViewProps, StyleSheet } from 'react-native';
-
-const TAB_BAR_PADDING = 100;
+import { TAB_BAR_PADDING } from '@/utils/spacing';
 
 const styles = StyleSheet.create({
   contentContainer: {

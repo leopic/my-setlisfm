@@ -14,6 +14,9 @@ import { Type } from '@/utils/typography';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
 import Icon from './Icon';
 import { useTranslation } from 'react-i18next';
+import { Space } from '@/utils/spacing';
+
+const PADDING = Space.s16;
 
 interface SearchInputProps extends Omit<TextInputProps, 'style'> {
   value: string;
@@ -34,7 +37,7 @@ export default function SearchInput({ value, onChangeText, style, ...rest }: Sea
       borderWidth: 1,
       borderColor: colors.border,
       borderRadius: 10,
-      paddingHorizontal: 14,
+      paddingHorizontal: PADDING,
     },
     input: {
       flex: 1,
@@ -49,7 +52,7 @@ export default function SearchInput({ value, onChangeText, style, ...rest }: Sea
       alignItems: 'center',
       justifyContent: 'center',
       // The icon stays where the padding put it; the target reaches into the padding.
-      marginRight: -14,
+      marginRight: -PADDING,
     },
   });
 
@@ -60,7 +63,7 @@ export default function SearchInput({ value, onChangeText, style, ...rest }: Sea
         md="search-outline"
         size={15}
         color={colors.textMuted}
-        style={{ marginRight: 6 }}
+        style={{ marginRight: Space.s4 }}
       />
       <TextInput
         ref={inputRef}

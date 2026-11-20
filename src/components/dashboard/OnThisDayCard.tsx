@@ -6,6 +6,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import type { OnThisDayConcert } from './types';
 import { useOpenConcert } from './useOpenConcert';
+import { Space } from '@/utils/spacing';
 
 // "On this day" card at the top of the phone layout.
 export default function OnThisDayCard({ onThisDay }: { onThisDay: NonNullable<OnThisDayConcert> }) {
@@ -15,20 +16,20 @@ export default function OnThisDayCard({ onThisDay }: { onThisDay: NonNullable<On
   const styles = StyleSheet.create({
     // ── On this day (phone) ───────────────────────────────────────────────
     onThisDayCard: {
-      marginHorizontal: 20,
-      marginTop: 16,
-      marginBottom: 4,
+      marginHorizontal: Space.edge,
+      marginTop: Space.s16,
+      marginBottom: Space.s4,
       backgroundColor: colors.accentSoft,
       borderWidth: 1,
       borderColor: colors.accent,
       borderRadius: 12,
-      padding: 14,
+      padding: Space.s16,
     },
     onThisDayLabel: {
       ...Type.footnote,
       color: colors.accent,
       letterSpacing: 0.8,
-      marginBottom: 6,
+      marginBottom: Space.s4,
     },
     onThisDayRow: {
       flexDirection: 'row',
@@ -43,15 +44,14 @@ export default function OnThisDayCard({ onThisDay }: { onThisDay: NonNullable<On
     onThisDayMeta: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 3,
     },
     onThisDayChevron: {
       ...Type.body,
       color: colors.accent,
-      marginLeft: 8,
+      marginLeft: Space.s8,
     },
     entryImageWrapper: {
-      marginRight: 10,
+      marginRight: Space.s12,
     },
   });
   return (

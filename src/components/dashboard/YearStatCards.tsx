@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import type { YearSummary } from './types';
+import { Space } from '@/utils/spacing';
 
 type Props = {
   showCount: number;
@@ -18,8 +19,8 @@ export default function YearStatCards({ showCount, summary, monthNames }: Props)
     // 4-stat row
     detailStatRow: {
       flexDirection: 'row',
-      gap: 8,
-      marginBottom: 12,
+      gap: Space.s8,
+      marginBottom: Space.s12,
     },
     detailStatCard: {
       flex: 1,
@@ -27,7 +28,7 @@ export default function YearStatCards({ showCount, summary, monthNames }: Props)
       borderWidth: 1,
       borderColor: colors.border,
       borderRadius: 10,
-      paddingVertical: 8,
+      paddingVertical: Space.s8,
       alignItems: 'center',
     },
     detailStatValue: {
@@ -36,7 +37,6 @@ export default function YearStatCards({ showCount, summary, monthNames }: Props)
     detailStatLabel: {
       ...Type.captionStrong,
       color: colors.textMuted,
-      marginTop: 2,
     },
   });
   return (

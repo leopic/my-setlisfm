@@ -6,6 +6,7 @@ import { Type } from '@/utils/typography';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { Observe } from 'expo-observe';
+import { Space } from '@/utils/spacing';
 
 // Layouts export this as `ErrorBoundary`: Expo Router catches the error itself and renders
 // it with the error and a retry callback, so it has no children and keeps no state.
@@ -29,20 +30,20 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      padding: 24,
+      padding: Space.s24,
       backgroundColor: colors.background,
     },
-    title: { ...Type.title1, color: colors.textPrimary, marginBottom: 8 },
+    title: { ...Type.title1, color: colors.textPrimary, marginBottom: Space.s8 },
     message: {
       ...Type.subheadline,
       color: colors.textSecondary,
       textAlign: 'center',
-      marginBottom: 24,
+      marginBottom: Space.s24,
     },
     button: {
       backgroundColor: colors.accent,
-      paddingHorizontal: 24,
-      paddingVertical: 12,
+      paddingHorizontal: Space.s24,
+      paddingVertical: Space.s12,
       borderRadius: 8,
       borderCurve: 'continuous',
     },

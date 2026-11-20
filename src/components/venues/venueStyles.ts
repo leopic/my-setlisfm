@@ -2,6 +2,7 @@ import { StyleSheet } from 'react-native';
 import { Type } from '@/utils/typography';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
 import type { ChronicleColors } from '@/utils/colors';
+import { Space } from '@/utils/spacing';
 
 // One StyleSheet for the whole venues screen, created once per parent render and passed down.
 export function createVenueStyles(colors: ChronicleColors) {
@@ -13,9 +14,9 @@ export function createVenueStyles(colors: ChronicleColors) {
 
     // ── Header ───────────────────────────────────────────────────────
     header: {
-      paddingHorizontal: 16,
-      paddingTop: 12,
-      paddingBottom: 12,
+      paddingHorizontal: Space.edge,
+      paddingTop: Space.s12,
+      paddingBottom: Space.s12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -26,19 +27,18 @@ export function createVenueStyles(colors: ChronicleColors) {
     headerSubtitle: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 2,
     },
 
     // ── Geo navigation strip ─────────────────────────────────────────
     geoStrip: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: 8,
-      paddingHorizontal: 16,
-      paddingVertical: 10,
+      gap: Space.s8,
+      paddingHorizontal: Space.edge,
+      paddingVertical: Space.s12,
     },
     geoButton: {
-      paddingHorizontal: 14,
+      paddingHorizontal: Space.s16,
       minHeight: TOUCH_TARGET,
       justifyContent: 'center',
       borderRadius: 8,
@@ -54,15 +54,15 @@ export function createVenueStyles(colors: ChronicleColors) {
     // ── Controls (pinned above list) ─────────────────────────────────
     controls: {
       backgroundColor: colors.background,
-      paddingTop: 10,
+      paddingTop: Space.s12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
     searchContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginHorizontal: 16,
-      marginBottom: 8,
+      marginHorizontal: Space.edge,
+      marginBottom: Space.s8,
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,
@@ -76,15 +76,15 @@ export function createVenueStyles(colors: ChronicleColors) {
     },
     sortRow: {
       flexDirection: 'row',
-      gap: 8,
-      paddingHorizontal: 16,
-      paddingBottom: 10,
+      gap: Space.s8,
+      paddingHorizontal: Space.edge,
+      paddingBottom: Space.s12,
     },
     sortPill: {
       minHeight: TOUCH_TARGET,
       justifyContent: 'center',
       borderRadius: TOUCH_TARGET / 2,
-      paddingHorizontal: 14,
+      paddingHorizontal: Space.s16,
       borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: 'transparent',
@@ -105,14 +105,14 @@ export function createVenueStyles(colors: ChronicleColors) {
     venueRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingVertical: 12,
-      paddingHorizontal: 16,
+      paddingVertical: Space.s12,
+      paddingHorizontal: Space.edge,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
     venueLeft: {
       flex: 1,
-      marginRight: 12,
+      marginRight: Space.s12,
     },
     venueName: {
       ...Type.headline,
@@ -121,17 +121,14 @@ export function createVenueStyles(colors: ChronicleColors) {
     venueLocation: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 1,
     },
     venueLastShow: {
       ...Type.subheadline,
       color: colors.textMuted,
-      marginTop: 2,
     },
     venueArtists: {
       ...Type.subheadline,
       color: colors.textMuted,
-      marginTop: 2,
     },
     venueRight: {
       alignItems: 'center',
@@ -144,24 +141,23 @@ export function createVenueStyles(colors: ChronicleColors) {
     visitLabel: {
       ...Type.footnote,
       color: colors.textMuted,
-      marginTop: 1,
     },
 
     // ── Empty state ──────────────────────────────────────────────────
     emptyState: {
       alignItems: 'center',
-      paddingVertical: 60,
+      paddingVertical: Space.s64,
     },
     emptyStateText: {
       ...Type.body,
       color: colors.textSecondary,
       textAlign: 'center',
-      marginBottom: 20,
+      marginBottom: Space.s20,
     },
     refreshButton: {
       backgroundColor: colors.accent,
-      paddingHorizontal: 20,
-      paddingVertical: 10,
+      paddingHorizontal: Space.s20,
+      paddingVertical: Space.s12,
       borderRadius: 20,
     },
     refreshButtonText: {

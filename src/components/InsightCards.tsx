@@ -6,6 +6,7 @@ import { formatIsoDate } from '@/utils/date';
 import { useTranslation } from 'react-i18next';
 import { WEEKDAY_KEYS } from '@/i18n/calendar';
 import type { dbOperations } from '@/database/operations';
+import { Space } from '@/utils/spacing';
 
 type InsightStats = Awaited<ReturnType<typeof dbOperations.getInsightStats>>;
 
@@ -19,18 +20,18 @@ export default function InsightCards({ stats }: Props) {
 
   const styles = StyleSheet.create({
     section: {
-      marginTop: 24,
-      marginHorizontal: 20,
+      marginTop: Space.s24,
+      marginHorizontal: Space.edge,
     },
     sectionLabel: {
       ...Type.footnote,
       color: colors.textMuted,
       letterSpacing: 1.2,
-      marginBottom: 10,
+      marginBottom: Space.s12,
     },
     row: {
       flexDirection: 'row',
-      gap: 10,
+      gap: Space.s12,
     },
     halfCard: {
       flex: 1,
@@ -38,20 +39,20 @@ export default function InsightCards({ stats }: Props) {
       borderRadius: 12,
       borderWidth: 1,
       borderColor: colors.border,
-      padding: 14,
+      padding: Space.s16,
     },
     fullCard: {
       backgroundColor: colors.surface,
       borderRadius: 12,
       borderWidth: 1,
       borderColor: colors.border,
-      padding: 14,
-      marginBottom: 10,
+      padding: Space.s16,
+      marginBottom: Space.s12,
     },
     cardLabel: {
       ...Type.footnote,
       color: colors.textMuted,
-      marginBottom: 4,
+      marginBottom: Space.s4,
       letterSpacing: 0.6,
     },
     cardValue: {
@@ -61,7 +62,6 @@ export default function InsightCards({ stats }: Props) {
     cardSub: {
       ...Type.subheadline,
       color: colors.textSecondary,
-      marginTop: 3,
     },
   });
 

@@ -3,6 +3,8 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '@/components/SkeletonBox';
 import { useChronicleColors } from '@/utils/colors';
+import { Space } from '@/utils/spacing';
+import { TAB_BAR_PADDING } from '@/utils/spacing';
 
 function EntryRow() {
   return (
@@ -16,14 +18,12 @@ function EntryRow() {
 
 const entryRowStyles = StyleSheet.create({
   row: {
-    paddingVertical: 10,
+    paddingVertical: Space.s12,
   },
   artist: {
-    marginTop: 4,
+    marginTop: Space.s4,
   },
-  venue: {
-    marginTop: 3,
-  },
+  venue: { marginTop: Space.s4 },
 });
 
 interface ChapterProps {
@@ -49,21 +49,21 @@ function YearChapter({ entryCount, opacity, colors }: ChapterProps) {
 
 const chapterStyles = StyleSheet.create({
   chapter: {
-    marginTop: 28,
-    marginHorizontal: 20,
+    marginTop: Space.s32,
+    marginHorizontal: Space.edge,
   },
   year: {
     // opacity applied via parent
   },
   sublabel: {
-    marginTop: 4,
+    marginTop: Space.s4,
   },
   dotRow: {
-    marginTop: 8,
+    marginTop: Space.s8,
   },
   spine: {
-    marginLeft: 36,
-    paddingLeft: 20,
+    marginLeft: Space.s32,
+    paddingLeft: Space.s20,
     borderLeftWidth: 1.5,
   },
 });
@@ -76,11 +76,11 @@ export default function DashboardSkeleton() {
       backgroundColor: colors.background,
     },
     scrollContent: {
-      paddingBottom: 100,
+      paddingBottom: TAB_BAR_PADDING,
     },
     topBar: {
-      paddingHorizontal: 20,
-      paddingVertical: 12,
+      paddingHorizontal: Space.edge,
+      paddingVertical: Space.s12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
@@ -90,7 +90,7 @@ export default function DashboardSkeleton() {
       alignItems: 'center',
     },
     statsLine: {
-      marginTop: 6,
+      marginTop: Space.s4,
     },
   });
 

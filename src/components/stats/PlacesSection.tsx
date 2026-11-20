@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import type { ChronicleColors } from '@/utils/colors';
 import StatCard from './StatCard';
 import type { StatsStyles } from './statsStyles';
+import { Space } from '@/utils/spacing';
 
 type Props = {
   styles: StatsStyles;
@@ -40,7 +41,7 @@ export default function PlacesSection({
           <Text style={styles.mapSub}>{t('stats.worldMapHint', { count: totalCountries })}</Text>
         </View>
       </Pressable>
-      <View style={[styles.cardRow, { paddingHorizontal: 20, marginBottom: 20 }]}>
+      <View style={[styles.cardRow, { paddingHorizontal: Space.edge, marginBottom: Space.s20 }]}>
         <StatCard
           styles={styles}
           value={topCountry?.name ?? '—'}

@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '@/components/SkeletonBox';
 import { useChronicleColors } from '@/utils/colors';
 import { useTabletLayout } from '@/utils/tablet';
+import { Space } from '@/utils/spacing';
 
 interface Props {
   cardCount?: number;
@@ -25,55 +26,55 @@ export default function ListSkeleton({ cardCount = 5, variant }: Props) {
 
     // ── Header ──────────────────────────────────────────────────────
     header: {
-      paddingHorizontal: 20,
-      paddingTop: 16,
-      paddingBottom: 14,
+      paddingHorizontal: Space.edge,
+      paddingTop: Space.s16,
+      paddingBottom: Space.s16,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
     headerSubtitle: {
-      marginTop: 6,
+      marginTop: Space.s4,
     },
 
     // ── Geo strip (venues) ───────────────────────────────────────────
     geoStrip: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: 8,
-      paddingHorizontal: 16,
-      paddingVertical: 10,
+      gap: Space.s8,
+      paddingHorizontal: Space.edge,
+      paddingVertical: Space.s12,
     },
 
     // ── Controls: search + sort ──────────────────────────────────────
     controls: {
-      paddingTop: 12,
+      paddingTop: Space.s12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
     searchBar: {
-      marginHorizontal: 20,
-      marginBottom: 8,
+      marginHorizontal: Space.edge,
+      marginBottom: Space.s8,
       height: 40,
       borderRadius: 10,
       overflow: 'hidden',
     },
     sortPills: {
       flexDirection: 'row',
-      gap: 8,
-      paddingHorizontal: 20,
-      paddingBottom: 10,
+      gap: Space.s8,
+      paddingHorizontal: Space.edge,
+      paddingBottom: Space.s12,
     },
 
     // ── Insight cards ────────────────────────────────────────────────
     insightCards: {
-      paddingHorizontal: 20,
-      paddingTop: 16,
-      paddingBottom: 12,
-      gap: 10,
+      paddingHorizontal: Space.edge,
+      paddingTop: Space.s16,
+      paddingBottom: Space.s12,
+      gap: Space.s12,
     },
     insightRow: {
       flexDirection: 'row',
-      gap: 10,
+      gap: Space.s12,
     },
     insightHalf: {
       flex: 1,
@@ -83,27 +84,25 @@ export default function ListSkeleton({ cardCount = 5, variant }: Props) {
     listRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingVertical: 12,
-      paddingHorizontal: 16,
+      paddingVertical: Space.s12,
+      paddingHorizontal: Space.edge,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
     rowAvatar: {
-      marginRight: 12,
+      marginRight: Space.s12,
     },
     rowLeft: {
       flex: 1,
     },
     rowLeftSubtitle: {
-      marginTop: 5,
+      marginTop: Space.s4,
     },
     rowRight: {
       width: 44,
       alignItems: 'center',
     },
-    rowRightLabel: {
-      marginTop: 3,
-    },
+    rowRightLabel: { marginTop: Space.s4 },
 
     // ── Tablet master-detail ─────────────────────────────────────────
     masterDetail: { flex: 1, flexDirection: 'row' },

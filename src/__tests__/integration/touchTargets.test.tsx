@@ -77,7 +77,11 @@ it('gives the settings back button and "Change" 44 pt targets', async () => {
 it('gives the username edit field, Save and Cancel 44 pt targets', async () => {
   await fireEvent.press(await screen.findByLabelText('Open settings'));
   await fireEvent.press(await screen.findByText('Change'));
-  expectTouchTarget(await screen.findByDisplayValue('e2e-seed'));
+  const field = await screen.findByDisplayValue('e2e-seed');
+  expectTouchTarget(field);
+  // iOS reports a text field's frame inside its 1 pt border, so the field asks for 2 pt more
+  // (the audit read a 44 pt field as 42).
+  expect(StyleSheet.flatten(field.props.style as ViewStyle)?.minHeight).toBe(MIN + 2);
   expectTouchTarget(screen.getByRole('button', { name: 'Save' }));
   expectTouchTarget(screen.getByLabelText('Cancel'));
 });
