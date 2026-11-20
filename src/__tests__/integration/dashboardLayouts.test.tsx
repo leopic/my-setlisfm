@@ -3,6 +3,7 @@ import { fireEvent, screen, within } from 'expo-router/testing-library';
 import { seedDatabase } from '../../../test/database';
 import { launchApp } from '../../../test/screen';
 import { formatDate } from '@/utils/date';
+import { Radius } from '@/utils/radius';
 
 // Each test picks the layout; the mock reads the flag when the hook runs.
 let mockIsTablet = false;
@@ -23,13 +24,19 @@ type DotState = 'empty' | 'peak' | 'full';
 // The 12 month dots in a year chapter, January first.
 function monthDots(chapter: Instance): DotState[] {
   const dotStyle = (node: Instance) => StyleSheet.flatten(node.props.style) ?? {};
-  return chapter
-    .queryAll((node) => [3.5, 4].includes(dotStyle(node).borderRadius))
-    .map((dot) => {
-      const style = dotStyle(dot);
-      if (style.borderRadius === 4) return 'peak';
-      return style.opacity === 0.45 ? 'full' : 'empty';
-    });
+  return (
+    chapter
+      // Month dots are round, 7 pt, and 8 pt for the busiest month.
+      .queryAll(
+        (node) =>
+          dotStyle(node).borderRadius === Radius.full && [7, 8].includes(dotStyle(node).width),
+      )
+      .map((dot) => {
+        const style = dotStyle(dot);
+        if (style.width === 8) return 'peak';
+        return style.opacity === 0.45 ? 'full' : 'empty';
+      })
+  );
 }
 
 describe('phone layout', () => {

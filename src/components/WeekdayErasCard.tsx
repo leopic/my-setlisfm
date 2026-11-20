@@ -5,6 +5,7 @@ import { Type } from '@/utils/typography';
 import { formatEraLabel, type WeekdayEra } from '@/utils/weekdayEras';
 import { WEEKDAY_KEYS } from '@/i18n/calendar';
 import { Space } from '@/utils/spacing';
+import { Corner, Radius } from '@/utils/radius';
 
 // Heatmap cells go from a faint tint (a day with one show) to full accent (the era's top day)
 const EMPTY_ALPHA = 0.03;
@@ -53,7 +54,7 @@ export default function WeekdayErasCard({ eras }: { eras: WeekdayEra[] }) {
   const styles = StyleSheet.create({
     card: {
       backgroundColor: colors.surface,
-      borderRadius: 14,
+      ...Corner.md,
       borderWidth: 1,
       borderColor: colors.border,
       padding: Space.s16,
@@ -79,7 +80,7 @@ export default function WeekdayErasCard({ eras }: { eras: WeekdayEra[] }) {
     dot: {
       width: 11,
       height: 11,
-      borderRadius: 6,
+      borderRadius: Radius.full,
       backgroundColor: colors.dotActive,
       marginBottom: Space.s4,
     },
@@ -93,7 +94,7 @@ export default function WeekdayErasCard({ eras }: { eras: WeekdayEra[] }) {
     cell: {
       flex: 1,
       height: 30,
-      borderRadius: 6,
+      ...Corner.sm,
       alignItems: 'center',
       justifyContent: 'center',
     },

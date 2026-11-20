@@ -5,13 +5,24 @@ import SkeletonBox from '@/components/SkeletonBox';
 import { useChronicleColors } from '@/utils/colors';
 import { Space } from '@/utils/spacing';
 import { TAB_BAR_PADDING } from '@/utils/spacing';
+import { Radius } from '@/utils/radius';
 
 function EntryRow() {
   return (
     <View style={entryRowStyles.row}>
-      <SkeletonBox width={48} height={9} borderRadius={5} />
-      <SkeletonBox width={140} height={14} borderRadius={4} style={entryRowStyles.artist} />
-      <SkeletonBox width={100} height={11} borderRadius={4} style={entryRowStyles.venue} />
+      <SkeletonBox width={48} height={9} borderRadius={Radius.full} />
+      <SkeletonBox
+        width={140}
+        height={14}
+        borderRadius={Radius.full}
+        style={entryRowStyles.artist}
+      />
+      <SkeletonBox
+        width={100}
+        height={11}
+        borderRadius={Radius.full}
+        style={entryRowStyles.venue}
+      />
     </View>
   );
 }
@@ -35,7 +46,7 @@ interface ChapterProps {
 function YearChapter({ entryCount, opacity, colors }: ChapterProps) {
   return (
     <View style={[chapterStyles.chapter, { opacity }]}>
-      <SkeletonBox width={100} height={48} borderRadius={4} style={chapterStyles.year} />
+      <SkeletonBox width={100} height={48} borderRadius={Radius.full} style={chapterStyles.year} />
       <SkeletonBox width={80} height={11} style={chapterStyles.sublabel} />
       <SkeletonBox width="100%" height={1} borderRadius={0} style={chapterStyles.dotRow} />
       <View style={[chapterStyles.spine, { borderLeftColor: colors.border }]}>
@@ -104,7 +115,7 @@ export default function DashboardSkeleton() {
         <View style={styles.topBar}>
           <View style={styles.topBarRow}>
             <SkeletonBox width={120} height={24} />
-            <SkeletonBox width={56} height={20} borderRadius={10} />
+            <SkeletonBox width={56} height={20} />
           </View>
           <SkeletonBox width={200} height={13} style={styles.statsLine} />
         </View>

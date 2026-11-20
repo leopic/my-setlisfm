@@ -2,6 +2,7 @@ import { View, Text, Animated } from 'react-native';
 import { useChronicleColors } from '@/utils/colors';
 import { SPINE_PADDING_LEFT, STEP_DOT_TOP, type OnboardingStyles } from './styles';
 import type { StepStatus } from './types';
+import { Radius } from '@/utils/radius';
 
 type StepDotProps = {
   status: StepStatus;
@@ -41,7 +42,7 @@ function StepDot({ status, glowAnim, styles }: StepDotProps) {
           {
             width: dotSize,
             height: dotSize,
-            borderRadius: dotSize / 2,
+            borderRadius: Radius.full,
             left: dotLeft,
             backgroundColor: dotBg,
             borderWidth: isWaiting ? 1.5 : 0,

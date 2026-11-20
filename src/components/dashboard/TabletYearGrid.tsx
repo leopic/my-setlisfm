@@ -12,6 +12,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import type { DashboardStats } from './types';
 import { Space } from '@/utils/spacing';
+import { Corner } from '@/utils/radius';
 
 type Props = {
   years: DashboardStats['concertsByYear'];
@@ -56,7 +57,7 @@ export default function TabletYearGrid({
       backgroundColor: colors.surface,
       borderWidth: 1.5,
       borderColor: colors.border,
-      borderRadius: 14,
+      ...Corner.md,
       paddingVertical: Space.s12,
       paddingHorizontal: Space.s8,
       alignItems: 'center',

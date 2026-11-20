@@ -14,6 +14,7 @@ import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import ListScreenHeader from '@/components/ListScreenHeader';
 import { TabScrollView } from '@/components/ui';
 import { Space } from '@/utils/spacing';
+import { Radius } from '@/utils/radius';
 
 interface ContinentWithStats {
   name: string;
@@ -42,7 +43,7 @@ export default function ContinentsScreen() {
     pill: {
       minHeight: TOUCH_TARGET,
       justifyContent: 'center',
-      borderRadius: TOUCH_TARGET / 2,
+      borderRadius: Radius.full,
       paddingHorizontal: Space.s12,
       borderWidth: 1,
     },
@@ -110,7 +111,7 @@ export default function ContinentsScreen() {
       marginBottom: Space.s20,
     },
     refreshButton: {
-      borderRadius: 20,
+      borderRadius: Radius.full,
       paddingHorizontal: Space.s20,
       paddingVertical: Space.s12,
       backgroundColor: colors.accentSoft,

@@ -9,8 +9,12 @@ import type { ConcertEntry, Milestone } from './types';
 import { useOpenConcert } from './useOpenConcert';
 import { Space } from '@/utils/spacing';
 import { RIVER_DOT_TOP } from '@/components/river';
+import { Radius } from '@/utils/radius';
 
 // Styles for the entries on the phone timeline spine. Call once in the timeline and pass the result down.
+// The milestone marker is a 9 pt square turned 45°; a slight rounding keeps it a diamond.
+const DIAMOND_CORNER = 2;
+
 export function useTimelineStyles() {
   const colors = useChronicleColors();
   return StyleSheet.create({
@@ -35,7 +39,7 @@ export function useTimelineStyles() {
     dotActive: {
       width: 9,
       height: 9,
-      borderRadius: 4.5,
+      borderRadius: Radius.full,
       backgroundColor: colors.dotActive,
       borderWidth: 2,
       borderColor: colors.background,
@@ -43,7 +47,7 @@ export function useTimelineStyles() {
     dotInactive: {
       width: 9,
       height: 9,
-      borderRadius: 4.5,
+      borderRadius: Radius.full,
       backgroundColor: colors.dotInactive,
       borderWidth: 2,
       borderColor: colors.background,
@@ -75,7 +79,7 @@ export function useTimelineStyles() {
     milestoneMarker: {
       width: 9,
       height: 9,
-      borderRadius: 2,
+      borderRadius: DIAMOND_CORNER,
       backgroundColor: colors.accent,
       transform: [{ rotate: '45deg' }],
     },

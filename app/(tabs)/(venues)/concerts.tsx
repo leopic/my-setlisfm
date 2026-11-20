@@ -15,6 +15,7 @@ import ConcertListSkeleton from '@/components/skeletons/ConcertListSkeleton';
 import { BackButton, TabScrollView } from '@/components/ui';
 import { Space } from '@/utils/spacing';
 import { RIVER_DOT_TOP } from '@/components/river';
+import { Corner, Radius } from '@/utils/radius';
 
 // Up to three initials for the venue tile: "Madison Square Garden" → "MSG".
 function venueInitials({ name = '' }: DBVenue): string {
@@ -91,7 +92,7 @@ export default function VenueConcertsListScreen() {
       minWidth: 36,
       height: 36,
       paddingHorizontal: Space.s4,
-      borderRadius: 8,
+      ...Corner.sm,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: colors.surfaceRaised,
@@ -155,7 +156,7 @@ export default function VenueConcertsListScreen() {
       top: RIVER_DOT_TOP,
       width: 9,
       height: 9,
-      borderRadius: 4.5,
+      borderRadius: Radius.full,
       backgroundColor: colors.dotInactive,
       borderWidth: 2,
       borderColor: colors.background,

@@ -13,6 +13,7 @@ import { TOUCH_TARGET } from '@/utils/touchTarget';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import ListScreenHeader from '@/components/ListScreenHeader';
 import { Space } from '@/utils/spacing';
+import { Radius } from '@/utils/radius';
 
 interface CityWithStats {
   name: string;
@@ -40,7 +41,7 @@ export default function CitiesScreen() {
     pill: {
       minHeight: TOUCH_TARGET,
       justifyContent: 'center',
-      borderRadius: TOUCH_TARGET / 2,
+      borderRadius: Radius.full,
       paddingHorizontal: Space.s12,
       borderWidth: 1,
     },

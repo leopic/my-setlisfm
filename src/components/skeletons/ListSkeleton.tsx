@@ -5,6 +5,7 @@ import SkeletonBox from '@/components/SkeletonBox';
 import { useChronicleColors } from '@/utils/colors';
 import { useTabletLayout } from '@/utils/tablet';
 import { Space } from '@/utils/spacing';
+import { Corner, Radius } from '@/utils/radius';
 
 interface Props {
   cardCount?: number;
@@ -55,7 +56,7 @@ export default function ListSkeleton({ cardCount = 5, variant }: Props) {
       marginHorizontal: Space.edge,
       marginBottom: Space.s8,
       height: 40,
-      borderRadius: 10,
+      ...Corner.md,
       overflow: 'hidden',
     },
     sortPills: {
@@ -114,28 +115,33 @@ export default function ListSkeleton({ cardCount = 5, variant }: Props) {
     <>
       {/* Header */}
       <View style={styles.header}>
-        <SkeletonBox width={120} height={22} borderRadius={4} />
-        <SkeletonBox width={160} height={14} borderRadius={4} style={styles.headerSubtitle} />
+        <SkeletonBox width={120} height={22} borderRadius={Radius.full} />
+        <SkeletonBox
+          width={160}
+          height={14}
+          borderRadius={Radius.full}
+          style={styles.headerSubtitle}
+        />
       </View>
 
       {/* Geo strip (venues) */}
       {showGeoStrip && (
         <View style={styles.geoStrip}>
-          <SkeletonBox width={58} height={34} borderRadius={8} />
-          <SkeletonBox width={94} height={34} borderRadius={8} />
-          <SkeletonBox width={94} height={34} borderRadius={8} />
-          <SkeletonBox width={72} height={34} borderRadius={8} />
+          <SkeletonBox width={58} height={34} borderRadius={Radius.sm} />
+          <SkeletonBox width={94} height={34} borderRadius={Radius.sm} />
+          <SkeletonBox width={94} height={34} borderRadius={Radius.sm} />
+          <SkeletonBox width={72} height={34} borderRadius={Radius.sm} />
         </View>
       )}
 
       {/* Search + sort */}
       <View style={styles.controls}>
-        <SkeletonBox width="100%" height={40} borderRadius={10} style={styles.searchBar} />
+        <SkeletonBox width="100%" height={40} borderRadius={Radius.md} style={styles.searchBar} />
         {showSortBar && (
           <View style={styles.sortPills}>
-            <SkeletonBox width={88} height={28} borderRadius={20} />
-            <SkeletonBox width={60} height={28} borderRadius={20} />
-            <SkeletonBox width={80} height={28} borderRadius={20} />
+            <SkeletonBox width={88} height={28} borderRadius={Radius.full} />
+            <SkeletonBox width={60} height={28} borderRadius={Radius.full} />
+            <SkeletonBox width={80} height={28} borderRadius={Radius.full} />
           </View>
         )}
       </View>
@@ -144,15 +150,30 @@ export default function ListSkeleton({ cardCount = 5, variant }: Props) {
       {Array.from({ length: cardCount }).map((_, i) => (
         <View key={i} style={styles.listRow}>
           {showAvatars && (
-            <SkeletonBox width={40} height={40} borderRadius={20} style={styles.rowAvatar} />
+            <SkeletonBox
+              width={40}
+              height={40}
+              borderRadius={Radius.full}
+              style={styles.rowAvatar}
+            />
           )}
           <View style={styles.rowLeft}>
-            <SkeletonBox width="60%" height={15} borderRadius={4} />
-            <SkeletonBox width="40%" height={12} borderRadius={4} style={styles.rowLeftSubtitle} />
+            <SkeletonBox width="60%" height={15} borderRadius={Radius.full} />
+            <SkeletonBox
+              width="40%"
+              height={12}
+              borderRadius={Radius.full}
+              style={styles.rowLeftSubtitle}
+            />
           </View>
           <View style={styles.rowRight}>
-            <SkeletonBox width={28} height={18} borderRadius={4} />
-            <SkeletonBox width={32} height={10} borderRadius={4} style={styles.rowRightLabel} />
+            <SkeletonBox width={28} height={18} borderRadius={Radius.full} />
+            <SkeletonBox
+              width={32}
+              height={10}
+              borderRadius={Radius.full}
+              style={styles.rowRightLabel}
+            />
           </View>
         </View>
       ))}

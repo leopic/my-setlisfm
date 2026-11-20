@@ -13,6 +13,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
 import { Space } from '@/utils/spacing';
+import { Radius } from '@/utils/radius';
 
 // Intro and outro tapes, by the song's tape value.
 const TAPE_BADGES: Record<
@@ -134,7 +135,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
     navBadge: {
       width: BADGE_SIZE,
       height: BADGE_SIZE,
-      borderRadius: BADGE_SIZE / 2,
+      borderRadius: Radius.full,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: colors.surfaceRaised,

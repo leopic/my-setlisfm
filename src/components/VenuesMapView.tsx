@@ -9,6 +9,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { buildHtml, visitColor, VISIT_TIERS, type VenueWithCoords } from './venuesMapHtml';
 import { Space } from '@/utils/spacing';
+import { Radius } from '@/utils/radius';
 
 export default function VenuesMapView() {
   const { t } = useTranslation();
@@ -64,7 +65,7 @@ export default function VenuesMapView() {
     },
     legendItems: { flexDirection: 'row', justifyContent: 'space-around' },
     legendItem: { flexDirection: 'row', alignItems: 'center' },
-    legendDot: { width: 12, height: 12, borderRadius: 6, marginRight: Space.s4 },
+    legendDot: { width: 12, height: 12, borderRadius: Radius.full, marginRight: Space.s4 },
     legendText: { ...Type.caption, color: colors.textSecondary },
   });
 

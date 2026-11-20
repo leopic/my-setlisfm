@@ -15,6 +15,7 @@ import { TOUCH_TARGET } from '@/utils/touchTarget';
 import Icon from './Icon';
 import { useTranslation } from 'react-i18next';
 import { Space } from '@/utils/spacing';
+import { Corner } from '@/utils/radius';
 
 const PADDING = Space.s16;
 
@@ -36,7 +37,7 @@ export default function SearchInput({ value, onChangeText, style, ...rest }: Sea
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: 10,
+      ...Corner.md,
       paddingHorizontal: PADDING,
     },
     input: {

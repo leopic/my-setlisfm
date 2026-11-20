@@ -10,6 +10,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { Space } from '@/utils/spacing';
 import { RIVER_DOT_TOP } from '@/components/river';
+import { Radius } from '@/utils/radius';
 
 interface YearGroup {
   year: string;
@@ -134,7 +135,7 @@ export default function VenueDetailPane({ venue }: Props) {
       top: RIVER_DOT_TOP,
       width: 9,
       height: 9,
-      borderRadius: 4.5,
+      borderRadius: Radius.full,
       backgroundColor: colors.dotInactive,
       borderWidth: 2,
       borderColor: colors.background,

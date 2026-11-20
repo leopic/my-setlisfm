@@ -4,6 +4,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import type { YearSummary } from './types';
 import { Space } from '@/utils/spacing';
+import { Corner } from '@/utils/radius';
 
 type Props = {
   showCount: number;
@@ -27,7 +28,7 @@ export default function YearStatCards({ showCount, summary, monthNames }: Props)
       backgroundColor: colors.background,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: 10,
+      ...Corner.md,
       paddingVertical: Space.s8,
       alignItems: 'center',
     },

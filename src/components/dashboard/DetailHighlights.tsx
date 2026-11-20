@@ -9,6 +9,7 @@ import { Type } from '@/utils/typography';
 import { useOpenConcert } from './useOpenConcert';
 import type { ConcertEntry, DashboardStats, Milestone, OnThisDayConcert } from './types';
 import { Space } from '@/utils/spacing';
+import { Corner } from '@/utils/radius';
 
 // Styles shared by the entries in the tablet detail panel. Call once in the panel and pass the result down.
 export function useDetailStyles() {
@@ -30,7 +31,7 @@ export function useDetailStyles() {
       backgroundColor: colors.background,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: 10,
+      ...Corner.md,
       marginBottom: Space.s4,
     },
     detailHighlightText: {

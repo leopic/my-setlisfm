@@ -2,6 +2,7 @@ import { StyleSheet } from 'react-native';
 import type { ChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { Space } from '@/utils/spacing';
+import { Corner, Radius } from '@/utils/radius';
 
 // Spine geometry constants
 const SPINE_MARGIN_LEFT = Space.s24;
@@ -58,7 +59,7 @@ export function createOnboardingStyles(colors: ChronicleColors) {
     // Glow halo behind active dot (size/position set inline)
     glowHalo: {
       position: 'absolute',
-      borderRadius: 25,
+      borderRadius: Radius.full,
       backgroundColor: colors.accent,
     },
 
@@ -90,14 +91,14 @@ export function createOnboardingStyles(colors: ChronicleColors) {
       width: '100%',
       height: 2,
       backgroundColor: colors.border,
-      borderRadius: 1,
+      borderRadius: Radius.full,
       overflow: 'hidden',
       marginTop: Space.s12,
     },
     progressFill: {
       height: '100%',
       backgroundColor: colors.accent,
-      borderRadius: 1,
+      borderRadius: Radius.full,
     },
 
     // Quip — fixed-height container prevents layout shift between
@@ -126,7 +127,7 @@ export function createOnboardingStyles(colors: ChronicleColors) {
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: 12,
+      ...Corner.md,
       paddingHorizontal: Space.s16,
       paddingVertical: Space.s16,
       marginBottom: Space.s16,
@@ -134,7 +135,7 @@ export function createOnboardingStyles(colors: ChronicleColors) {
     },
     button: {
       backgroundColor: colors.accent,
-      borderRadius: 12,
+      ...Corner.md,
       paddingVertical: Space.s16,
       alignItems: 'center',
     },
@@ -147,7 +148,7 @@ export function createOnboardingStyles(colors: ChronicleColors) {
       backgroundColor: colors.accentSoft,
       borderWidth: 1,
       borderColor: colors.danger,
-      borderRadius: 12,
+      ...Corner.md,
       paddingVertical: Space.s16,
       alignItems: 'center',
     },

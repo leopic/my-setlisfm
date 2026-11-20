@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { WEEKDAY_KEYS } from '@/i18n/calendar';
 import type { dbOperations } from '@/database/operations';
 import { Space } from '@/utils/spacing';
+import { Corner } from '@/utils/radius';
 
 type InsightStats = Awaited<ReturnType<typeof dbOperations.getInsightStats>>;
 
@@ -36,14 +37,14 @@ export default function InsightCards({ stats }: Props) {
     halfCard: {
       flex: 1,
       backgroundColor: colors.surface,
-      borderRadius: 12,
+      ...Corner.md,
       borderWidth: 1,
       borderColor: colors.border,
       padding: Space.s16,
     },
     fullCard: {
       backgroundColor: colors.surface,
-      borderRadius: 12,
+      ...Corner.md,
       borderWidth: 1,
       borderColor: colors.border,
       padding: Space.s16,

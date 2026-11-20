@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { Space } from '@/utils/spacing';
 import { RIVER_DOT_TOP } from '@/components/river';
+import { Radius } from '@/utils/radius';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -129,7 +130,7 @@ export default function ArtistConcertsListScreen() {
       top: RIVER_DOT_TOP,
       width: 9,
       height: 9,
-      borderRadius: 4.5,
+      borderRadius: Radius.full,
       backgroundColor: colors.dotInactive,
       borderWidth: 2,
       borderColor: colors.background,
