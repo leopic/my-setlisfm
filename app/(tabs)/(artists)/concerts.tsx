@@ -15,6 +15,7 @@ import type { TFunction } from 'i18next';
 import { Space } from '@/utils/spacing';
 import { RIVER_DOT_TOP } from '@/components/river';
 import { Radius } from '@/utils/radius';
+import { formatPlace } from '@/utils/place';
 
 interface ConcertWithDetails extends SetlistWithDetails {
   artistName: string;
@@ -327,9 +328,11 @@ export default function ArtistConcertsListScreen() {
               <View style={styles.spineContainer}>
                 {yearGroup.concerts.map((concert, concertIndex) => {
                   const isFirstOfMostRecentYear = yearIndex === 0 && concertIndex === 0;
-                  const location = [concert.cityName, concert.stateName, concert.countryName]
-                    .filter(Boolean)
-                    .join(', ');
+                  const location = formatPlace(
+                    concert.cityName,
+                    concert.stateName,
+                    concert.countryName,
+                  );
 
                   return (
                     <Pressable

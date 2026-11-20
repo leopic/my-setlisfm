@@ -10,6 +10,7 @@ import { Type } from '@/utils/typography';
 import { buildHtml, visitColor, VISIT_TIERS, type VenueWithCoords } from './venuesMapHtml';
 import { Space } from '@/utils/spacing';
 import { Radius } from '@/utils/radius';
+import { formatPlace } from '@/utils/place';
 
 export default function VenuesMapView() {
   const { t } = useTranslation();
@@ -143,7 +144,12 @@ export default function VenuesMapView() {
             coordinate={{ latitude: venue.coordsLat ?? 0, longitude: venue.coordsLong ?? 0 }}
             pinColor={visitColor(venue.concertCount)}
             title={venue.name}
-            description={`${venue.cityName ?? ''}${venue.countryName ? ', ' + venue.countryName : ''} · ${t('common.visit', { count: venue.concertCount })}`}
+            description={[
+              formatPlace(venue.cityName, venue.countryName),
+              t('common.visit', { count: venue.concertCount }),
+            ]
+              .filter(Boolean)
+              .join(' · ')}
           />
         ))}
       </MapView>

@@ -11,6 +11,7 @@ import { Type } from '@/utils/typography';
 import { Space } from '@/utils/spacing';
 import { RIVER_DOT_TOP } from '@/components/river';
 import { Radius } from '@/utils/radius';
+import { formatPlace } from '@/utils/place';
 
 interface YearGroup {
   year: string;
@@ -173,7 +174,7 @@ export default function VenueDetailPane({ venue }: Props) {
     .filter(Boolean)
     .join(' · ');
 
-  const venueLocation = [venue.cityName, venue.countryName].filter(Boolean).join(', ');
+  const venueLocation = formatPlace(venue.cityName, venue.countryName);
 
   return (
     <View style={styles.container}>
@@ -199,9 +200,11 @@ export default function VenueDetailPane({ venue }: Props) {
             );
           }
           const { concert, isFirst } = row;
-          const location = [concert.city?.name, concert.city?.state, concert.country?.name]
-            .filter(Boolean)
-            .join(', ');
+          const location = formatPlace(
+            concert.city?.name,
+            concert.city?.state,
+            concert.country?.name,
+          );
           return (
             <View style={styles.spineContainer}>
               <Pressable

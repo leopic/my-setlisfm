@@ -26,7 +26,9 @@ it('shows location, last show, artists and visit count on a row', async () => {
 
   // Columbiahalle: three concerts, the latest on 14-02-2025.
   expect(venues.getByText('Columbiahalle')).toBeOnTheScreen();
-  expect(venues.getAllByText('Berlin, Berlin, Germany').length).toBeGreaterThan(0);
+  // Berlin is a city and a state; the name is said once.
+  expect(venues.getAllByText('Berlin, Germany').length).toBeGreaterThan(0);
+  expect(venues.queryByText('Berlin, Berlin, Germany')).not.toBeOnTheScreen();
   expect(venues.getByText(`Last show: ${formatDate('14-02-2025')}`)).toBeOnTheScreen();
   expect(venues.getByText(/Kraftwerk/)).toBeOnTheScreen();
   expect(venues.getByText('3')).toBeOnTheScreen();
@@ -55,6 +57,8 @@ it('says "visit" for a venue seen once on the city screen', async () => {
   const astra = await screen.findByLabelText('Astra, 1 visit');
   expect(within(astra).getByText('visit')).toBeOnTheScreen();
   expect(screen.getByLabelText('Columbiahalle, 3 visits')).toBeOnTheScreen();
+  // Berlin is a city and a state; the name is said once.
+  expect(within(astra).getByText('Berlin, Germany')).toBeOnTheScreen();
 });
 
 it('reads the continent count as venues, as the row shows', async () => {

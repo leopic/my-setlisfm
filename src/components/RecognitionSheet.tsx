@@ -8,6 +8,7 @@ import type { ConcertRecognitionFacts } from '@/database/factQueries';
 import { buildRecognitionChips } from './recognitionChips';
 import { Space } from '@/utils/spacing';
 import { Corner, Radius } from '@/utils/radius';
+import { formatPlace } from '@/utils/place';
 
 interface Props {
   visible: boolean;
@@ -107,7 +108,7 @@ export default function RecognitionSheet({
     },
   });
 
-  const location = [currentCityName, currentCountryName].filter(Boolean).join(', ');
+  const location = formatPlace(currentCityName, currentCountryName);
   const heroLabel = location || t('recognition.heroSubtitle');
 
   const chips = buildRecognitionChips({

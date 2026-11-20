@@ -1,5 +1,6 @@
 import type { TFunction } from 'i18next';
 import { formatDate } from '@/utils/date';
+import { formatPlace } from '@/utils/place';
 
 export interface VenueWithCoords {
   id: string;
@@ -57,9 +58,7 @@ export function buildHtml(
       const color = visitColor(v.concertCount);
       const popup = [
         `<b>${escapeHtml(v.name)}</b>`,
-        escapeHtml(
-          v.cityName && v.countryName ? `${v.cityName}, ${v.countryName}` : (v.cityName ?? ''),
-        ),
+        escapeHtml(formatPlace(v.cityName, v.countryName)),
         escapeHtml(t('common.visit', { count: v.concertCount })),
         v.lastConcertDate
           ? escapeHtml(t('map.lastVisit', { date: formatDate(v.lastConcertDate) }))

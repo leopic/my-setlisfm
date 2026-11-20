@@ -6,6 +6,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { Space } from '@/utils/spacing';
 import { tabBarContentStyle } from '@/components/ui';
+import { formatPlace } from '@/utils/place';
 
 interface CityWithStats {
   name: string;
@@ -82,7 +83,7 @@ export default function CityList({ cities, onCityPress, emptyMessage }: CityList
       style={({ pressed }) => [styles.row, { opacity: pressed ? 0.7 : 1 }]}
       onPress={() => onCityPress(city)}
       accessibilityRole="button"
-      accessibilityLabel={`${city.name}, ${city.countryName}`}
+      accessibilityLabel={formatPlace(city.name, city.countryName)}
     >
       <View style={styles.leftContent}>
         <Text style={styles.name}>{city.name}</Text>

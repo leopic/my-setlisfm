@@ -26,6 +26,8 @@ it('shows the tape, guests, month strip and repeat songs on a setlist', async ()
 
   const setlist = await findScreen('setlist-screen');
   expect(setlist.getByText('Tape')).toBeOnTheScreen();
+  // Madison Square Garden: New York is the city and the state; the name is said once.
+  expect(setlist.getByText('New York, United States')).toBeOnTheScreen();
   expect(setlist.getByText('With The Strokes')).toBeOnTheScreen();
   // 15 March: 14 days before, 16 after. VoiceOver skips it; the date line says the same.
   const strip = `${'·'.repeat(14)}●${'·'.repeat(16)}`;
@@ -46,6 +48,23 @@ it('reads a song with its number', async () => {
   expect(row).not.toBeNull();
   // Read as "1", not "zero one".
   expect(within(row as NonNullable<typeof row>).getByLabelText('1')).toBeOnTheScreen();
+});
+
+// Berlin and New York are each a city and a state; the name is said once.
+it('says a place once on the artist and venue concert lists', async () => {
+  await openTab('(artists)');
+  const artists = await findScreen('artists-screen');
+  await fireEvent.press(artists.getByTestId('artist-artist-1'));
+  const artistConcerts = await findScreen('artist-concerts-screen');
+  expect(artistConcerts.getByText('Berlin, Germany')).toBeOnTheScreen();
+  expect(artistConcerts.getByText('New York, United States')).toBeOnTheScreen();
+
+  await openTab('(venues)');
+  const venues = await findScreen('venues-screen');
+  await fireEvent.press(venues.getByTestId('venue-venue-2'));
+  const venueConcerts = await findScreen('venue-concerts-screen');
+  expect(venueConcerts.getAllByText('Berlin, Germany').length).toBeGreaterThan(0);
+  expect(venueConcerts.queryByText('Berlin, Berlin, Germany')).not.toBeOnTheScreen();
 });
 
 it('shows where an artist is filed and when a setlist was edited', async () => {

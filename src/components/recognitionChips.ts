@@ -3,6 +3,7 @@ import type { Icon } from '@/components/ui';
 import { formatTimeAgo } from '@/utils/date';
 import { toOrdinal } from '@/utils/ordinal';
 import type { ConcertRecognitionFacts } from '@/database/factQueries';
+import { formatPlace } from '@/utils/place';
 
 export interface Chip {
   icon: {
@@ -23,12 +24,10 @@ interface RecognitionChipInput {
 function lastSeenChip({ facts, t }: RecognitionChipInput): Chip | null {
   if (!facts.previousShowForArtist || facts.daysSincePreviousShowForArtist == null) return null;
 
-  const prevLocation = [
+  const prevLocation = formatPlace(
     facts.previousShowForArtist.cityName,
     facts.previousShowForArtist.countryName,
-  ]
-    .filter(Boolean)
-    .join(', ');
+  );
   return {
     icon: { sf: 'clock', md: 'time-outline' },
     text: prevLocation

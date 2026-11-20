@@ -70,6 +70,14 @@ describe('buildRecognitionChips', () => {
     });
   });
 
+  it('says a city once when the country has the same name', () => {
+    const [lastSeen] = chipsFor({
+      previousShowForArtist: { ...previousShow, cityName: 'Singapore', countryName: 'Singapore' },
+      daysSincePreviousShowForArtist: 10,
+    });
+    expect(lastSeen.text).toBe('recognition.lastSeen|{"timeAgo":"10d ago","location":"Singapore"}');
+  });
+
   it('shows the last-seen chip for a previous show that has only a country', () => {
     const [lastSeen] = chipsFor({
       previousShowForArtist: { ...previousShow, cityName: null },
