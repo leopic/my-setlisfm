@@ -25,13 +25,21 @@ export function sortByOption<T extends Sortable>(
   switch (sortBy) {
     case 'alphabetical':
       return [...items].sort((a, b) => a.name.localeCompare(b.name));
-    case 'recent':
+    case 'recent': {
+      // Parse each date once, not in the comparator: that ran ~n log n times, 20 ms a render
+      // for 450 artists, and the list screens sort on every render (each search keystroke).
+      const times = new Map<T, number>();
+      for (const item of items) {
+        const date = getDate(item);
+        if (date) times.set(item, parseSetlistDate(date).getTime());
+      }
       return [...items].sort((a, b) => {
-        const dateA = getDate(a);
-        const dateB = getDate(b);
-        if (!dateA || !dateB) return 0;
-        return parseSetlistDate(dateB).getTime() - parseSetlistDate(dateA).getTime();
+        const timeA = times.get(a);
+        const timeB = times.get(b);
+        if (timeA === undefined || timeB === undefined) return 0;
+        return timeB - timeA;
       });
+    }
     case 'top':
       if (!getCount) return items;
       return [...items].sort((a, b) => getCount(b) - getCount(a));
