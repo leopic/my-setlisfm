@@ -174,7 +174,7 @@ out of `package.json`. CLI and skills are pinned to the same version; bump them 
   use Maestro. Metro must run, and like any agent-device command it runs outside the sandbox.
   Its Xcode runner sometimes times out on a tap ("Runner command deadline exceeded"), so the
   script retries a failed flow once; a flaky app bug can pass that retry, so read a retried
-  pass in the summary. Artifacts go to `.agent-device/test-artifacts/`. One flow on its own: `agent-device replay <flow> --maestro
+  pass in the summary. Artifacts go to `$TMPDIR/chronicles-agent-device`, outside the repo (`.gitignore` is in the native fingerprint). One flow on its own: `agent-device replay <flow> --maestro
   --platform ios --udid <udid>`, but a replay keeps its session (it holds the simulator): close
   it with the `--state-dir` and `--session` it prints.
 - Help topics, read only when needed: `agent-device help dogfood` (exploratory QA, runs

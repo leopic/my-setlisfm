@@ -40,5 +40,6 @@ fi
 # --retries 1: agent-device's Xcode runner sometimes times out on a tap ("Runner command
 # deadline exceeded") with the target on screen. A deterministic bug still fails both
 # attempts; a flaky one can pass the retry, so read a retried pass in the summary.
+# Artifacts go outside the repo: ignoring them in .gitignore would change the native fingerprint.
 agent-device test "${flows[@]}" --maestro --platform ios --udid "$SIMULATOR_UDID" --retries 1 \
-  --artifacts-dir "$MAESTRO_DIR/../.agent-device/test-artifacts"
+  --artifacts-dir "${TMPDIR:-/tmp}/chronicles-agent-device"

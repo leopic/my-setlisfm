@@ -167,7 +167,7 @@ describe('run-agent-device.sh', () => {
     // One `test` call: it closes each flow's session, so none holds the simulator.
     expect(agentDevice).toHaveLength(1);
     expect(agentDevice[0]).toMatch(
-      /^test .* --maestro --platform ios --udid IPHONE-1 --retries 1 --artifacts-dir .*\/\.agent-device\/test-artifacts$/,
+      /^test .* --maestro --platform ios --udid IPHONE-1 --retries 1 --artifacts-dir .*\/chronicles-agent-device$/,
     );
     // Every flow but the empty-state one (onboarding).
     expect(flowNames(agentDevice[0])).toEqual(seededFlows);
