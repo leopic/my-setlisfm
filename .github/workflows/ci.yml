@@ -55,6 +55,11 @@ jobs:
         if: ${{ !cancelled() }}
         run: yarn lint
 
+      # ESLint's Prettier rule only sees .ts/.tsx; this keeps CLAUDE.md and the READMEs in shape.
+      - name: Markdown format
+        if: ${{ !cancelled() }}
+        run: npx prettier --check '**/*.md'
+
       - name: Test
         if: ${{ !cancelled() }}
         run: yarn test

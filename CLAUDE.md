@@ -22,6 +22,7 @@ yarn test:e2e:clear     # Clear DB only
 ```
 
 Run a single Jest test file:
+
 ```bash
 yarn test src/__tests__/setlistApi.test.ts
 ```
@@ -33,12 +34,13 @@ Three layers, all required — never bypass any:
 - **Pre-commit** (husky + lint-staged): runs `eslint --fix` on staged `.ts`/`.tsx`.
   Formatting is repaired in place and restaged; anything unfixable blocks the commit.
 - **Pre-push** (husky): `scripts/verify.sh`, the same checks as CI (below).
-- **CI** (`.github/workflows/ci.yml`): `yarn install --immutable`, then lint, tests,
-  `tsc --noEmit`, React Doctor on the changed files and an iOS bundle export
-  (`expo export`) on every PR and push to `main`.
+- **CI** (`.github/workflows/ci.yml`): `yarn install --immutable`, then lint, Prettier on
+  the Markdown files, tests, `tsc --noEmit`, React Doctor on the changed files and an iOS
+  bundle export (`expo export`) on every PR and push to `main`.
 
 `prettier/prettier` is an `error` and `yarn lint` runs with `--max-warnings 0`, so a
-warning fails the build. That is deliberate: as a warning it let ~2500 violations
+warning fails the build. ESLint only sees `.ts`/`.tsx`, so CI checks Markdown with
+`npx prettier --check '**/*.md'`; fix it with `npx prettier --write <file>`. That is deliberate: as a warning it let ~2500 violations
 accumulate, because ESLint exits 0 on warnings.
 
 The pre-commit hook only lints staged files. The pre-push hook runs `scripts/verify.sh`:
@@ -87,17 +89,17 @@ Setlist.fm API
 
 ### Key Modules
 
-| Path | Role |
-|------|------|
-| `src/services/setlistApi.ts` | API client — rate limiting, pagination, exponential backoff |
-| `src/services/syncService.ts` | Orchestrates full sync: fetch pages until caught up, store username |
-| `src/services/dataProcessor.ts` | Maps API shape → DB rows (idempotent upserts) |
-| `src/database/schema.ts` | SQLite schema: 9 tables + indexes |
-| `src/database/operations.ts` | All CRUD + complex join queries (stats, rankings, geo queries) |
-| `src/contexts/SyncContext.tsx` | Context that propagates sync completion; screens subscribe to re-fetch |
-| `src/i18n/en.ts` | All UI strings — add keys here for new copy |
-| `src/utils/colors.ts` | `useChronicleColors()` hook — always use this for theme colors |
-| `src/utils/typography.ts` | `Type` scale (Space Grotesk) — spread it into text styles |
+| Path                            | Role                                                                   |
+| ------------------------------- | ---------------------------------------------------------------------- |
+| `src/services/setlistApi.ts`    | API client — rate limiting, pagination, exponential backoff            |
+| `src/services/syncService.ts`   | Orchestrates full sync: fetch pages until caught up, store username    |
+| `src/services/dataProcessor.ts` | Maps API shape → DB rows (idempotent upserts)                          |
+| `src/database/schema.ts`        | SQLite schema: 9 tables + indexes                                      |
+| `src/database/operations.ts`    | All CRUD + complex join queries (stats, rankings, geo queries)         |
+| `src/contexts/SyncContext.tsx`  | Context that propagates sync completion; screens subscribe to re-fetch |
+| `src/i18n/en.ts`                | All UI strings — add keys here for new copy                            |
+| `src/utils/colors.ts`           | `useChronicleColors()` hook — always use this for theme colors         |
+| `src/utils/typography.ts`       | `Type` scale (Space Grotesk) — spread it into text styles              |
 
 ### Sync Behaviour
 
@@ -215,6 +217,7 @@ open issues by Leo, or by the intake with `source:observe`. A policy test keeps
 ## Environment
 
 Create a `.env` file at the repo root:
+
 ```
 SETLISTFM_API_KEY=your_key_here
 ```
