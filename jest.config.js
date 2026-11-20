@@ -1,12 +1,22 @@
 const alias = { '^@/(.*)$': '<rootDir>/src/$1' };
 
-// The repo has no babel config (Expo's default applies), so hand jest-expo's
-// JS transform the Expo preset explicitly.
+// The app runs through React Compiler (app.config.js), which Metro turns on per bundle
+// through Babel's caller. Jest has no such caller, so add it to jest-expo's JS transform:
+// the integration tests then render the code the app runs.
 const expoPreset = require('jest-expo/ios/jest-preset');
 const integrationTransform = Object.fromEntries(
   Object.entries(expoPreset.transform).map(([pattern, transformer]) =>
-    Array.isArray(transformer) && transformer[0] === 'babel-jest'
-      ? [pattern, ['babel-jest', { ...transformer[1], presets: ['babel-preset-expo'] }]]
+    Array.isArray(transformer) && transformer[0].includes('babel-jest')
+      ? [
+          pattern,
+          [
+            transformer[0],
+            {
+              ...transformer[1],
+              caller: { ...transformer[1].caller, supportsReactCompiler: true },
+            },
+          ],
+        ]
       : [pattern, transformer],
   ),
 );
