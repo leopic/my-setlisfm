@@ -124,7 +124,7 @@ Use `useChronicleColors()` for every color value — never hardcode hex. The hoo
 ## Testing
 
 - **Unit tests** live in `src/__tests__/`: the API client (rate limiting, retries, pagination), sync, `DataProcessor` (normalization), database queries and pure utils.
-- **Integration tests** live in `src/__tests__/integration/` and render the real `app/` routes headlessly with `renderRouter` from `expo-router/testing-library`. SQLite is Node's built-in `node:sqlite` in memory (`test/expoSqliteNode.ts`), seeded from the same fixture as Maestro (`.maestro/fixtures/seed.sql`). Under Jest the native tab bar isn't rendered (switch tabs with `openTab`), and lists need `layOutLists()` before their rows are tappable; helpers live in `test/screen.ts`. Rendering, events and the helpers are async (RNTL 14), so always `await` them.
+- **Integration tests** live in `src/__tests__/integration/` and render the real `app/` routes headlessly with `renderRouter` from `expo-router/testing-library`. SQLite is Node's built-in `node:sqlite` in memory (`test/expoSqliteNode.ts`), seeded from the same fixture as Maestro (`.maestro/fixtures/seed.sql`). Under Jest the native tab bar isn't rendered (switch tabs with `openTab`), and lists need `layOutLists()` before their rows are tappable; helpers live in `test/screen.ts`. Rendering, events and the helpers are async (RNTL 14), so always `await` them. They run through React Compiler, like the app (`jest.config.js` turns it on), so a bug the compiler brings in shows up there too.
 - **E2E tests** live in `.maestro/` and use Maestro YAML. Screens expose `testID` props for selectors (e.g. `dashboard-screen`).
 
 ### When to run Maestro
