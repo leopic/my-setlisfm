@@ -5,7 +5,7 @@ import { formatDate } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { Space } from '@/utils/spacing';
-import { TAB_BAR_PADDING } from '@/utils/spacing';
+import { tabBarContentStyle } from '@/components/ui';
 
 interface CityWithStats {
   name: string;
@@ -111,7 +111,7 @@ export default function CityList({ cities, onCityPress, emptyMessage }: CityList
     <ScrollView
       style={styles.list}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: TAB_BAR_PADDING }}
+      contentContainerStyle={tabBarContentStyle}
     >
       {cities.length === 0 ? (
         <View style={styles.emptyState}>

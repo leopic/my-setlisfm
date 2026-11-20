@@ -2,13 +2,12 @@ import { View, Text, RefreshControl } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { LegendList } from '@legendapp/list/react-native';
 import type { SortOption } from '@/utils/sort';
-import { EmptyState } from '@/components/ui';
+import { EmptyState, tabBarContentStyle } from '@/components/ui';
 import VenueControls from './VenueControls';
 import VenueGeoStrip from './VenueGeoStrip';
 import VenueRow from './VenueRow';
 import type { VenueStyles } from './venueStyles';
 import type { GeoStats, VenueWithStats } from './types';
-import { TAB_BAR_PADDING } from '@/utils/spacing';
 
 type Props = {
   styles: VenueStyles;
@@ -69,7 +68,7 @@ export default function VenueListPane({
 
       <LegendList
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: TAB_BAR_PADDING }}
+        contentContainerStyle={tabBarContentStyle}
         data={filteredVenues}
         keyExtractor={(item) => item.id}
         renderItem={({ item: venue }) => (
