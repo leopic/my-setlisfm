@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { formatDate } from '@/utils/date';
 import type { VenueStyles } from './venueStyles';
 import type { VenueWithStats } from './types';
+import { formatPlace } from '@/utils/place';
 
 type Props = {
   styles: VenueStyles;
@@ -13,9 +14,8 @@ type Props = {
 
 export default function VenueRow({ styles, venue, isSelected, onPress }: Props) {
   const { t } = useTranslation();
-  const locationParts = [venue.cityName, venue.state, venue.countryName].filter(Boolean);
   const locationText =
-    locationParts.length > 0 ? locationParts.join(', ') : t('common.unknownLocation');
+    formatPlace(venue.cityName, venue.state, venue.countryName) || t('common.unknownLocation');
 
   const topArtists = venue.artists.slice(0, 3).join(', ');
   const extraArtists = venue.artists.length > 3 ? venue.artists.length - 3 : 0;

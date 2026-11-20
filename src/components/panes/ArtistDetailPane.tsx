@@ -12,6 +12,7 @@ import ArtistImage from '@/components/ArtistImage';
 import { Space } from '@/utils/spacing';
 import { RIVER_DOT_TOP } from '@/components/river';
 import { Radius } from '@/utils/radius';
+import { formatPlace } from '@/utils/place';
 
 interface YearGroup {
   year: string;
@@ -204,9 +205,11 @@ export default function ArtistDetailPane({ artistMbid }: Props) {
             );
           }
           const { concert, isFirst } = row;
-          const location = [concert.city?.name, concert.city?.state, concert.country?.name]
-            .filter(Boolean)
-            .join(', ');
+          const location = formatPlace(
+            concert.city?.name,
+            concert.city?.state,
+            concert.country?.name,
+          );
           return (
             <View style={styles.spineContainer}>
               <Pressable

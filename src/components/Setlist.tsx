@@ -14,6 +14,7 @@ import { Type } from '@/utils/typography';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
 import { Space } from '@/utils/spacing';
 import { Radius } from '@/utils/radius';
+import { formatPlace } from '@/utils/place';
 
 // Intro and outro tapes, by the song's tape value.
 const TAPE_BADGES: Record<
@@ -281,9 +282,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
 
   const activeSets = sets.filter((set) => set.songs && set.songs.length > 0);
 
-  const locationParts = [setlist.city?.name, setlist.city?.state, setlist.country?.name].filter(
-    Boolean,
-  );
+  const location = formatPlace(setlist.city?.name, setlist.city?.state, setlist.country?.name);
   const eventDate = formatDate(setlist.eventDate ?? '', 'long');
 
   // Everyone who joined the band on stage, once each.
@@ -337,9 +336,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       {/* Hero block */}
       <View style={styles.hero}>
         <Text style={styles.venueName}>{setlist.venue?.name || t('common.unknownVenue')}</Text>
-        {locationParts.length > 0 && (
-          <Text style={styles.locationLine}>{locationParts.join(', ')}</Text>
-        )}
+        {location !== '' && <Text style={styles.locationLine}>{location}</Text>}
         <Text style={styles.dateLine}>{eventDate}</Text>
         {setlist.eventDate && (
           // A drawing of the day in its month; the date line above already says it.

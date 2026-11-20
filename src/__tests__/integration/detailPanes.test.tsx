@@ -25,7 +25,7 @@ it("lists an artist's concerts in the pane, older year group included", async ()
   // VoiceOver reads a row's date, venue, place and tour, not its "›" arrow.
   expect(
     artists.getByRole('button', {
-      name: /^Mar 15, 2024, Madison Square Garden, .*In Rainbows Tour$/,
+      name: 'Mar 15, 2024, Madison Square Garden, New York, United States, In Rainbows Tour',
     }),
   ).toBeOnTheScreen();
   expect(artists.queryAllByRole('button', { name: /›/ })).toHaveLength(0);
@@ -50,6 +50,9 @@ it("lists a venue's concerts in the pane, older year group included", async () =
   expect(venues.getByText('Kraftwerk')).toBeOnTheScreen();
   expect(venues.getByText('The Strokes')).toBeOnTheScreen();
   expect(venues.queryAllByRole('button', { name: /›/ })).toHaveLength(0);
+  // Berlin is a city and a state; the name is said once.
+  expect(venues.getAllByText('Berlin, Germany').length).toBeGreaterThan(0);
+  expect(venues.queryByText('Berlin, Berlin, Germany')).not.toBeOnTheScreen();
   expect(venues.getAllByText(/^20\d\d$/).map((node) => node.props.children)).toEqual([
     '2025',
     '2024',

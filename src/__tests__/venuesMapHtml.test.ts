@@ -31,6 +31,18 @@ it('keeps venue text as text in the page and the popup', () => {
   );
 });
 
+it('says a city once when the country has the same name', () => {
+  const singapore = {
+    ...hostile,
+    name: 'Esplanade',
+    cityName: 'Singapore',
+    countryName: 'Singapore',
+  };
+  expect(popupOf(buildHtml([singapore], 0, 0, t))).toBe(
+    '<b>Esplanade</b><br/>Singapore<br/>common.visit',
+  );
+});
+
 it('loads Leaflet only with the pinned integrity hashes', () => {
   const html = buildHtml([], 0, 0, t);
   expect(html).toContain(

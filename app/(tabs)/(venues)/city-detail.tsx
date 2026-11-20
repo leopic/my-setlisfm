@@ -10,6 +10,7 @@ import { Type } from '@/utils/typography';
 import DetailSkeleton from '@/components/skeletons/DetailSkeleton';
 import { BackButton, TabScrollView } from '@/components/ui';
 import { Space } from '@/utils/spacing';
+import { formatPlace } from '@/utils/place';
 
 interface VenueWithStats {
   id: string;
@@ -182,9 +183,7 @@ export default function CityDetailScreen() {
       <View style={styles.venueInfo}>
         <Text style={styles.venueName}>{venue.name}</Text>
         <Text style={styles.venueLocation}>
-          {venue.cityName || t('common.unknownCity')}
-          {venue.state && `, ${venue.state}`}
-          {venue.countryName && `, ${venue.countryName}`}
+          {formatPlace(venue.cityName || t('common.unknownCity'), venue.state, venue.countryName)}
         </Text>
         {venue.lastConcertDate && (
           <Text style={styles.lastConcertText}>
