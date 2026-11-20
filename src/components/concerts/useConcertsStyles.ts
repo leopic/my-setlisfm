@@ -4,6 +4,7 @@ import { Type } from '@/utils/typography';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
 import { Space } from '@/utils/spacing';
 import { RIVER_DOT_TOP } from '@/components/river';
+import { Corner, Radius } from '@/utils/radius';
 
 // One StyleSheet for the whole screen: the screen calls this once and passes the result
 // down to its sections.
@@ -45,7 +46,7 @@ export function useConcertsStyles() {
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor: colors.surface,
-      borderRadius: 10,
+      ...Corner.md,
       borderWidth: 1,
       borderColor: colors.border,
     },
@@ -65,7 +66,7 @@ export function useConcertsStyles() {
     sortPill: {
       minHeight: TOUCH_TARGET,
       justifyContent: 'center',
-      borderRadius: TOUCH_TARGET / 2,
+      borderRadius: Radius.full,
       paddingHorizontal: Space.s16,
       borderWidth: 1,
       borderColor: colors.border,
@@ -88,7 +89,7 @@ export function useConcertsStyles() {
       gap: Space.s4,
       minHeight: TOUCH_TARGET,
       paddingHorizontal: Space.s16,
-      borderRadius: TOUCH_TARGET / 2,
+      borderRadius: Radius.full,
       borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: 'transparent',
@@ -123,7 +124,7 @@ export function useConcertsStyles() {
       width: 220,
       maxHeight: 360,
       backgroundColor: colors.surface,
-      borderRadius: 14,
+      ...Corner.md,
       overflow: 'hidden',
       borderWidth: 1,
       borderColor: colors.border,
@@ -177,7 +178,7 @@ export function useConcertsStyles() {
       top: RIVER_DOT_TOP,
       width: 9,
       height: 9,
-      borderRadius: 4.5,
+      borderRadius: Radius.full,
       backgroundColor: colors.dotInactive,
       borderWidth: 2,
       borderColor: colors.background,

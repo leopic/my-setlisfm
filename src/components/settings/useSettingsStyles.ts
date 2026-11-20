@@ -3,6 +3,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
 import { Type } from '@/utils/typography';
 import { Space } from '@/utils/spacing';
+import { Corner } from '@/utils/radius';
 
 // A 44 pt control in a row of one text line reaches into the row's padding by this much.
 const ROW_LINE = Type.body.lineHeight;
@@ -76,7 +77,7 @@ export function useSettingsStyles() {
       color: colors.textPrimary,
       borderWidth: 1,
       borderColor: colors.accent,
-      borderRadius: 8,
+      ...Corner.sm,
       paddingHorizontal: Space.s12,
       minHeight: FIELD_HEIGHT,
       marginVertical: -(FIELD_HEIGHT - ROW_LINE) / 2,
@@ -88,7 +89,7 @@ export function useSettingsStyles() {
       marginVertical: ROW_TARGET_MARGIN,
       justifyContent: 'center',
       backgroundColor: colors.accent,
-      borderRadius: 8,
+      ...Corner.sm,
     },
     saveButtonText: {
       ...Type.footnote,

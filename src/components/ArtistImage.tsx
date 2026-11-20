@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { getArtistImageUri } from '@/services/artistImageService';
 import { useChronicleColors } from '@/utils/colors';
+import { Radius } from '@/utils/radius';
 
 interface ArtistImageProps {
   mbid: string;
@@ -35,7 +36,7 @@ export default function ArtistImage({
     container: {
       width: size,
       height: size,
-      borderRadius: size / 2,
+      borderRadius: Radius.full,
       backgroundColor: colors.surfaceRaised,
       overflow: 'hidden',
       alignItems: 'center',

@@ -7,6 +7,7 @@ import { Type } from '@/utils/typography';
 import type { OnThisDayConcert } from './types';
 import { useOpenConcert } from './useOpenConcert';
 import { Space } from '@/utils/spacing';
+import { Corner } from '@/utils/radius';
 
 // "On this day" card at the top of the phone layout.
 export default function OnThisDayCard({ onThisDay }: { onThisDay: NonNullable<OnThisDayConcert> }) {
@@ -22,7 +23,7 @@ export default function OnThisDayCard({ onThisDay }: { onThisDay: NonNullable<On
       backgroundColor: colors.accentSoft,
       borderWidth: 1,
       borderColor: colors.accent,
-      borderRadius: 12,
+      ...Corner.md,
       padding: Space.s16,
     },
     onThisDayLabel: {

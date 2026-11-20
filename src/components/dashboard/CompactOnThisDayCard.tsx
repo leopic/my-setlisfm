@@ -7,6 +7,7 @@ import { Type } from '@/utils/typography';
 import type { OnThisDayConcert } from './types';
 import { useOpenConcert } from './useOpenConcert';
 import { Space } from '@/utils/spacing';
+import { Corner } from '@/utils/radius';
 
 type Props = {
   concert: NonNullable<OnThisDayConcert>;
@@ -29,7 +30,7 @@ export default function CompactOnThisDayCard({ concert, variant }: Props) {
       backgroundColor: colors.accentSoft,
       borderWidth: 1,
       borderColor: colors.accent,
-      borderRadius: 10,
+      ...Corner.md,
       paddingHorizontal: Space.s12,
       paddingVertical: Space.s4,
     },

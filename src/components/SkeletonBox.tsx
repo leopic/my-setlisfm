@@ -9,6 +9,7 @@ import Animated, {
   cancelAnimation,
 } from 'react-native-reanimated';
 import { useChronicleColors } from '@/utils/colors';
+import { Radius } from '@/utils/radius';
 
 interface Props {
   width: ViewStyle['width'];
@@ -17,7 +18,8 @@ interface Props {
   style?: ViewStyle;
 }
 
-export default function SkeletonBox({ width, height, borderRadius = 4, style }: Props) {
+// Text placeholders are capsules by default.
+export default function SkeletonBox({ width, height, borderRadius = Radius.full, style }: Props) {
   const colors = useChronicleColors();
   const opacity = useSharedValue(0.3);
 
@@ -41,7 +43,8 @@ export default function SkeletonBox({ width, height, borderRadius = 4, style }: 
           width,
           height,
           borderRadius,
-          borderCurve: 'continuous',
+          // The smooth curve is for rounded boxes; capsules and circles stay round.
+          borderCurve: borderRadius === Radius.full ? 'circular' : 'continuous',
           backgroundColor: colors.textDisabled,
         },
         animatedStyle,

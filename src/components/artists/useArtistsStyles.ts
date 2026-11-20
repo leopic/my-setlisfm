@@ -3,6 +3,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
 import { Space } from '@/utils/spacing';
+import { Corner, Radius } from '@/utils/radius';
 
 const ACCENT_WIDTH = 2.5;
 
@@ -42,7 +43,7 @@ export function useArtistsStyles() {
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: 10,
+      ...Corner.md,
       marginHorizontal: Space.edge,
       marginBottom: Space.s8,
     },
@@ -61,7 +62,7 @@ export function useArtistsStyles() {
     sortPill: {
       minHeight: TOUCH_TARGET,
       justifyContent: 'center',
-      borderRadius: TOUCH_TARGET / 2,
+      borderRadius: Radius.full,
       paddingHorizontal: Space.s12,
       borderWidth: 1,
     },
@@ -147,7 +148,7 @@ export function useArtistsStyles() {
       backgroundColor: colors.accent,
       paddingHorizontal: Space.s20,
       paddingVertical: Space.s12,
-      borderRadius: 20,
+      borderRadius: Radius.full,
     },
     refreshButtonText: {
       ...Type.footnote,

@@ -4,12 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '@/components/SkeletonBox';
 import { useChronicleColors } from '@/utils/colors';
 import { Space } from '@/utils/spacing';
+import { Radius } from '@/utils/radius';
 
 function SetDivider({ styles }: { styles: ReturnType<typeof buildStyles> }) {
   return (
     <View style={styles.dividerRow}>
       <SkeletonBox width="100%" height={1} style={styles.dividerLine} />
-      <SkeletonBox width={64} height={10} borderRadius={4} />
+      <SkeletonBox width={64} height={10} borderRadius={Radius.full} />
       <SkeletonBox width="100%" height={1} style={styles.dividerLine} />
     </View>
   );
@@ -18,8 +19,8 @@ function SetDivider({ styles }: { styles: ReturnType<typeof buildStyles> }) {
 function SongRow({ styles }: { styles: ReturnType<typeof buildStyles> }) {
   return (
     <View style={styles.songRow}>
-      <SkeletonBox width={20} height={11} borderRadius={3} />
-      <SkeletonBox width="55%" height={14} borderRadius={4} />
+      <SkeletonBox width={20} height={11} borderRadius={Radius.full} />
+      <SkeletonBox width="55%" height={14} borderRadius={Radius.full} />
     </View>
   );
 }
@@ -87,16 +88,31 @@ export default function SetlistSkeleton() {
     >
       <View style={styles.backBar}>
         <View style={styles.backBarRow}>
-          <SkeletonBox width={48} height={14} borderRadius={6} />
-          <SkeletonBox width={160} height={20} borderRadius={4} />
+          <SkeletonBox width={48} height={14} borderRadius={Radius.sm} />
+          <SkeletonBox width={160} height={20} borderRadius={Radius.full} />
         </View>
       </View>
 
       <View style={styles.heroBlock}>
-        <SkeletonBox width={200} height={18} borderRadius={4} />
-        <SkeletonBox width={150} height={13} borderRadius={4} style={{ marginTop: Space.s4 }} />
-        <SkeletonBox width={120} height={13} borderRadius={4} style={{ marginTop: Space.s4 }} />
-        <SkeletonBox width={100} height={11} borderRadius={4} style={{ marginTop: Space.s8 }} />
+        <SkeletonBox width={200} height={18} borderRadius={Radius.full} />
+        <SkeletonBox
+          width={150}
+          height={13}
+          borderRadius={Radius.full}
+          style={{ marginTop: Space.s4 }}
+        />
+        <SkeletonBox
+          width={120}
+          height={13}
+          borderRadius={Radius.full}
+          style={{ marginTop: Space.s4 }}
+        />
+        <SkeletonBox
+          width={100}
+          height={11}
+          borderRadius={Radius.full}
+          style={{ marginTop: Space.s8 }}
+        />
       </View>
 
       <View style={styles.songList}>

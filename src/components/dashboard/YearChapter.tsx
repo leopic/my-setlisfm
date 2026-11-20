@@ -5,6 +5,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import type { MonthCounts, YearSummary } from './types';
 import { Space } from '@/utils/spacing';
+import { Radius } from '@/utils/radius';
 
 function useChapterStyles() {
   const colors = useChronicleColors();
@@ -61,20 +62,20 @@ function useChapterStyles() {
     monthDotEmpty: {
       width: 7,
       height: 7,
-      borderRadius: 3.5,
+      borderRadius: Radius.full,
       backgroundColor: colors.border,
     },
     monthDotFull: {
       width: 7,
       height: 7,
-      borderRadius: 3.5,
+      borderRadius: Radius.full,
       backgroundColor: colors.accent,
       opacity: 0.45,
     },
     monthDotPeak: {
       width: 8,
       height: 8,
-      borderRadius: 4,
+      borderRadius: Radius.full,
       backgroundColor: colors.accent,
     },
   });

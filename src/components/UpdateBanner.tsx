@@ -6,6 +6,7 @@ import * as Updates from 'expo-updates';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { Space } from '@/utils/spacing';
+import { Corner } from '@/utils/radius';
 
 // Height of the iOS 26 tab bar above the bottom safe area (measured on an iPhone 17 Pro).
 // The banner sits just above it, so it never covers a screen's header or back button.
@@ -60,8 +61,7 @@ export function UpdateBanner() {
       paddingVertical: Space.s12,
       paddingLeft: Space.s16,
       paddingRight: Space.s12,
-      borderRadius: 12,
-      borderCurve: 'continuous',
+      ...Corner.md,
       borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: colors.surface,
@@ -73,8 +73,7 @@ export function UpdateBanner() {
       backgroundColor: colors.accent,
       paddingHorizontal: Space.s16,
       paddingVertical: Space.s8,
-      borderRadius: 8,
-      borderCurve: 'continuous',
+      ...Corner.sm,
     },
     restartText: { ...Type.headline, color: colors.textOnAccent },
   });

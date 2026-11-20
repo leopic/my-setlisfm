@@ -7,6 +7,7 @@ import { toOrdinal } from '@/utils/ordinal';
 import type { ConcertRecognitionFacts } from '@/database/factQueries';
 import { buildRecognitionChips } from './recognitionChips';
 import { Space } from '@/utils/spacing';
+import { Corner, Radius } from '@/utils/radius';
 
 interface Props {
   visible: boolean;
@@ -39,8 +40,9 @@ export default function RecognitionSheet({
     },
     sheet: {
       backgroundColor: colors.surface,
-      borderTopLeftRadius: 22,
-      borderTopRightRadius: 22,
+      borderTopLeftRadius: Radius.lg,
+      borderTopRightRadius: Radius.lg,
+      borderCurve: 'continuous',
       borderTopWidth: 1,
       borderColor: colors.border,
       paddingHorizontal: Space.s20,
@@ -51,7 +53,7 @@ export default function RecognitionSheet({
       alignSelf: 'center',
       width: 36,
       height: 4,
-      borderRadius: 3,
+      borderRadius: Radius.full,
       backgroundColor: colors.borderLight,
       marginBottom: Space.s16,
     },
@@ -83,7 +85,7 @@ export default function RecognitionSheet({
       backgroundColor: colors.surfaceRaised,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: 10,
+      ...Corner.md,
       padding: Space.s12,
     },
     chipIcon: { marginBottom: Space.s4 },
@@ -94,7 +96,7 @@ export default function RecognitionSheet({
     doneButton: {
       alignItems: 'center',
       paddingVertical: Space.s12,
-      borderRadius: 10,
+      ...Corner.md,
       backgroundColor: colors.surfaceRaised,
       borderWidth: 1,
       borderColor: colors.border,

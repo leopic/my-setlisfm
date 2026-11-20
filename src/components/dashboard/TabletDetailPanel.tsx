@@ -19,6 +19,7 @@ import type {
   YearSummary,
 } from './types';
 import { Space } from '@/utils/spacing';
+import { Corner } from '@/utils/radius';
 
 type Props = {
   yearStr: string;
@@ -71,7 +72,7 @@ export default function TabletDetailPanel({
       backgroundColor: colors.background,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: 12,
+      ...Corner.md,
       padding: Space.s12,
     },
     detailChartLabel: {

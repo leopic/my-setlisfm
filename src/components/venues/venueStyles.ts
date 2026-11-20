@@ -3,6 +3,7 @@ import { Type } from '@/utils/typography';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
 import type { ChronicleColors } from '@/utils/colors';
 import { Space } from '@/utils/spacing';
+import { Corner, Radius } from '@/utils/radius';
 
 // One StyleSheet for the whole venues screen, created once per parent render and passed down.
 export function createVenueStyles(colors: ChronicleColors) {
@@ -41,7 +42,7 @@ export function createVenueStyles(colors: ChronicleColors) {
       paddingHorizontal: Space.s16,
       minHeight: TOUCH_TARGET,
       justifyContent: 'center',
-      borderRadius: 8,
+      ...Corner.sm,
       backgroundColor: colors.accentSoft,
       borderWidth: 1,
       borderColor: colors.accent,
@@ -66,7 +67,7 @@ export function createVenueStyles(colors: ChronicleColors) {
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: 10,
+      ...Corner.md,
     },
     searchInput: {
       flex: 1,
@@ -83,7 +84,7 @@ export function createVenueStyles(colors: ChronicleColors) {
     sortPill: {
       minHeight: TOUCH_TARGET,
       justifyContent: 'center',
-      borderRadius: TOUCH_TARGET / 2,
+      borderRadius: Radius.full,
       paddingHorizontal: Space.s16,
       borderWidth: 1,
       borderColor: colors.border,
@@ -158,7 +159,7 @@ export function createVenueStyles(colors: ChronicleColors) {
       backgroundColor: colors.accent,
       paddingHorizontal: Space.s20,
       paddingVertical: Space.s12,
-      borderRadius: 20,
+      borderRadius: Radius.full,
     },
     refreshButtonText: {
       ...Type.footnote,

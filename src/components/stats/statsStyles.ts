@@ -2,6 +2,7 @@ import { StyleSheet } from 'react-native';
 import { Type } from '@/utils/typography';
 import type { ChronicleColors } from '@/utils/colors';
 import { Space } from '@/utils/spacing';
+import { Corner } from '@/utils/radius';
 
 // One StyleSheet for the whole stats screen, created once per parent render and passed down.
 export function createStatsStyles(colors: ChronicleColors) {
@@ -31,7 +32,7 @@ export function createStatsStyles(colors: ChronicleColors) {
     },
     chartCard: {
       backgroundColor: colors.surface,
-      borderRadius: 14,
+      ...Corner.md,
       borderWidth: 1,
       borderColor: colors.border,
       padding: Space.s16,
@@ -47,7 +48,7 @@ export function createStatsStyles(colors: ChronicleColors) {
     statCard: {
       flex: 1,
       backgroundColor: colors.surface,
-      borderRadius: 12,
+      ...Corner.md,
       borderWidth: 1,
       borderColor: colors.border,
       padding: Space.s16,
@@ -64,7 +65,7 @@ export function createStatsStyles(colors: ChronicleColors) {
       marginHorizontal: Space.edge,
       marginBottom: Space.s12,
       backgroundColor: colors.surface,
-      borderRadius: 14,
+      ...Corner.md,
       borderWidth: 1,
       borderColor: colors.border,
       height: 160,
