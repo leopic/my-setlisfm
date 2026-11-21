@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useIsFocused } from 'expo-router';
+import { useIsFocused, type Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { LegendList, type LegendListRef } from '@legendapp/list/react-native';
 import { dbOperations } from '@/database/operations';
@@ -72,7 +72,6 @@ export default function ConcertsScreen() {
   const styles = useConcertsStyles();
 
   const { lastSyncTimestamp } = useSyncContext();
-  const router = useRouter();
   const [rawConcerts, setRawConcerts] = useState<ConcertWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<SortOption>('recent');
@@ -185,13 +184,15 @@ export default function ConcertsScreen() {
 
   const totalConcerts = yearGroups.reduce((sum, g) => sum + g.totalConcerts, 0);
 
-  const handleConcertPress = (concert: ConcertWithDetails) => {
-    if (isTablet) {
-      setSelectedConcertId(concert.id);
-    } else {
-      router.push({ pathname: '/(concerts)/[id]', params: { id: concert.id } });
-    }
-  };
+  // iPad: a row shows its setlist in the side pane.
+  const handleConcertPress = (concert: ConcertWithDetails) => setSelectedConcertId(concert.id);
+  // Phone: a row opens the setlist through a Link, which gives the long-press preview.
+  const concertHref = isTablet
+    ? undefined
+    : (concert: ConcertWithDetails): Href => ({
+        pathname: '/(concerts)/[id]',
+        params: { id: concert.id },
+      });
 
   const renderItem = ({ item }: { item: ConcertListItem }) => {
     if (item.type === 'year') {
@@ -202,6 +203,7 @@ export default function ConcertsScreen() {
           isTablet={isTablet}
           selectedConcertId={selectedConcertId}
           onConcertPress={handleConcertPress}
+          concertHref={concertHref}
           styles={styles}
         />
       );
@@ -212,6 +214,7 @@ export default function ConcertsScreen() {
         isTablet={isTablet}
         selectedConcertId={selectedConcertId}
         onConcertPress={handleConcertPress}
+        concertHref={concertHref}
         styles={styles}
       />
     );
