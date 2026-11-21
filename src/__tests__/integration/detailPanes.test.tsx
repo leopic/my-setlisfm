@@ -29,6 +29,10 @@ it("lists an artist's concerts in the pane, older year group included", async ()
     }),
   ).toBeOnTheScreen();
   expect(artists.queryAllByRole('button', { name: /›/ })).toHaveLength(0);
+  expect(
+    artists.getAllByTestId('row-chevron', { includeHiddenElements: true }).length,
+  ).toBeGreaterThan(0);
+  expect(artists.queryAllByTestId('row-chevron')).toHaveLength(0);
   expect(artists.getAllByText(/^20\d\d$/).map((node) => node.props.children)).toEqual([
     '2025',
     '2024',
@@ -50,6 +54,10 @@ it("lists a venue's concerts in the pane, older year group included", async () =
   expect(venues.getByText('Kraftwerk')).toBeOnTheScreen();
   expect(venues.getByText('The Strokes')).toBeOnTheScreen();
   expect(venues.queryAllByRole('button', { name: /›/ })).toHaveLength(0);
+  expect(
+    venues.getAllByTestId('row-chevron', { includeHiddenElements: true }).length,
+  ).toBeGreaterThan(0);
+  expect(venues.queryAllByTestId('row-chevron')).toHaveLength(0);
   // Berlin is a city and a state; the name is said once.
   expect(venues.getAllByText('Berlin, Germany').length).toBeGreaterThan(0);
   expect(venues.queryByText('Berlin, Berlin, Germany')).not.toBeOnTheScreen();

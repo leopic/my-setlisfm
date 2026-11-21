@@ -70,7 +70,7 @@ describe('with the fixture', () => {
     expect(within(row).getByText('Radiohead')).toBeOnTheScreen();
     expect(within(row).getByText(/^Last seen: /)).toBeOnTheScreen();
     expect(within(row).getByText('2')).toBeOnTheScreen();
-    expect(within(row).getByText('›')).toBeOnTheScreen();
+    expect(within(row).getByTestId('row-chevron', { includeHiddenElements: true })).toBeTruthy();
   });
 
   it('lists the venues of an artist on one line', async () => {

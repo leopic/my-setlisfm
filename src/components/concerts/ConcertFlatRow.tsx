@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { formatDate } from '@/utils/date';
 import type { ConcertWithDetails } from './types';
 import type { ConcertsStyles } from './useConcertsStyles';
+import { Chevron } from '@/components/ui';
 
 type Props = {
   concert: ConcertWithDetails;
@@ -44,7 +45,7 @@ export default function ConcertFlatRow({
           </Text>
           {concert.tour?.name && <Text style={styles.entryTour}>{concert.tour.name}</Text>}
         </View>
-        <Text style={styles.entryChevron}>›</Text>
+        <Chevron style={styles.entryChevron} />
       </View>
     </Pressable>
   );

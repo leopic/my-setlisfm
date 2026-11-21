@@ -11,6 +11,7 @@ import { Space } from '@/utils/spacing';
 import { RIVER_DOT_TOP } from '@/components/river';
 import { Radius } from '@/utils/radius';
 import { useArtistTint } from '@/utils/useArtistTint';
+import { Chevron } from '@/components/ui';
 
 // Styles for the entries on the phone timeline spine. Call once in the timeline and pass the result down.
 // The milestone marker is a 9 pt square turned 45°; a slight rounding keeps it a diamond.
@@ -150,7 +151,7 @@ export function TimelineConcertEntry({
         <Text style={styles.entryArtist}>{concert.artistName}</Text>
         {venueName !== undefined && <Text style={styles.entryVenue}>{venueName}</Text>}
       </View>
-      <Text style={styles.entryChevron}>›</Text>
+      <Chevron style={styles.entryChevron} />
     </Pressable>
   );
 }
@@ -190,7 +191,7 @@ export function TimelineMilestoneEntry({
           <Text style={styles.entryVenue}>{formatDate(milestone.eventDate)}</Text>
         )}
       </View>
-      <Text style={styles.entryChevron}>›</Text>
+      <Chevron style={styles.entryChevron} />
     </Pressable>
   );
 }

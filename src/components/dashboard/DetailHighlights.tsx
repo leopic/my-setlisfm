@@ -9,6 +9,7 @@ import { useOpenConcert } from './useOpenConcert';
 import type { ConcertEntry, DashboardStats, Milestone, OnThisDayConcert } from './types';
 import { Space } from '@/utils/spacing';
 import { Corner } from '@/utils/radius';
+import { Chevron } from '@/components/ui';
 
 // Styles shared by the entries in the tablet detail panel. Call once in the panel and pass the result down.
 export function useDetailStyles() {
@@ -74,7 +75,7 @@ export function DetailConcertEntry({ concert, meta, styles }: ConcertRowProps) {
       style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
       onPress={() => openConcert(concert.setlistId)}
       accessibilityRole="button"
-      // Without a label VoiceOver also reads the "›" arrow.
+      // The label sets what VoiceOver reads; the Chevron hides itself.
       accessibilityLabel={`${concert.artistName}, ${meta}`}
     >
       {concert.artistMbid && (
@@ -89,7 +90,7 @@ export function DetailConcertEntry({ concert, meta, styles }: ConcertRowProps) {
         <Text style={styles.detailArtistName}>{concert.artistName}</Text>
         <Text style={styles.detailMeta}>{meta}</Text>
       </View>
-      <Text style={styles.detailChevron}>›</Text>
+      <Chevron style={styles.detailChevron} />
     </Pressable>
   );
 }
@@ -112,7 +113,7 @@ function DetailMilestoneEntry({
       style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
       onPress={() => openConcert(milestone.setlistId)}
       accessibilityRole="button"
-      // Without a label VoiceOver also reads the "›" arrow.
+      // The label sets what VoiceOver reads; the Chevron hides itself.
       accessibilityLabel={[
         label,
         milestone.artistName,
@@ -130,7 +131,7 @@ function DetailMilestoneEntry({
           {formatDate(milestone.eventDate)}
         </Text>
       </View>
-      <Text style={styles.detailChevron}>›</Text>
+      <Chevron style={styles.detailChevron} />
     </Pressable>
   );
 }

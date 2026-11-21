@@ -11,7 +11,7 @@ import ConcertListSkeleton from '@/components/skeletons/ConcertListSkeleton';
 import ArtistImage from '@/components/ArtistImage';
 import ArtistGlow from '@/components/ArtistGlow';
 import { useArtistTint } from '@/utils/useArtistTint';
-import { BackButton, TabScrollView } from '@/components/ui';
+import { BackButton, TabScrollView, Chevron } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { Space } from '@/utils/spacing';
@@ -380,7 +380,7 @@ export default function ArtistConcertsListScreen() {
                             </Text>
                           )}
                         </View>
-                        <Text style={styles.entryChevron}>›</Text>
+                        <Chevron style={styles.entryChevron} />
                       </View>
                     </Pressable>
                   );

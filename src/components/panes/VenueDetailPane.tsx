@@ -12,6 +12,7 @@ import { Space } from '@/utils/spacing';
 import { RIVER_DOT_TOP } from '@/components/river';
 import { Radius } from '@/utils/radius';
 import { formatPlace } from '@/utils/place';
+import { Chevron } from '@/components/ui';
 
 interface YearGroup {
   year: string;
@@ -214,7 +215,7 @@ export default function VenueDetailPane({ venue }: Props) {
                   router.push({ pathname: '/(venues)/[id]', params: { id: concert.id } })
                 }
                 accessibilityRole="button"
-                // Without a label VoiceOver also reads the "›" arrow.
+                // The label sets what VoiceOver reads; the Chevron hides itself.
                 accessibilityLabel={[
                   formatDate(concert.eventDate ?? ''),
                   concert.artist?.name ?? t('common.unknownArtist'),
@@ -236,7 +237,7 @@ export default function VenueDetailPane({ venue }: Props) {
                       <Text style={styles.entryTour}>{concert.tour.name}</Text>
                     ) : null}
                   </View>
-                  <Text style={styles.entryChevron}>›</Text>
+                  <Chevron style={styles.entryChevron} />
                 </View>
               </Pressable>
             </View>
