@@ -40,6 +40,7 @@ it("shows the artist's photo, large, behind the top of the setlist", async () =>
   expect(screen.queryByTestId('artist-hero')).not.toBeOnTheScreen();
   // The back link sits on a pill, so it reads whatever the photo shows behind it.
   expect(screen.getByTestId('back-pill')).toBeOnTheScreen();
+  expect(await screen.findByTestId('badge-chip')).toBeOnTheScreen();
 });
 
 it('shows no photo for an artist without one', async () => {
