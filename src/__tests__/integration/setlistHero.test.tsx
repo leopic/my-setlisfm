@@ -1,4 +1,5 @@
-import { fireEvent } from 'expo-router/testing-library';
+import { act, fireEvent, waitFor } from 'expo-router/testing-library';
+import * as artistImageService from '@/services/artistImageService';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
 import { findScreen, launchApp, openTab } from '../../../test/screen';
@@ -40,8 +41,14 @@ it("shows the artist's photo, large, behind the top of the setlist", async () =>
 });
 
 it('shows no photo for an artist without one', async () => {
+  const lookup = jest.spyOn(artistImageService, 'getArtistImageUri');
   const screen = await openSetlist('set-3');
 
-  expect(await screen.findByText('Daft Punk')).toBeOnTheScreen();
+  // Wait for the photo lookup to end, so a photo that would come late is on the screen.
+  await waitFor(() => expect(lookup).toHaveBeenCalledWith('artist-3'));
+  await act(async () => {
+    await Promise.all(lookup.mock.results.map((result) => result.value));
+  });
+  expect(screen.getByText('Daft Punk')).toBeOnTheScreen();
   expect(screen.queryByTestId('artist-hero', { includeHiddenElements: true })).toBeNull();
 });
