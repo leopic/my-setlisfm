@@ -29,7 +29,7 @@ export function useArtistTint(mbid: string | undefined): ArtistTint | null {
             // Not found yet, and this screen may show no photo that would find it: ask once.
             asked = true;
             const imageUrl = await getArtistImageUri(mbid);
-            if (imageUrl) await storeArtistPhotoColor(mbid, imageUrl);
+            if (imageUrl && !cancelled) await storeArtistPhotoColor(mbid, imageUrl);
           }
         })
         .catch(() => {}); // no tint is fine

@@ -77,6 +77,9 @@ it('tints the setlist screen too', async () => {
   expect(backColor(screen)).toBe(artistTint(WINE, theme()).accent);
   const tour = StyleSheet.flatten(screen.getByText('In Rainbows Tour').props.style);
   expect(tour.color).toBe(artistTint(WINE, theme()).accent);
+  // The color is the only trace of the photo: the header shows the name without it.
+  expect(screen.getByText('Radiohead')).toBeOnTheScreen();
+  expect(screen.queryByLabelText('Radiohead')).not.toBeOnTheScreen();
 });
 
 // Arctic Monkeys have no photo, so no color is ever stored for them.
