@@ -13,20 +13,14 @@ const HERO_PHOTO_SIZE = 1000;
 
 // How much of the background covers the photo. The photo shows most behind the status bar and
 // the artist name; from the venue line down (about 45% of the hero) it is nearly covered, as the
-// small date text there is only 3:1 on a plain background. A dark photo under the light theme's
-// back link costs the most contrast, so the light veil starts thicker.
-const VEIL_TOP = { light: 0.82, dark: 0.72 };
+// small date text there is only 3:1 on a plain background. The back link sits on its own pill
+// over the photo (BackButton `onPhoto`), so only the large artist name reads on the veil: at 0.6
+// it keeps 6:1 on the light theme even over a black photo.
+const VEIL_TOP = { light: 0.6, dark: 0.72 };
 const VEIL_TEXT = 0.95;
 
-/**
- * The artist's photo behind the top of a screen, under a veil of the background color that
- * thickens towards the bottom, so the text on it stays readable and the photo fades into the
- * screen. Shows nothing for an artist without a photo. Place it first inside the screen's
- * container, so the content draws on top.
- */
-export default function ArtistHero({ mbid }: { mbid: string | undefined }) {
-  const colors = useChronicleColors();
-  const veilTop = useColorScheme() === 'dark' ? VEIL_TOP.dark : VEIL_TOP.light;
+/** The large photo URL for the hero, or null while it loads or for an artist without a photo. */
+export function useArtistHeroPhoto(mbid: string | undefined): string | null {
   // Kept with its mbid, so another artist's photo never shows while the new one loads.
   const [photo, setPhoto] = useState<{ mbid: string; url: string } | null>(null);
 
@@ -43,7 +37,17 @@ export default function ArtistHero({ mbid }: { mbid: string | undefined }) {
     };
   }, [mbid]);
 
-  if (!photo || photo.mbid !== mbid) return null;
+  return photo && photo.mbid === mbid ? photo.url : null;
+}
+
+/**
+ * The artist's photo behind the top of a screen, under a veil of the background color that
+ * thickens towards the bottom, so the text on it stays readable and the photo fades into the
+ * screen. Place it first inside the screen's container, so the content draws on top.
+ */
+export default function ArtistHero({ photoUrl }: { photoUrl: string }) {
+  const colors = useChronicleColors();
+  const veilTop = useColorScheme() === 'dark' ? VEIL_TOP.dark : VEIL_TOP.light;
 
   return (
     <View
@@ -54,7 +58,7 @@ export default function ArtistHero({ mbid }: { mbid: string | undefined }) {
       importantForAccessibility="no-hide-descendants"
     >
       <Image
-        source={{ uri: photo.url }}
+        source={{ uri: photoUrl }}
         testID="artist-hero-photo"
         style={StyleSheet.absoluteFill}
         contentFit="cover"

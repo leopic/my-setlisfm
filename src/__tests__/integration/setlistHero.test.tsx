@@ -38,6 +38,8 @@ it("shows the artist's photo, large, behind the top of the setlist", async () =>
   );
   // Decoration: VoiceOver skips it.
   expect(screen.queryByTestId('artist-hero')).not.toBeOnTheScreen();
+  // The back link sits on a pill, so it reads whatever the photo shows behind it.
+  expect(screen.getByTestId('back-pill')).toBeOnTheScreen();
 });
 
 it('shows no photo for an artist without one', async () => {
@@ -50,5 +52,6 @@ it('shows no photo for an artist without one', async () => {
     await Promise.all(lookup.mock.results.map((result) => result.value));
   });
   expect(screen.getByText('Daft Punk')).toBeOnTheScreen();
+  expect(screen.queryByTestId('back-pill')).not.toBeOnTheScreen();
   expect(screen.queryByTestId('artist-hero', { includeHiddenElements: true })).toBeNull();
 });

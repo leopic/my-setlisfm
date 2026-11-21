@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { BackButton, Icon, TabScrollView } from '@/components/ui';
 import ArtistGlow from '@/components/ArtistGlow';
-import ArtistHero from '@/components/ArtistHero';
+import ArtistHero, { useArtistHeroPhoto } from '@/components/ArtistHero';
 import { useArtistTint } from '@/utils/useArtistTint';
 import RecognitionSheet from '@/components/RecognitionSheet';
 import { useTranslation } from 'react-i18next';
@@ -66,6 +66,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   // The artist's photo color replaces the theme accent on this screen.
   const tint = useArtistTint(setlist.artist?.mbid);
   const accent = tint?.accent ?? colors.accent;
+  const heroPhoto = useArtistHeroPhoto(setlist.artist?.mbid);
 
   // Facts are stored with the setlist id they belong to, so a changed id hides them
   // during render instead of resetting state inside the effect.
@@ -309,11 +310,13 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
     <>
       {/* The color glow under the photo shows for an artist without one. */}
       {tint && <ArtistGlow tint={tint} />}
-      <ArtistHero mbid={setlist.artist?.mbid} />
+      {heroPhoto && <ArtistHero photoUrl={heroPhoto} />}
       {/* Back bar — hidden when used as an inline pane */}
       <View style={styles.backBar}>
         <View style={styles.backBarRow}>
-          {onBackPress && <BackButton onPress={onBackPress} color={tint?.accent} />}
+          {onBackPress && (
+            <BackButton onPress={onBackPress} color={tint?.accent} onPhoto={!!heroPhoto} />
+          )}
           <Text style={styles.artistName} numberOfLines={1}>
             {setlist.artist?.name || t('common.unknownArtist')}
           </Text>
