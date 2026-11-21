@@ -10,6 +10,7 @@ import { Type } from '@/utils/typography';
 import ConcertListSkeleton from '@/components/skeletons/ConcertListSkeleton';
 import ArtistImage from '@/components/ArtistImage';
 import ArtistGlow from '@/components/ArtistGlow';
+import ArtistHero, { useArtistHeroPhoto } from '@/components/ArtistHero';
 import { useArtistTint } from '@/utils/useArtistTint';
 import { BackButton, TabScrollView, Chevron, RowLink } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
@@ -202,6 +203,7 @@ export default function ArtistConcertsListScreen() {
   const artistMbid = params.artist as string;
   // The artist's photo color replaces the theme accent on this screen.
   const tint = useArtistTint(artistMbid);
+  const heroPhoto = useArtistHeroPhoto(artistMbid);
   const tinted = tint ? { color: tint.accent } : null;
 
   useEffect(() => {
@@ -293,13 +295,17 @@ export default function ArtistConcertsListScreen() {
       testID="artist-concerts-screen"
     >
       {tint && <ArtistGlow tint={tint} />}
+      {heroPhoto && <ArtistHero photoUrl={heroPhoto} />}
       {/* Inline header */}
       <View style={styles.inlineHeader}>
         <View style={styles.backRow}>
-          <BackButton onPress={() => router.back()} color={tint?.accent} />
+          <BackButton onPress={() => router.back()} color={tint?.accent} onPhoto={!!heroPhoto} />
         </View>
         <View style={styles.artistRow}>
-          <ArtistImage mbid={artistMbid} imageUrl={artistImageUrl} size={56} name={artistName} />
+          {/* The photo behind the header already shows who it is, as on the setlist. */}
+          {!heroPhoto && (
+            <ArtistImage mbid={artistMbid} imageUrl={artistImageUrl} size={56} name={artistName} />
+          )}
           <View style={styles.artistTextBlock}>
             <Text style={styles.headerTitle}>{artistName}</Text>
             <Text style={styles.headerSubtitle}>{subtitleParts.join(' · ')}</Text>
