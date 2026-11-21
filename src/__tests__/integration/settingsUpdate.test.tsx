@@ -31,8 +31,8 @@ const downloadedUpdate = {
     // EAS update ids start with a timestamp, so only the end tells updates apart.
     updateId: '01a1dfbd-37c4-7c56-9e46-d098b3a487ad',
     channel: 'preview',
-    // Local time, so the text is the same in any time zone; 16:05 pins the 24-hour clock.
-    createdAt: new Date(2026, 10, 15, 16, 5),
+    // Ten minutes ago, so the row reads the same whenever the test runs.
+    createdAt: new Date(Date.now() - 10 * 60 * 1000),
   },
 };
 
@@ -46,7 +46,7 @@ it('shows the date, commit and channel of a downloaded update', async () => {
   mockUpdates = downloadedUpdate;
 
   const row = await findUpdateRow();
-  expect(row).toHaveTextContent(/Nov 15, 16:05/);
+  expect(row).toHaveTextContent(/10 minutes ago/);
   expect(row).toHaveTextContent(/fefd511 · preview/);
 });
 

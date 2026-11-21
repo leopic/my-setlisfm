@@ -10,4 +10,4 @@ name: Dashboard loads with seeded data
 - assertVisible:
     id: "dashboard-screen"
 - assertVisible: "8 shows · 5 artists · 3 countries"
-- assertVisible: "Last synced: .*"
+- assertVisible: "Synced .*"

@@ -152,9 +152,10 @@ it('updates "Last synced" after a sync', async () => {
   await openSettings();
   await screen.findByText('e2e-seed');
 
-  const stamp = new Date('2031-05-06T07:08:09Z');
-  jest.spyOn(dbOperations, 'getLastFetchedAt').mockResolvedValue(stamp);
+  jest
+    .spyOn(dbOperations, 'getLastFetchedAt')
+    .mockResolvedValue(new Date(Date.now() - 5 * 60 * 1000));
   await fireEvent.press(screen.getByLabelText('Sync now'));
 
-  expect(await screen.findByText(stamp.toLocaleString())).toBeOnTheScreen();
+  expect(await screen.findByText('5 minutes ago')).toBeOnTheScreen();
 });

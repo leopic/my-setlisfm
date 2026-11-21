@@ -5,15 +5,18 @@ import { Type } from '@/utils/typography';
 import HeaderActions from './HeaderActions';
 import StatsLine, { type StatsTotals } from './StatsLine';
 import { Space } from '@/utils/spacing';
+import { formatSince } from '@/utils/since';
+import { useNow } from '@/utils/useNow';
 
 type Props = {
   onSync: () => void;
   // Left out while no concerts are synced yet.
   totals?: StatsTotals;
-  lastSynced?: string | null;
+  lastSyncedAt?: Date | null;
 };
 
-export default function PhoneTopBar({ onSync, totals, lastSynced }: Props) {
+export default function PhoneTopBar({ onSync, totals, lastSyncedAt }: Props) {
+  const now = useNow();
   const colors = useChronicleColors();
   const { t } = useTranslation();
   const styles = StyleSheet.create({
@@ -49,8 +52,10 @@ export default function PhoneTopBar({ onSync, totals, lastSynced }: Props) {
         <HeaderActions onSync={onSync} />
       </View>
       {totals && <StatsLine totals={totals} />}
-      {lastSynced && (
-        <Text style={styles.lastSynced}>{t('dashboard.lastSynced', { date: lastSynced })}</Text>
+      {lastSyncedAt && (
+        <Text style={styles.lastSynced}>
+          {t('dashboard.lastSynced', { when: formatSince(lastSyncedAt, now) })}
+        </Text>
       )}
     </View>
   );

@@ -65,7 +65,7 @@ export default function DashboardScreen() {
   const [insightStats, setInsightStats] = useState<InsightStats | null>(null);
   const [onThisDay, setOnThisDay] = useState<OnThisDayConcert>(null);
   const [panelOnThisDay, setPanelOnThisDay] = useState<OnThisDayConcert>(null);
-  const [lastSynced, setLastSynced] = useState<string | null>(null);
+  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const usernameRef = useRef('');
@@ -89,7 +89,7 @@ export default function DashboardScreen() {
       setYearSummaries(summaries);
       setOnThisDay(onThisDayResult);
       setInsightStats(insights);
-      setLastSynced(fetchedAt ? fetchedAt.toLocaleString() : null);
+      setLastSyncedAt(fetchedAt);
       // Default to the most recent year on first load
       const sorted = [...dashStats.concertsByYear].sort((a, b) => Number(b.year) - Number(a.year));
       setSelectedYear((prev) => prev ?? sorted[0]?.year ?? null);
@@ -247,7 +247,7 @@ export default function DashboardScreen() {
       ) : (
         /* ── Phone layout ────────────────────────────────────────────────────── */
         <>
-          <PhoneTopBar onSync={handleSync} totals={totals} lastSynced={lastSynced} />
+          <PhoneTopBar onSync={handleSync} totals={totals} lastSyncedAt={lastSyncedAt} />
           <TabScrollView
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           >

@@ -61,7 +61,7 @@ export default {
     yearsAgo: '{{count}} year ago',
     yearsAgo_other: '{{count}} years ago',
     concertsPerYear: 'Concerts per Year',
-    lastSynced: 'Last synced: {{date}}',
+    lastSynced: 'Synced {{when}}',
     emptyTitle: 'Your chronicle starts here',
     emptyBody: 'Sync your setlist.fm history to begin.',
     usernamePlaceholder: 'setlist.fm username',
@@ -132,6 +132,21 @@ export default {
     today: 'today',
     yearsAndMonths: '{{years}}, {{months}}',
     ago: '{{span}} ago',
+  },
+
+  // How long ago something happened, as a person says it (src/utils/since.ts)
+  since: {
+    justNow: 'just now',
+    minutesAgo_one: 'a minute ago',
+    minutesAgo_other: '{{count}} minutes ago',
+    hoursAgo_one: 'an hour ago',
+    hoursAgo_other: '{{count}} hours ago',
+    lastNight: 'last night',
+    thisMorning: 'this morning',
+    thisAfternoon: 'this afternoon',
+    thisEvening: 'this evening',
+    yesterday: 'yesterday',
+    onDay: 'on {{day}}',
   },
 
   // Demo (hidden, for talks)

@@ -3,7 +3,8 @@ import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { useTranslation } from 'react-i18next';
-import { formatDateTime } from '@/utils/date';
+import { formatSinceAlone } from '@/utils/since';
+import { useNow } from '@/utils/useNow';
 import type { SettingsStyles } from './useSettingsStyles';
 
 export default function AboutSection({ styles }: { styles: SettingsStyles }) {
@@ -15,12 +16,13 @@ export default function AboutSection({ styles }: { styles: SettingsStyles }) {
   // The JS the app runs: the bundle built into the app (also when updates are off), an update
   // downloaded from EAS, or else a dev client's Metro bundle, which has no update to show.
   const { currentlyRunning } = Updates.useUpdates();
+  const now = useNow();
   const builtIn = !Updates.isEnabled || currentlyRunning.isEmbeddedLaunch;
   const runningUpdate =
     builtIn || !currentlyRunning.createdAt
       ? null
       : {
-          date: formatDateTime(currentlyRunning.createdAt),
+          date: formatSinceAlone(currentlyRunning.createdAt, now),
           detail: t('settings.updateDetail', {
             // The commit the ship workflow bundles in; an update published another way has
             // only its id, whose first characters are a timestamp.
