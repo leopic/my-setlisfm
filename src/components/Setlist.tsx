@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { BackButton, Icon, TabScrollView } from '@/components/ui';
 import ArtistGlow from '@/components/ArtistGlow';
+import ArtistHero from '@/components/ArtistHero';
 import { useArtistTint } from '@/utils/useArtistTint';
 import RecognitionSheet from '@/components/RecognitionSheet';
 import { useTranslation } from 'react-i18next';
@@ -306,7 +307,9 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
 
   return (
     <>
+      {/* The color glow under the photo shows for an artist without one. */}
       {tint && <ArtistGlow tint={tint} />}
+      <ArtistHero mbid={setlist.artist?.mbid} />
       {/* Back bar — hidden when used as an inline pane */}
       <View style={styles.backBar}>
         <View style={styles.backBarRow}>
