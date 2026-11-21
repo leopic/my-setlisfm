@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { useTranslation } from 'react-i18next';
-import { formatDateTime } from '@/utils/date';
+import { formatSinceAlone } from '@/utils/since';
 import type { SettingsStyles } from './useSettingsStyles';
 
 export default function AboutSection({ styles }: { styles: SettingsStyles }) {
@@ -20,7 +20,7 @@ export default function AboutSection({ styles }: { styles: SettingsStyles }) {
     builtIn || !currentlyRunning.createdAt
       ? null
       : {
-          date: formatDateTime(currentlyRunning.createdAt),
+          date: formatSinceAlone(currentlyRunning.createdAt),
           detail: t('settings.updateDetail', {
             // The commit the ship workflow bundles in; an update published another way has
             // only its id, whose first characters are a timestamp.

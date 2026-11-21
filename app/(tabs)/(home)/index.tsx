@@ -16,6 +16,7 @@ import TabletDetailPanel from '@/components/dashboard/TabletDetailPanel';
 import TabletTopBar from '@/components/dashboard/TabletTopBar';
 import TabletYearGrid from '@/components/dashboard/TabletYearGrid';
 import { YearTimeline } from '@/components/dashboard/YearSection';
+import { formatSince } from '@/utils/since';
 import {
   groupMilestonesByYear,
   groupMonthlyByYear,
@@ -89,7 +90,7 @@ export default function DashboardScreen() {
       setYearSummaries(summaries);
       setOnThisDay(onThisDayResult);
       setInsightStats(insights);
-      setLastSynced(fetchedAt ? fetchedAt.toLocaleString() : null);
+      setLastSynced(fetchedAt ? formatSince(fetchedAt) : null);
       // Default to the most recent year on first load
       const sorted = [...dashStats.concertsByYear].sort((a, b) => Number(b.year) - Number(a.year));
       setSelectedYear((prev) => prev ?? sorted[0]?.year ?? null);

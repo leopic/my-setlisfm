@@ -50,7 +50,7 @@ export default function PhoneTopBar({ onSync, totals, lastSynced }: Props) {
       </View>
       {totals && <StatsLine totals={totals} />}
       {lastSynced && (
-        <Text style={styles.lastSynced}>{t('dashboard.lastSynced', { date: lastSynced })}</Text>
+        <Text style={styles.lastSynced}>{t('dashboard.lastSynced', { when: lastSynced })}</Text>
       )}
     </View>
   );

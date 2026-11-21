@@ -13,6 +13,7 @@ import AccountSection from '@/components/settings/AccountSection';
 import SyncSection from '@/components/settings/SyncSection';
 import AboutSection from '@/components/settings/AboutSection';
 import DataSection from '@/components/settings/DataSection';
+import { formatSinceAlone } from '@/utils/since';
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
@@ -32,7 +33,7 @@ export default function SettingsScreen() {
       const stored = await getStoredUsername();
       setUsername(stored ?? '');
       const fetchedAt = await dbOperations.getLastFetchedAt();
-      setLastSynced(fetchedAt ? fetchedAt.toLocaleString() : null);
+      setLastSynced(fetchedAt ? formatSinceAlone(fetchedAt) : null);
     })();
   }, []);
 
@@ -60,7 +61,7 @@ export default function SettingsScreen() {
       if (result.success) {
         notifySyncComplete();
         const fetchedAt = await dbOperations.getLastFetchedAt();
-        setLastSynced(fetchedAt ? fetchedAt.toLocaleString() : null);
+        setLastSynced(fetchedAt ? formatSinceAlone(fetchedAt) : null);
         if (result.newConcerts > 0) {
           Alert.alert(
             t('dashboard.syncComplete'),
