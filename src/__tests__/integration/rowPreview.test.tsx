@@ -25,6 +25,9 @@ it.each([
   await fireEvent(row, 'pressIn');
   expect(row).toHaveStyle({ opacity: 0.7 });
   await fireEvent(row, 'pressOut');
+  expect(row).toHaveStyle({ opacity: 1 });
+  // VoiceOver reads it as a button, like every row that opens a screen, not as a link.
+  expect(row.props.role).toBe('button');
 
   await fireEvent.press(row);
   expect((await findScreen('setlist-screen')).getByText('The Strokes')).toBeOnTheScreen();

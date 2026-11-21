@@ -21,11 +21,20 @@ export default function RowLink({ href, children }: Props) {
   // Link's Slot merges styles as `{ ...linkStyle, ...rowStyle }`: a Pressable's style function
   // spreads to nothing and the row loses its whole style. So resolve it here, flat (Slot also
   // throws on a style array), with the pressed state the Pressable would have passed.
-  const { style } = children.props;
+  const { style, onPressIn, onPressOut, accessibilityRole } = children.props;
   const row = cloneElement(children, {
     style: StyleSheet.flatten(typeof style === 'function' ? style({ pressed }) : style),
-    onPressIn: () => setPressed(true),
-    onPressOut: () => setPressed(false),
+    onPressIn: (event) => {
+      setPressed(true);
+      onPressIn?.(event);
+    },
+    onPressOut: (event) => {
+      setPressed(false);
+      onPressOut?.(event);
+    },
+    // Link sets role="link", which wins over accessibilityRole. Rows that open a screen are
+    // buttons everywhere else in the app, so keep the row's own role.
+    role: accessibilityRole as PressableProps['role'],
   });
   return (
     <Link href={href} asChild>

@@ -9,5 +9,5 @@ it('keeps the expo-router patch that leaves Link.Preview rows accessible', () =>
     require.resolve('expo-router/build/link/LinkWithPreview.js'),
     'utf8',
   );
-  expect(linkWithPreview).not.toContain("display: 'contents'");
+  expect(linkWithPreview).not.toMatch(/display:\s*['"]contents['"]/);
 });
