@@ -38,11 +38,17 @@ it('starts with a capital when it stands alone', () => {
   expect(formatSinceAlone(at(11, 20, 22), NOW)).toBe('Yesterday');
 });
 
-// Days with a clock change are 23 or 25 hours long; in Europe the clocks go forward on
-// Mar 29, 2026 and back on Oct 25, 2026.
-it.each([
-  ['after the clocks go forward', new Date(2026, 2, 29, 21), new Date(2026, 2, 28, 22)],
-  ['after the clocks go back', new Date(2026, 9, 25, 21), new Date(2026, 9, 24, 22)],
-])('still says "yesterday" for the evening before %s', (_when, now, date) => {
-  expect(formatSince(date, now)).toBe('yesterday');
+// Days with a clock change are 23 or 25 hours long. In Berlin the clocks go forward early on
+// Mar 29, 2026 and back early on Oct 25, 2026, so the gap from those days to the next is 23 or
+// 25 hours. These cases only test that in a zone with clock changes (a Mac in Berlin runs the
+// pre-push hook there); CI runs in UTC, where every day is 24 hours.
+describe('around a clock change in Berlin', () => {
+  it.each([
+    ['after the clocks went forward', 2, 30],
+    ['after the clocks went back', 9, 26],
+  ])('still says "yesterday" for the evening before, %s', (_when, month, day) => {
+    const now = new Date(2026, month, day, 21);
+    const date = new Date(2026, month, day - 1, 22);
+    expect(formatSince(date, now)).toBe('yesterday');
+  });
 });
