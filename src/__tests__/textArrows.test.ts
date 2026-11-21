@@ -7,7 +7,7 @@ const sourceFiles = (dir: string): string[] =>
   readdirSync(dir).flatMap((name) => {
     const path = join(dir, name);
     if (statSync(path).isDirectory()) return name === '__tests__' ? [] : sourceFiles(path);
-    return /\.tsx$/.test(name) ? [path] : [];
+    return /\.tsx?$/.test(name) ? [path] : [];
   });
 
 // Row arrows are the Chevron component (an SF Symbol on iOS), not a "›" character. The venue
@@ -22,7 +22,8 @@ it('draws no row arrow as text', () => {
       readFileSync(file, 'utf8')
         .split('\n')
         .map((line, i) => ({ line, at: `${relative(root, file)}:${i + 1}` }))
-        .filter(({ line }) => />\s*›\s*</.test(line)),
+        // Any › outside a comment: JSX text, {'›'}, a template or a .ts helper.
+        .filter(({ line }) => line.includes('›') && !/^\s*(\/\/|\/?\*)/.test(line)),
     )
     .map(({ at, line }) => `${at} ${line.trim()}`);
   expect(offenders).toEqual([]);

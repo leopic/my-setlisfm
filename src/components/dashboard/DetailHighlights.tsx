@@ -75,7 +75,7 @@ export function DetailConcertEntry({ concert, meta, styles }: ConcertRowProps) {
       style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
       onPress={() => openConcert(concert.setlistId)}
       accessibilityRole="button"
-      // Without a label VoiceOver also reads the "›" arrow.
+      // The label sets what VoiceOver reads; the Chevron hides itself.
       accessibilityLabel={`${concert.artistName}, ${meta}`}
     >
       {concert.artistMbid && (
@@ -113,7 +113,7 @@ function DetailMilestoneEntry({
       style={({ pressed }) => [styles.detailHighlightEntry, { opacity: pressed ? 0.7 : 1 }]}
       onPress={() => openConcert(milestone.setlistId)}
       accessibilityRole="button"
-      // Without a label VoiceOver also reads the "›" arrow.
+      // The label sets what VoiceOver reads; the Chevron hides itself.
       accessibilityLabel={[
         label,
         milestone.artistName,
