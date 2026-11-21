@@ -5,19 +5,12 @@ import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { getArtistImageUri } from '@/services/artistImageService';
 import { useChronicleColors } from '@/utils/colors';
 import { deezerPhotoUrl } from '@/utils/deezerPhoto';
+import { heroVeil } from '@/utils/heroVeil';
 
 export const HERO_HEIGHT = 280;
 // Nearly the 1179 px a phone needs at 3×, without the full 1900 px original; the blur and the
 // veil hide the small upscale.
 const HERO_PHOTO_SIZE = 1000;
-
-// How much of the background covers the photo. The photo shows most behind the status bar and
-// the artist name; from the venue line down (about 45% of the hero) it is nearly covered, as the
-// small date text there is only 3:1 on a plain background. The back link sits on its own pill
-// over the photo (BackButton `onPhoto`), so only the large artist name reads on the veil: at 0.6
-// it keeps 6:1 on the light theme even over a black photo.
-const VEIL_TOP = { light: 0.6, dark: 0.72 };
-const VEIL_TEXT = 0.95;
 
 /** The large photo URL for the hero, or null while it loads or for an artist without a photo. */
 export function useArtistHeroPhoto(mbid: string | undefined): string | null {
@@ -47,7 +40,7 @@ export function useArtistHeroPhoto(mbid: string | undefined): string | null {
  */
 export default function ArtistHero({ photoUrl }: { photoUrl: string }) {
   const colors = useChronicleColors();
-  const veilTop = useColorScheme() === 'dark' ? VEIL_TOP.dark : VEIL_TOP.light;
+  const veil = heroVeil(useColorScheme() === 'dark' ? 'dark' : 'light');
 
   return (
     <View
@@ -70,10 +63,14 @@ export default function ArtistHero({ photoUrl }: { photoUrl: string }) {
       <Svg style={StyleSheet.absoluteFill}>
         <Defs>
           <LinearGradient id="heroVeil" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor={colors.background} stopOpacity={veilTop} />
-            <Stop offset="0.3" stopColor={colors.background} stopOpacity={veilTop} />
-            <Stop offset="0.45" stopColor={colors.background} stopOpacity={VEIL_TEXT} />
-            <Stop offset="1" stopColor={colors.background} stopOpacity={1} />
+            {veil.map(({ offset, opacity }) => (
+              <Stop
+                key={offset}
+                offset={offset}
+                stopColor={colors.background}
+                stopOpacity={opacity}
+              />
+            ))}
           </LinearGradient>
         </Defs>
         <Rect width="100%" height="100%" fill="url(#heroVeil)" />

@@ -27,12 +27,13 @@ export default function BackButton({ onPress, style, color, onPhoto = false }: P
       alignSelf: 'flex-start',
     },
     text: { ...Type.body, color: color ?? colors.accent },
-    // Like the round badges next to it: a solid fill and a hairline border.
+    // A solid fill and a hairline border, like the round badges next to it. The fill is the
+    // screen background, which every accent (the theme's and each artist's) is checked against.
     pill: {
       paddingHorizontal: Space.s12,
       paddingVertical: Space.s4,
       borderRadius: Radius.full,
-      backgroundColor: colors.surfaceRaised,
+      backgroundColor: colors.background,
       borderWidth: 1,
       borderColor: colors.border,
     },
