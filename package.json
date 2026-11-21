@@ -30,7 +30,7 @@
     "expo-linking": "~58.0.17",
     "expo-localization": "~58.0.5",
     "expo-observe": "~58.0.19",
-    "expo-router": "~58.0.32",
+    "expo-router": "patch:expo-router@npm%3A58.0.32#~/.yarn/patches/expo-router-npm-58.0.32-895b22ea3c.patch",
     "expo-sqlite": "~58.0.18",
     "expo-status-bar": "~58.0.5",
     "expo-symbols": "~58.0.5",

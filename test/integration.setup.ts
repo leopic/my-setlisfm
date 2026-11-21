@@ -28,3 +28,14 @@ jest.spyOn(console, 'warn').mockImplementation((message, ...rest) => {
   if (typeof message === 'string' && message.startsWith('Database ')) return;
   warn(message, ...rest);
 });
+
+// A Link with Link.Preview renders through expo-router's native preview view, and without
+// that view (Jest) it renders null: the whole row is gone. Stand in a host element that keeps
+// the row and the view's props, so tests can tap the row and see the preview is wired.
+jest.mock('expo-router/build/link/preview/native', () => {
+  const { createElement } = jest.requireActual('react');
+  return {
+    ...jest.requireActual('expo-router/build/link/preview/native'),
+    NativeLinkPreview: (props: object) => createElement('NativeLinkPreview', props),
+  };
+});
