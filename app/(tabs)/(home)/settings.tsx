@@ -13,7 +13,6 @@ import AccountSection from '@/components/settings/AccountSection';
 import SyncSection from '@/components/settings/SyncSection';
 import AboutSection from '@/components/settings/AboutSection';
 import DataSection from '@/components/settings/DataSection';
-import { formatSinceAlone } from '@/utils/since';
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
@@ -24,7 +23,7 @@ export default function SettingsScreen() {
   const [editingUsername, setEditingUsername] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSynced, setLastSynced] = useState<string | null>(null);
+  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
 
   const styles = useSettingsStyles();
 
@@ -33,7 +32,7 @@ export default function SettingsScreen() {
       const stored = await getStoredUsername();
       setUsername(stored ?? '');
       const fetchedAt = await dbOperations.getLastFetchedAt();
-      setLastSynced(fetchedAt ? formatSinceAlone(fetchedAt) : null);
+      setLastSyncedAt(fetchedAt);
     })();
   }, []);
 
@@ -61,7 +60,7 @@ export default function SettingsScreen() {
       if (result.success) {
         notifySyncComplete();
         const fetchedAt = await dbOperations.getLastFetchedAt();
-        setLastSynced(fetchedAt ? formatSinceAlone(fetchedAt) : null);
+        setLastSyncedAt(fetchedAt);
         if (result.newConcerts > 0) {
           Alert.alert(
             t('dashboard.syncComplete'),
@@ -118,7 +117,7 @@ export default function SettingsScreen() {
           {/* ── Sync ────────────────────────────────────────────────────── */}
           <SyncSection
             styles={styles}
-            lastSynced={lastSynced}
+            lastSyncedAt={lastSyncedAt}
             isSyncing={isSyncing}
             hasUsername={!!username}
             // Not returned: the test library waits for a returned promise, so a pending sync would hang a press.

@@ -12,6 +12,7 @@ it.each([
   ['45 minutes ago', minutesBefore(45), '45 minutes ago'],
   ['1 hour ago', minutesBefore(60), 'an hour ago'],
   ['2 hours 59 minutes ago', minutesBefore(179), '2 hours ago'],
+  ['3 hours ago, at noon', minutesBefore(180), 'this afternoon'],
   ['earlier this morning', at(11, 21, 9), 'this morning'],
   ['before dawn', at(11, 21, 3), 'last night'],
   ['the evening before', at(11, 20, 22), 'yesterday'],
@@ -19,7 +20,7 @@ it.each([
   ['six days ago', at(11, 15, 15), 'on Sunday'],
   ['a week ago', at(11, 14, 15), 'on Nov 14'],
   ['last year', at(11, 3, 15, 2025), 'on Nov 3, 2025'],
-])('says %s as "%s"', (_when, date, expected) => {
+])('says a time %s the way a person would', (_when, date, expected) => {
   expect(formatSince(date, NOW)).toBe(expected);
 });
 
@@ -35,4 +36,13 @@ it('says "just now" for a time a little ahead of the clock', () => {
 
 it('starts with a capital when it stands alone', () => {
   expect(formatSinceAlone(at(11, 20, 22), NOW)).toBe('Yesterday');
+});
+
+// Days with a clock change are 23 or 25 hours long; in Europe the clocks go forward on
+// Mar 29, 2026 and back on Oct 25, 2026.
+it.each([
+  ['after the clocks go forward', new Date(2026, 2, 29, 21), new Date(2026, 2, 28, 22)],
+  ['after the clocks go back', new Date(2026, 9, 25, 21), new Date(2026, 9, 24, 22)],
+])('still says "yesterday" for the evening before %s', (_when, now, date) => {
+  expect(formatSince(date, now)).toBe('yesterday');
 });

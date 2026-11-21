@@ -2,11 +2,13 @@ import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useChronicleColors } from '@/utils/colors';
 import { Icon } from '@/components/ui';
+import { formatSinceAlone } from '@/utils/since';
+import { useNow } from '@/utils/useNow';
 import type { SettingsStyles } from './useSettingsStyles';
 
 type SyncSectionProps = {
   styles: SettingsStyles;
-  lastSynced: string | null;
+  lastSyncedAt: Date | null;
   isSyncing: boolean;
   hasUsername: boolean;
   onSync: () => void;
@@ -14,7 +16,7 @@ type SyncSectionProps = {
 
 export default function SyncSection({
   styles,
-  lastSynced,
+  lastSyncedAt,
   isSyncing,
   hasUsername,
   onSync,
@@ -22,13 +24,16 @@ export default function SyncSection({
   const { t } = useTranslation();
   const colors = useChronicleColors();
   const syncDisabled = isSyncing || !hasUsername;
+  const now = useNow();
   return (
     <>
       <Text style={styles.sectionLabel}>{t('settings.sync')}</Text>
 
       <View style={[styles.row, styles.rowFirst]}>
         <Text style={styles.rowLabel}>{t('settings.lastSynced')}</Text>
-        <Text style={styles.rowValue}>{lastSynced ?? t('settings.never')}</Text>
+        <Text style={styles.rowValue}>
+          {lastSyncedAt ? formatSinceAlone(lastSyncedAt, now) : t('settings.never')}
+        </Text>
       </View>
 
       <Pressable
