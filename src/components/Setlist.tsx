@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { useIsPreview } from 'expo-router';
 import { BackButton, Icon, TabScrollView } from '@/components/ui';
 import PhotoChip from '@/components/ui/PhotoChip';
 import ArtistGlow from '@/components/ArtistGlow';
@@ -68,6 +69,8 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   const tint = useArtistTint(setlist.artist?.mbid);
   const accent = tint?.accent ?? colors.accent;
   const heroPhoto = useArtistHeroPhoto(setlist.artist?.mbid);
+  // A long-press peek can't be tapped, so it shows no back link (as the iPad pane).
+  const isPreview = useIsPreview();
 
   // Facts are stored with the setlist id they belong to, so a changed id hides them
   // during render instead of resetting state inside the effect.
@@ -323,7 +326,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       {/* Back bar — hidden when used as an inline pane */}
       <View style={styles.backBar}>
         <View style={styles.backBarRow}>
-          {onBackPress && (
+          {onBackPress && !isPreview && (
             <BackButton onPress={onBackPress} color={tint?.accent} onPhoto={!!heroPhoto} />
           )}
           <Text style={styles.artistName} numberOfLines={1}>
