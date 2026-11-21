@@ -7,6 +7,8 @@ export interface ArtistTint {
   accent: string;
   /** For the glow behind the screen header, as `accent` at a low opacity. */
   glowOpacity: number;
+  /** A faint fill of `accent` for cards, like the theme's `accentSoft`. */
+  soft: string;
 }
 
 type Rgb = [number, number, number];
@@ -80,5 +82,7 @@ export function artistTint(
   }
   // Pure black on the dark theme or pure white on the light one: no lightness reads.
   if (contrast(accent, colors.background) < MIN_CONTRAST) accent = colors.accent;
-  return { accent, glowOpacity: darkTheme ? 0.22 : 0.16 };
+  const [r, g, b] = parseHex(accent);
+  const soft = `rgba(${r}, ${g}, ${b}, ${darkTheme ? 0.12 : 0.1})`;
+  return { accent, glowOpacity: darkTheme ? 0.22 : 0.16, soft };
 }

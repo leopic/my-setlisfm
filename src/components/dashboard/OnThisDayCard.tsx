@@ -8,27 +8,31 @@ import type { OnThisDayConcert } from './types';
 import { useOpenConcert } from './useOpenConcert';
 import { Space } from '@/utils/spacing';
 import { Corner } from '@/utils/radius';
+import { useArtistTint } from '@/utils/useArtistTint';
 
 // "On this day" card at the top of the phone layout.
 export default function OnThisDayCard({ onThisDay }: { onThisDay: NonNullable<OnThisDayConcert> }) {
   const colors = useChronicleColors();
   const { t } = useTranslation();
   const openConcert = useOpenConcert();
+  // The artist's photo color replaces the theme accent on the card.
+  const tint = useArtistTint(onThisDay.artistMbid ?? undefined);
+  const accent = tint?.accent ?? colors.accent;
   const styles = StyleSheet.create({
     // ── On this day (phone) ───────────────────────────────────────────────
     onThisDayCard: {
       marginHorizontal: Space.edge,
       marginTop: Space.s16,
       marginBottom: Space.s4,
-      backgroundColor: colors.accentSoft,
+      backgroundColor: tint?.soft ?? colors.accentSoft,
       borderWidth: 1,
-      borderColor: colors.accent,
+      borderColor: accent,
       ...Corner.md,
       padding: Space.s16,
     },
     onThisDayLabel: {
       ...Type.footnote,
-      color: colors.accent,
+      color: accent,
       letterSpacing: 0.8,
       marginBottom: Space.s4,
     },
@@ -48,7 +52,7 @@ export default function OnThisDayCard({ onThisDay }: { onThisDay: NonNullable<On
     },
     onThisDayChevron: {
       ...Type.body,
-      color: colors.accent,
+      color: accent,
       marginLeft: Space.s8,
     },
     entryImageWrapper: {

@@ -36,7 +36,18 @@ async function fetchImageUrlFromDeezer(artistName: string): Promise<string | nul
  * On first access, fetches from Deezer and persists the result.
  * Returns null if no image exists for this artist.
  */
-export async function getArtistImageUri(mbid: string): Promise<string | null> {
+// Rows, cards and screens can ask for the same artist at once: one Deezer search each.
+const lookups = new Map<string, Promise<string | null>>();
+
+export function getArtistImageUri(mbid: string): Promise<string | null> {
+  const pending = lookups.get(mbid);
+  if (pending) return pending;
+  const lookup = lookUpArtistImageUri(mbid).finally(() => lookups.delete(mbid));
+  lookups.set(mbid, lookup);
+  return lookup;
+}
+
+async function lookUpArtistImageUri(mbid: string): Promise<string | null> {
   const artist = await dbOperations.getArtistByMbid(mbid);
 
   // A non-null string means already resolved ('' = tried, no image found).

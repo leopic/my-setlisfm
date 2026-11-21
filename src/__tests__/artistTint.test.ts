@@ -42,3 +42,7 @@ it.each([
 ])('falls back to the theme accent for %s', (_case, photoColor, colors) => {
   expect(artistTint(photoColor, colors).accent).toBe(colors.accent);
 });
+
+it('gives cards a faint fill of the accent', () => {
+  expect(artistTint('#942130', light).soft).toBe('rgba(148, 33, 48, 0.1)');
+});

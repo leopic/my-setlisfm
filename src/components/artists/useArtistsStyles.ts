@@ -103,6 +103,13 @@ export function useArtistsStyles() {
     artistImageWrapper: {
       marginRight: Space.s12,
     },
+    // A ring in the artist's photo color; clear until the color is known, so rows line up.
+    artistImageRing: {
+      borderWidth: 2,
+      borderRadius: Radius.full,
+      padding: 1,
+      borderColor: 'transparent',
+    },
     artistCenter: {
       flex: 1,
       paddingRight: Space.s12,
