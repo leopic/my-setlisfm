@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { BackButton, Icon, TabScrollView } from '@/components/ui';
+import PhotoChip from '@/components/ui/PhotoChip';
 import ArtistGlow from '@/components/ArtistGlow';
 import ArtistHero, { useArtistHeroPhoto } from '@/components/ArtistHero';
 import { useArtistTint } from '@/utils/useArtistTint';
@@ -138,6 +139,13 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: -(TOUCH_TARGET - BADGE_SIZE) / 2,
+    },
+    navBadgeShape: {
+      width: BADGE_SIZE,
+      height: BADGE_SIZE,
+      borderRadius: Radius.full,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     navBadge: {
       width: BADGE_SIZE,
@@ -328,14 +336,21 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
               accessibilityRole="button"
               accessibilityLabel={t('recognition.badgeAccessibilityLabel')}
             >
-              <View style={[styles.navBadge, isLandmark && styles.navBadgeLandmark]}>
-                <Icon
-                  sf={isLandmark ? 'trophy.fill' : 'sparkles'}
-                  md={isLandmark ? 'trophy' : 'sparkles-outline'}
-                  size={14}
-                  color={isLandmark ? colors.gold : accent}
-                />
-              </View>
+              {heroPhoto && !isLandmark ? (
+                // Over the photo, the badge matches the back link's chip.
+                <PhotoChip style={styles.navBadgeShape} testID="badge-chip">
+                  <Icon sf="sparkles" md="sparkles-outline" size={14} color={accent} />
+                </PhotoChip>
+              ) : (
+                <View style={[styles.navBadge, isLandmark && styles.navBadgeLandmark]}>
+                  <Icon
+                    sf={isLandmark ? 'trophy.fill' : 'sparkles'}
+                    md={isLandmark ? 'trophy' : 'sparkles-outline'}
+                    size={14}
+                    color={isLandmark ? colors.gold : accent}
+                  />
+                </View>
+              )}
             </Pressable>
           )}
         </View>

@@ -1,10 +1,11 @@
-import { Pressable, Text, View, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable, Text, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
 import { Space } from '@/utils/spacing';
 import { Radius } from '@/utils/radius';
+import PhotoChip from './PhotoChip';
 
 type Props = {
   onPress: () => void;
@@ -27,15 +28,11 @@ export default function BackButton({ onPress, style, color, onPhoto = false }: P
       alignSelf: 'flex-start',
     },
     text: { ...Type.body, color: color ?? colors.accent },
-    // A solid fill and a hairline border, like the round badges next to it. The fill is the
-    // screen background, which every accent (the theme's and each artist's) is checked against.
+    // The shape of the chip; PhotoChip fills it (Liquid Glass, or a solid chip).
     pill: {
       paddingHorizontal: Space.s12,
       paddingVertical: Space.s4,
       borderRadius: Radius.full,
-      backgroundColor: colors.background,
-      borderWidth: 1,
-      borderColor: colors.border,
     },
   });
   return (
@@ -47,9 +44,9 @@ export default function BackButton({ onPress, style, color, onPhoto = false }: P
       accessibilityLabel={t('common.goBack')}
     >
       {onPhoto ? (
-        <View style={styles.pill} testID="back-pill">
+        <PhotoChip style={styles.pill} testID="back-pill">
           <Text style={styles.text}>{t('common.back')}</Text>
-        </View>
+        </PhotoChip>
       ) : (
         <Text style={styles.text}>{t('common.back')}</Text>
       )}
