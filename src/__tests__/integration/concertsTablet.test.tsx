@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { fireEvent } from 'expo-router/testing-library';
 import { seedDatabase } from '../../../test/database';
-import { findScreen, launchApp, openTab } from '../../../test/screen';
+import { findScreen, inLinkPreview, launchApp, openTab } from '../../../test/screen';
 
 // The detail pane only renders on a wide layout (iPad, split view).
 jest.mock('@/utils/tablet', () => ({
@@ -23,6 +23,11 @@ it('shows the pressed concert in the detail pane instead of navigating', async (
 
   // set-1 is Radiohead's show: its main set opens with "15 Step".
   expect(await concerts.findByText('15 Step')).toBeOnTheScreen();
+});
+
+it('gives a row no Link preview: the pane already shows the setlist', async () => {
+  const concerts = await findScreen('concerts-screen');
+  expect(inLinkPreview(concerts.getByTestId('concert-set-1'))).toBe(false);
 });
 
 const rowBackground = (row: { props: { style?: unknown } }) =>

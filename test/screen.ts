@@ -48,3 +48,13 @@ export async function goBackFrom(testID: string) {
   await fireEvent.press(current.getByTestId('back-button'));
   await waitFor(() => expect(screen.queryByTestId(testID)).not.toBeOnTheScreen());
 }
+
+type TreeNode = { type: unknown; parent: TreeNode | null };
+
+/** True when the row sits inside a Link with Link.Preview (see integration.setup.ts). */
+export const inLinkPreview = (row: TreeNode) => {
+  for (let node = row.parent; node; node = node.parent) {
+    if (node.type === 'NativeLinkPreview') return true;
+  }
+  return false;
+};
