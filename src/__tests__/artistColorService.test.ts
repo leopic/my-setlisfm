@@ -1,5 +1,5 @@
 import { encode } from 'jpeg-js';
-import { storeArtistPhotoColor } from '@/services/artistColorService';
+import { storeArtistPhotoColor, subscribeArtistPhotoColor } from '@/services/artistColorService';
 import { dbOperations } from '@/database/operations';
 
 jest.mock('@/database/operations', () => ({
@@ -97,4 +97,22 @@ it('looks an artist up once when many rows ask at the same time', async () => {
   await Promise.all([1, 2, 3].map(() => storeArtistPhotoColor('artist-6', PHOTO)));
 
   expect(global.fetch).toHaveBeenCalledTimes(1);
+});
+
+it('tells listeners when a color is stored, and only then', async () => {
+  const listener = jest.fn();
+  const unsubscribe = subscribeArtistPhotoColor(listener);
+
+  respondWith(new Uint8Array(), false);
+  await storeArtistPhotoColor('artist-7', PHOTO);
+  expect(listener).not.toHaveBeenCalled();
+
+  respondWith(jpeg(200, 40, 40));
+  await storeArtistPhotoColor('artist-7', PHOTO);
+  expect(listener).toHaveBeenCalledWith('artist-7');
+
+  unsubscribe();
+  respondWith(jpeg(200, 40, 40));
+  await storeArtistPhotoColor('artist-8', PHOTO);
+  expect(listener).toHaveBeenCalledTimes(1);
 });

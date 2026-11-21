@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { BackButton, Icon, TabScrollView } from '@/components/ui';
-import ArtistImage from '@/components/ArtistImage';
+import ArtistGlow from '@/components/ArtistGlow';
+import { useArtistTint } from '@/utils/useArtistTint';
 import RecognitionSheet from '@/components/RecognitionSheet';
 import { useTranslation } from 'react-i18next';
 import type { SetlistWithDetails, SetWithSongs } from '@/types/database';
@@ -61,6 +62,9 @@ const BADGE_SIZE = 30;
 export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
   const { t } = useTranslation();
   const colors = useChronicleColors();
+  // The artist's photo color replaces the theme accent on this screen.
+  const tint = useArtistTint(setlist.artist?.mbid);
+  const accent = tint?.accent ?? colors.accent;
 
   // Facts are stored with the setlist id they belong to, so a changed id hides them
   // during render instead of resetting state inside the effect.
@@ -180,11 +184,11 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
     },
     heardText: {
       ...Type.footnote,
-      color: colors.accent,
+      color: accent,
     },
     tourName: {
       ...Type.footnote,
-      color: colors.accent,
+      color: accent,
       letterSpacing: 0.8,
       marginTop: Space.s4,
       textTransform: 'uppercase',
@@ -302,13 +306,11 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
 
   return (
     <>
+      {tint && <ArtistGlow tint={tint} />}
       {/* Back bar — hidden when used as an inline pane */}
       <View style={styles.backBar}>
         <View style={styles.backBarRow}>
-          {onBackPress && <BackButton onPress={onBackPress} />}
-          {setlist.artist?.mbid && (
-            <ArtistImage mbid={setlist.artist.mbid} size={28} name={setlist.artist.name} />
-          )}
+          {onBackPress && <BackButton onPress={onBackPress} color={tint?.accent} />}
           <Text style={styles.artistName} numberOfLines={1}>
             {setlist.artist?.name || t('common.unknownArtist')}
           </Text>
@@ -325,7 +327,7 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
                   sf={isLandmark ? 'trophy.fill' : 'sparkles'}
                   md={isLandmark ? 'trophy' : 'sparkles-outline'}
                   size={14}
-                  color={isLandmark ? colors.gold : colors.accent}
+                  color={isLandmark ? colors.gold : accent}
                 />
               </View>
             </Pressable>
