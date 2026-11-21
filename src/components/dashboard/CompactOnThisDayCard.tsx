@@ -2,6 +2,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import ArtistImage from '@/components/ArtistImage';
 import { formatDate } from '@/utils/date';
+import { useArtistTint } from '@/utils/useArtistTint';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import type { OnThisDayConcert } from './types';
@@ -21,15 +22,18 @@ export default function CompactOnThisDayCard({ concert, variant }: Props) {
   const { t } = useTranslation();
   const openConcert = useOpenConcert();
   const isAlso = variant === 'also';
+  // The artist's photo color replaces the theme accent on the card.
+  const tint = useArtistTint(concert.artistMbid ?? undefined);
+  const accent = tint?.accent ?? colors.accent;
   const styles = StyleSheet.create({
     // ── Header OTD card (compact, tablet only) ────────────────────────────
     card: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: Space.s8,
-      backgroundColor: colors.accentSoft,
+      backgroundColor: tint?.soft ?? colors.accentSoft,
       borderWidth: 1,
-      borderColor: colors.accent,
+      borderColor: accent,
       ...Corner.md,
       paddingHorizontal: Space.s12,
       paddingVertical: Space.s4,
@@ -40,7 +44,7 @@ export default function CompactOnThisDayCard({ concert, variant }: Props) {
     },
     label: {
       ...Type.captionStrong,
-      color: colors.accent,
+      color: accent,
       letterSpacing: 0.8,
     },
     name: {

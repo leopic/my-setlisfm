@@ -1,6 +1,7 @@
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import ArtistImage from '@/components/ArtistImage';
+import { useArtistTint } from '@/utils/useArtistTint';
 import { formatDate } from '@/utils/date';
 import type { ArtistWithStats } from './types';
 import type { ArtistsStyles } from './useArtistsStyles';
@@ -16,6 +17,7 @@ type ArtistRowProps = {
 export default function ArtistRow({ styles, artist, index, isSelected, onPress }: ArtistRowProps) {
   const { t } = useTranslation();
   const hasAccentBar = index < 2;
+  const tint = useArtistTint(artist.mbid);
 
   return (
     <Pressable
@@ -32,7 +34,12 @@ export default function ArtistRow({ styles, artist, index, isSelected, onPress }
       accessibilityHint={t('artists.viewConcertsHint')}
     >
       <View style={styles.artistImageWrapper}>
-        <ArtistImage mbid={artist.mbid} imageUrl={artist.imageUrl} size={40} name={artist.name} />
+        <View
+          style={[styles.artistImageRing, tint && { borderColor: tint.accent }]}
+          testID={tint ? 'artist-ring' : undefined}
+        >
+          <ArtistImage mbid={artist.mbid} imageUrl={artist.imageUrl} size={40} name={artist.name} />
+        </View>
       </View>
 
       <View style={styles.artistCenter}>

@@ -10,6 +10,7 @@ import { useOpenConcert } from './useOpenConcert';
 import { Space } from '@/utils/spacing';
 import { RIVER_DOT_TOP } from '@/components/river';
 import { Radius } from '@/utils/radius';
+import { useArtistTint } from '@/utils/useArtistTint';
 
 // Styles for the entries on the phone timeline spine. Call once in the timeline and pass the result down.
 // The milestone marker is a 9 pt square turned 45°; a slight rounding keeps it a diamond.
@@ -114,6 +115,8 @@ export function TimelineConcertEntry({
 }: ConcertProps) {
   const { t } = useTranslation();
   const openConcert = useOpenConcert();
+  // The artist's photo color for the date and the dot, so the spine shows who you saw.
+  const tint = useArtistTint(concert.artistMbid ?? undefined);
   return (
     <Pressable
       style={({ pressed }) => [styles.concertEntry, { opacity: pressed ? 0.7 : 1 }]}
@@ -123,7 +126,12 @@ export function TimelineConcertEntry({
       accessibilityHint={t('dashboard.opensConcertDetails')}
     >
       <View style={styles.dotWrapper}>
-        <View style={isActiveDot ? styles.dotActive : styles.dotInactive} />
+        <View
+          style={[
+            isActiveDot ? styles.dotActive : styles.dotInactive,
+            tint && { backgroundColor: tint.accent },
+          ]}
+        />
       </View>
       {concert.artistMbid && (
         <View style={styles.entryImageWrapper}>
@@ -136,7 +144,9 @@ export function TimelineConcertEntry({
         </View>
       )}
       <View style={styles.entryContent}>
-        <Text style={styles.entryDate}>{formatDate(concert.eventDate)}</Text>
+        <Text style={[styles.entryDate, tint && { color: tint.accent }]}>
+          {formatDate(concert.eventDate)}
+        </Text>
         <Text style={styles.entryArtist}>{concert.artistName}</Text>
         {venueName !== undefined && <Text style={styles.entryVenue}>{venueName}</Text>}
       </View>
