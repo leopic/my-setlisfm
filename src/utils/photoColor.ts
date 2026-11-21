@@ -54,8 +54,9 @@ export function pickPhotoColor(jpeg: Uint8Array): string | null {
       continue;
     }
     colored++;
-    // Stronger pixels count more, so a small vivid shirt beats a large dull wall.
-    const bucket = buckets[Math.floor(hue(r, g, b) * HUE_BUCKETS) % HUE_BUCKETS];
+    // Stronger pixels count more, so a small vivid shirt beats a large dull wall. Buckets are
+    // centered on their hue, so reds on both sides of 0° share one.
+    const bucket = buckets[Math.floor(hue(r, g, b) * HUE_BUCKETS + 0.5) % HUE_BUCKETS];
     bucket.weight += saturation;
     bucket.r += r * saturation;
     bucket.g += g * saturation;

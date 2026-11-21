@@ -33,7 +33,7 @@ async function storeColor(mbid: string, imageUrl: string): Promise<void> {
   if (typeof (await dbOperations.getArtistImageColor(mbid)) === 'string') return;
   const color = await fetchPhotoColor(imageUrl);
   if (color === undefined) return;
-  await dbOperations.updateArtistImageColor(mbid, color ?? '');
+  await dbOperations.updateArtistImageColor(mbid, imageUrl, color ?? '');
 }
 
 /**

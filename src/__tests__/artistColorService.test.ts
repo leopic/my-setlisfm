@@ -44,7 +44,11 @@ it("stores the main color of the artist's small photo", async () => {
     'https://cdn-images.dzcdn.net/images/artist/abc/56x56-000000-80-0-0.jpg',
     expect.anything(),
   );
-  expect(updateColor).toHaveBeenCalledWith('artist-1', expect.stringMatching(/^#[0-9a-f]{6}$/));
+  expect(updateColor).toHaveBeenCalledWith(
+    'artist-1',
+    PHOTO,
+    expect.stringMatching(/^#[0-9a-f]{6}$/),
+  );
 });
 
 it('stores an empty color for a photo without one, so it is not tried again', async () => {
@@ -52,7 +56,7 @@ it('stores an empty color for a photo without one, so it is not tried again', as
 
   await storeArtistPhotoColor('artist-2', PHOTO);
 
-  expect(updateColor).toHaveBeenCalledWith('artist-2', '');
+  expect(updateColor).toHaveBeenCalledWith('artist-2', PHOTO, '');
 });
 
 it('stores an empty color for a photo it cannot read', async () => {
@@ -60,7 +64,7 @@ it('stores an empty color for a photo it cannot read', async () => {
 
   await storeArtistPhotoColor('artist-3', PHOTO);
 
-  expect(updateColor).toHaveBeenCalledWith('artist-3', '');
+  expect(updateColor).toHaveBeenCalledWith('artist-3', PHOTO, '');
 });
 
 it.each([
@@ -84,7 +88,7 @@ it('stores nothing when the download fails, and tries again on the next call', a
 
   respondWith(jpeg(200, 40, 40));
   await storeArtistPhotoColor('artist-5', PHOTO);
-  expect(updateColor).toHaveBeenCalledWith('artist-5', expect.stringMatching(/^#/));
+  expect(updateColor).toHaveBeenCalledWith('artist-5', PHOTO, expect.stringMatching(/^#/));
 });
 
 it('looks an artist up once when many rows ask at the same time', async () => {

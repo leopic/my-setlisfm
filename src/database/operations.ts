@@ -241,8 +241,13 @@ export class DatabaseOperations {
     return row?.imageColor ?? null;
   }
 
-  async updateArtistImageColor(mbid: string, imageColor: string): Promise<void> {
-    await this.db.runAsync(`UPDATE artists SET imageColor = ? WHERE mbid = ?`, [imageColor, mbid]);
+  /** Stores the color of `imageUrl`; skipped if the artist's photo changed meanwhile. */
+  async updateArtistImageColor(mbid: string, imageUrl: string, imageColor: string): Promise<void> {
+    await this.db.runAsync(`UPDATE artists SET imageColor = ? WHERE mbid = ? AND imageUrl = ?`, [
+      imageColor,
+      mbid,
+      imageUrl,
+    ]);
   }
 
   async getArtistMbidsWithoutImages(): Promise<string[]> {
