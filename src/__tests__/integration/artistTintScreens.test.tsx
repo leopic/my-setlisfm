@@ -94,6 +94,19 @@ it("drops one artist's color on the next artist's screen", async () => {
   expect(backColor(next)).toBe(theme().accent);
 });
 
+// The setlist header shows no photo, so the screen itself must ask for the color.
+it('finds the color for a setlist opened before any photo asked for it', async () => {
+  getTestDatabase().exec(
+    `UPDATE artists SET imageUrl = '${PHOTO}', imageColor = NULL WHERE mbid = 'artist-5'`,
+  );
+  await openTab('(concerts)');
+  const concerts = await findScreen('concerts-screen');
+  await fireEvent.press(concerts.getByTestId('concert-set-6'));
+  const screen = await findScreen('setlist-screen');
+
+  await waitFor(() => expect(screen.getByTestId('artist-glow')).toBeOnTheScreen());
+});
+
 it('keeps the theme colors for a photo without a clear color', async () => {
   const screen = await openArtist('artist-2');
 

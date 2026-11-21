@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { dbOperations } from '@/database/operations';
-import { subscribeArtistPhotoColor } from '@/services/artistColorService';
+import { storeArtistPhotoColor, subscribeArtistPhotoColor } from '@/services/artistColorService';
+import { getArtistImageUri } from '@/services/artistImageService';
 import { artistTint, type ArtistTint } from '@/utils/artistTint';
 import { useChronicleColors } from '@/utils/colors';
 
@@ -16,12 +17,20 @@ export function useArtistTint(mbid: string | undefined): ArtistTint | null {
   useEffect(() => {
     if (!mbid) return;
     let cancelled = false;
+    let asked = false;
     const load = () =>
       dbOperations
         .getArtistImageColor(mbid)
-        .then((color) => {
+        .then(async (color) => {
+          if (cancelled) return;
           // '' (no clear color) is kept too, so it replaces a color shown before.
-          if (!cancelled && color !== null) setStored({ mbid, color });
+          if (color !== null) setStored({ mbid, color });
+          else if (!asked) {
+            // Not found yet, and this screen may show no photo that would find it: ask once.
+            asked = true;
+            const imageUrl = await getArtistImageUri(mbid);
+            if (imageUrl) await storeArtistPhotoColor(mbid, imageUrl);
+          }
         })
         .catch(() => {}); // no tint is fine
     load();

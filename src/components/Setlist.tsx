@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { BackButton, Icon, TabScrollView } from '@/components/ui';
-import ArtistImage from '@/components/ArtistImage';
 import ArtistGlow from '@/components/ArtistGlow';
 import { useArtistTint } from '@/utils/useArtistTint';
 import RecognitionSheet from '@/components/RecognitionSheet';
@@ -312,9 +311,6 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       <View style={styles.backBar}>
         <View style={styles.backBarRow}>
           {onBackPress && <BackButton onPress={onBackPress} color={tint?.accent} />}
-          {setlist.artist?.mbid && (
-            <ArtistImage mbid={setlist.artist.mbid} size={28} name={setlist.artist.name} />
-          )}
           <Text style={styles.artistName} numberOfLines={1}>
             {setlist.artist?.name || t('common.unknownArtist')}
           </Text>
