@@ -1,5 +1,12 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React, { type Ref } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  type ScrollViewInstance,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
@@ -19,9 +26,15 @@ interface CountryListProps {
   countries: CountryWithStats[];
   onCountryPress: (country: CountryWithStats) => void;
   emptyMessage?: string;
+  ref?: Ref<ScrollViewInstance>;
 }
 
-export default function CountryList({ countries, onCountryPress, emptyMessage }: CountryListProps) {
+export default function CountryList({
+  countries,
+  onCountryPress,
+  emptyMessage,
+  ref,
+}: CountryListProps) {
   const { t } = useTranslation();
   const colors = useChronicleColors();
   const styles = StyleSheet.create({
@@ -109,6 +122,7 @@ export default function CountryList({ countries, onCountryPress, emptyMessage }:
 
   return (
     <ScrollView
+      ref={ref}
       style={styles.list}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={tabBarContentStyle}

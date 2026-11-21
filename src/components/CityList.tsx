@@ -1,5 +1,12 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React, { type Ref } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  type ScrollViewInstance,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '@/utils/date';
 import { useChronicleColors } from '@/utils/colors';
@@ -20,9 +27,10 @@ interface CityListProps {
   cities: CityWithStats[];
   onCityPress: (city: CityWithStats) => void;
   emptyMessage?: string;
+  ref?: Ref<ScrollViewInstance>;
 }
 
-export default function CityList({ cities, onCityPress, emptyMessage }: CityListProps) {
+export default function CityList({ cities, onCityPress, emptyMessage, ref }: CityListProps) {
   const { t } = useTranslation();
   const colors = useChronicleColors();
   const styles = StyleSheet.create({
@@ -110,6 +118,7 @@ export default function CityList({ cities, onCityPress, emptyMessage }: CityList
 
   return (
     <ScrollView
+      ref={ref}
       style={styles.list}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={tabBarContentStyle}
