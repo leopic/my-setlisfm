@@ -226,7 +226,28 @@ export class DatabaseOperations {
   }
 
   async updateArtistImageUrl(mbid: string, imageUrl: string): Promise<void> {
-    await this.db.runAsync(`UPDATE artists SET imageUrl = ? WHERE mbid = ?`, [imageUrl, mbid]);
+    // A new photo needs its color found again.
+    await this.db.runAsync(`UPDATE artists SET imageUrl = ?, imageColor = NULL WHERE mbid = ?`, [
+      imageUrl,
+      mbid,
+    ]);
+  }
+
+  async getArtistImageColor(mbid: string): Promise<string | null> {
+    const row = await this.db.getFirstAsync<{ imageColor: string | null }>(
+      `SELECT imageColor FROM artists WHERE mbid = ?`,
+      [mbid],
+    );
+    return row?.imageColor ?? null;
+  }
+
+  /** Stores the color of `imageUrl`; skipped if the artist's photo changed meanwhile. */
+  async updateArtistImageColor(mbid: string, imageUrl: string, imageColor: string): Promise<void> {
+    await this.db.runAsync(`UPDATE artists SET imageColor = ? WHERE mbid = ? AND imageUrl = ?`, [
+      imageColor,
+      mbid,
+      imageUrl,
+    ]);
   }
 
   async getArtistMbidsWithoutImages(): Promise<string[]> {
@@ -1540,7 +1561,7 @@ export class DatabaseOperations {
   }
 
   async clearAllArtistImages(): Promise<void> {
-    await this.db.runAsync(`UPDATE artists SET imageUrl = NULL`);
+    await this.db.runAsync(`UPDATE artists SET imageUrl = NULL, imageColor = NULL`);
   }
 
   // ── Concert insights (for the Concerts tab) ──────────────────────────────

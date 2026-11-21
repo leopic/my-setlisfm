@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { getArtistImageUri } from '@/services/artistImageService';
+import { storeArtistPhotoColor } from '@/services/artistColorService';
 import { useChronicleColors } from '@/utils/colors';
 import { Radius } from '@/utils/radius';
 
@@ -61,6 +62,11 @@ export default function ArtistImage({
       cancelled = true;
     };
   }, [mbid, hasPreloaded]);
+
+  // Find the photo's color in the background, for screens tinted by the artist.
+  useEffect(() => {
+    if (imageUri) storeArtistPhotoColor(mbid, imageUri);
+  }, [mbid, imageUri]);
 
   return (
     <View

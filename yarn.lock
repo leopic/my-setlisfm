@@ -8566,6 +8566,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jpeg-js@npm:0.4.4":
+  version: 0.4.4
+  resolution: "jpeg-js@npm:0.4.4"
+  checksum: 10c0/4d0d5097f8e55d8bbce6f1dc32ffaf3f43f321f6222e4e6490734fdc6d005322e3bd6fb992c2df7f5b587343b1441a1c333281dc3285bc9116e369fd2a2b43a7
+  languageName: node
+  linkType: hard
+
 "js-tokens@npm:^3.0.0 || ^4.0.0, js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
@@ -11175,6 +11182,7 @@ __metadata:
     i18next: "npm:^27.1.1"
     jest: "npm:^30.0.0"
     jest-expo: "npm:~58.0.15"
+    jpeg-js: "npm:0.4.4"
     lint-staged: "npm:^17.6.0"
     prettier: "npm:^3.10.1"
     react: "npm:19.3.0"
