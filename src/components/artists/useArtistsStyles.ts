@@ -107,7 +107,6 @@ export function useArtistsStyles() {
     artistImageRing: {
       borderWidth: 2,
       borderRadius: Radius.full,
-      padding: 1,
       borderColor: 'transparent',
     },
     artistCenter: {
