@@ -140,10 +140,11 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
       justifyContent: 'center',
       marginRight: -(TOUCH_TARGET - BADGE_SIZE) / 2,
     },
+    // An exact radius: the glass view takes it as is, without React Native's cap.
     navBadgeShape: {
       width: BADGE_SIZE,
       height: BADGE_SIZE,
-      borderRadius: Radius.full,
+      borderRadius: BADGE_SIZE / 2,
       alignItems: 'center',
       justifyContent: 'center',
     },

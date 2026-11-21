@@ -14,7 +14,8 @@ export default function PhotoChip({ style, children, testID }: Props) {
   const colors = useChronicleColors();
   if (isLiquidGlassAvailable()) {
     return (
-      <GlassView glassEffectStyle="regular" isInteractive style={style} testID={testID}>
+      // Not interactive: the button around it already answers a press.
+      <GlassView glassEffectStyle="regular" style={style} testID={testID}>
         {children}
       </GlassView>
     );

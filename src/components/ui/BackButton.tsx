@@ -4,8 +4,9 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
 import { Space } from '@/utils/spacing';
-import { Radius } from '@/utils/radius';
 import PhotoChip from './PhotoChip';
+
+const PILL_HEIGHT = Type.body.lineHeight + Space.s4 * 2;
 
 type Props = {
   onPress: () => void;
@@ -28,11 +29,13 @@ export default function BackButton({ onPress, style, color, onPhoto = false }: P
       alignSelf: 'flex-start',
     },
     text: { ...Type.body, color: color ?? colors.accent },
-    // The shape of the chip; PhotoChip fills it (Liquid Glass, or a solid chip).
+    // The shape of the chip; PhotoChip fills it (Liquid Glass, or a solid chip). The radius is
+    // exact: the glass view takes it as is, without React Native's cap at half the height.
     pill: {
+      height: PILL_HEIGHT,
+      justifyContent: 'center',
       paddingHorizontal: Space.s12,
-      paddingVertical: Space.s4,
-      borderRadius: Radius.full,
+      borderRadius: PILL_HEIGHT / 2,
     },
   });
   return (

@@ -22,7 +22,10 @@ it('is Liquid Glass where iOS has it', async () => {
     </PhotoChip>,
   );
 
-  expect(screen.getByTestId('glass-view')).toBeOnTheScreen();
+  const glass = screen.getByTestId('glass-view');
+  expect(glass.props.glassEffectStyle).toBe('regular');
+  // The button around it answers a press; interactive glass would answer it a second time.
+  expect(glass.props.isInteractive).toBeFalsy();
   expect(screen.getByText('Back')).toBeOnTheScreen();
 });
 
