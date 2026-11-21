@@ -20,7 +20,8 @@ export function useArtistTint(mbid: string | undefined): ArtistTint | null {
       dbOperations
         .getArtistImageColor(mbid)
         .then((color) => {
-          if (!cancelled && color) setStored({ mbid, color });
+          // '' (no clear color) is kept too, so it replaces a color shown before.
+          if (!cancelled && color !== null) setStored({ mbid, color });
         })
         .catch(() => {}); // no tint is fine
     load();

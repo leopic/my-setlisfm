@@ -1,5 +1,3 @@
-import type { ChronicleColors } from '@/utils/colors';
-
 // Text in the artist's color must stay as readable as the theme accent: WCAG AA for small text.
 const MIN_CONTRAST = 4.5;
 const LIGHTNESS_STEP = 0.02;
@@ -68,7 +66,10 @@ function fromHsl([h, s, l]: Rgb): Rgb {
  * The artist's photo color, made readable on the current theme: lighter on a dark background,
  * darker on a light one, with the same hue.
  */
-export function artistTint(photoColor: string, colors: ChronicleColors): ArtistTint {
+export function artistTint(
+  photoColor: string,
+  colors: { background: string; accent: string },
+): ArtistTint {
   const darkTheme = luminance(parseHex(colors.background)) < 0.5;
   const [h, s, startLightness] = toHsl(parseHex(photoColor));
   let l = startLightness;
@@ -77,5 +78,7 @@ export function artistTint(photoColor: string, colors: ChronicleColors): ArtistT
     l = Math.min(1, Math.max(0, l + (darkTheme ? LIGHTNESS_STEP : -LIGHTNESS_STEP)));
     accent = toHex(fromHsl([h, s, l]));
   }
+  // Pure black on the dark theme or pure white on the light one: no lightness reads.
+  if (contrast(accent, colors.background) < MIN_CONTRAST) accent = colors.accent;
   return { accent, glowOpacity: darkTheme ? 0.22 : 0.16 };
 }

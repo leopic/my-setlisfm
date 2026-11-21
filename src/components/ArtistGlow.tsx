@@ -5,7 +5,8 @@ import type { ArtistTint } from '@/utils/artistTint';
 const GLOW_HEIGHT = 320;
 
 /**
- * A soft wash of the artist's color behind the top of a screen, under the status bar too.
+ * A soft wash of the artist's color behind the top of a screen. On a phone it reaches under the
+ * status bar; in an iPad pane it starts at the top of the pane.
  * Place it first inside the screen's container, so the content draws on top.
  */
 export default function ArtistGlow({ tint }: { tint: ArtistTint }) {

@@ -1,8 +1,9 @@
 import { StyleSheet } from 'react-native';
+import { router } from 'expo-router';
 import { act, fireEvent, waitFor, within } from 'expo-router/testing-library';
 import { encode } from 'jpeg-js';
 import { artistTint } from '@/utils/artistTint';
-import { chronicleLight, type ChronicleColors } from '@/utils/colors';
+import { chronicleLight } from '@/utils/colors';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
 import { findScreen, launchApp, openTab } from '../../../test/screen';
@@ -40,7 +41,7 @@ beforeEach(async () => {
 });
 
 // Tests run with the light color scheme.
-const theme = () => chronicleLight as ChronicleColors;
+const theme = () => chronicleLight;
 
 type Queries = Awaited<ReturnType<typeof findScreen>>;
 const backColor = (screen: Queries) =>
@@ -76,6 +77,21 @@ it('tints the setlist screen too', async () => {
   expect(backColor(screen)).toBe(artistTint(WINE, theme()).accent);
   const tour = StyleSheet.flatten(screen.getByText('In Rainbows Tour').props.style);
   expect(tour.color).toBe(artistTint(WINE, theme()).accent);
+});
+
+// Arctic Monkeys have no photo, so no color is ever stored for them.
+it("drops one artist's color on the next artist's screen", async () => {
+  const screen = await openArtist('artist-1');
+  expect(await screen.findByTestId('artist-glow')).toBeOnTheScreen();
+
+  await act(async () =>
+    router.navigate({ pathname: '/(artists)/concerts', params: { artist: 'artist-4' } }),
+  );
+
+  const next = await findScreen('artist-concerts-screen');
+  expect(await next.findByText('Filed under A')).toBeOnTheScreen();
+  expect(next.queryByTestId('artist-glow')).not.toBeOnTheScreen();
+  expect(backColor(next)).toBe(theme().accent);
 });
 
 it('keeps the theme colors for a photo without a clear color', async () => {
