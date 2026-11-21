@@ -31,14 +31,14 @@ async function fetchImageUrlFromDeezer(artistName: string): Promise<string | nul
   }
 }
 
+// Rows, cards and screens can ask for the same artist at once: one Deezer search each.
+const lookups = new Map<string, Promise<string | null>>();
+
 /**
  * Returns the image URL for an artist, checking the SQLite cache first.
  * On first access, fetches from Deezer and persists the result.
  * Returns null if no image exists for this artist.
  */
-// Rows, cards and screens can ask for the same artist at once: one Deezer search each.
-const lookups = new Map<string, Promise<string | null>>();
-
 export function getArtistImageUri(mbid: string): Promise<string | null> {
   const pending = lookups.get(mbid);
   if (pending) return pending;

@@ -13,13 +13,14 @@ const TEAL = '#0f4458';
 // Tests run with the light color scheme.
 const tinted = (color: string) => artistTint(color, chronicleLight).accent;
 
-// A Radiohead show on this day two years ago, so the dashboard shows "On this day".
+// A Radiohead show on this day two years ago, so the dashboard shows "On this day". A seed show
+// on the same day of the year would compete with it, so the setup removes any.
 const today = new Date();
-const twoYearsAgo = [
+const dayAndMonth = [
   String(today.getDate()).padStart(2, '0'),
   String(today.getMonth() + 1).padStart(2, '0'),
-  today.getFullYear() - 2,
 ].join('-');
+const twoYearsAgo = `${dayAndMonth}-${today.getFullYear() - 2}`;
 
 beforeAll(async () => {
   await seedDatabase();
@@ -30,6 +31,7 @@ beforeAll(async () => {
     UPDATE artists SET imageUrl = '', imageColor = '';
     UPDATE artists SET imageUrl = '${PHOTO}', imageColor = '${WINE}' WHERE mbid = 'artist-1';
     UPDATE artists SET imageUrl = '${PHOTO}', imageColor = '${TEAL}' WHERE mbid = 'artist-2';
+    DELETE FROM setlists WHERE eventDate LIKE '${dayAndMonth}-%';
     INSERT INTO setlists (id, artistMbid, venueId, eventDate, url)
     VALUES ('set-otd', 'artist-1', 'venue-1', '${twoYearsAgo}', 'https://www.setlist.fm/setlist/otd.html');
   `);

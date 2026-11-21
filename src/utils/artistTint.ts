@@ -32,6 +32,10 @@ export function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
+// `top` at `opacity` over `bottom`, as the screen draws it.
+const blend = (bottom: Rgb, top: Rgb, opacity: number): Rgb =>
+  bottom.map((c, i) => c * (1 - opacity) + top[i] * opacity) as Rgb;
+
 function toHsl([r, g, b]: Rgb): Rgb {
   const [rn, gn, bn] = [r / 255, g / 255, b / 255];
   const max = Math.max(rn, gn, bn);
@@ -73,16 +77,23 @@ export function artistTint(
   colors: { background: string; accent: string },
 ): ArtistTint {
   const darkTheme = luminance(parseHex(colors.background)) < 0.5;
+  const softOpacity = darkTheme ? 0.12 : 0.1;
+  // Text in the accent also sits on cards filled with `soft`, which is closer to the accent than
+  // the background is: it has to read there too.
+  const readable = (color: string) =>
+    contrast(color, colors.background) >= MIN_CONTRAST &&
+    contrast(color, toHex(blend(parseHex(colors.background), parseHex(color), softOpacity))) >=
+      MIN_CONTRAST;
   const [h, s, startLightness] = toHsl(parseHex(photoColor));
   let l = startLightness;
   let accent = photoColor;
-  while (contrast(accent, colors.background) < MIN_CONTRAST && l > 0 && l < 1) {
+  while (!readable(accent) && l > 0 && l < 1) {
     l = Math.min(1, Math.max(0, l + (darkTheme ? LIGHTNESS_STEP : -LIGHTNESS_STEP)));
     accent = toHex(fromHsl([h, s, l]));
   }
   // Pure black on the dark theme or pure white on the light one: no lightness reads.
-  if (contrast(accent, colors.background) < MIN_CONTRAST) accent = colors.accent;
+  if (!readable(accent)) accent = colors.accent;
   const [r, g, b] = parseHex(accent);
-  const soft = `rgba(${r}, ${g}, ${b}, ${darkTheme ? 0.12 : 0.1})`;
+  const soft = `rgba(${r}, ${g}, ${b}, ${softOpacity})`;
   return { accent, glowOpacity: darkTheme ? 0.22 : 0.16, soft };
 }

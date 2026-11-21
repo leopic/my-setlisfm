@@ -7,10 +7,28 @@ const light = { background: '#f2f6fc', accent: '#0077cc' };
 // Colors found in real photos (dark teal, wine, sand, slate blue) and the extremes.
 const PHOTO_COLORS = ['#0f4458', '#942130', '#dcc09a', '#667fb6', '#000080', '#ffff00', '#00ff00'];
 
+// The card fill as the screen draws it: `soft` over the background.
+function cardFill(soft: string, background: string) {
+  const [r, g, b, a] = (soft.match(/[\d.]+/g) ?? []).map(Number);
+  const bg = [1, 3, 5].map((i) => parseInt(background.slice(i, i + 2), 16));
+  return `#${[r, g, b]
+    .map((c, i) =>
+      Math.round(bg[i] * (1 - a) + c * a)
+        .toString(16)
+        .padStart(2, '0'),
+    )
+    .join('')}`;
+}
+
 describe.each([
   ['dark', dark],
   ['light', light],
 ])('on the %s theme', (_theme, colors) => {
+  it.each(PHOTO_COLORS)('keeps %s readable on a card filled with it', (photoColor) => {
+    const { accent, soft } = artistTint(photoColor, colors);
+    expect(contrast(accent, cardFill(soft, colors.background))).toBeGreaterThanOrEqual(4.5);
+  });
+
   it.each(PHOTO_COLORS)('makes %s readable as text', (photoColor) => {
     expect(
       contrast(artistTint(photoColor, colors).accent, colors.background),
