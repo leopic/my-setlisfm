@@ -9,6 +9,7 @@ import { useOpenConcert } from './useOpenConcert';
 import { Space } from '@/utils/spacing';
 import { Corner } from '@/utils/radius';
 import { useArtistTint } from '@/utils/useArtistTint';
+import { Chevron } from '@/components/ui';
 
 // "On this day" card at the top of the phone layout.
 export default function OnThisDayCard({ onThisDay }: { onThisDay: NonNullable<OnThisDayConcert> }) {
@@ -90,7 +91,7 @@ export default function OnThisDayCard({ onThisDay }: { onThisDay: NonNullable<On
             {onThisDay.venueName} · {formatDate(onThisDay.eventDate)}
           </Text>
         </View>
-        <Text style={styles.onThisDayChevron}>›</Text>
+        <Chevron style={styles.onThisDayChevron} />
       </View>
     </Pressable>
   );

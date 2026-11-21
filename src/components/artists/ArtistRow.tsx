@@ -5,6 +5,7 @@ import { useArtistTint } from '@/utils/useArtistTint';
 import { formatDate } from '@/utils/date';
 import type { ArtistWithStats } from './types';
 import type { ArtistsStyles } from './useArtistsStyles';
+import { Chevron } from '@/components/ui';
 
 type ArtistRowProps = {
   styles: ArtistsStyles;
@@ -61,7 +62,7 @@ export default function ArtistRow({ styles, artist, index, isSelected, onPress }
       <Text style={[styles.countText, index < 3 ? styles.countTextTop : styles.countTextDefault]}>
         {artist.concertCount}
       </Text>
-      <Text style={styles.chevron}>›</Text>
+      <Chevron style={styles.chevron} />
     </Pressable>
   );
 }

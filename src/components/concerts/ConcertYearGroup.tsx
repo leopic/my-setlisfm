@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { formatDate } from '@/utils/date';
 import type { ConcertWithDetails, YearGroup } from './types';
 import type { ConcertsStyles } from './useConcertsStyles';
+import { Chevron } from '@/components/ui';
 
 type Props = {
   yearGroup: YearGroup;
@@ -57,7 +58,7 @@ export default function ConcertYearGroup({
                   </Text>
                   {concert.tour?.name && <Text style={styles.entryTour}>{concert.tour.name}</Text>}
                 </View>
-                <Text style={styles.entryChevron}>›</Text>
+                <Chevron style={styles.entryChevron} />
               </View>
             </Pressable>
           );
