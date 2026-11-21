@@ -9,6 +9,8 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import ConcertListSkeleton from '@/components/skeletons/ConcertListSkeleton';
 import ArtistImage from '@/components/ArtistImage';
+import ArtistGlow from '@/components/ArtistGlow';
+import { useArtistTint } from '@/utils/useArtistTint';
 import { BackButton, TabScrollView } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
@@ -198,6 +200,9 @@ export default function ArtistConcertsListScreen() {
 
   // Get artist parameter from navigation
   const artistMbid = params.artist as string;
+  // The artist's photo color replaces the theme accent on this screen.
+  const tint = useArtistTint(artistMbid);
+  const tinted = tint ? { color: tint.accent } : null;
 
   useEffect(() => {
     if (!artistMbid) return;
@@ -288,10 +293,11 @@ export default function ArtistConcertsListScreen() {
       style={styles.container}
       testID="artist-concerts-screen"
     >
+      {tint && <ArtistGlow tint={tint} />}
       {/* Inline header */}
       <View style={styles.inlineHeader}>
         <View style={styles.backRow}>
-          <BackButton onPress={() => router.back()} />
+          <BackButton onPress={() => router.back()} color={tint?.accent} />
         </View>
         <View style={styles.artistRow}>
           <ArtistImage mbid={artistMbid} imageUrl={artistImageUrl} size={56} name={artistName} />
@@ -346,11 +352,17 @@ export default function ArtistConcertsListScreen() {
                       accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
                     >
                       {/* Timeline dot */}
-                      <View style={[styles.dot, isFirstOfMostRecentYear && styles.dotActive]} />
+                      <View
+                        style={[
+                          styles.dot,
+                          isFirstOfMostRecentYear && styles.dotActive,
+                          isFirstOfMostRecentYear && tint && { backgroundColor: tint.accent },
+                        ]}
+                      />
 
                       <View style={styles.entryRow}>
                         <View style={styles.entryContent}>
-                          <Text style={styles.entryDate}>
+                          <Text style={[styles.entryDate, tinted]}>
                             {formatDate(concert.eventDate ?? '')}
                           </Text>
                           {/* Primary: venue name */}
@@ -358,7 +370,7 @@ export default function ArtistConcertsListScreen() {
                           {/* Secondary: location */}
                           {location ? <Text style={styles.entrySecondary}>{location}</Text> : null}
                           {concert.tour?.name && (
-                            <Text style={styles.entryTour}>{concert.tour.name}</Text>
+                            <Text style={[styles.entryTour, tinted]}>{concert.tour.name}</Text>
                           )}
                           {concert.lastUpdated && (
                             <Text style={styles.entrySecondary}>

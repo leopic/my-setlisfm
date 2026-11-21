@@ -4,10 +4,15 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
 
-type Props = { onPress: () => void; style?: StyleProp<ViewStyle> };
+type Props = {
+  onPress: () => void;
+  style?: StyleProp<ViewStyle>;
+  /** Replaces the theme accent, e.g. with the artist's color. */
+  color?: string;
+};
 
 // The "← Back" link at the top of pushed screens. The text is one line, the target 44 pt.
-export default function BackButton({ onPress, style }: Props) {
+export default function BackButton({ onPress, style, color }: Props) {
   const { t } = useTranslation();
   const colors = useChronicleColors();
   const styles = StyleSheet.create({
@@ -17,7 +22,7 @@ export default function BackButton({ onPress, style }: Props) {
       justifyContent: 'center',
       alignSelf: 'flex-start',
     },
-    text: { ...Type.body, color: colors.accent },
+    text: { ...Type.body, color: color ?? colors.accent },
   });
   return (
     <Pressable

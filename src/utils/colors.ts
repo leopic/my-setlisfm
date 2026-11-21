@@ -3,7 +3,7 @@ import { useColorScheme } from 'react-native';
 // ─── Chronicle palette ────────────────────────────────────────────────────────
 // All secondary/muted values are WCAG AA-compliant (≥4.5:1 on their background).
 
-const chronicleDark = {
+export const chronicleDark = {
   background: '#08090f',
   surface: '#0d1122',
   surfaceRaised: '#131828',
@@ -48,7 +48,7 @@ const chronicleDark = {
   shadow: 'rgba(0, 0, 0, 0.6)',
 } as const;
 
-const chronicleLight = {
+export const chronicleLight = {
   background: '#f2f6fc',
   surface: '#ffffff',
   surfaceRaised: '#edf2f8',

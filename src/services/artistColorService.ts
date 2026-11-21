@@ -9,6 +9,17 @@ const smallPhotoUrl = (url: string) => url.replace(/\/\d+x\d+-/, '/56x56-');
 // The same artist shows up in many rows at once: one lookup each.
 const inFlight = new Map<string, Promise<void>>();
 
+type ColorListener = (mbid: string) => void;
+const listeners = new Set<ColorListener>();
+
+/** Calls `listener` with the artist's mbid each time a photo color is stored. */
+export function subscribeArtistPhotoColor(listener: ColorListener): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
 async function fetchPhotoColor(imageUrl: string): Promise<string | null | undefined> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
@@ -34,6 +45,7 @@ async function storeColor(mbid: string, imageUrl: string): Promise<void> {
   const color = await fetchPhotoColor(imageUrl);
   if (color === undefined) return;
   await dbOperations.updateArtistImageColor(mbid, imageUrl, color ?? '');
+  for (const listener of listeners) listener(mbid);
 }
 
 /**
