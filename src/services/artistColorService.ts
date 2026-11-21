@@ -1,10 +1,11 @@
 import { dbOperations } from '@/database/operations';
 import { pickPhotoColor } from '@/utils/photoColor';
+import { deezerPhotoUrl } from '@/utils/deezerPhoto';
 
 const FETCH_TIMEOUT_MS = 5000;
 
-// Deezer serves every photo size at the same path; 56×56 is plenty to find a color.
-const smallPhotoUrl = (url: string) => url.replace(/\/\d+x\d+-/, '/56x56-');
+// 56×56 is plenty to find a color.
+const smallPhotoUrl = (url: string) => deezerPhotoUrl(url, 56);
 
 // The same artist shows up in many rows at once: one lookup each.
 const inFlight = new Map<string, Promise<void>>();
