@@ -4,9 +4,9 @@ import { findScreen, goBackFrom, inLinkPreview, launchApp, openTab } from '../..
 import { Space } from '@/utils/spacing';
 import { formatDate } from '@/utils/date';
 
-// On a phone a concert row (Concerts tab, an artist's concerts, the dashboard timeline) opens
-// its setlist through a Link with Link.Preview, so a long press peeks at the setlist. test/integration.setup.ts stands in a host element for the
-// native preview view.
+// On a phone a concert row (Concerts tab, an artist's concerts, the dashboard timeline)
+// opens its setlist through a Link with Link.Preview, so a long press peeks at the setlist.
+// test/integration.setup.ts stands in a host element for the native preview view.
 beforeAll(seedDatabase);
 
 beforeEach(launchApp);
