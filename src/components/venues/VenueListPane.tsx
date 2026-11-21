@@ -48,10 +48,14 @@ export default function VenueListPane({
         ? t('venues.subtitleRecent', { count: venueCount })
         : t('venues.subtitle', { count: venueCount });
 
-  // The sort pills sit above the list, so a new order starts at the top, not where the old one was.
+  // Search and sort sit above the list, so new results start at the top, not where the old ones were.
   const listRef = useRef<LegendListRef>(null);
   const handleSortChange = (option: SortOption) => {
     onSortChange(option);
+    scrollListToTop(listRef.current);
+  };
+  const handleSearchChange = (query: string) => {
+    onSearchChange(query);
     scrollListToTop(listRef.current);
   };
 
@@ -70,7 +74,7 @@ export default function VenueListPane({
       <VenueControls
         styles={styles}
         searchQuery={searchQuery}
-        onSearchChange={onSearchChange}
+        onSearchChange={handleSearchChange}
         sortOption={sortOption}
         onSortChange={handleSortChange}
       />

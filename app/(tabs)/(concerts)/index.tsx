@@ -76,7 +76,8 @@ export default function ConcertsScreen() {
   const [rawConcerts, setRawConcerts] = useState<ConcertWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<SortOption>('recent');
-  // The sort pills sit above the list, so a new order starts at the top, not where the old one was.
+  // Search, year and sort sit above the list, so new results start at the top, not where the old
+  // ones were.
   const listRef = useRef<LegendListRef>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
@@ -124,6 +125,11 @@ export default function ConcertsScreen() {
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
+    scrollListToTop(listRef.current);
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
     scrollListToTop(listRef.current);
   };
 
@@ -243,7 +249,7 @@ export default function ConcertsScreen() {
       {/* Search + sort */}
       <ConcertsControls
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={handleSearchChange}
         years={yearGroups.map((g) => g.year)}
         yearFilter={yearFilter}
         yearDropdownOpen={yearDropdownOpen}
@@ -252,6 +258,7 @@ export default function ConcertsScreen() {
         onSelectYear={(year) => {
           setYearFilter(year);
           setYearDropdownOpen(false);
+          scrollListToTop(listRef.current);
         }}
         sortOption={sortOption}
         onSortChange={handleSortChange}
