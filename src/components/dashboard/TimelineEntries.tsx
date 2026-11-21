@@ -6,12 +6,12 @@ import { toOrdinal } from '@/utils/ordinal';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import type { ConcertEntry, Milestone } from './types';
-import { useOpenConcert } from './useOpenConcert';
+import { concertHref } from './useOpenConcert';
 import { Space } from '@/utils/spacing';
 import { RIVER_DOT_TOP } from '@/components/river';
 import { Radius } from '@/utils/radius';
 import { useArtistTint } from '@/utils/useArtistTint';
-import { Chevron } from '@/components/ui';
+import { Chevron, RowLink } from '@/components/ui';
 
 // Styles for the entries on the phone timeline spine. Call once in the timeline and pass the result down.
 // The milestone marker is a 9 pt square turned 45°; a slight rounding keeps it a diamond.
@@ -115,44 +115,44 @@ export function TimelineConcertEntry({
   styles,
 }: ConcertProps) {
   const { t } = useTranslation();
-  const openConcert = useOpenConcert();
   // The artist's photo color for the date and the dot, so the spine shows who you saw.
   const tint = useArtistTint(concert.artistMbid ?? undefined);
   return (
-    <Pressable
-      style={({ pressed }) => [styles.concertEntry, { opacity: pressed ? 0.7 : 1 }]}
-      onPress={() => openConcert(concert.setlistId)}
-      accessibilityRole="button"
-      accessibilityLabel={`${accessibilityPrefix}, ${concert.artistName}, ${formatDate(concert.eventDate)}`}
-      accessibilityHint={t('dashboard.opensConcertDetails')}
-    >
-      <View style={styles.dotWrapper}>
-        <View
-          style={[
-            isActiveDot ? styles.dotActive : styles.dotInactive,
-            tint && { backgroundColor: tint.accent },
-          ]}
-        />
-      </View>
-      {concert.artistMbid && (
-        <View style={styles.entryImageWrapper}>
-          <ArtistImage
-            mbid={concert.artistMbid}
-            imageUrl={concert.artistImageUrl}
-            size={32}
-            name={concert.artistName}
+    <RowLink href={concertHref(concert.setlistId)}>
+      <Pressable
+        style={({ pressed }) => [styles.concertEntry, { opacity: pressed ? 0.7 : 1 }]}
+        accessibilityRole="button"
+        accessibilityLabel={`${accessibilityPrefix}, ${concert.artistName}, ${formatDate(concert.eventDate)}`}
+        accessibilityHint={t('dashboard.opensConcertDetails')}
+      >
+        <View style={styles.dotWrapper}>
+          <View
+            style={[
+              isActiveDot ? styles.dotActive : styles.dotInactive,
+              tint && { backgroundColor: tint.accent },
+            ]}
           />
         </View>
-      )}
-      <View style={styles.entryContent}>
-        <Text style={[styles.entryDate, tint && { color: tint.accent }]}>
-          {formatDate(concert.eventDate)}
-        </Text>
-        <Text style={styles.entryArtist}>{concert.artistName}</Text>
-        {venueName !== undefined && <Text style={styles.entryVenue}>{venueName}</Text>}
-      </View>
-      <Chevron style={styles.entryChevron} />
-    </Pressable>
+        {concert.artistMbid && (
+          <View style={styles.entryImageWrapper}>
+            <ArtistImage
+              mbid={concert.artistMbid}
+              imageUrl={concert.artistImageUrl}
+              size={32}
+              name={concert.artistName}
+            />
+          </View>
+        )}
+        <View style={styles.entryContent}>
+          <Text style={[styles.entryDate, tint && { color: tint.accent }]}>
+            {formatDate(concert.eventDate)}
+          </Text>
+          <Text style={styles.entryArtist}>{concert.artistName}</Text>
+          {venueName !== undefined && <Text style={styles.entryVenue}>{venueName}</Text>}
+        </View>
+        <Chevron style={styles.entryChevron} />
+      </Pressable>
+    </RowLink>
   );
 }
 
@@ -165,33 +165,33 @@ export function TimelineMilestoneEntry({
   styles: TimelineStyles;
 }) {
   const { t } = useTranslation();
-  const openConcert = useOpenConcert();
   const label = t('dashboard.milestoneShow', {
     ordinal: toOrdinal(milestone.number).toUpperCase(),
   });
   return (
-    <Pressable
-      style={({ pressed }) => [styles.concertEntry, { opacity: pressed ? 0.7 : 1 }]}
-      onPress={() => openConcert(milestone.setlistId)}
-      accessibilityRole="button"
-      accessibilityLabel={`${label}: ${milestone.artistName}, ${formatDate(milestone.eventDate)}`}
-      accessibilityHint={t('dashboard.opensConcertDetails')}
-    >
-      <View style={styles.dotWrapper}>
-        <View style={styles.milestoneMarker} />
-      </View>
-      <View style={styles.entryContent}>
-        <Text style={styles.milestoneTag}>{label}</Text>
-        <Text style={styles.entryArtist}>{milestone.artistName}</Text>
-        {milestone.cityName ? (
-          <Text style={styles.entryVenue}>
-            {milestone.cityName} · {formatDate(milestone.eventDate)}
-          </Text>
-        ) : (
-          <Text style={styles.entryVenue}>{formatDate(milestone.eventDate)}</Text>
-        )}
-      </View>
-      <Chevron style={styles.entryChevron} />
-    </Pressable>
+    <RowLink href={concertHref(milestone.setlistId)}>
+      <Pressable
+        style={({ pressed }) => [styles.concertEntry, { opacity: pressed ? 0.7 : 1 }]}
+        accessibilityRole="button"
+        accessibilityLabel={`${label}: ${milestone.artistName}, ${formatDate(milestone.eventDate)}`}
+        accessibilityHint={t('dashboard.opensConcertDetails')}
+      >
+        <View style={styles.dotWrapper}>
+          <View style={styles.milestoneMarker} />
+        </View>
+        <View style={styles.entryContent}>
+          <Text style={styles.milestoneTag}>{label}</Text>
+          <Text style={styles.entryArtist}>{milestone.artistName}</Text>
+          {milestone.cityName ? (
+            <Text style={styles.entryVenue}>
+              {milestone.cityName} · {formatDate(milestone.eventDate)}
+            </Text>
+          ) : (
+            <Text style={styles.entryVenue}>{formatDate(milestone.eventDate)}</Text>
+          )}
+        </View>
+        <Chevron style={styles.entryChevron} />
+      </Pressable>
+    </RowLink>
   );
 }
