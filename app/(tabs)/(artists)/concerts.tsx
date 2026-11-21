@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, type Href } from 'expo-router';
 import { dbOperations } from '@/database/operations';
 import type { DBArtist, SetlistWithDetails } from '@/types/database';
 import { parseSetlistDate, formatDate } from '@/utils/date';
@@ -11,7 +11,7 @@ import ConcertListSkeleton from '@/components/skeletons/ConcertListSkeleton';
 import ArtistImage from '@/components/ArtistImage';
 import ArtistGlow from '@/components/ArtistGlow';
 import { useArtistTint } from '@/utils/useArtistTint';
-import { BackButton, TabScrollView, Chevron } from '@/components/ui';
+import { BackButton, TabScrollView, Chevron, RowLink } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { Space } from '@/utils/spacing';
@@ -251,12 +251,11 @@ export default function ArtistConcertsListScreen() {
     setRefreshing(false);
   };
 
-  const handleConcertPress = (concert: ConcertWithDetails) => {
-    router.push({
-      pathname: '/(artists)/[id]',
-      params: { id: concert.id },
-    });
-  };
+  // A row opens the setlist through a Link (RowLink), which gives the long-press preview.
+  const concertHref = (concert: ConcertWithDetails): Href => ({
+    pathname: '/(artists)/[id]',
+    params: { id: concert.id },
+  });
 
   const yearGroups = ((): YearGroup[] => {
     const groups: { [year: string]: ConcertWithDetails[] } = {};
@@ -343,46 +342,48 @@ export default function ArtistConcertsListScreen() {
                   );
 
                   return (
-                    <Pressable
-                      key={concert.id}
-                      style={({ pressed }) => [styles.riverEntry, { opacity: pressed ? 0.7 : 1 }]}
-                      testID={`artist-concert-${concert.id}`}
-                      onPress={() => handleConcertPress(concert)}
-                      accessibilityRole="button"
-                      accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
-                    >
-                      {/* Timeline dot */}
-                      <View
-                        style={[
-                          styles.dot,
-                          isFirstOfMostRecentYear && styles.dotActive,
-                          isFirstOfMostRecentYear && tint && { backgroundColor: tint.accent },
-                        ]}
-                      />
+                    <RowLink key={concert.id} href={concertHref(concert)}>
+                      <Pressable
+                        style={({ pressed }) => [styles.riverEntry, { opacity: pressed ? 0.7 : 1 }]}
+                        testID={`artist-concert-${concert.id}`}
+                        accessibilityRole="button"
+                        accessibilityLabel={`${concert.artistName}, ${concert.venueName}, ${formatDate(concert.eventDate ?? '')}`}
+                      >
+                        {/* Timeline dot */}
+                        <View
+                          style={[
+                            styles.dot,
+                            isFirstOfMostRecentYear && styles.dotActive,
+                            isFirstOfMostRecentYear && tint && { backgroundColor: tint.accent },
+                          ]}
+                        />
 
-                      <View style={styles.entryRow}>
-                        <View style={styles.entryContent}>
-                          <Text style={[styles.entryDate, tinted]}>
-                            {formatDate(concert.eventDate ?? '')}
-                          </Text>
-                          {/* Primary: venue name */}
-                          <Text style={styles.entryPrimary}>{concert.venueName}</Text>
-                          {/* Secondary: location */}
-                          {location ? <Text style={styles.entrySecondary}>{location}</Text> : null}
-                          {concert.tour?.name && (
-                            <Text style={[styles.entryTour, tinted]}>{concert.tour.name}</Text>
-                          )}
-                          {concert.lastUpdated && (
-                            <Text style={styles.entrySecondary}>
-                              {t('artists.setlistEdited', {
-                                date: formatEdited(concert.lastUpdated),
-                              })}
+                        <View style={styles.entryRow}>
+                          <View style={styles.entryContent}>
+                            <Text style={[styles.entryDate, tinted]}>
+                              {formatDate(concert.eventDate ?? '')}
                             </Text>
-                          )}
+                            {/* Primary: venue name */}
+                            <Text style={styles.entryPrimary}>{concert.venueName}</Text>
+                            {/* Secondary: location */}
+                            {location ? (
+                              <Text style={styles.entrySecondary}>{location}</Text>
+                            ) : null}
+                            {concert.tour?.name && (
+                              <Text style={[styles.entryTour, tinted]}>{concert.tour.name}</Text>
+                            )}
+                            {concert.lastUpdated && (
+                              <Text style={styles.entrySecondary}>
+                                {t('artists.setlistEdited', {
+                                  date: formatEdited(concert.lastUpdated),
+                                })}
+                              </Text>
+                            )}
+                          </View>
+                          <Chevron style={styles.entryChevron} />
                         </View>
-                        <Chevron style={styles.entryChevron} />
-                      </View>
-                    </Pressable>
+                      </Pressable>
+                    </RowLink>
                   );
                 })}
               </View>

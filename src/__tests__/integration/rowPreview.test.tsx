@@ -2,21 +2,20 @@ import { fireEvent, screen } from 'expo-router/testing-library';
 import { seedDatabase } from '../../../test/database';
 import { findScreen, goBackFrom, inLinkPreview, launchApp, openTab } from '../../../test/screen';
 import { Space } from '@/utils/spacing';
+import { formatDate } from '@/utils/date';
 
-// On a phone a concert row opens its setlist through a Link with Link.Preview, so a long
-// press peeks at the setlist. test/integration.setup.ts stands in a host element for the
+// On a phone a concert row (Concerts tab, an artist's concerts, the dashboard timeline) opens
+// its setlist through a Link with Link.Preview, so a long press peeks at the setlist. test/integration.setup.ts stands in a host element for the
 // native preview view.
 beforeAll(seedDatabase);
 
-beforeEach(async () => {
-  await launchApp();
-  await openTab('(concerts)');
-});
+beforeEach(launchApp);
 
 it.each([
   ['timeline', null],
   ['By Name', 'By Name'],
 ])('peeks at the setlist from a %s row and opens it once', async (_list, sort) => {
+  await openTab('(concerts)');
   if (sort) await fireEvent.press((await findScreen('concerts-screen')).getByLabelText(sort));
   const row = (await findScreen('concerts-screen')).getByTestId('concert-set-8');
   expect(inLinkPreview(row)).toBe(true);
@@ -35,4 +34,33 @@ it.each([
   // One back reaches the list: the Link and the row did not both push the setlist.
   await goBackFrom('setlist-screen');
   expect(screen).toHaveSegments(['(tabs)', '(concerts)']);
+});
+
+it("peeks at the setlist from a row in an artist's concerts and opens it once", async () => {
+  await openTab('(artists)');
+  await fireEvent.press((await findScreen('artists-screen')).getByTestId('artist-artist-2'));
+  const row = (await findScreen('artist-concerts-screen')).getByTestId('artist-concert-set-8');
+  expect(inLinkPreview(row)).toBe(true);
+  expect(row.props.role).toBe('button');
+
+  await fireEvent.press(row);
+  expect((await findScreen('setlist-screen')).getByText('Someday')).toBeOnTheScreen();
+
+  // Two backs reach the artists list: one setlist and one artist screen were pushed.
+  await goBackFrom('setlist-screen');
+  await goBackFrom('artist-concerts-screen');
+  expect(screen).toHaveSegments(['(tabs)', '(artists)']);
+});
+
+it('peeks at the setlist from a dashboard timeline row and opens it once', async () => {
+  // The app opens on the dashboard.
+  const row = await screen.findByLabelText(`Most recent, The Strokes, ${formatDate('10-05-2025')}`);
+  expect(inLinkPreview(row)).toBe(true);
+  expect(row.props.role).toBe('button');
+
+  await fireEvent.press(row);
+  expect((await findScreen('setlist-screen')).getByText('The Strokes')).toBeOnTheScreen();
+
+  await goBackFrom('setlist-screen');
+  expect(screen).toHaveSegments(['(tabs)', '(home)']);
 });
