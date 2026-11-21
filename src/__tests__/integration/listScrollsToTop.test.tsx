@@ -5,8 +5,8 @@ import { findScreen, launchApp, openTab } from '../../../test/screen';
 
 beforeAll(seedDatabase);
 
-// The sort pills sit above the list. A new order must start at the top, not where the
-// user had scrolled to in the old one.
+// Search, year and sort sit above the list. New results must start at the top, not where
+// the user had scrolled to in the old ones.
 
 // Under Jest, ScrollView is React Native's mock: every instance shares one scrollTo jest.fn,
 // LegendList's inner ScrollView too.
@@ -79,4 +79,32 @@ describe.each([
 
     await scrolledToTop(true);
   });
+});
+
+describe.each([
+  ['concerts', '(concerts)', 'concerts-screen', 'Search by artist, venue, city...'],
+  ['artists', '(artists)', 'artists-screen', 'Search artists...'],
+  ['venues', '(venues)', 'venues-screen', 'Search venues, cities, countries...'],
+] as const)('the %s list', (_name, tab, screenId, placeholder) => {
+  it('goes back to the top when the search changes', async () => {
+    await openTab(tab);
+    const list = await findScreen(screenId);
+    await scrollDown(screenId, 3000);
+
+    await fireEvent.changeText(list.getByPlaceholderText(placeholder), 'a');
+
+    await scrolledToTop(false);
+  });
+});
+
+it('goes back to the top of the concerts when a year is picked', async () => {
+  await openTab('(concerts)');
+  const concerts = await findScreen('concerts-screen');
+  await scrollDown('concerts-screen', 3000);
+
+  await fireEvent.press(concerts.getByLabelText('Filter by year'));
+  await fireEvent.press(await screen.findByRole('button', { name: '2024' }));
+
+  expect(await concerts.findByLabelText('Filtered by 2024')).toBeOnTheScreen();
+  await scrolledToTop(false);
 });

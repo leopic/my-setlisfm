@@ -30,7 +30,7 @@ export default function ArtistsScreen() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('recent');
-  // The sort pills sit above the list, so a new order starts at the top, not where the old one was.
+  // Search and sort sit above the list, so new results start at the top, not where the old ones were.
   const listRef = useRef<LegendListRef>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedArtistMbid, setSelectedArtistMbid] = useState<string | null>(null);
@@ -83,6 +83,11 @@ export default function ArtistsScreen() {
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
+    scrollListToTop(listRef.current);
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
     scrollListToTop(listRef.current);
   };
 
@@ -146,7 +151,7 @@ export default function ArtistsScreen() {
       <ArtistsControls
         styles={styles}
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={handleSearchChange}
         sortOption={sortOption}
         onSortChange={handleSortChange}
       />
