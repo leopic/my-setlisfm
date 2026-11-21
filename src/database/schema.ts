@@ -10,7 +10,8 @@ export const CREATE_TABLES_SQL = `
     sortName TEXT,
     disambiguation TEXT,
     url TEXT,
-    imageUrl TEXT
+    imageUrl TEXT,
+    imageColor TEXT
   );
 
   -- Countries table

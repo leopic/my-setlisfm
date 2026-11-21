@@ -45,6 +45,10 @@ export class DatabaseManager {
     if (!hasImageUrl) {
       await this.db.execAsync(`ALTER TABLE artists ADD COLUMN imageUrl TEXT`);
     }
+    // The photo's main color (artistColorService); '' = no clear color.
+    if (!cols.some((c) => c.name === 'imageColor')) {
+      await this.db.execAsync(`ALTER TABLE artists ADD COLUMN imageColor TEXT`);
+    }
   }
 
   getDatabase(): SQLite.SQLiteDatabase {

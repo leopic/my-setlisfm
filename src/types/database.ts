@@ -24,6 +24,7 @@ export interface DBArtist {
   disambiguation?: string;
   url?: string;
   imageUrl?: string;
+  imageColor?: string;
 }
 
 export interface DBVenue {

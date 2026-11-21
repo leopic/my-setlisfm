@@ -36,6 +36,7 @@
     "expo-system-ui": "~58.0.7",
     "expo-updates": "~58.0.22",
     "i18next": "^27.1.1",
+    "jpeg-js": "0.4.4",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-i18next": "^18.0.1",
