@@ -1,5 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert, RefreshControl } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Alert,
+  RefreshControl,
+  type ScrollViewInstance,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -128,6 +136,8 @@ export default function ContinentsScreen() {
   const [rawContinents, setRawContinents] = useState<ContinentWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<SortOption>('recent');
+  // The sort pills sit above the list, so a new order starts at the top, not where the old one was.
+  const listRef = useRef<ScrollViewInstance>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const continents = sortByOption(rawContinents, sortOption, undefined, (c) => c.venueCount);
@@ -156,6 +166,7 @@ export default function ContinentsScreen() {
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
+    listRef.current?.scrollTo({ y: 0, animated: true });
   };
 
   const handleContinentPress = (continent: ContinentWithStats) => {
@@ -264,6 +275,7 @@ export default function ContinentsScreen() {
       </View>
 
       <TabScrollView
+        ref={listRef}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >

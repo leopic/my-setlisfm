@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Pressable, Alert, type ScrollViewInstance } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -67,6 +67,8 @@ export default function CitiesScreen() {
   const [rawCities, setRawCities] = useState<CityWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<SortOption>('alphabetical');
+  // The sort pills sit above the list, so a new order starts at the top, not where the old one was.
+  const listRef = useRef<ScrollViewInstance>(null);
 
   const cities = sortByOption(rawCities, sortOption, undefined, (c) => c.venueCount);
 
@@ -94,6 +96,7 @@ export default function CitiesScreen() {
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
+    listRef.current?.scrollTo({ y: 0, animated: true });
   };
 
   const handleCityPress = (city: CityWithStats) => {
@@ -149,6 +152,7 @@ export default function CitiesScreen() {
       </View>
 
       <CityList
+        ref={listRef}
         cities={cities}
         onCityPress={handleCityPress}
         emptyMessage={t('geo.noCitiesFound')}

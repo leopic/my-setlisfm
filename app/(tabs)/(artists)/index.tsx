@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useIsFocused } from 'expo-router';
-import { LegendList } from '@legendapp/list/react-native';
+import { LegendList, type LegendListRef } from '@legendapp/list/react-native';
 import { dbOperations } from '@/database/operations';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import type { SortOption } from '@/utils/sort';
+import { scrollListToTop } from '@/utils/scrollListToTop';
 import { sortByOption } from '@/utils/sort';
 import { useSyncContext } from '@/contexts/SyncContext';
 import { EmptyState, tabBarContentStyle } from '@/components/ui';
@@ -29,6 +30,8 @@ export default function ArtistsScreen() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('recent');
+  // The sort pills sit above the list, so a new order starts at the top, not where the old one was.
+  const listRef = useRef<LegendListRef>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedArtistMbid, setSelectedArtistMbid] = useState<string | null>(null);
 
@@ -80,6 +83,7 @@ export default function ArtistsScreen() {
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
+    scrollListToTop(listRef.current);
   };
 
   const onRefresh = async () => {
@@ -148,6 +152,7 @@ export default function ArtistsScreen() {
       />
 
       <LegendList
+        ref={listRef}
         style={{ flex: 1 }}
         contentContainerStyle={tabBarContentStyle}
         keyboardShouldPersistTaps="handled"

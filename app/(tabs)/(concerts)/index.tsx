@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useIsFocused } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { LegendList } from '@legendapp/list/react-native';
+import { LegendList, type LegendListRef } from '@legendapp/list/react-native';
 import { dbOperations } from '@/database/operations';
 import { parseSetlistDate } from '@/utils/date';
 import type { SortOption } from '@/utils/sort';
+import { scrollListToTop } from '@/utils/scrollListToTop';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import { EmptyState, tabBarContentStyle } from '@/components/ui';
@@ -75,6 +76,8 @@ export default function ConcertsScreen() {
   const [rawConcerts, setRawConcerts] = useState<ConcertWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<SortOption>('recent');
+  // The sort pills sit above the list, so a new order starts at the top, not where the old one was.
+  const listRef = useRef<LegendListRef>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [selectedConcertId, setSelectedConcertId] = useState<string | null>(null);
@@ -121,6 +124,7 @@ export default function ConcertsScreen() {
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
+    scrollListToTop(listRef.current);
   };
 
   const onRefresh = async () => {
@@ -255,6 +259,7 @@ export default function ConcertsScreen() {
       />
 
       <LegendList
+        ref={listRef}
         style={{ flex: 1 }}
         contentContainerStyle={tabBarContentStyle}
         data={listData}

@@ -1,7 +1,9 @@
+import { useRef } from 'react';
 import { View, Text, RefreshControl } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { LegendList } from '@legendapp/list/react-native';
+import { LegendList, type LegendListRef } from '@legendapp/list/react-native';
 import type { SortOption } from '@/utils/sort';
+import { scrollListToTop } from '@/utils/scrollListToTop';
 import { EmptyState, tabBarContentStyle } from '@/components/ui';
 import VenueControls from './VenueControls';
 import VenueGeoStrip from './VenueGeoStrip';
@@ -46,6 +48,13 @@ export default function VenueListPane({
         ? t('venues.subtitleRecent', { count: venueCount })
         : t('venues.subtitle', { count: venueCount });
 
+  // The sort pills sit above the list, so a new order starts at the top, not where the old one was.
+  const listRef = useRef<LegendListRef>(null);
+  const handleSortChange = (option: SortOption) => {
+    onSortChange(option);
+    scrollListToTop(listRef.current);
+  };
+
   return (
     <>
       {/* Header */}
@@ -63,10 +72,11 @@ export default function VenueListPane({
         searchQuery={searchQuery}
         onSearchChange={onSearchChange}
         sortOption={sortOption}
-        onSortChange={onSortChange}
+        onSortChange={handleSortChange}
       />
 
       <LegendList
+        ref={listRef}
         style={{ flex: 1 }}
         contentContainerStyle={tabBarContentStyle}
         data={filteredVenues}
