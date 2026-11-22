@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { Space } from '@/utils/spacing';
+import { edgeForWidth } from '@/utils/screenEdge';
 
 const root = join(__dirname, '../..');
 
@@ -12,10 +12,24 @@ const sourceFiles = (dir: string): string[] =>
   });
 
 describe('spacing scale', () => {
-  it('is a 4 pt grid with a 20 pt screen edge', () => {
-    const { edge, ...steps } = Space;
-    expect(Object.values(steps)).toEqual([4, 8, 12, 16, 20, 24, 32, 48, 64]);
-    expect(edge).toBe(20);
+  it('is a 4 pt grid', () => {
+    const scale = readFileSync(join(root, 'src/utils/spacing.ts'), 'utf8');
+    const steps = [...scale.matchAll(/^\s+s(\d+): (\d+),$/gm)].map(([, name, value]) => {
+      expect(value).toBe(name);
+      return Number(value);
+    });
+    expect(steps).toEqual([4, 8, 12, 16, 20, 24, 32, 48, 64]);
+  });
+
+  // The screen edge follows iOS's layout margins, so content lines up with native bars.
+  it.each([
+    [375, 16], // iPhone SE, mini
+    [402, 16], // iPhone 17, 17 Pro
+    [414, 20], // iPhone 11, XR
+    [440, 20], // iPhone 17 Pro Max
+    [820, 20], // iPad Air
+  ])('keeps a %i pt wide screen %i pt from its edges', (width, edge) => {
+    expect(edgeForWidth(width)).toBe(edge);
   });
 
   // Every padding, margin and gap comes from Space (or is worked out from it), so the app

@@ -7,7 +7,8 @@ import { formatDate } from '@/utils/date';
 import { Space } from '@/utils/spacing';
 
 // A timeline row's › arrow sits at the row's right edge. The row or a view around it must
-// keep it one screen edge (20 pt) in: with nothing it is cut off, with two it sits 40 pt in.
+// keep it one screen edge (Space.edge) in: with nothing it is cut off, with two it sits twice
+// as far in.
 // Jest has no layout, so this adds up the right padding and margin up to the screen.
 
 // Each test picks the layout; the mock reads the flag when the hook runs.
