@@ -5,6 +5,7 @@ import type { ConcertWithDetails } from './types';
 import type { ConcertsStyles } from './useConcertsStyles';
 import type { Href } from 'expo-router';
 import { Chevron, RowLink } from '@/components/ui';
+import { useConcertMenu } from './useConcertMenu';
 
 type Props = {
   concert: ConcertWithDetails;
@@ -25,10 +26,11 @@ export default function ConcertFlatRow({
   styles,
 }: Props) {
   const { t } = useTranslation();
+  const concertMenu = useConcertMenu();
   const isSelected = isTablet && selectedConcertId === concert.id;
   const href = concertHref?.(concert);
   return (
-    <RowLink href={href}>
+    <RowLink href={href} menu={concertMenu(concert)}>
       <Pressable
         style={({ pressed }) => [
           styles.alphabeticalEntry,

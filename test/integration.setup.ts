@@ -37,5 +37,7 @@ jest.mock('expo-router/build/link/preview/native', () => {
   return {
     ...jest.requireActual('expo-router/build/link/preview/native'),
     NativeLinkPreview: (props: object) => createElement('NativeLinkPreview', props),
+    // Link.Menu's actions, the same way: their title, icon and onSelected, for rowMenuActions.
+    NativeLinkPreviewAction: (props: object) => createElement('NativeLinkPreviewAction', props),
   };
 });
