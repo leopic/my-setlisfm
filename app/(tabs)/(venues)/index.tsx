@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useIsFocused } from 'expo-router';
+import { Stack, useRouter, useIsFocused } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { dbOperations } from '@/database/operations';
 import type { SortOption } from '@/utils/sort';
@@ -15,12 +15,18 @@ import VenueListPane from '@/components/venues/VenueListPane';
 import { createVenueStyles } from '@/components/venues/venueStyles';
 import type { GeoStats, VenueWithStats } from '@/components/venues/types';
 import { useTabletLayout } from '@/utils/tablet';
+import { useLargeTitleOptions } from '@/utils/largeTitle';
 
 export default function VenuesScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
   const { isTablet, sidebarWidth } = useTabletLayout();
   const styles = createVenueStyles(colors);
+  // Phone: the native large title, which collapses as the list scrolls. The iPad and the
+  // empty state keep their own header; header options outlive the branch that set them, so
+  // each branch sets them.
+  const largeTitle = useLargeTitleOptions(t('venues.title'));
+  const noLargeTitle = <Stack.Screen options={{ headerShown: false }} />;
 
   const { lastSyncTimestamp } = useSyncContext();
   const router = useRouter();
@@ -111,6 +117,7 @@ export default function VenuesScreen() {
         style={styles.container}
         testID="venues-screen"
       >
+        {noLargeTitle}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{t('venues.title')}</Text>
         </View>
@@ -137,6 +144,7 @@ export default function VenuesScreen() {
       onRefresh={onRefresh}
       selectedVenueId={isTablet ? selectedVenue?.id : undefined}
       onPressVenue={handleViewConcerts}
+      underLargeTitle={!isTablet}
     />
   );
 
@@ -147,6 +155,7 @@ export default function VenuesScreen() {
         style={styles.container}
         testID="venues-screen"
       >
+        {noLargeTitle}
         <View style={styles.masterDetail}>
           <View style={[styles.sidebar, { width: sidebarWidth }]}>{venueList}</View>
           <View style={styles.detailPane}>
@@ -158,7 +167,8 @@ export default function VenuesScreen() {
   }
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="venues-screen">
+    <SafeAreaView edges={['left', 'right']} style={styles.container} testID="venues-screen">
+      <Stack.Screen options={largeTitle} />
       {venueList}
     </SafeAreaView>
   );

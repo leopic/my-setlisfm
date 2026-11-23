@@ -3,7 +3,7 @@ import { View, Text, RefreshControl } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { LegendList, type LegendListRef } from '@legendapp/list/react-native';
 import type { SortOption } from '@/utils/sort';
-import { scrollListToTop } from '@/utils/scrollListToTop';
+import { scrollListToTop, useListTop } from '@/utils/scrollListToTop';
 import { EmptyState, tabBarContentStyle } from '@/components/ui';
 import VenueControls from './VenueControls';
 import VenueGeoStrip from './VenueGeoStrip';
@@ -24,6 +24,9 @@ type Props = {
   onRefresh: () => void;
   selectedVenueId: string | undefined;
   onPressVenue: (venue: VenueWithStats) => void;
+  // Under the screen's native large title (phone): no title of its own, and the subtitle,
+  // geo strip and controls scroll with the list.
+  underLargeTitle?: boolean;
 };
 
 export default function VenueListPane({
@@ -39,6 +42,7 @@ export default function VenueListPane({
   onRefresh,
   selectedVenueId,
   onPressVenue,
+  underLargeTitle = false,
 }: Props) {
   const { t } = useTranslation();
   const subtitle =
@@ -48,25 +52,21 @@ export default function VenueListPane({
         ? t('venues.subtitleRecent', { count: venueCount })
         : t('venues.subtitle', { count: venueCount });
 
-  // Search and sort sit above the list, so new results start at the top, not where the old ones were.
+  // Search and sort sit above the list (under a large title, at its top), so new results start
+  // at the top, not where the old ones were.
   const listRef = useRef<LegendListRef>(null);
+  const listTop = useListTop(listRef);
   const handleSortChange = (option: SortOption) => {
     onSortChange(option);
-    scrollListToTop(listRef.current);
+    scrollListToTop(listRef.current, listTop.top.current);
   };
   const handleSearchChange = (query: string) => {
     onSearchChange(query);
-    scrollListToTop(listRef.current);
+    scrollListToTop(listRef.current, listTop.top.current);
   };
 
-  return (
+  const geoStripAndControls = (
     <>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('venues.title')}</Text>
-        <Text style={styles.headerSubtitle}>{subtitle}</Text>
-      </View>
-
       {/* Geo navigation strip */}
       <VenueGeoStrip styles={styles} geoStats={geoStats} />
 
@@ -78,10 +78,33 @@ export default function VenueListPane({
         sortOption={sortOption}
         onSortChange={handleSortChange}
       />
+    </>
+  );
+
+  return (
+    <>
+      {!underLargeTitle && (
+        <>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>{t('venues.title')}</Text>
+            <Text style={styles.headerSubtitle}>{subtitle}</Text>
+          </View>
+          {geoStripAndControls}
+        </>
+      )}
 
       <LegendList
         ref={listRef}
+        testID="venues-list"
         style={{ flex: 1 }}
+        // See useListTop: the list starts under the large title and scrolls back to there.
+        contentInsetAdjustmentBehavior={underLargeTitle ? 'automatic' : undefined}
+        onScroll={underLargeTitle ? listTop.onScroll : undefined}
+        scrollToOverflowEnabled={underLargeTitle}
+        // Under a large title the geo strip and the pills are in the list: one tap works with
+        // the keyboard open.
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={tabBarContentStyle}
         data={filteredVenues}
         keyExtractor={(item) => item.id}
@@ -95,7 +118,14 @@ export default function VenueListPane({
         )}
         estimatedItemSize={80}
         recycleItems={false}
-        ListHeaderComponent={null}
+        ListHeaderComponent={
+          underLargeTitle ? (
+            <>
+              <Text style={[styles.headerSubtitle, styles.largeTitleSubtitle]}>{subtitle}</Text>
+              {geoStripAndControls}
+            </>
+          ) : null
+        }
         ListEmptyComponent={
           <EmptyState
             variant="inline"
