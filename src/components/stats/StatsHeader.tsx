@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, type StyleProp, type TextStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { StatsStyles } from './statsStyles';
 
@@ -13,12 +13,24 @@ export default function StatsHeader({ styles, totals }: Props) {
   return (
     <View style={styles.header}>
       <Text style={styles.headerTitle}>{t('stats.title')}</Text>
-      {totals && (
-        <Text style={styles.headerSub}>
-          {t('common.show', { count: totals.shows })} ·{' '}
-          {t('common.country', { count: totals.countries })}
-        </Text>
-      )}
+      {totals && <StatsTotals style={styles.headerSub} totals={totals} />}
     </View>
+  );
+}
+
+// "308 shows · 17 countries": under the header's title, or under the native large title.
+export function StatsTotals({
+  style,
+  totals,
+}: {
+  style: StyleProp<TextStyle>;
+  totals: NonNullable<Props['totals']>;
+}) {
+  const { t } = useTranslation();
+  return (
+    <Text style={style}>
+      {t('common.show', { count: totals.shows })} ·{' '}
+      {t('common.country', { count: totals.countries })}
+    </Text>
   );
 }
