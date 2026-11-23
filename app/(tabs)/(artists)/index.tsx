@@ -34,7 +34,9 @@ export default function ArtistsScreen() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('recent');
-  // Search and sort sit above the list, so new results start at the top, not where the old ones were.
+  // On an iPad search and sort sit above the list, so new results start at the top, not where
+  // the old ones were. On a phone they scroll with the list: whoever uses them is at its top
+  // already, and offset 0 would tuck the large title under the bar.
   const listRef = useRef<LegendListRef>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedArtistMbid, setSelectedArtistMbid] = useState<string | null>(null);
@@ -87,12 +89,12 @@ export default function ArtistsScreen() {
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    scrollListToTop(listRef.current);
+    if (isTablet) scrollListToTop(listRef.current);
   };
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
-    scrollListToTop(listRef.current);
+    if (isTablet) scrollListToTop(listRef.current);
   };
 
   const onRefresh = async () => {
@@ -157,11 +159,12 @@ export default function ArtistsScreen() {
   );
 
   // On a phone the subtitle and controls scroll with the list, under the large title.
-  const list = (listHeader: React.ReactElement | null) => (
+  const list = (largeTitleHeader?: React.ReactElement) => (
     <LegendList
       ref={listRef}
+      testID="artists-list"
       style={{ flex: 1 }}
-      contentInsetAdjustmentBehavior="automatic"
+      contentInsetAdjustmentBehavior={largeTitleHeader ? 'automatic' : undefined}
       contentContainerStyle={tabBarContentStyle}
       keyboardShouldPersistTaps="handled"
       data={filteredArtists}
@@ -169,7 +172,7 @@ export default function ArtistsScreen() {
       renderItem={renderArtist}
       estimatedItemSize={72}
       recycleItems={false}
-      ListHeaderComponent={listHeader}
+      ListHeaderComponent={largeTitleHeader}
       ListEmptyComponent={
         <EmptyState
           variant="inline"
@@ -194,7 +197,7 @@ export default function ArtistsScreen() {
           <View style={[styles.sidebar, { width: sidebarWidth }]}>
             <ArtistsHeader styles={styles} subtitle={subtitle} />
             {controls}
-            {list(null)}
+            {list()}
           </View>
           <View style={styles.detailPane}>
             <ArtistDetailPane artistMbid={selectedArtistMbid} />

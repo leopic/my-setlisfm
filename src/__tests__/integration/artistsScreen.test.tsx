@@ -3,6 +3,7 @@ import { render, renderHook } from '@testing-library/react-native';
 import { useChronicleColors } from '@/utils/colors';
 import ArtistRow from '@/components/artists/ArtistRow';
 import { useArtistsStyles } from '@/components/artists/useArtistsStyles';
+import { scrollListToTop } from '@/utils/scrollListToTop';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
 import {
@@ -19,10 +20,14 @@ jest.mock('@/utils/tablet', () => ({
   useTabletLayout: () => ({ isTablet: mockIsTablet, sidebarWidth: 360 }),
 }));
 
+// Jest has no scrolling; the tests check when the screen asks for it.
+jest.mock('@/utils/scrollListToTop', () => ({ scrollListToTop: jest.fn() }));
+
 beforeAll(seedDatabase);
 
 afterEach(() => {
   mockIsTablet = false;
+  jest.mocked(scrollListToTop).mockClear();
 });
 
 beforeEach(launchApp);
@@ -65,8 +70,13 @@ describe('with the fixture', () => {
   it('shows the title and the artist count', async () => {
     const artists = await openArtists();
     // The title is the native large title, which collapses into the bar on scroll.
-    expect(findNativeHeader('Artists')?.props.largeTitle).toBe(true);
+    expect(findNativeHeader('Artists')?.props).toMatchObject({ largeTitle: true, hidden: false });
     expect(artists.getByText('5 artists')).toBeOnTheScreen();
+    // Without the automatic inset the list starts under the bar and the title never collapses.
+    expect(artists.getByTestId('artists-list')).toHaveProp(
+      'contentInsetAdjustmentBehavior',
+      'automatic',
+    );
   });
 
   it('shows an artist row with its details', async () => {
@@ -91,6 +101,15 @@ describe('with the fixture', () => {
     await fireEvent.changeText(artists.getByLabelText('Search artists...'), 'strokes');
     expect(artists.getByTestId('artist-artist-2')).toBeOnTheScreen();
     expect(artists.queryByTestId('artist-artist-1')).not.toBeOnTheScreen();
+  });
+
+  // The search field and the pills scroll with the list on a phone, so they are at its top
+  // already. Scrolling to offset 0 would pull the large title under the bar.
+  it('keeps the list where it is while searching or sorting on a phone', async () => {
+    const artists = await openArtists();
+    await fireEvent.changeText(artists.getByLabelText('Search artists...'), 'strokes');
+    await fireEvent.press(artists.getByLabelText('Top'));
+    expect(scrollListToTop).not.toHaveBeenCalled();
   });
 
   it('says so when no artist matches the search', async () => {
@@ -144,6 +163,30 @@ describe('on a tablet', () => {
     expect(artists.getByTestId('artist-artist-2')).not.toHaveStyle({
       backgroundColor: accentSoft,
     });
+  });
+
+  it('starts new results at the top on a tablet', async () => {
+    mockIsTablet = true;
+    const artists = await openArtists();
+    await fireEvent.changeText(artists.getByLabelText('Search artists...'), 'strokes');
+    await fireEvent.press(artists.getByLabelText('Top'));
+    expect(scrollListToTop).toHaveBeenCalledTimes(2);
+  });
+
+  // A screen's header options outlive the branch that set them, so the tablet layout turns
+  // the phone's large title off again. Its own header sits above the sidebar list.
+  it('drops the large title when the layout turns into the tablet one', async () => {
+    const artists = await openArtists();
+    expect(findNativeHeader('Artists')?.props.hidden).toBe(false);
+    mockIsTablet = true;
+    await fireEvent.press(artists.getByLabelText('Top'));
+
+    expect(findNativeHeader('Artists')?.props.hidden).toBe(true);
+    expect(artists.getByText('Artists')).toBeOnTheScreen();
+    expect(artists.getByTestId('artists-list')).not.toHaveProp(
+      'contentInsetAdjustmentBehavior',
+      'automatic',
+    );
   });
 });
 
