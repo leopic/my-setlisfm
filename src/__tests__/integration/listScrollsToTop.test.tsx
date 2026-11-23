@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor } from 'expo-router/testing-library';
 import { ScrollView } from 'react-native';
 import { seedDatabase } from '../../../test/database';
+import { getTestDatabase } from '../../../test/expoSqliteNode';
 import { findScreen, launchApp, openTab } from '../../../test/screen';
 
 beforeAll(seedDatabase);
@@ -115,6 +116,30 @@ describe('the artists list under its large title', () => {
     await waitFor(() =>
       expect(scrollTo).toHaveBeenLastCalledWith(
         expect.objectContaining({ y: REST, animated: true }),
+      ),
+    );
+  });
+
+  // The list unmounts in the empty state ("Clear All Data") and a new one mounts after a sync.
+  it('finds the top of a list that mounts again', async () => {
+    const db = getTestDatabase();
+    db.exec('PRAGMA foreign_keys = OFF');
+    db.exec('DELETE FROM setlists');
+    await openTab('(concerts)');
+    await openTab('(artists)');
+    expect(await screen.findByText('No artists yet')).toBeOnTheScreen();
+    await seedDatabase();
+    await openTab('(concerts)');
+    await openTab('(artists)');
+    await screen.findByPlaceholderText('Search artists...');
+    await scrollDown('artists-screen', REST);
+    await scrollDown('artists-screen', 3000);
+
+    await fireEvent.changeText(screen.getByPlaceholderText('Search artists...'), 'a');
+
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenLastCalledWith(
+        expect.objectContaining({ y: REST, animated: false }),
       ),
     );
   });

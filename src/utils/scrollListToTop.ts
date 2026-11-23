@@ -22,13 +22,14 @@ export function scrollListToTop(list: LegendListRef | null, top = 0) {
 // Scrolling to 0 from there would collapse the title halfway. Pass onScroll to the list and
 // top.current to scrollListToTop, and give the list scrollToOverflowEnabled: React Native
 // stops a scroll at the scroll view's own inset, which leaves iOS's out too. Until the list
-// reports, the top is 0.
+// reports, the top is 0. A list that mounts again (after the empty state) reports again.
 export function useListTop(list: RefObject<LegendListRef | null>) {
   const top = useRef(0);
-  const reported = useRef(false);
+  const reportedBy = useRef<LegendListRef | null>(null);
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (reported.current) return;
-    reported.current = true;
+    if (reportedBy.current === list.current) return;
+    reportedBy.current = list.current;
+    top.current = 0;
     const rest = event.nativeEvent.contentOffset.y;
     if (rest >= 0) return;
     top.current = rest;
