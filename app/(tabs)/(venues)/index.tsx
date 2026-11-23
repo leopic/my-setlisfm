@@ -106,7 +106,21 @@ export default function VenuesScreen() {
   };
 
   if (loading) {
-    return <ListSkeleton variant="venues" />;
+    // A phone shows the large title while it loads, so nothing moves when the list arrives.
+    if (isTablet) {
+      return (
+        <>
+          {noLargeTitle}
+          <ListSkeleton variant="venues" />
+        </>
+      );
+    }
+    return (
+      <>
+        <Stack.Screen options={largeTitle} />
+        <ListSkeleton variant="venues" underLargeTitle />
+      </>
+    );
   }
 
   // No venues at all — hide geo strip and controls, show full-page empty state

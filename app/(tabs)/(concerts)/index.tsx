@@ -228,7 +228,21 @@ export default function ConcertsScreen() {
   };
 
   if (loading) {
-    return <ListSkeleton variant="sort" />;
+    // A phone shows the large title while it loads, so nothing moves when the list arrives.
+    if (isTablet) {
+      return (
+        <>
+          {noLargeTitle}
+          <ListSkeleton variant="sort" />
+        </>
+      );
+    }
+    return (
+      <>
+        <Stack.Screen options={largeTitle} />
+        <ListSkeleton variant="sort" underLargeTitle />
+      </>
+    );
   }
 
   // No concerts at all — hide controls, show full-page empty state
