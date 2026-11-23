@@ -12,7 +12,8 @@ name: Venues → Continents → continent detail → back chain
 # On an iPhone the way into places is the globe menu in the header.
 - tapOn: "Browse by place"
 - tapOn:
-    text: "Continents"
+    # iOS may read a menu item with its subtitle ("Continents, 2 …").
+    text: "Continents.*"
 - assertVisible:
     id: "continents-screen"
 - tapOn:

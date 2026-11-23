@@ -33,9 +33,9 @@ it('puts continents, countries and cities in a header menu on an iPhone', async 
   await openTab('(venues)');
   await findScreen('venues-screen');
   expect(globeMenu()?.menu?.items.map(({ title, subtitle }) => [title, subtitle])).toEqual([
-    ['Continents', '2'],
-    ['Countries', '3'],
-    ['Cities', '3'],
+    ['Continents', '2 continents'],
+    ['Countries', '3 countries'],
+    ['Cities', '3 cities'],
   ]);
   expect(stripButtons()).toEqual([]);
 });
