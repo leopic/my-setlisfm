@@ -1,6 +1,12 @@
 import { fireEvent, screen } from 'expo-router/testing-library';
 import { seedDatabase } from '../../../test/database';
-import { findScreen, goBackFrom, launchApp, openTab } from '../../../test/screen';
+import {
+  findScreen,
+  goBackFrom,
+  launchApp,
+  openTab,
+  pressHeaderMenuItem,
+} from '../../../test/screen';
 
 // Headless counterparts of the seeded Maestro flows (.maestro/02–06), on the
 // same fixture. Rows are picked by id rather than position so a sort change
@@ -56,8 +62,8 @@ it('venues → venue concerts → setlist → back chain', async () => {
 
 it('venues → countries → back', async () => {
   await openTab('(venues)');
-  const venues = await findScreen('venues-screen');
-  await fireEvent.press(venues.getByTestId('nav-countries'));
+  await findScreen('venues-screen');
+  await pressHeaderMenuItem('Browse by place', 'Countries');
 
   const countries = await findScreen('countries-screen');
   expect(countries.getByText('Germany')).toBeOnTheScreen();
@@ -68,8 +74,8 @@ it('venues → countries → back', async () => {
 
 it('venues → continents → continent detail → back chain', async () => {
   await openTab('(venues)');
-  const venues = await findScreen('venues-screen');
-  await fireEvent.press(venues.getByTestId('nav-continents'));
+  await findScreen('venues-screen');
+  await pressHeaderMenuItem('Browse by place', 'Continents');
 
   const continents = await findScreen('continents-screen');
   await fireEvent.press(continents.getByTestId('continent-Europe'));
@@ -83,13 +89,13 @@ it('venues → continents → continent detail → back chain', async () => {
 });
 
 it.each([
-  ['nav-continents', 'continents-screen', 'Continents', /^\d+ continents?$/],
-  ['nav-countries', 'countries-screen', 'Countries', /^\d+ countr(y|ies)$/],
-  ['nav-cities', 'cities-screen', 'Cities', /^\d+ cit(y|ies)$/],
-])('venues → %s shows its header and goes back', async (navId, screenId, title, subtitle) => {
+  ['Continents', 'continents-screen', /^\d+ continents?$/],
+  ['Countries', 'countries-screen', /^\d+ countr(y|ies)$/],
+  ['Cities', 'cities-screen', /^\d+ cit(y|ies)$/],
+])('venues → %s shows its header and goes back', async (title, screenId, subtitle) => {
   await openTab('(venues)');
-  const venues = await findScreen('venues-screen');
-  await fireEvent.press(venues.getByTestId(navId));
+  await findScreen('venues-screen');
+  await pressHeaderMenuItem('Browse by place', title);
 
   const list = await findScreen(screenId);
   expect(list.getByText(title)).toBeOnTheScreen();

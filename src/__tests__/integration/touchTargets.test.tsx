@@ -3,6 +3,9 @@ import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-librar
 import { router } from 'expo-router';
 import { seedDatabase } from '../../../test/database';
 import HeaderActions from '@/components/dashboard/HeaderActions';
+import VenueGeoStrip from '@/components/venues/VenueGeoStrip';
+import { createVenueStyles } from '@/components/venues/venueStyles';
+import { useChronicleColors } from '@/utils/colors';
 import {
   findScreen,
   headerButtonLabels,
@@ -60,13 +63,31 @@ it('gives the artists search and sort pills 44 pt targets', async () => {
   }
 });
 
-it('gives the venues geo buttons, search and sort pills 44 pt targets', async () => {
+it('gives the venues search and sort pills 44 pt targets', async () => {
   await openTab('(venues)');
   const venues = await findScreen('venues-screen');
-  for (const name of ['2 continents', '3 countries', '3 cities', 'Most Recent', 'Top', 'By Name']) {
+  for (const name of ['Most Recent', 'Top', 'By Name']) {
     expectTouchTarget(venues.getByRole('button', { name }));
   }
   expectTouchTarget(venues.getByPlaceholderText('Search venues, cities, countries...'));
+});
+
+// On an iPhone these are a header menu; the iPad and Android keep them in the list.
+it('gives the venues geo buttons 44 pt targets', async () => {
+  const geoStats = { totalContinents: 2, totalCountries: 3, totalCities: 3 };
+  function Strip() {
+    const styles = createVenueStyles(useChronicleColors());
+    return (
+      <VenueGeoStrip
+        styles={styles}
+        geoStats={{ ...geoStats, continents: [], countries: [], cities: [] }}
+      />
+    );
+  }
+  await renderRouter({ index: Strip });
+  for (const name of ['2 continents', '3 countries', '3 cities']) {
+    expectTouchTarget(screen.getByRole('button', { name }));
+  }
 });
 
 it('gives back buttons and the venue link 44 pt targets', async () => {

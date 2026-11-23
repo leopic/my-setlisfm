@@ -122,6 +122,32 @@ export async function pressHeaderButton(label: string) {
   await act(async () => press({ nativeEvent: { buttonId: item.buttonId } }));
 }
 
+type MenuAction = { title?: string; menuId: string };
+type HeaderMenu = { accessibilityLabel?: string; menu?: { items: MenuAction[] } };
+
+/**
+ * Picks an action from a native header menu (Stack.Toolbar.Menu): the menu by its accessibility
+ * label, the action by its title. As for buttons, the header holds the menu as an item and
+ * calls one press handler with the action's id.
+ */
+export async function pressHeaderMenuItem(menuLabel: string, title: string) {
+  const actionIn = (node: HostNode) =>
+    (headerItems(node) as HeaderMenu[])
+      .find((item) => item.accessibilityLabel === menuLabel)
+      ?.menu?.items.find((action) => action.title === title);
+  const header = await waitFor(() => {
+    const found = findHeader((node) => !node.props.hidden && !!actionIn(node));
+    if (!found) throw new Error(`No "${title}" in a header menu labelled "${menuLabel}"`);
+    return found;
+  });
+  const action = actionIn(header);
+  if (!action) throw new Error(`No "${title}" in a header menu labelled "${menuLabel}"`);
+  const press = header.props.onPressHeaderBarButtonMenuItem as (event: {
+    nativeEvent: { menuId: string };
+  }) => void;
+  await act(async () => press({ nativeEvent: { menuId: action.menuId } }));
+}
+
 /** The labels of the native header buttons a screen shows, left to right as items. */
 export const headerButtonLabels = (title: string) => {
   const header = findNativeHeader(title);

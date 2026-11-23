@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor } from 'expo-router/testing-library';
 import { ScrollView } from 'react-native';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
-import { findScreen, launchApp, openTab } from '../../../test/screen';
+import { findScreen, launchApp, openTab, pressHeaderMenuItem } from '../../../test/screen';
 
 beforeAll(seedDatabase);
 
@@ -65,14 +65,15 @@ describe.each([
 });
 
 describe.each([
-  ['continents', 'nav-continents', 'continents-screen', 'Top'],
-  ['countries', 'nav-countries', 'countries-screen', 'Top'],
-  ['cities', 'nav-cities', 'cities-screen', 'Top'],
-] as const)('the %s list', (_name, navId, screenId, pill) => {
+  ['continents', 'Continents', 'continents-screen', 'Top'],
+  ['countries', 'Countries', 'countries-screen', 'Top'],
+  ['cities', 'Cities', 'cities-screen', 'Top'],
+] as const)('the %s list', (_name, menuItem, screenId, pill) => {
   // A plain ScrollView draws every row, so it animates even from far down.
   it('animates back to the top when the sort changes', async () => {
     await openTab('(venues)');
-    await fireEvent.press((await findScreen('venues-screen')).getByTestId(navId));
+    await findScreen('venues-screen');
+    await pressHeaderMenuItem('Browse by place', menuItem);
     const list = await findScreen(screenId);
     await scrollDown(screenId, 3000);
 

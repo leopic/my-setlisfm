@@ -7,6 +7,8 @@ import { scrollListToTop, useListTop } from '@/utils/scrollListToTop';
 import { EmptyState, tabBarContentStyle } from '@/components/ui';
 import VenueControls from './VenueControls';
 import VenueGeoStrip from './VenueGeoStrip';
+import VenueGeoMenu from './VenueGeoMenu';
+import { geoMenuInHeader } from './geoMenuInHeader';
 import VenueRow from './VenueRow';
 import type { VenueStyles } from './venueStyles';
 import type { GeoStats, VenueWithStats } from './types';
@@ -67,8 +69,8 @@ export default function VenueListPane({
 
   const geoStripAndControls = (
     <>
-      {/* Geo navigation strip */}
-      <VenueGeoStrip styles={styles} geoStats={geoStats} />
+      {/* Geo navigation strip (in the header's globe menu on an iPhone) */}
+      {!geoMenuInHeader(underLargeTitle) && <VenueGeoStrip styles={styles} geoStats={geoStats} />}
 
       {/* Search + sort */}
       <VenueControls
@@ -83,6 +85,7 @@ export default function VenueListPane({
 
   return (
     <>
+      {geoMenuInHeader(underLargeTitle) && <VenueGeoMenu geoStats={geoStats} />}
       {!underLargeTitle && (
         <>
           {/* Header */}
