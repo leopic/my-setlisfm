@@ -31,6 +31,11 @@ export function useArtistsStyles() {
       ...Type.subheadline,
       color: colors.textSecondary,
     },
+    // Under the native large title: the title's own inset, a little air before the controls.
+    largeTitleSubtitle: {
+      paddingHorizontal: Space.edge,
+      paddingBottom: Space.s4,
+    },
     controls: {
       backgroundColor: colors.background,
       paddingTop: Space.s12,

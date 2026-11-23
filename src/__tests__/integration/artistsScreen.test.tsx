@@ -5,7 +5,13 @@ import ArtistRow from '@/components/artists/ArtistRow';
 import { useArtistsStyles } from '@/components/artists/useArtistsStyles';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
-import { findScreen, launchApp, layOutLists, openTab } from '../../../test/screen';
+import {
+  findNativeHeader,
+  findScreen,
+  launchApp,
+  layOutLists,
+  openTab,
+} from '../../../test/screen';
 
 // Flipped per test: the phone layout is the default, the tablet one shows the detail pane.
 let mockIsTablet = false;
@@ -58,7 +64,8 @@ async function openArtists() {
 describe('with the fixture', () => {
   it('shows the title and the artist count', async () => {
     const artists = await openArtists();
-    expect(artists.getByText('Artists')).toBeOnTheScreen();
+    // The title is the native large title, which collapses into the bar on scroll.
+    expect(findNativeHeader('Artists')?.props.largeTitle).toBe(true);
     expect(artists.getByText('5 artists')).toBeOnTheScreen();
   });
 

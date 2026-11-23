@@ -58,3 +58,22 @@ export const inLinkPreview = (row: TreeNode) => {
   }
   return false;
 };
+
+type HostNode = { type: unknown; props: Record<string, unknown>; children: (HostNode | string)[] };
+
+/**
+ * The native header a screen asked for, found by its title. Under Jest a native-stack header
+ * renders as a host element with the options as props (title, largeTitle...), and no text.
+ */
+export const findNativeHeader = (title: string) => {
+  const walk = (node: HostNode | string): HostNode | undefined => {
+    if (typeof node === 'string') return undefined;
+    if (node.type === 'RNSScreenStackHeaderConfig' && node.props.title === title) return node;
+    for (const child of node.children) {
+      const found = walk(child);
+      if (found) return found;
+    }
+    return undefined;
+  };
+  return walk(screen.root as unknown as HostNode);
+};
