@@ -97,6 +97,39 @@ describe.each([
   });
 });
 
+// Under its native large title the artists list rests above offset 0: iOS insets it by the
+// bar and reports that offset once as it lays the list out. The top is there, not at 0, or
+// the title collapses halfway.
+describe('the artists list under its large title', () => {
+  const REST = -168;
+
+  beforeEach(async () => {
+    await openTab('(artists)');
+    await findScreen('artists-screen');
+    await scrollDown('artists-screen', REST);
+  });
+
+  it('animates back to its top when the sort changes near the top', async () => {
+    await scrollDown('artists-screen', 400);
+    await fireEvent.press(screen.getByText('Top'));
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenLastCalledWith(
+        expect.objectContaining({ y: REST, animated: true }),
+      ),
+    );
+  });
+
+  it('jumps back to its top when the search changes far down', async () => {
+    await scrollDown('artists-screen', 3000);
+    await fireEvent.changeText(screen.getByPlaceholderText('Search artists...'), 'a');
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenLastCalledWith(
+        expect.objectContaining({ y: REST, animated: false }),
+      ),
+    );
+  });
+});
+
 it('goes back to the top of the concerts when a year is picked', async () => {
   await openTab('(concerts)');
   const concerts = await findScreen('concerts-screen');

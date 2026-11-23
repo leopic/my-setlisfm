@@ -6,7 +6,7 @@ import { LegendList, type LegendListRef } from '@legendapp/list/react-native';
 import { dbOperations } from '@/database/operations';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import type { SortOption } from '@/utils/sort';
-import { scrollListToTop } from '@/utils/scrollListToTop';
+import { scrollListToTop, useListTop } from '@/utils/scrollListToTop';
 import { sortByOption } from '@/utils/sort';
 import { useSyncContext } from '@/contexts/SyncContext';
 import { EmptyState, tabBarContentStyle } from '@/components/ui';
@@ -34,10 +34,10 @@ export default function ArtistsScreen() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('recent');
-  // On an iPad search and sort sit above the list, so new results start at the top, not where
-  // the old ones were. On a phone they scroll with the list: whoever uses them is at its top
-  // already, and offset 0 would tuck the large title under the bar.
+  // Search and sort sit above the list (on a phone, at its top), so new results start at the
+  // top, not where the old ones were.
   const listRef = useRef<LegendListRef>(null);
+  const listTop = useListTop(listRef);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedArtistMbid, setSelectedArtistMbid] = useState<string | null>(null);
 
@@ -89,12 +89,12 @@ export default function ArtistsScreen() {
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    if (isTablet) scrollListToTop(listRef.current);
+    scrollListToTop(listRef.current, listTop.top.current);
   };
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
-    if (isTablet) scrollListToTop(listRef.current);
+    scrollListToTop(listRef.current, listTop.top.current);
   };
 
   const onRefresh = async () => {
@@ -165,6 +165,8 @@ export default function ArtistsScreen() {
       testID="artists-list"
       style={{ flex: 1 }}
       contentInsetAdjustmentBehavior={largeTitleHeader ? 'automatic' : undefined}
+      onScroll={largeTitleHeader ? listTop.onScroll : undefined}
+      scrollToOverflowEnabled={!!largeTitleHeader}
       contentContainerStyle={tabBarContentStyle}
       keyboardShouldPersistTaps="handled"
       data={filteredArtists}

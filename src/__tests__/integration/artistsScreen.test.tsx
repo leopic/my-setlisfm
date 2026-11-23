@@ -3,7 +3,6 @@ import { render, renderHook } from '@testing-library/react-native';
 import { useChronicleColors } from '@/utils/colors';
 import ArtistRow from '@/components/artists/ArtistRow';
 import { useArtistsStyles } from '@/components/artists/useArtistsStyles';
-import { scrollListToTop } from '@/utils/scrollListToTop';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
 import {
@@ -20,14 +19,10 @@ jest.mock('@/utils/tablet', () => ({
   useTabletLayout: () => ({ isTablet: mockIsTablet, sidebarWidth: 360 }),
 }));
 
-// Jest has no scrolling; the tests check when the screen asks for it.
-jest.mock('@/utils/scrollListToTop', () => ({ scrollListToTop: jest.fn() }));
-
 beforeAll(seedDatabase);
 
 afterEach(() => {
   mockIsTablet = false;
-  jest.mocked(scrollListToTop).mockClear();
 });
 
 beforeEach(launchApp);
@@ -73,10 +68,10 @@ describe('with the fixture', () => {
     expect(findNativeHeader('Artists')?.props).toMatchObject({ largeTitle: true, hidden: false });
     expect(artists.getByText('5 artists')).toBeOnTheScreen();
     // Without the automatic inset the list starts under the bar and the title never collapses.
-    expect(artists.getByTestId('artists-list')).toHaveProp(
-      'contentInsetAdjustmentBehavior',
-      'automatic',
-    );
+    // Without overflow scrolling React Native stops a scroll to the list's top at 0.
+    const list = artists.getByTestId('artists-list');
+    expect(list).toHaveProp('contentInsetAdjustmentBehavior', 'automatic');
+    expect(list).toHaveProp('scrollToOverflowEnabled', true);
   });
 
   it('shows an artist row with its details', async () => {
@@ -101,15 +96,6 @@ describe('with the fixture', () => {
     await fireEvent.changeText(artists.getByLabelText('Search artists...'), 'strokes');
     expect(artists.getByTestId('artist-artist-2')).toBeOnTheScreen();
     expect(artists.queryByTestId('artist-artist-1')).not.toBeOnTheScreen();
-  });
-
-  // The search field and the pills scroll with the list on a phone, so they are at its top
-  // already. Scrolling to offset 0 would pull the large title under the bar.
-  it('keeps the list where it is while searching or sorting on a phone', async () => {
-    const artists = await openArtists();
-    await fireEvent.changeText(artists.getByLabelText('Search artists...'), 'strokes');
-    await fireEvent.press(artists.getByLabelText('Top'));
-    expect(scrollListToTop).not.toHaveBeenCalled();
   });
 
   it('says so when no artist matches the search', async () => {
@@ -165,14 +151,6 @@ describe('on a tablet', () => {
     });
   });
 
-  it('starts new results at the top on a tablet', async () => {
-    mockIsTablet = true;
-    const artists = await openArtists();
-    await fireEvent.changeText(artists.getByLabelText('Search artists...'), 'strokes');
-    await fireEvent.press(artists.getByLabelText('Top'));
-    expect(scrollListToTop).toHaveBeenCalledTimes(2);
-  });
-
   // A screen's header options outlive the branch that set them, so the tablet layout turns
   // the phone's large title off again. Its own header sits above the sidebar list.
   it('drops the large title when the layout turns into the tablet one', async () => {
@@ -183,22 +161,35 @@ describe('on a tablet', () => {
 
     expect(findNativeHeader('Artists')?.props.hidden).toBe(true);
     expect(artists.getByText('Artists')).toBeOnTheScreen();
-    expect(artists.getByTestId('artists-list')).not.toHaveProp(
-      'contentInsetAdjustmentBehavior',
-      'automatic',
-    );
+    const list = artists.getByTestId('artists-list');
+    expect(list).not.toHaveProp('contentInsetAdjustmentBehavior', 'automatic');
+    expect(list).not.toHaveProp('scrollToOverflowEnabled', true);
   });
 });
 
 describe('without artists', () => {
   // Deletes the setlists of the shared DB and never restores them: keep this block last.
-  beforeAll(() => {
+  const deleteSetlists = () => {
     const db = getTestDatabase();
     db.exec('PRAGMA foreign_keys = OFF');
     db.exec('DELETE FROM setlists');
+  };
+
+  // A screen's header options outlive the branch that set them, so the empty state turns the
+  // large title off again, as after "Clear All Data". Its own header shows the title.
+  it('drops the large title when the last artist goes away', async () => {
+    await openArtists();
+    expect(findNativeHeader('Artists')?.props.hidden).toBe(false);
+    deleteSetlists();
+    await openTab('(concerts)');
+    const artists = await openTab('(artists)').then(() => findScreen('artists-screen'));
+
+    expect(await artists.findByText('No artists yet')).toBeOnTheScreen();
+    expect(findNativeHeader('Artists')?.props.hidden).toBe(true);
   });
 
   it('shows the full-page empty state with the title alone', async () => {
+    deleteSetlists();
     const artists = await openArtists();
     expect(artists.getByText('Artists')).toBeOnTheScreen();
     expect(artists.getByText('No artists yet')).toBeOnTheScreen();
