@@ -1,7 +1,7 @@
 import type * as ExpoUpdates from 'expo-updates';
-import { fireEvent, screen } from 'expo-router/testing-library';
+import { screen } from 'expo-router/testing-library';
 import { seedDatabase } from '../../../test/database';
-import { launchApp } from '../../../test/screen';
+import { launchApp, pressHeaderButton } from '../../../test/screen';
 
 // What expo-updates reports about the JS the app runs; each test sets its own.
 let mockUpdates: {
@@ -18,7 +18,7 @@ jest.mock('expo-updates', () => ({
 
 async function findUpdateRow() {
   await launchApp();
-  await fireEvent.press(await screen.findByLabelText('Open settings'));
+  await pressHeaderButton('Open settings');
   return screen.findByTestId('settings-update');
 }
 

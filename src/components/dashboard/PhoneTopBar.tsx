@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
@@ -16,9 +16,7 @@ type Props = {
 };
 
 export default function PhoneTopBar({ onSync, totals, lastSyncedAt }: Props) {
-  const now = useNow();
   const colors = useChronicleColors();
-  const { t } = useTranslation();
   const styles = StyleSheet.create({
     // ── Phone top bar ─────────────────────────────────────────────────────
     topBar: {
@@ -38,11 +36,6 @@ export default function PhoneTopBar({ onSync, totals, lastSyncedAt }: Props) {
       ...Type.largeTitle,
       color: colors.textPrimary,
     },
-    lastSynced: {
-      ...Type.footnote,
-      color: colors.textMuted,
-      marginTop: Space.s4,
-    },
   });
   return (
     <View style={styles.topBar}>
@@ -51,6 +44,30 @@ export default function PhoneTopBar({ onSync, totals, lastSyncedAt }: Props) {
         <Text style={styles.appTitle}>Chronicles</Text>
         <HeaderActions onSync={onSync} />
       </View>
+      <DashboardSummary totals={totals} lastSyncedAt={lastSyncedAt} />
+    </View>
+  );
+}
+
+// The totals and when the last sync ran: under the top bar's title, or under the native large
+// title.
+export function DashboardSummary({
+  totals,
+  lastSyncedAt,
+  style,
+}: Pick<Props, 'totals' | 'lastSyncedAt'> & { style?: StyleProp<ViewStyle> }) {
+  const now = useNow();
+  const colors = useChronicleColors();
+  const { t } = useTranslation();
+  const styles = StyleSheet.create({
+    lastSynced: {
+      ...Type.footnote,
+      color: colors.textMuted,
+      marginTop: Space.s4,
+    },
+  });
+  return (
+    <View style={style}>
       {totals && <StatsLine totals={totals} />}
       {lastSyncedAt && (
         <Text style={styles.lastSynced}>

@@ -65,10 +65,13 @@ type HostNode = { type: unknown; props: Record<string, unknown>; children: (Host
  * The native header a screen asked for, found by its title. Under Jest a native-stack header
  * renders as a host element with the options as props (title, largeTitle...), and no text.
  */
-export const findNativeHeader = (title: string) => {
+export const findNativeHeader = (title: string) =>
+  findHeader((header) => header.props.title === title);
+
+const findHeader = (matches: (header: HostNode) => boolean) => {
   const walk = (node: HostNode | string): HostNode | undefined => {
     if (typeof node === 'string') return undefined;
-    if (node.type === 'RNSScreenStackHeaderConfig' && node.props.title === title) return node;
+    if (node.type === 'RNSScreenStackHeaderConfig' && matches(node)) return node;
     for (const child of node.children) {
       const found = walk(child);
       if (found) return found;
@@ -76,4 +79,38 @@ export const findNativeHeader = (title: string) => {
     return undefined;
   };
   return walk(screen.root as unknown as HostNode);
+};
+
+type HeaderItem = { accessibilityLabel?: string; buttonId: string };
+const headerItems = (header: HostNode) => [
+  ...((header.props.headerLeftBarButtonItems as HeaderItem[] | undefined) ?? []),
+  ...((header.props.headerRightBarButtonItems as HeaderItem[] | undefined) ?? []),
+];
+
+/**
+ * Taps a native header button (Stack.Toolbar) by its accessibility label. Under Jest these
+ * are no elements of their own: the header holds them as items and calls one press handler
+ * with the item's id, as iOS does.
+ */
+export async function pressHeaderButton(label: string) {
+  const header = await waitFor(() => {
+    const found = findHeader(
+      (node) =>
+        !node.props.hidden && headerItems(node).some((item) => item.accessibilityLabel === label),
+    );
+    if (!found) throw new Error(`No header button labelled "${label}"`);
+    return found;
+  });
+  const item = headerItems(header).find((entry) => entry.accessibilityLabel === label);
+  if (!item) throw new Error(`No header button labelled "${label}"`);
+  const press = header.props.onPressHeaderBarButtonItem as (event: {
+    nativeEvent: { buttonId: string };
+  }) => void;
+  await act(async () => press({ nativeEvent: { buttonId: item.buttonId } }));
+}
+
+/** The labels of the native header buttons a screen shows, left to right as items. */
+export const headerButtonLabels = (title: string) => {
+  const header = findNativeHeader(title);
+  return header ? headerItems(header).map((item) => item.accessibilityLabel) : [];
 };

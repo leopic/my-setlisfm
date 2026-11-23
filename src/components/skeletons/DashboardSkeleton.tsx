@@ -79,7 +79,14 @@ const chapterStyles = StyleSheet.create({
   },
 });
 
-export default function DashboardSkeleton() {
+// underLargeTitle (phone): the screen's native large title stands in for the top bar. iOS ties
+// the title to the first scroll view it sees, so this one must sit under it too, or the real
+// dashboard opens with the title collapsed.
+export default function DashboardSkeleton({
+  underLargeTitle = false,
+}: {
+  underLargeTitle?: boolean;
+}) {
   const colors = useChronicleColors();
   const styles = StyleSheet.create({
     container: {
@@ -107,18 +114,24 @@ export default function DashboardSkeleton() {
 
   return (
     <SafeAreaView
-      edges={['top', 'left', 'right']}
+      edges={underLargeTitle ? ['left', 'right'] : ['top', 'left', 'right']}
       style={styles.container}
       testID="loading-skeleton"
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.topBar}>
-          <View style={styles.topBarRow}>
-            <SkeletonBox width={120} height={24} />
-            <SkeletonBox width={56} height={20} />
+      <ScrollView
+        testID="loading-skeleton-scroll"
+        contentInsetAdjustmentBehavior={underLargeTitle ? 'automatic' : undefined}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {!underLargeTitle && (
+          <View style={styles.topBar}>
+            <View style={styles.topBarRow}>
+              <SkeletonBox width={120} height={24} />
+              <SkeletonBox width={56} height={20} />
+            </View>
+            <SkeletonBox width={200} height={13} style={styles.statsLine} />
           </View>
-          <SkeletonBox width={200} height={13} style={styles.statsLine} />
-        </View>
+        )}
 
         <YearChapter entryCount={3} opacity={1} colors={colors} />
         <YearChapter entryCount={2} opacity={0.6} colors={colors} />

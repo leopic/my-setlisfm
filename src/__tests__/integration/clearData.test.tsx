@@ -1,6 +1,7 @@
 import { Alert } from 'react-native';
 import { renderRouter, screen, fireEvent } from 'expo-router/testing-library';
 import { seedDatabase } from '../../../test/database';
+import { pressHeaderButton } from '../../../test/screen';
 
 beforeAll(seedDatabase);
 
@@ -12,7 +13,7 @@ it('returns to onboarding after clearing everything from settings', async () => 
 
   await renderRouter('./app', { initialUrl: '/' });
 
-  await fireEvent.press(await screen.findByLabelText('Open settings'));
+  await pressHeaderButton('Open settings');
   await fireEvent.press(await screen.findByLabelText('Clear all data'));
 
   expect(await screen.findByText('Get Started')).toBeOnTheScreen();

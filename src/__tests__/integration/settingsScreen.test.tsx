@@ -3,7 +3,7 @@ import { act, fireEvent, screen, waitFor } from 'expo-router/testing-library';
 import { dbOperations } from '@/database/operations';
 import * as syncService from '@/services/syncService';
 import { seedDatabase } from '../../../test/database';
-import { launchApp } from '../../../test/screen';
+import { launchApp, pressHeaderButton } from '../../../test/screen';
 
 beforeAll(seedDatabase);
 
@@ -21,7 +21,7 @@ afterEach(async () => {
 
 async function openSettings() {
   await launchApp();
-  await fireEvent.press(await screen.findByLabelText('Open settings'));
+  await pressHeaderButton('Open settings');
   await screen.findByText('Settings');
 }
 
