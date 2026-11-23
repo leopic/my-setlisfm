@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { edgeForWidth } from '@/utils/screenEdge';
+import type * as Spacing from '@/utils/spacing';
 
 const root = join(__dirname, '../..');
 
@@ -30,6 +31,22 @@ describe('spacing scale', () => {
     [820, 20], // iPad Air
   ])('keeps a %i pt wide screen %i pt from its edges', (width, edge) => {
     expect(edgeForWidth(width)).toBe(edge);
+  });
+
+  // Space.edge comes from the device's screen, not from the window, which an iPad can resize.
+  it.each([
+    [375, 375, 16],
+    [440, 440, 20],
+    [320, 1024, 20], // iPad app in a narrow window
+  ])('sets Space.edge from a %i pt window on a %i pt screen to %i', (window, screen, edge) => {
+    let space: typeof Spacing.Space | undefined;
+    jest.isolateModules(() => {
+      jest.doMock('react-native', () => ({
+        Dimensions: { get: (dim: 'window' | 'screen') => ({ width: { window, screen }[dim] }) },
+      }));
+      space = jest.requireActual<typeof Spacing>('@/utils/spacing').Space;
+    });
+    expect(space?.edge).toBe(edge);
   });
 
   // Every padding, margin and gap comes from Space (or is worked out from it), so the app

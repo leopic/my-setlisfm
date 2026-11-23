@@ -14,8 +14,9 @@ export const Space = {
   s48: 48,
   s64: 64,
   // Left and right margin of every screen, header, row and section: the system's margin for
-  // this device (see screenEdge.ts), read once at launch.
-  edge: edgeForWidth(Dimensions.get('window').width),
+  // this device (see screenEdge.ts), read once at launch. It reads the screen, not the window:
+  // an iPad window can shrink and grow, and a StyleSheet value would not follow it.
+  edge: edgeForWidth(Dimensions.get('screen').width),
 } as const;
 
 // Room under scrolling content so its end clears the floating native tab bar.
