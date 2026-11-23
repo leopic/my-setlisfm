@@ -1,5 +1,5 @@
 import {} from 'react';
-import { View, StyleSheet } from 'react-native';
+import { ScrollView, View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '@/components/SkeletonBox';
 import { useChronicleColors } from '@/utils/colors';
@@ -11,9 +11,14 @@ interface Props {
   cardCount?: number;
   /** 'sort' = sort bar only · 'artists' = sort bar + avatar rows · 'venues' = sort bar + geo strip */
   variant?: 'sort' | 'artists' | 'venues';
+  /**
+   * Phone: the screen's native large title stands in for the fake one. iOS ties the title to
+   * the first scroll view it sees, so the rows sit in one under it, like the list that follows.
+   */
+  underLargeTitle?: boolean;
 }
 
-export default function ListSkeleton({ cardCount = 5, variant }: Props) {
+export default function ListSkeleton({ cardCount = 5, variant, underLargeTitle = false }: Props) {
   const showSortBar = !!variant;
   const showGeoStrip = variant === 'venues';
   const showAvatars = variant === 'artists';
@@ -35,6 +40,11 @@ export default function ListSkeleton({ cardCount = 5, variant }: Props) {
     },
     headerSubtitle: {
       marginTop: Space.s4,
+    },
+    // The list's subtitle under the native title (largeTitleSubtitle in the tabs).
+    largeTitleSubtitle: {
+      paddingHorizontal: Space.edge,
+      paddingBottom: Space.s4,
     },
 
     // ── Geo strip (venues) ───────────────────────────────────────────
@@ -114,15 +124,21 @@ export default function ListSkeleton({ cardCount = 5, variant }: Props) {
   const sidebarContent = (
     <>
       {/* Header */}
-      <View style={styles.header}>
-        <SkeletonBox width={120} height={22} borderRadius={Radius.full} />
-        <SkeletonBox
-          width={160}
-          height={14}
-          borderRadius={Radius.full}
-          style={styles.headerSubtitle}
-        />
-      </View>
+      {underLargeTitle ? (
+        <View style={styles.largeTitleSubtitle}>
+          <SkeletonBox width={160} height={14} borderRadius={Radius.full} />
+        </View>
+      ) : (
+        <View style={styles.header}>
+          <SkeletonBox width={120} height={22} borderRadius={Radius.full} />
+          <SkeletonBox
+            width={160}
+            height={14}
+            borderRadius={Radius.full}
+            style={styles.headerSubtitle}
+          />
+        </View>
+      )}
 
       {/* Geo strip (venues) */}
       {showGeoStrip && (
@@ -136,7 +152,7 @@ export default function ListSkeleton({ cardCount = 5, variant }: Props) {
 
       {/* Search + sort */}
       <View style={styles.controls}>
-        <SkeletonBox width="100%" height={40} borderRadius={Radius.md} style={styles.searchBar} />
+        <SkeletonBox width="auto" height={40} borderRadius={Radius.md} style={styles.searchBar} />
         {showSortBar && (
           <View style={styles.sortPills}>
             <SkeletonBox width={88} height={28} borderRadius={Radius.full} />
@@ -191,6 +207,16 @@ export default function ListSkeleton({ cardCount = 5, variant }: Props) {
           <View style={[styles.sidebar, { width: sidebarWidth }]}>{sidebarContent}</View>
           <View style={styles.detailPane} />
         </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (underLargeTitle) {
+    return (
+      <SafeAreaView edges={['left', 'right']} style={styles.container} testID="loading-skeleton">
+        <ScrollView testID="loading-skeleton-scroll" contentInsetAdjustmentBehavior="automatic">
+          {sidebarContent}
+        </ScrollView>
       </SafeAreaView>
     );
   }

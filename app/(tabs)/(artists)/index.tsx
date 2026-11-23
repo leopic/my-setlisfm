@@ -120,7 +120,14 @@ export default function ArtistsScreen() {
   );
 
   if (loading) {
-    return <ListSkeleton variant="artists" />;
+    // A phone shows the large title while it loads, so nothing moves when the list arrives.
+    if (isTablet) return <ListSkeleton variant="artists" />;
+    return (
+      <>
+        <Stack.Screen options={largeTitle} />
+        <ListSkeleton variant="artists" underLargeTitle />
+      </>
+    );
   }
 
   // No data at all — hide all controls, show a full-page empty state
