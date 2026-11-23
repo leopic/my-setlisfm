@@ -1,4 +1,5 @@
-import { fireEvent, screen } from 'expo-router/testing-library';
+import { fireEvent, renderHook, screen } from 'expo-router/testing-library';
+import { useConcertMenu } from '@/components/concerts/useConcertMenu';
 import { seedDatabase } from '../../../test/database';
 import { findScreen, launchApp, layOutLists, openTab, rowMenuActions } from '../../../test/screen';
 
@@ -44,4 +45,14 @@ it.each([
       ? ['(tabs)', '(artists)', 'concerts']
       : ['(tabs)', '(venues)', 'concerts'],
   );
+});
+
+// A concert can miss its artist or venue id; offer only what can open.
+it.each([
+  [{ artistMbid: undefined, venueId: 'venue-1' }, ['Open venue']],
+  [{ artistMbid: 'artist-1', venueId: undefined }, ['Open artist']],
+  [{ artistMbid: undefined, venueId: undefined }, []],
+])('offers only what a concert has (%o)', async (concert, titles) => {
+  const { result } = await renderHook(() => useConcertMenu());
+  expect(result.current(concert).map(({ label }) => label)).toEqual(titles);
 });
