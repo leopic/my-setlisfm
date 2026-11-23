@@ -29,6 +29,7 @@ import '@/services/observe';
 // Default is 0 (unlimited) — with 200 decoded 250×250 ARGB images that's ~48 MB
 // that never gets evicted. 20 MB ≈ 80 images; 50-item count covers visible rows.
 // iOS only: expo-image has no configureCache on Android, and calling it there crashes the app.
+// Android needs no cap: Glide sizes its memory cache from the device's RAM.
 if (Platform.OS === 'ios') {
   Image.configureCache({ maxMemoryCost: 20 * 1024 * 1024, maxMemoryCount: 50 });
 }

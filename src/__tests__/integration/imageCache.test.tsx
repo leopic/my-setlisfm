@@ -1,6 +1,8 @@
 import type * as ReactNative from 'react-native';
 import type * as ExpoImage from 'expo-image';
 
+afterEach(() => jest.restoreAllMocks());
+
 // The root layout caps expo-image's memory cache when it loads. Only iOS has configureCache:
 // on Android the call threw and the app crashed before its first screen.
 it.each([
@@ -16,5 +18,4 @@ it.each([
     jest.requireActual('../../../app/_layout');
   });
   expect(configureCache).toHaveBeenCalledTimes(calls);
-  jest.restoreAllMocks();
 });
