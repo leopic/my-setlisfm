@@ -31,7 +31,9 @@ export function useConcertsStyles() {
       ...Type.subheadline,
       color: colors.textSecondary,
     },
-    // ── Controls (pinned above list) ────────────────────────────────────
+    // Under the native large title: the title's own inset.
+    largeTitleSubtitle: { paddingHorizontal: Space.edge },
+    // ── Controls (above the list; on a phone, at its top under the large title) ──
     controls: {
       backgroundColor: colors.background,
       paddingTop: Space.s12,

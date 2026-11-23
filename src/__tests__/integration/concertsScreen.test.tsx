@@ -1,13 +1,24 @@
 import { act, fireEvent, screen, waitFor } from 'expo-router/testing-library';
 import { seedDatabase } from '../../../test/database';
-import { findScreen, launchApp, openTab } from '../../../test/screen';
+import { getTestDatabase } from '../../../test/expoSqliteNode';
+import { findNativeHeader, findScreen, launchApp, openTab } from '../../../test/screen';
 import { formatDate } from '@/utils/date';
+
+// Flipped per test: the phone layout is the default.
+let mockIsTablet = false;
+jest.mock('@/utils/tablet', () => ({
+  useTabletLayout: () => ({ isTablet: mockIsTablet, sidebarWidth: 360 }),
+}));
 
 beforeAll(seedDatabase);
 
 beforeEach(async () => {
   await launchApp();
   await openTab('(concerts)');
+});
+
+afterEach(() => {
+  mockIsTablet = false;
 });
 
 // Seed: 4 shows in 2024 and 4 in 2025, five artists.
@@ -19,7 +30,8 @@ const concertIds = (concerts: Screen) =>
 it('groups the timeline by year with each entry showing its details', async () => {
   const concerts = await findScreen('concerts-screen');
 
-  expect(concerts.getByText('My Concerts')).toBeOnTheScreen();
+  // The title is the native large title, which collapses into the bar on scroll.
+  expect(findNativeHeader('My Concerts')?.props).toMatchObject({ largeTitle: true, hidden: false });
   expect(concerts.getByText('8 concerts grouped by year')).toBeOnTheScreen();
   expect(concerts.getAllByText(/^20\d\d$/).map((node) => node.props.children)).toEqual([
     '2025',
@@ -165,4 +177,50 @@ it('marks the picked year as selected when the sheet reopens', async () => {
   expect(screen.getByRole('button', { name: '2025' }).props.accessibilityState.selected).toBe(
     false,
   );
+});
+
+describe('the large title', () => {
+  // Without the automatic inset the list starts under the bar and the title never collapses.
+  // Without overflow scrolling React Native stops a scroll to the list's top at 0. The
+  // controls are in the list, so they take a tap while the keyboard is up.
+  it('puts the list under it on a phone', async () => {
+    const list = (await findScreen('concerts-screen')).getByTestId('concerts-list');
+    expect(list).toHaveProp('contentInsetAdjustmentBehavior', 'automatic');
+    expect(list).toHaveProp('scrollToOverflowEnabled', true);
+    expect(list).toHaveProp('keyboardShouldPersistTaps', 'handled');
+  });
+
+  // A screen's header options outlive the branch that set them, so the tablet layout turns
+  // the phone's large title off again. Its own header sits above the sidebar list.
+  it('drops the large title when the layout turns into the tablet one', async () => {
+    await findScreen('concerts-screen');
+    expect(findNativeHeader('My Concerts')?.props.hidden).toBe(false);
+    mockIsTablet = true;
+    await openTab('(artists)');
+    await openTab('(concerts)');
+    const concerts = await findScreen('concerts-screen');
+
+    expect(await concerts.findByText('My Concerts')).toBeOnTheScreen();
+    expect(findNativeHeader('My Concerts')?.props.hidden).toBe(true);
+    const list = concerts.getByTestId('concerts-list');
+    expect(list).not.toHaveProp('contentInsetAdjustmentBehavior', 'automatic');
+    expect(list).not.toHaveProp('scrollToOverflowEnabled', true);
+  });
+
+  // The same for the empty state, as after "Clear All Data". Deletes the setlists of the
+  // shared DB and never restores them: keep this test last.
+  it('drops the large title when the last concert goes away', async () => {
+    await findScreen('concerts-screen');
+    expect(findNativeHeader('My Concerts')?.props.hidden).toBe(false);
+    const db = getTestDatabase();
+    db.exec('PRAGMA foreign_keys = OFF');
+    db.exec('DELETE FROM setlists');
+    db.exec('PRAGMA foreign_keys = ON');
+    await openTab('(artists)');
+    await openTab('(concerts)');
+
+    expect(await screen.findByText('No shows yet')).toBeOnTheScreen();
+    expect(screen.getByText('My Concerts')).toBeOnTheScreen();
+    expect(findNativeHeader('My Concerts')?.props.hidden).toBe(true);
+  });
 });
