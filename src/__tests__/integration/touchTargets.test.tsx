@@ -1,8 +1,15 @@
 import { StyleSheet, type ViewStyle } from 'react-native';
-import { act, fireEvent, screen } from 'expo-router/testing-library';
+import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { router } from 'expo-router';
 import { seedDatabase } from '../../../test/database';
-import { findScreen, launchApp, openTab } from '../../../test/screen';
+import HeaderActions from '@/components/dashboard/HeaderActions';
+import {
+  findScreen,
+  headerButtonLabels,
+  launchApp,
+  openTab,
+  pressHeaderButton,
+} from '../../../test/screen';
 
 beforeAll(seedDatabase);
 
@@ -22,10 +29,17 @@ const expectTouchTarget = (node: Element) => {
   if (style.width !== undefined) expect(Number(style.width)).toBeGreaterThanOrEqual(MIN);
 };
 
-it('gives the dashboard icons 44 pt targets', async () => {
-  const dashboard = await findScreen('dashboard-screen');
-  expectTouchTarget(dashboard.getByLabelText('Sync concert data'));
-  expectTouchTarget(dashboard.getByLabelText('Open settings'));
+// On a phone with data, sync and settings are native header buttons, which iOS sizes.
+it('puts the dashboard icons in the native header on a phone', async () => {
+  await findScreen('dashboard-screen');
+  expect(headerButtonLabels('Chronicles').sort()).toEqual(['Open settings', 'Sync concert data']);
+});
+
+// The empty state and the iPad draw them in their own top bar.
+it('gives the top bar icons 44 pt targets', async () => {
+  await renderRouter({ index: () => <HeaderActions onSync={() => {}} /> });
+  expectTouchTarget(screen.getByLabelText('Sync concert data'));
+  expectTouchTarget(screen.getByLabelText('Open settings'));
 });
 
 it('gives the concerts search, year filter and sort pills 44 pt targets', async () => {
@@ -69,13 +83,13 @@ it('gives back buttons and the venue link 44 pt targets', async () => {
 });
 
 it('gives the settings back button and "Change" 44 pt targets', async () => {
-  await fireEvent.press(await screen.findByLabelText('Open settings'));
+  await pressHeaderButton('Open settings');
   expectTouchTarget(await screen.findByTestId('back-button'));
   expectTouchTarget(screen.getByText('Change').parent as Element);
 });
 
 it('gives the username edit field, Save and Cancel 44 pt targets', async () => {
-  await fireEvent.press(await screen.findByLabelText('Open settings'));
+  await pressHeaderButton('Open settings');
   await fireEvent.press(await screen.findByText('Change'));
   const field = await screen.findByDisplayValue('e2e-seed');
   expectTouchTarget(field);

@@ -4,7 +4,7 @@ import { dbOperations } from '@/database/operations';
 import { DEMO_CONCERTS } from '@/demo/demoConcerts';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
-import { findScreen, launchApp } from '../../../test/screen';
+import { findScreen, launchApp, pressHeaderButton } from '../../../test/screen';
 
 // Presses the alert's button with this label, the way a user would.
 async function pressAlertButton(label: string) {
@@ -20,7 +20,7 @@ const count = (sql: string) => (getTestDatabase().prepare(sql).get() as { n: num
 
 async function openDemoScreen() {
   await launchApp();
-  await fireEvent.press(await screen.findByLabelText('Open settings'));
+  await pressHeaderButton('Open settings');
   await fireEvent(await screen.findByTestId('settings-version'), 'longPress');
   return findScreen('demo-screen');
 }

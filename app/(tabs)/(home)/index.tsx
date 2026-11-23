@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, RefreshControl, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { Stack } from 'expo-router';
 import { dbOperations } from '@/database/operations';
 import { syncConcertData, getStoredUsername, setStoredUsername } from '@/services/syncService';
 import { useChronicleColors } from '@/utils/colors';
@@ -11,7 +12,10 @@ import InsightCards from '@/components/InsightCards';
 import { TabScrollView, EmptyState } from '@/components/ui';
 import { useTabletLayout } from '@/utils/tablet';
 import OnThisDayCard from '@/components/dashboard/OnThisDayCard';
-import PhoneTopBar from '@/components/dashboard/PhoneTopBar';
+import PhoneTopBar, { DashboardSummary } from '@/components/dashboard/PhoneTopBar';
+import DashboardToolbar from '@/components/dashboard/DashboardToolbar';
+import { useLargeTitleOptions } from '@/utils/largeTitle';
+import { Space } from '@/utils/spacing';
 import TabletDetailPanel from '@/components/dashboard/TabletDetailPanel';
 import TabletTopBar from '@/components/dashboard/TabletTopBar';
 import TabletYearGrid from '@/components/dashboard/TabletYearGrid';
@@ -46,10 +50,20 @@ export default function DashboardScreen() {
   const colors = useChronicleColors();
   const { t } = useTranslation();
   const { isTablet } = useTabletLayout();
+  // Phone: the app's name as the native large title, which collapses as the timeline scrolls.
+  // The iPad and the empty state keep their own top bar; header options outlive the branch
+  // that set them, so each branch sets them.
+  const largeTitle = useLargeTitleOptions('Chronicles');
+  const noLargeTitle = <Stack.Screen options={{ headerShown: false }} />;
   const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: colors.background,
+    },
+    // Under the native large title: the title's own inset, a little air before the cards.
+    summary: {
+      paddingHorizontal: Space.edge,
+      paddingBottom: Space.s8,
     },
     // ── Tablet body ───────────────────────────────────────────────────────
     tabletBody: {
@@ -173,7 +187,13 @@ export default function DashboardScreen() {
   };
 
   if (loading) {
-    return <DashboardSkeleton />;
+    if (isTablet) return <DashboardSkeleton />;
+    return (
+      <>
+        <Stack.Screen options={largeTitle} />
+        <DashboardSkeleton underLargeTitle />
+      </>
+    );
   }
 
   // No concerts synced yet
@@ -184,6 +204,7 @@ export default function DashboardScreen() {
         style={styles.container}
         testID="dashboard-screen"
       >
+        {noLargeTitle}
         <PhoneTopBar onSync={handleSync} />
         <EmptyState
           icon={{ sf: 'music.note', md: 'musical-note-outline' }}
@@ -212,13 +233,14 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView
-      edges={['top', 'left', 'right']}
+      edges={isTablet ? ['top', 'left', 'right'] : ['left', 'right']}
       style={styles.container}
       testID="dashboard-screen"
     >
       {isTablet ? (
         /* ── Tablet layout ──────────────────────────────────────────────────── */
         <>
+          {noLargeTitle}
           {/* Two-section top bar */}
           <TabletTopBar totals={totals} onThisDay={onThisDay} onSync={handleSync} />
           {/* Two-column body */}
@@ -247,10 +269,14 @@ export default function DashboardScreen() {
       ) : (
         /* ── Phone layout ────────────────────────────────────────────────────── */
         <>
-          <PhoneTopBar onSync={handleSync} totals={totals} lastSyncedAt={lastSyncedAt} />
+          <Stack.Screen options={largeTitle} />
+          <DashboardToolbar onSync={handleSync} />
           <TabScrollView
+            testID="dashboard-scroll"
+            contentInsetAdjustmentBehavior="automatic"
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           >
+            <DashboardSummary totals={totals} lastSyncedAt={lastSyncedAt} style={styles.summary} />
             {onThisDay && <OnThisDayCard onThisDay={onThisDay} />}
             {insightStats && <InsightCards stats={insightStats} />}
             <YearTimeline
