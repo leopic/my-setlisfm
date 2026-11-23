@@ -16,7 +16,7 @@ import { dbOperations } from '@/database/operations';
 import { getStoredUsername, setStoredUsername } from '@/services/syncService';
 import { backfillMissingArtistImages, clearArtistImageCache } from '@/services/artistImageService';
 import { registerDevMenuItems } from 'expo-dev-client';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { SyncProvider } from '@/contexts/SyncContext';
 import { OnboardingContext } from '@/contexts/OnboardingContext';
 import { Stack, useRouter, useRootNavigationState } from 'expo-router';
@@ -28,7 +28,11 @@ import '@/services/observe';
 // Cap SDWebImage's in-memory cache before any images are loaded.
 // Default is 0 (unlimited) — with 200 decoded 250×250 ARGB images that's ~48 MB
 // that never gets evicted. 20 MB ≈ 80 images; 50-item count covers visible rows.
-Image.configureCache({ maxMemoryCost: 20 * 1024 * 1024, maxMemoryCount: 50 });
+// iOS only: expo-image has no configureCache on Android, and calling it there crashes the app.
+// Android needs no cap: Glide sizes its memory cache from the device's RAM.
+if (Platform.OS === 'ios') {
+  Image.configureCache({ maxMemoryCost: 20 * 1024 * 1024, maxMemoryCount: 50 });
+}
 
 export { ErrorBoundary } from '@/components/ErrorBoundary';
 
