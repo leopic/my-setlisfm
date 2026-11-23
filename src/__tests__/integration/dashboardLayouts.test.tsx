@@ -1,5 +1,5 @@
 import { Alert, StyleSheet } from 'react-native';
-import { fireEvent, renderRouter, screen, within } from 'expo-router/testing-library';
+import { fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 import { dbOperations } from '@/database/operations';
 import * as syncService from '@/services/syncService';
 import { seedDatabase } from '../../../test/database';
@@ -8,6 +8,7 @@ import {
   findNativeHeader,
   findScreen,
   headerButtonLabels,
+  inTab,
   launchApp,
   pressHeaderButton,
 } from '../../../test/screen';
@@ -55,7 +56,8 @@ it('loads under the large title on a phone', async () => {
   const load = jest.spyOn(dbOperations, 'getDashboardStats').mockReturnValue(new Promise(() => {}));
   try {
     await renderRouter('./app', { initialUrl: '/' });
-    expect(await screen.findByTestId('loading-skeleton-scroll')).toHaveProp(
+    await waitFor(() => expect(inTab('Dashboard', 'loading-skeleton-scroll')).toHaveLength(1));
+    expect(inTab('Dashboard', 'loading-skeleton-scroll')[0]).toHaveProp(
       'contentInsetAdjustmentBehavior',
       'automatic',
     );

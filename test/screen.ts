@@ -39,6 +39,19 @@ export async function launchApp() {
 
 // The tab bar is native and not rendered under Jest; switch tabs the way a
 // tab press does, through the router.
+type TestNode = ReturnType<typeof screen.getByTestId>;
+
+/**
+ * The nodes with `testID` inside the tab labelled `label`. Every tab is mounted under Jest, so
+ * a testID shared by several tabs (the loading skeletons) matches in each of them.
+ */
+export const inTab = (label: string, testID: string) =>
+  screen.queryAllByTestId(testID).filter((node) => {
+    let parent: TestNode | null = node.parent;
+    while (parent && parent.type !== 'RNSTabsScreenIOS') parent = parent.parent;
+    return parent?.props.title === label;
+  });
+
 export async function openTab(tab: '(concerts)' | '(artists)' | '(venues)' | '(stats)') {
   await act(async () => router.navigate(`/(tabs)/${tab}`));
 }

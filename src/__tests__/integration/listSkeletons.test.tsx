@@ -1,7 +1,7 @@
-import { screen, waitFor } from 'expo-router/testing-library';
+import { waitFor } from 'expo-router/testing-library';
 import { dbOperations } from '@/database/operations';
 import { seedDatabase } from '../../../test/database';
-import { findNativeHeader, launchApp, openTab } from '../../../test/screen';
+import { findNativeHeader, inTab, launchApp, openTab } from '../../../test/screen';
 
 let mockIsTablet = false;
 jest.mock('@/utils/tablet', () => ({
@@ -9,7 +9,6 @@ jest.mock('@/utils/tablet', () => ({
 }));
 
 beforeAll(seedDatabase);
-afterEach(() => jest.restoreAllMocks());
 
 // Each list tab: its route, tab label, native title, and the query that holds it in loading.
 const tabs = [
@@ -18,22 +17,15 @@ const tabs = [
   { tab: 'concerts', label: 'Concerts', title: 'My Concerts', load: 'getAllSetlists' },
 ] as const;
 
-type Node = ReturnType<typeof screen.getByTestId>;
-
-// Every tab is mounted under Jest, so a testID can match in several; keep the one in `label`.
-const inTab = (label: string, testID: string) =>
-  screen.queryAllByTestId(testID).filter((node) => {
-    let parent: Node | null = node.parent;
-    while (parent && parent.type !== 'RNSTabsScreenIOS') parent = parent.parent;
-    return parent?.props.title === label;
-  });
-
 // The phone shows the native title while the list loads, so the title doesn't pop in when
 // the rows arrive. The skeleton's rows scroll under it, like the list that follows.
 describe.each(tabs)('$tab loading', ({ tab, label, title, load }) => {
+  // Held for the test only; restoreAllMocks would also undo the setup's console.warn filter.
+  let held: jest.SpyInstance;
   beforeEach(() => {
-    jest.spyOn(dbOperations, load).mockReturnValue(new Promise(() => {}));
+    held = jest.spyOn(dbOperations, load).mockReturnValue(new Promise<never>(() => {}));
   });
+  afterEach(() => held.mockRestore());
 
   it('sits under the large title on a phone', async () => {
     mockIsTablet = false;

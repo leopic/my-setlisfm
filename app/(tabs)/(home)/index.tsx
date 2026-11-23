@@ -187,7 +187,14 @@ export default function DashboardScreen() {
   };
 
   if (loading) {
-    if (isTablet) return <DashboardSkeleton />;
+    if (isTablet) {
+      return (
+        <>
+          {noLargeTitle}
+          <DashboardSkeleton />
+        </>
+      );
+    }
     return (
       <>
         <Stack.Screen options={largeTitle} />

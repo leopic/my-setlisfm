@@ -229,7 +229,14 @@ export default function ConcertsScreen() {
 
   if (loading) {
     // A phone shows the large title while it loads, so nothing moves when the list arrives.
-    if (isTablet) return <ListSkeleton variant="sort" />;
+    if (isTablet) {
+      return (
+        <>
+          {noLargeTitle}
+          <ListSkeleton variant="sort" />
+        </>
+      );
+    }
     return (
       <>
         <Stack.Screen options={largeTitle} />
