@@ -95,6 +95,7 @@ interface ConcertDateRow {
   eventDate: string;
   artistMbid?: string;
   artistImageUrl?: string;
+  venueId?: string;
 }
 
 interface OnThisDayRow {
@@ -105,6 +106,7 @@ interface OnThisDayRow {
   dayDiff: number;
   artistMbid?: string;
   artistImageUrl?: string;
+  venueId?: string;
 }
 
 interface YearCountRow {
@@ -659,6 +661,7 @@ export class DatabaseOperations {
       eventDate: string;
       artistMbid: string | null;
       artistImageUrl: string | null;
+      venueId: string | null;
     } | null;
     lastConcert: {
       setlistId: string;
@@ -666,6 +669,7 @@ export class DatabaseOperations {
       eventDate: string;
       artistMbid: string | null;
       artistImageUrl: string | null;
+      venueId: string | null;
     } | null;
     concertsByYear: { year: string; count: number }[];
   }> {
@@ -699,7 +703,7 @@ export class DatabaseOperations {
       `) as Promise<TopVenueRow | null>,
       this.db.getFirstAsync(`
         SELECT sl.id as setlistId, a.name as artistName, sl.eventDate,
-               a.mbid as artistMbid, a.imageUrl as artistImageUrl
+               a.mbid as artistMbid, a.imageUrl as artistImageUrl, sl.venueId as venueId
         FROM setlists sl
         LEFT JOIN artists a ON sl.artistMbid = a.mbid
         ORDER BY substr(sl.eventDate, 7, 4) || substr(sl.eventDate, 4, 2) || substr(sl.eventDate, 1, 2) ASC
@@ -707,7 +711,7 @@ export class DatabaseOperations {
       `) as Promise<ConcertDateRow | null>,
       this.db.getFirstAsync(`
         SELECT sl.id as setlistId, a.name as artistName, sl.eventDate,
-               a.mbid as artistMbid, a.imageUrl as artistImageUrl
+               a.mbid as artistMbid, a.imageUrl as artistImageUrl, sl.venueId as venueId
         FROM setlists sl
         LEFT JOIN artists a ON sl.artistMbid = a.mbid
         ORDER BY substr(sl.eventDate, 7, 4) || substr(sl.eventDate, 4, 2) || substr(sl.eventDate, 1, 2) DESC
@@ -744,6 +748,7 @@ export class DatabaseOperations {
             eventDate: firstConcert.eventDate,
             artistMbid: firstConcert.artistMbid ?? null,
             artistImageUrl: firstConcert.artistImageUrl ?? null,
+            venueId: firstConcert.venueId ?? null,
           }
         : null,
       lastConcert: lastConcert?.eventDate
@@ -753,6 +758,7 @@ export class DatabaseOperations {
             eventDate: lastConcert.eventDate,
             artistMbid: lastConcert.artistMbid ?? null,
             artistImageUrl: lastConcert.artistImageUrl ?? null,
+            venueId: lastConcert.venueId ?? null,
           }
         : null,
       concertsByYear: byYear.map((row) => ({ year: row.year, count: row.count })),
@@ -832,6 +838,7 @@ export class DatabaseOperations {
     yearsAgo: number;
     artistMbid: string | null;
     artistImageUrl: string | null;
+    venueId: string | null;
   } | null> {
     const now = new Date();
     const currentYear = now.getFullYear();
@@ -847,13 +854,14 @@ export class DatabaseOperations {
     // 4. Pick the smallest diff, then most recent year
     const result = (await this.db.getFirstAsync(
       `
-      SELECT setlistId, artistName, eventDate, venueName, dayDiff, artistMbid, artistImageUrl FROM (
+      SELECT setlistId, artistName, eventDate, venueName, dayDiff, artistMbid, artistImageUrl, venueId FROM (
         SELECT
           sl.id as setlistId,
           a.name as artistName,
           sl.eventDate,
           v.name as venueName,
           a.mbid as artistMbid,
+          sl.venueId as venueId,
           a.imageUrl as artistImageUrl,
           ABS(
             julianday(
@@ -885,6 +893,7 @@ export class DatabaseOperations {
       yearsAgo: currentYear - eventYear,
       artistMbid: result.artistMbid ?? null,
       artistImageUrl: result.artistImageUrl ?? null,
+      venueId: result.venueId ?? null,
     };
   }
 
@@ -897,6 +906,7 @@ export class DatabaseOperations {
     yearsAgo: number;
     artistMbid: string | null;
     artistImageUrl: string | null;
+    venueId: string | null;
   } | null> {
     const now = new Date();
     const currentYear = now.getFullYear();
@@ -905,13 +915,14 @@ export class DatabaseOperations {
 
     const result = (await this.db.getFirstAsync(
       `
-      SELECT setlistId, artistName, eventDate, venueName, dayDiff, artistMbid, artistImageUrl FROM (
+      SELECT setlistId, artistName, eventDate, venueName, dayDiff, artistMbid, artistImageUrl, venueId FROM (
         SELECT
           sl.id as setlistId,
           a.name as artistName,
           sl.eventDate,
           v.name as venueName,
           a.mbid as artistMbid,
+          sl.venueId as venueId,
           a.imageUrl as artistImageUrl,
           ABS(
             julianday(
@@ -943,6 +954,7 @@ export class DatabaseOperations {
       yearsAgo: currentYear - eventYear,
       artistMbid: result.artistMbid ?? null,
       artistImageUrl: result.artistImageUrl ?? null,
+      venueId: result.venueId ?? null,
     };
   }
 
@@ -1643,6 +1655,8 @@ export class DatabaseOperations {
       eventDate: string;
       venueName: string;
       cityName: string;
+      artistMbid: string | null;
+      venueId: string | null;
     }>;
     repeatDepth: {
       totalArtists: number;
@@ -1706,6 +1720,7 @@ export class DatabaseOperations {
         WITH ranked AS (
           SELECT sl.id AS setlistId, a.name AS artistName, sl.eventDate,
                  v.name AS venueName, c.name AS cityName,
+                 sl.artistMbid AS artistMbid, sl.venueId AS venueId,
                  ROW_NUMBER() OVER (ORDER BY ${ISO}) AS rn
           FROM setlists sl
           LEFT JOIN artists a ON sl.artistMbid = a.mbid
@@ -1888,6 +1903,8 @@ export class DatabaseOperations {
         eventDate: string;
         venueName: string;
         cityName: string;
+        artistMbid: string | null;
+        venueId: string | null;
         rn: number;
       }>
     ).map((r) => ({
@@ -1897,6 +1914,8 @@ export class DatabaseOperations {
       eventDate: r.eventDate,
       venueName: r.venueName ?? '',
       cityName: r.cityName ?? '',
+      artistMbid: r.artistMbid ?? null,
+      venueId: r.venueId ?? null,
     }));
 
     const rd = repeatRaw as {
