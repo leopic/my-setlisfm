@@ -1,4 +1,5 @@
 import type { ComponentProps } from 'react';
+import { Platform } from 'react-native';
 import type { Stack } from 'expo-router';
 import { useChronicleColors } from './colors';
 import { Type } from './typography';
@@ -16,6 +17,17 @@ type ScreenOptions = Exclude<
  */
 export function useLargeTitleOptions(title: string): ScreenOptions {
   const colors = useChronicleColors();
+  // Android has no large title, and contentInsetAdjustmentBehavior is iOS only: a transparent
+  // bar there sat on top of the content. So Android gets a plain bar in the screen's color.
+  if (Platform.OS !== 'ios') {
+    return {
+      headerShown: true,
+      title,
+      headerShadowVisible: false,
+      headerStyle: { backgroundColor: colors.background },
+      headerTitleStyle: { fontFamily: Type.headline.fontFamily, color: colors.textPrimary },
+    };
+  }
   return {
     headerShown: true,
     title,
