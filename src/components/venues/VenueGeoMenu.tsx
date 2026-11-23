@@ -1,17 +1,8 @@
-import { Platform } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { GeoStats } from './types';
 
-/**
- * On an iPhone the large title's bar holds the way into continents, countries and cities: one
- * globe button with a native menu, like the Dashboard's sync and settings. Android has no native
- * menu without '@expo/ui' (Stack.Toolbar throws there), and the iPad has no native header, so
- * both keep VenueGeoStrip in the list.
- */
-export const geoMenuInHeader = (underLargeTitle: boolean) =>
-  underLargeTitle && Platform.OS === 'ios';
-
+// The globe menu in the Venues bar on an iPhone; see geoMenuInHeader.
 export default function VenueGeoMenu({ geoStats }: { geoStats: GeoStats | null }) {
   const { t } = useTranslation();
   const router = useRouter();

@@ -1,6 +1,6 @@
 import {} from 'react';
 import { ScrollView, View, StyleSheet } from 'react-native';
-import { geoMenuInHeader } from '@/components/venues/VenueGeoMenu';
+import { geoMenuInHeader } from '@/components/venues/geoMenuInHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '@/components/SkeletonBox';
 import { useChronicleColors } from '@/utils/colors';
