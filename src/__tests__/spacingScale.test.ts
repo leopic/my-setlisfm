@@ -34,6 +34,7 @@ describe('spacing scale', () => {
   });
 
   // Space.edge comes from the device's screen, not from the window, which an iPad can resize.
+  afterEach(() => jest.dontMock('react-native'));
   it.each([
     [375, 375, 16],
     [440, 440, 20],
