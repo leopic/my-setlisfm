@@ -27,7 +27,7 @@ export function useListTop(list: RefObject<LegendListRef | null>) {
   const top = useRef(0);
   const reportedBy = useRef<LegendListRef | null>(null);
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (reportedBy.current === list.current) return;
+    if (!list.current || reportedBy.current === list.current) return;
     reportedBy.current = list.current;
     top.current = 0;
     const rest = event.nativeEvent.contentOffset.y;

@@ -129,6 +129,7 @@ describe('the artists list under its large title', () => {
     await openTab('(artists)');
     expect(await screen.findByText('No artists yet')).toBeOnTheScreen();
     await seedDatabase();
+    db.exec('PRAGMA foreign_keys = ON');
     await openTab('(concerts)');
     await openTab('(artists)');
     await screen.findByPlaceholderText('Search artists...');
