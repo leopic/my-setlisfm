@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import { seedDatabase } from '../../../test/database';
+import { chronicleLight } from '@/utils/colors';
 import { findNativeHeader, findScreen, launchApp, openTab } from '../../../test/screen';
 
 beforeAll(seedDatabase);
@@ -9,7 +10,11 @@ afterEach(() => jest.restoreAllMocks());
 // Android has neither, so a transparent bar there covered the first rows: it gets a solid one.
 it.each([
   ['ios', { largeTitle: true, translucent: true }],
-  ['android', { largeTitle: undefined, translucent: false }],
+  // Solid, in the screen's color (the tests run in light mode).
+  [
+    'android',
+    { largeTitle: undefined, translucent: false, backgroundColor: chronicleLight.background },
+  ],
 ] as const)('gives the tab headers the right bar on %s', async (os, bar) => {
   jest.replaceProperty(Platform, 'OS', os);
   await launchApp();
