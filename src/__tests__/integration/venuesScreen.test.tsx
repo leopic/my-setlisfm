@@ -8,6 +8,7 @@ import {
   launchApp,
   layOutLists,
   openTab,
+  pressHeaderMenuItem,
 } from '../../../test/screen';
 import { formatDate } from '@/utils/date';
 
@@ -79,8 +80,8 @@ it('says "visit" for a venue seen once on the city screen', async () => {
 
 it('reads the continent count as venues, as the row shows', async () => {
   await openTab('(venues)');
-  const venues = await findScreen('venues-screen');
-  await fireEvent.press(venues.getByTestId('nav-continents'));
+  await findScreen('venues-screen');
+  await pressHeaderMenuItem('Browse by place', 'Continents');
 
   const continents = await findScreen('continents-screen');
   // Europe: Columbiahalle and Astra in Berlin, O2 Arena in London.

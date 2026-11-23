@@ -9,8 +9,10 @@ name: Venues → Countries → country detail → back
     text: "Venues"
 - assertVisible:
     id: "venues-screen"
+# On an iPhone the way into places is the globe menu in the header.
+- tapOn: "Browse by place"
 - tapOn:
-    id: "nav-countries"
+    text: "Countries"
 - assertVisible:
     id: "countries-screen"
 - tapOn:

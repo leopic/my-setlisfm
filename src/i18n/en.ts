@@ -267,6 +267,7 @@ export default {
     noConcertsFound: 'No concerts found',
     continents: 'Continents',
     cities: 'Cities',
+    browseByPlace: 'Browse by place',
     visitsLabel_one: 'visit',
     visitsLabel_other: 'visits',
   },

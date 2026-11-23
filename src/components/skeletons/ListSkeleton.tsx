@@ -1,5 +1,6 @@
 import {} from 'react';
 import { ScrollView, View, StyleSheet } from 'react-native';
+import { geoMenuInHeader } from '@/components/venues/VenueGeoMenu';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '@/components/SkeletonBox';
 import { useChronicleColors } from '@/utils/colors';
@@ -20,7 +21,7 @@ interface Props {
 
 export default function ListSkeleton({ cardCount = 5, variant, underLargeTitle = false }: Props) {
   const showSortBar = !!variant;
-  const showGeoStrip = variant === 'venues';
+  const showGeoStrip = variant === 'venues' && !geoMenuInHeader(underLargeTitle);
   const showAvatars = variant === 'artists';
   const colors = useChronicleColors();
   const { isTablet, sidebarWidth } = useTabletLayout();
