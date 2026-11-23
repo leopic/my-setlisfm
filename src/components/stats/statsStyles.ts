@@ -17,6 +17,8 @@ export function createStatsStyles(colors: ChronicleColors) {
     },
     headerTitle: { ...Type.largeTitle, color: colors.textPrimary },
     headerSub: { ...Type.subheadline, color: colors.textSecondary },
+    // Under the native large title: the title's own inset.
+    largeTitleSubtitle: { paddingHorizontal: Space.edge },
     scroll: { flex: 1 },
     content: { paddingBottom: Space.s48 },
     section: {

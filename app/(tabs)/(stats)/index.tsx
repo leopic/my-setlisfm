@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, ScrollView, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useIsFocused } from 'expo-router';
+import { Stack, useIsFocused } from 'expo-router';
 import { useSyncContext } from '@/contexts/SyncContext';
 import { dbOperations } from '@/database/operations';
 import { useChronicleColors } from '@/utils/colors';
@@ -12,7 +12,8 @@ import { useTranslation } from 'react-i18next';
 import ArtistsSection from '@/components/stats/ArtistsSection';
 import ConcertsSection from '@/components/stats/ConcertsSection';
 import PlacesSection from '@/components/stats/PlacesSection';
-import StatsHeader from '@/components/stats/StatsHeader';
+import StatsHeader, { StatsTotals } from '@/components/stats/StatsHeader';
+import { useLargeTitleOptions } from '@/utils/largeTitle';
 import StorySection from '@/components/stats/StorySection';
 import {
   ARTIST_COLORS_DARK,
@@ -33,6 +34,11 @@ export default function StatsScreen() {
   const colors = useChronicleColors();
   const { lastSyncTimestamp } = useSyncContext();
   const { isTablet } = useTabletLayout();
+  // Phone: the native large title, which collapses as the charts scroll. The iPad and the
+  // empty state keep their own header; header options outlive the branch that set them, so
+  // each branch sets them.
+  const largeTitle = useLargeTitleOptions(t('stats.title'));
+  const noLargeTitle = <Stack.Screen options={{ headerShown: false }} />;
   const scheme = useColorScheme();
   const artistColors = scheme === 'dark' ? ARTIST_COLORS_DARK : ARTIST_COLORS_LIGHT;
 
@@ -131,9 +137,23 @@ export default function StatsScreen() {
     />
   );
 
+  // A phone shows the large title while it loads, so nothing moves when the charts arrive.
   if (loading) {
+    if (!isTablet) {
+      return (
+        <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.container}>
+          <Stack.Screen options={largeTitle} />
+          <ScrollView
+            testID="stats-loading"
+            style={styles.scroll}
+            contentInsetAdjustmentBehavior="automatic"
+          />
+        </SafeAreaView>
+      );
+    }
     return (
       <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={styles.container}>
+        {noLargeTitle}
         <StatsHeader styles={styles} />
       </SafeAreaView>
     );
@@ -142,6 +162,7 @@ export default function StatsScreen() {
   if (yearSummaries.length === 0) {
     return (
       <SafeAreaView edges={['top', 'left', 'right']} style={styles.container} testID="stats-screen">
+        {noLargeTitle}
         <StatsHeader styles={styles} />
         <EmptyState
           icon={{ sf: 'chart.bar', md: 'bar-chart-outline' }}
@@ -152,16 +173,26 @@ export default function StatsScreen() {
     );
   }
 
+  const totals = { shows: totalShows, countries: totalCountries };
   return (
     <SafeAreaView
-      edges={['top', 'left', 'right', 'bottom']}
+      edges={isTablet ? ['top', 'left', 'right', 'bottom'] : ['left', 'right', 'bottom']}
       style={styles.container}
       testID="stats-screen"
     >
-      <StatsHeader styles={styles} totals={{ shows: totalShows, countries: totalCountries }} />
+      {isTablet ? (
+        <>
+          {noLargeTitle}
+          <StatsHeader styles={styles} totals={totals} />
+        </>
+      ) : (
+        <Stack.Screen options={largeTitle} />
+      )}
 
       <ScrollView
+        testID="stats-scroll"
         style={styles.scroll}
+        contentInsetAdjustmentBehavior={isTablet ? undefined : 'automatic'}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -182,6 +213,7 @@ export default function StatsScreen() {
           </View>
         ) : (
           <>
+            <StatsTotals style={[styles.headerSub, styles.largeTitleSubtitle]} totals={totals} />
             {artistsSection}
             <View style={styles.divider} />
             {storySection}

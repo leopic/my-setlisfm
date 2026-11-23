@@ -1,7 +1,8 @@
 import { fireEvent, screen, within } from 'expo-router/testing-library';
+import { dbOperations } from '@/database/operations';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
-import { findScreen, launchApp, openTab } from '../../../test/screen';
+import { findNativeHeader, findScreen, launchApp, openTab } from '../../../test/screen';
 
 // Each test picks the layout; the mock reads the flag when the hook runs.
 let mockIsTablet = false;
@@ -19,6 +20,23 @@ afterEach(() => {
 });
 
 beforeEach(launchApp);
+
+// The large title shows while the charts load, so nothing moves when they arrive.
+it('shows the large title while the charts load on a phone', async () => {
+  const load = jest.spyOn(dbOperations, 'getYearSummaries').mockReturnValue(new Promise(() => {}));
+  try {
+    await openTab('(stats)');
+
+    expect(await screen.findByTestId('stats-loading')).toHaveProp(
+      'contentInsetAdjustmentBehavior',
+      'automatic',
+    );
+    expect(findNativeHeader('Stats')?.props).toMatchObject({ largeTitle: true, hidden: false });
+  } finally {
+    // Later tests load for real.
+    load.mockRestore();
+  }
+});
 
 describe('with only the fixture', () => {
   // The fixture spans 2024–2025, a single era, which says no more than the weekday chart.
@@ -42,7 +60,6 @@ describe('sections', () => {
 
   function expectSectionContent(stats: Awaited<ReturnType<typeof openStats>>) {
     // The summary line under the title
-    expect(stats.getByText('Stats')).toBeOnTheScreen();
     expect(stats.getByText('8 shows · 3 countries')).toBeOnTheScreen();
 
     // Artists: the chart card shows only when there are artists to plot
@@ -74,6 +91,13 @@ describe('sections', () => {
   it('shows every section on a phone', async () => {
     const stats = await openStats();
     expectSectionContent(stats);
+    // The title is the native large title, which collapses into the bar as the charts scroll.
+    // Without the automatic inset the charts start under the bar and the title never collapses.
+    expect(findNativeHeader('Stats')?.props).toMatchObject({ largeTitle: true, hidden: false });
+    expect(stats.getByTestId('stats-scroll')).toHaveProp(
+      'contentInsetAdjustmentBehavior',
+      'automatic',
+    );
     for (const label of ['ARTISTS', 'YOUR STORY', 'CONCERTS', 'PLACES']) {
       expect(stats.getByText(label)).toBeOnTheScreen();
     }
@@ -85,6 +109,8 @@ describe('sections', () => {
     mockIsTablet = true;
     const stats = await openStats();
     expectSectionContent(stats);
+    expect(stats.getByText('Stats')).toBeOnTheScreen();
+    expect(findNativeHeader('Stats')?.props.hidden ?? true).toBe(true);
     const left = within(stats.getByTestId('stats-column-left'));
     const right = within(stats.getByTestId('stats-column-right'));
     expect(left.getByText('ARTISTS')).toBeOnTheScreen();
@@ -95,6 +121,20 @@ describe('sections', () => {
     expect(right.getByText('PLACES')).toBeOnTheScreen();
     expect(right.queryByText('ARTISTS')).not.toBeOnTheScreen();
     expect(right.queryByText('YOUR STORY')).not.toBeOnTheScreen();
+  });
+
+  // A screen's header options outlive the branch that set them, so the tablet layout turns
+  // the phone's large title off again. Its own header shows the title.
+  it('drops the large title when the layout turns into the tablet one', async () => {
+    await openStats();
+    expect(findNativeHeader('Stats')?.props.hidden).toBe(false);
+    mockIsTablet = true;
+    await openTab('(artists)');
+    const stats = await openStats();
+
+    expect(await stats.findByTestId('stats-column-left')).toBeOnTheScreen();
+    expect(stats.getByText('Stats')).toBeOnTheScreen();
+    expect(findNativeHeader('Stats')?.props.hidden).toBe(true);
   });
 
   it('shows the earlier year of a tie as the busiest year', async () => {
@@ -149,5 +189,26 @@ describe('with older concerts', () => {
     const friday2012 = stats.getByTestId('era-cell-2012-5', hidden);
     expect(within(friday2012).getByText('1', hidden)).toBeOnTheScreen();
     expect(friday2012).not.toHaveStyle({ borderWidth: 1.5 });
+  });
+});
+
+describe('without concerts', () => {
+  // A screen's header options outlive the branch that set them, so the empty state turns the
+  // large title off again, as after "Clear All Data". Its own header shows the title.
+  // Deletes the setlists of the shared DB and never restores them: keep this block last.
+  it('drops the large title when the last concert goes away', async () => {
+    await openTab('(stats)');
+    await findScreen('stats-screen');
+    expect(findNativeHeader('Stats')?.props.hidden).toBe(false);
+    const db = getTestDatabase();
+    db.exec('PRAGMA foreign_keys = OFF');
+    db.exec('DELETE FROM setlists');
+    db.exec('PRAGMA foreign_keys = ON');
+    await openTab('(artists)');
+    await openTab('(stats)');
+
+    expect(await screen.findByText('Nothing to chart yet')).toBeOnTheScreen();
+    expect(screen.getByText('Stats')).toBeOnTheScreen();
+    expect(findNativeHeader('Stats')?.props.hidden).toBe(true);
   });
 });
