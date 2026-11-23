@@ -5,7 +5,13 @@ import ArtistRow from '@/components/artists/ArtistRow';
 import { useArtistsStyles } from '@/components/artists/useArtistsStyles';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
-import { findScreen, launchApp, layOutLists, openTab } from '../../../test/screen';
+import {
+  findNativeHeader,
+  findScreen,
+  launchApp,
+  layOutLists,
+  openTab,
+} from '../../../test/screen';
 
 // Flipped per test: the phone layout is the default, the tablet one shows the detail pane.
 let mockIsTablet = false;
@@ -58,8 +64,14 @@ async function openArtists() {
 describe('with the fixture', () => {
   it('shows the title and the artist count', async () => {
     const artists = await openArtists();
-    expect(artists.getByText('Artists')).toBeOnTheScreen();
+    // The title is the native large title, which collapses into the bar on scroll.
+    expect(findNativeHeader('Artists')?.props).toMatchObject({ largeTitle: true, hidden: false });
     expect(artists.getByText('5 artists')).toBeOnTheScreen();
+    // Without the automatic inset the list starts under the bar and the title never collapses.
+    // Without overflow scrolling React Native stops a scroll to the list's top at 0.
+    const list = artists.getByTestId('artists-list');
+    expect(list).toHaveProp('contentInsetAdjustmentBehavior', 'automatic');
+    expect(list).toHaveProp('scrollToOverflowEnabled', true);
   });
 
   it('shows an artist row with its details', async () => {
@@ -138,17 +150,46 @@ describe('on a tablet', () => {
       backgroundColor: accentSoft,
     });
   });
+
+  // A screen's header options outlive the branch that set them, so the tablet layout turns
+  // the phone's large title off again. Its own header sits above the sidebar list.
+  it('drops the large title when the layout turns into the tablet one', async () => {
+    const artists = await openArtists();
+    expect(findNativeHeader('Artists')?.props.hidden).toBe(false);
+    mockIsTablet = true;
+    await fireEvent.press(artists.getByLabelText('Top'));
+
+    expect(findNativeHeader('Artists')?.props.hidden).toBe(true);
+    expect(artists.getByText('Artists')).toBeOnTheScreen();
+    const list = artists.getByTestId('artists-list');
+    expect(list).not.toHaveProp('contentInsetAdjustmentBehavior', 'automatic');
+    expect(list).not.toHaveProp('scrollToOverflowEnabled', true);
+  });
 });
 
 describe('without artists', () => {
   // Deletes the setlists of the shared DB and never restores them: keep this block last.
-  beforeAll(() => {
+  const deleteSetlists = () => {
     const db = getTestDatabase();
     db.exec('PRAGMA foreign_keys = OFF');
     db.exec('DELETE FROM setlists');
+  };
+
+  // A screen's header options outlive the branch that set them, so the empty state turns the
+  // large title off again, as after "Clear All Data". Its own header shows the title.
+  it('drops the large title when the last artist goes away', async () => {
+    await openArtists();
+    expect(findNativeHeader('Artists')?.props.hidden).toBe(false);
+    deleteSetlists();
+    await openTab('(concerts)');
+    const artists = await openTab('(artists)').then(() => findScreen('artists-screen'));
+
+    expect(await artists.findByText('No artists yet')).toBeOnTheScreen();
+    expect(findNativeHeader('Artists')?.props.hidden).toBe(true);
   });
 
   it('shows the full-page empty state with the title alone', async () => {
+    deleteSetlists();
     const artists = await openArtists();
     expect(artists.getByText('Artists')).toBeOnTheScreen();
     expect(artists.getByText('No artists yet')).toBeOnTheScreen();

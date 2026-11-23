@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor } from 'expo-router/testing-library';
 import { ScrollView } from 'react-native';
 import { seedDatabase } from '../../../test/database';
+import { getTestDatabase } from '../../../test/expoSqliteNode';
 import { findScreen, launchApp, openTab } from '../../../test/screen';
 
 beforeAll(seedDatabase);
@@ -94,6 +95,64 @@ describe.each([
     await fireEvent.changeText(list.getByPlaceholderText(placeholder), 'a');
 
     await scrolledToTop(false);
+  });
+});
+
+// Under its native large title the artists list rests above offset 0: iOS insets it by the
+// bar and reports that offset once as it lays the list out. The top is there, not at 0, or
+// the title collapses halfway.
+describe('the artists list under its large title', () => {
+  const REST = -168;
+
+  beforeEach(async () => {
+    await openTab('(artists)');
+    await findScreen('artists-screen');
+    await scrollDown('artists-screen', REST);
+  });
+
+  it('animates back to its top when the sort changes near the top', async () => {
+    await scrollDown('artists-screen', 400);
+    await fireEvent.press(screen.getByText('Top'));
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenLastCalledWith(
+        expect.objectContaining({ y: REST, animated: true }),
+      ),
+    );
+  });
+
+  // The list unmounts in the empty state ("Clear All Data") and a new one mounts after a sync.
+  it('finds the top of a list that mounts again', async () => {
+    const db = getTestDatabase();
+    db.exec('PRAGMA foreign_keys = OFF');
+    db.exec('DELETE FROM setlists');
+    await openTab('(concerts)');
+    await openTab('(artists)');
+    expect(await screen.findByText('No artists yet')).toBeOnTheScreen();
+    await seedDatabase();
+    db.exec('PRAGMA foreign_keys = ON');
+    await openTab('(concerts)');
+    await openTab('(artists)');
+    await screen.findByPlaceholderText('Search artists...');
+    await scrollDown('artists-screen', REST);
+    await scrollDown('artists-screen', 3000);
+
+    await fireEvent.changeText(screen.getByPlaceholderText('Search artists...'), 'a');
+
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenLastCalledWith(
+        expect.objectContaining({ y: REST, animated: false }),
+      ),
+    );
+  });
+
+  it('jumps back to its top when the search changes far down', async () => {
+    await scrollDown('artists-screen', 3000);
+    await fireEvent.changeText(screen.getByPlaceholderText('Search artists...'), 'a');
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenLastCalledWith(
+        expect.objectContaining({ y: REST, animated: false }),
+      ),
+    );
   });
 });
 
