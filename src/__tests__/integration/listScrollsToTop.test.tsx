@@ -156,6 +156,39 @@ describe('the artists list under its large title', () => {
   });
 });
 
+describe('the venues list under its large title', () => {
+  const REST = -168;
+
+  beforeEach(async () => {
+    await openTab('(venues)');
+    await findScreen('venues-screen');
+    await scrollDown('venues-screen', REST);
+  });
+
+  it('animates back to its top when the sort changes near the top', async () => {
+    await scrollDown('venues-screen', 400);
+    await fireEvent.press(screen.getByText('Top'));
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenLastCalledWith(
+        expect.objectContaining({ y: REST, animated: true }),
+      ),
+    );
+  });
+
+  it('jumps back to its top when the search changes far down', async () => {
+    await scrollDown('venues-screen', 3000);
+    await fireEvent.changeText(
+      screen.getByPlaceholderText('Search venues, cities, countries...'),
+      'a',
+    );
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenLastCalledWith(
+        expect.objectContaining({ y: REST, animated: false }),
+      ),
+    );
+  });
+});
+
 it('goes back to the top of the concerts when a year is picked', async () => {
   await openTab('(concerts)');
   const concerts = await findScreen('concerts-screen');

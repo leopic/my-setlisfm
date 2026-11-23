@@ -29,6 +29,8 @@ export function createVenueStyles(colors: ChronicleColors) {
       ...Type.subheadline,
       color: colors.textSecondary,
     },
+    // Under the native large title: the title's own inset.
+    largeTitleSubtitle: { paddingHorizontal: Space.edge },
 
     // ── Geo navigation strip ─────────────────────────────────────────
     geoStrip: {
