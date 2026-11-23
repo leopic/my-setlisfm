@@ -283,7 +283,7 @@ export default function ConcertsScreen() {
       contentInsetAdjustmentBehavior={largeTitleHeader ? 'automatic' : undefined}
       onScroll={largeTitleHeader ? listTop.onScroll : undefined}
       scrollToOverflowEnabled={!!largeTitleHeader}
-      // Under a large title the controls are in the list: one tap works with the keyboard up.
+      // One tap works with the keyboard up (under a large title the controls are in the list).
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={tabBarContentStyle}
       data={listData}
