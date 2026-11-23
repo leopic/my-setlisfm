@@ -102,6 +102,9 @@ export default function VenueListPane({
         contentInsetAdjustmentBehavior={underLargeTitle ? 'automatic' : undefined}
         onScroll={underLargeTitle ? listTop.onScroll : undefined}
         scrollToOverflowEnabled={underLargeTitle}
+        // Under a large title the geo strip and the pills are in the list: one tap works with
+        // the keyboard open.
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={tabBarContentStyle}
         data={filteredVenues}
         keyExtractor={(item) => item.id}

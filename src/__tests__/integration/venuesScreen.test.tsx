@@ -182,6 +182,8 @@ describe('the large title', () => {
     const list = venues.getByTestId('venues-list');
     expect(list).toHaveProp('contentInsetAdjustmentBehavior', 'automatic');
     expect(list).toHaveProp('scrollToOverflowEnabled', true);
+    // The geo strip and the pills are in the list, so they take a tap while the keyboard is up.
+    expect(list).toHaveProp('keyboardShouldPersistTaps', 'handled');
   });
 
   // A screen's header options outlive the branch that set them, so the tablet layout turns

@@ -54,7 +54,7 @@ export function createVenueStyles(colors: ChronicleColors) {
       color: colors.accent,
     },
 
-    // ── Controls (pinned above list) ─────────────────────────────────
+    // ── Controls (above the list; on a phone, at its top under the large title) ──
     controls: {
       backgroundColor: colors.background,
       paddingTop: Space.s12,
