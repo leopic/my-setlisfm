@@ -5,6 +5,7 @@ import type { ConcertWithDetails, YearGroup } from './types';
 import type { ConcertsStyles } from './useConcertsStyles';
 import type { Href } from 'expo-router';
 import { Chevron, RowLink } from '@/components/ui';
+import { useConcertMenu } from './useConcertMenu';
 
 type Props = {
   yearGroup: YearGroup;
@@ -27,6 +28,7 @@ export default function ConcertYearGroup({
   styles,
 }: Props) {
   const { t } = useTranslation();
+  const concertMenu = useConcertMenu();
   return (
     <View style={styles.yearSection}>
       <Text style={styles.yearGhost}>{yearGroup.year}</Text>
@@ -39,7 +41,7 @@ export default function ConcertYearGroup({
           const isSelected = isTablet && selectedConcertId === concert.id;
           const href = concertHref?.(concert);
           return (
-            <RowLink key={concert.id} href={href}>
+            <RowLink key={concert.id} href={href} menu={concertMenu(concert)}>
               <Pressable
                 style={({ pressed }) => [
                   styles.riverEntry,

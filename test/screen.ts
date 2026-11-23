@@ -72,6 +72,36 @@ export const inLinkPreview = (row: TreeNode) => {
   return false;
 };
 
+type MenuNode = {
+  type: unknown;
+  props: Record<string, unknown>;
+  parent: MenuNode | null;
+  children: (MenuNode | string)[];
+};
+
+/**
+ * The long-press menu actions of a row inside a Link with Link.Menu (see integration.setup.ts):
+ * each action's title and a press that runs it, as choosing it in the iOS menu does.
+ */
+export const rowMenuActions = (row: ReturnType<typeof screen.getByTestId>) => {
+  let link = (row as unknown as MenuNode).parent;
+  while (link && link.type !== 'NativeLinkPreview') link = link.parent;
+  const actions: MenuNode[] = [];
+  const walk = (node: MenuNode | string) => {
+    if (typeof node === 'string') return;
+    if (node.type === 'NativeLinkPreviewAction') actions.push(node);
+    node.children.forEach(walk);
+  };
+  if (link) walk(link);
+  // Link.Menu is an action node too, holding its actions: keep the leaves.
+  const leaves = actions.filter((action) => !actions.some((other) => other.parent === action));
+  return leaves.map((action) => ({
+    title: action.props.title as string,
+    icon: action.props.icon as string | undefined,
+    press: () => act(async () => (action.props.onSelected as () => void)()),
+  }));
+};
+
 type HostNode = { type: unknown; props: Record<string, unknown>; children: (HostNode | string)[] };
 
 /**

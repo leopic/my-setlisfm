@@ -1,12 +1,18 @@
 import { cloneElement, useState, type ReactElement } from 'react';
 import { StyleSheet, type PressableProps } from 'react-native';
-import { Link, type Href } from 'expo-router';
+import { Link, useRouter, type Href } from 'expo-router';
+import type { SFSymbol } from 'sf-symbols-typescript';
+
+/** A long-press menu action: a label, an SF Symbol, and the screen it opens. */
+export type RowMenuAction = { label: string; icon: SFSymbol; href: Href };
 
 type Props = {
   /** Where the row goes. Without one (the iPad, which opens a side pane) the row renders as is. */
   href?: Href;
   /** The row: a Pressable that does not navigate itself. */
   children: ReactElement<PressableProps>;
+  /** Actions under the long-press preview, e.g. "Open artist". */
+  menu?: RowMenuAction[];
 };
 
 /**
@@ -14,8 +20,9 @@ type Props = {
  * The Link answers the tap: the row inside must not navigate in its own onPress as well,
  * or the screen opens twice (Link's Slot calls both handlers).
  */
-export default function RowLink({ href, children }: Props) {
+export default function RowLink({ href, children, menu }: Props) {
   const [pressed, setPressed] = useState(false);
+  const router = useRouter();
   if (!href) return children;
 
   // Link's Slot merges styles as `{ ...linkStyle, ...rowStyle }`: a Pressable's style function
@@ -40,6 +47,19 @@ export default function RowLink({ href, children }: Props) {
     <Link href={href} asChild>
       <Link.Trigger>{row}</Link.Trigger>
       <Link.Preview />
+      {menu && menu.length > 0 && (
+        <Link.Menu>
+          {menu.map((action) => (
+            <Link.MenuAction
+              key={action.label}
+              icon={action.icon}
+              onPress={() => router.push(action.href)}
+            >
+              {action.label}
+            </Link.MenuAction>
+          ))}
+        </Link.Menu>
+      )}
     </Link>
   );
 }

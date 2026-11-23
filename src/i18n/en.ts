@@ -229,6 +229,8 @@ export default {
   // Concerts
   concerts: {
     title: 'My Concerts',
+    openArtist: 'Open artist',
+    openVenue: 'Open venue',
     subtitleByYear: '{{count}} concert grouped by year',
     subtitleByYear_other: '{{count}} concerts grouped by year',
     subtitleAlphabetical: '{{count}} concert (alphabetical by artist)',
