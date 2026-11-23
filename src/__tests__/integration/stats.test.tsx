@@ -1,4 +1,5 @@
 import { fireEvent, screen, within } from 'expo-router/testing-library';
+import { dbOperations } from '@/database/operations';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
 import { findNativeHeader, findScreen, launchApp, openTab } from '../../../test/screen';
@@ -19,6 +20,23 @@ afterEach(() => {
 });
 
 beforeEach(launchApp);
+
+// The large title shows while the charts load, so nothing moves when they arrive.
+it('shows the large title while the charts load on a phone', async () => {
+  const load = jest.spyOn(dbOperations, 'getYearSummaries').mockReturnValue(new Promise(() => {}));
+  try {
+    await openTab('(stats)');
+
+    expect(await screen.findByTestId('stats-loading')).toHaveProp(
+      'contentInsetAdjustmentBehavior',
+      'automatic',
+    );
+    expect(findNativeHeader('Stats')?.props).toMatchObject({ largeTitle: true, hidden: false });
+  } finally {
+    // Later tests load for real.
+    load.mockRestore();
+  }
+});
 
 describe('with only the fixture', () => {
   // The fixture spans 2024–2025, a single era, which says no more than the weekday chart.

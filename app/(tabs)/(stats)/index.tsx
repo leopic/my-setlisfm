@@ -143,7 +143,11 @@ export default function StatsScreen() {
       return (
         <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.container}>
           <Stack.Screen options={largeTitle} />
-          <ScrollView style={styles.scroll} contentInsetAdjustmentBehavior="automatic" />
+          <ScrollView
+            testID="stats-loading"
+            style={styles.scroll}
+            contentInsetAdjustmentBehavior="automatic"
+          />
         </SafeAreaView>
       );
     }
