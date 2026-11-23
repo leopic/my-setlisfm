@@ -1,20 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useIsFocused, type Href } from 'expo-router';
+import { Stack, useIsFocused, type Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { LegendList, type LegendListRef } from '@legendapp/list/react-native';
 import { dbOperations } from '@/database/operations';
 import { parseSetlistDate } from '@/utils/date';
 import type { SortOption } from '@/utils/sort';
-import { scrollListToTop } from '@/utils/scrollListToTop';
+import { scrollListToTop, useListTop } from '@/utils/scrollListToTop';
+import { useLargeTitleOptions } from '@/utils/largeTitle';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import { EmptyState, tabBarContentStyle } from '@/components/ui';
 import SetlistDetailPane from '@/components/panes/SetlistDetailPane';
 import ConcertFlatRow from '@/components/concerts/ConcertFlatRow';
 import ConcertsControls from '@/components/concerts/ConcertsControls';
-import ConcertsHeader from '@/components/concerts/ConcertsHeader';
+import ConcertsHeader, { ConcertsSubtitle } from '@/components/concerts/ConcertsHeader';
 import ConcertYearGroup from '@/components/concerts/ConcertYearGroup';
 import type { ConcertListItem, ConcertWithDetails, YearGroup } from '@/components/concerts/types';
 import { useConcertsStyles } from '@/components/concerts/useConcertsStyles';
@@ -70,14 +71,20 @@ export default function ConcertsScreen() {
   const { t } = useTranslation();
   const { isTablet, sidebarWidth } = useTabletLayout();
   const styles = useConcertsStyles();
+  // Phone: the native large title, which collapses as the list scrolls. The iPad and the
+  // empty state keep their own header; header options outlive the branch that set them, so
+  // each branch sets them.
+  const largeTitle = useLargeTitleOptions(t('concerts.title'));
+  const noLargeTitle = <Stack.Screen options={{ headerShown: false }} />;
 
   const { lastSyncTimestamp } = useSyncContext();
   const [rawConcerts, setRawConcerts] = useState<ConcertWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<SortOption>('recent');
-  // Search, year and sort sit above the list, so new results start at the top, not where the old
-  // ones were.
+  // Search, year and sort sit above the list (on a phone, at its top), so new results start at
+  // the top, not where the old ones were.
   const listRef = useRef<LegendListRef>(null);
+  const listTop = useListTop(listRef);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [selectedConcertId, setSelectedConcertId] = useState<string | null>(null);
@@ -124,12 +131,12 @@ export default function ConcertsScreen() {
 
   const handleSortChange = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
-    scrollListToTop(listRef.current);
+    scrollListToTop(listRef.current, listTop.top.current);
   };
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
-    scrollListToTop(listRef.current);
+    scrollListToTop(listRef.current, listTop.top.current);
   };
 
   const onRefresh = async () => {
@@ -232,6 +239,7 @@ export default function ConcertsScreen() {
         style={styles.container}
         testID="concerts-screen"
       >
+        {noLargeTitle}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{t('concerts.title')}</Text>
         </View>
@@ -244,50 +252,55 @@ export default function ConcertsScreen() {
     );
   }
 
-  const concertList = (
-    <>
-      {/* Header */}
-      <ConcertsHeader sortOption={sortOption} totalConcerts={totalConcerts} styles={styles} />
+  // Search + sort
+  const controls = (
+    <ConcertsControls
+      searchQuery={searchQuery}
+      onSearchChange={handleSearchChange}
+      years={yearGroups.map((g) => g.year)}
+      yearFilter={yearFilter}
+      yearDropdownOpen={yearDropdownOpen}
+      onOpenYearDropdown={() => setYearDropdownOpen(true)}
+      onCloseYearDropdown={() => setYearDropdownOpen(false)}
+      onSelectYear={(year) => {
+        setYearFilter(year);
+        setYearDropdownOpen(false);
+        scrollListToTop(listRef.current, listTop.top.current);
+      }}
+      sortOption={sortOption}
+      onSortChange={handleSortChange}
+      styles={styles}
+    />
+  );
 
-      {/* Search + sort */}
-      <ConcertsControls
-        searchQuery={searchQuery}
-        onSearchChange={handleSearchChange}
-        years={yearGroups.map((g) => g.year)}
-        yearFilter={yearFilter}
-        yearDropdownOpen={yearDropdownOpen}
-        onOpenYearDropdown={() => setYearDropdownOpen(true)}
-        onCloseYearDropdown={() => setYearDropdownOpen(false)}
-        onSelectYear={(year) => {
-          setYearFilter(year);
-          setYearDropdownOpen(false);
-          scrollListToTop(listRef.current);
-        }}
-        sortOption={sortOption}
-        onSortChange={handleSortChange}
-        styles={styles}
-      />
-
-      <LegendList
-        ref={listRef}
-        style={{ flex: 1 }}
-        contentContainerStyle={tabBarContentStyle}
-        data={listData}
-        keyExtractor={keyExtractor}
-        renderItem={renderItem}
-        estimatedItemSize={sortOption === 'alphabetical' ? 72 : 300}
-        recycleItems={false}
-        ListHeaderComponent={null}
-        ListEmptyComponent={
-          <EmptyState
-            title={searchQuery.trim() ? t('common.noMatchesFound') : t('concerts.empty')}
-            subtitle={searchQuery.trim() ? t('common.tryDifferentSearch') : undefined}
-          />
-        }
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        showsVerticalScrollIndicator={false}
-      />
-    </>
+  // On a phone the subtitle and controls scroll with the list, under the large title.
+  const list = (largeTitleHeader?: React.ReactElement) => (
+    <LegendList
+      ref={listRef}
+      testID="concerts-list"
+      style={{ flex: 1 }}
+      // See useListTop: the list starts under the large title and scrolls back to there.
+      contentInsetAdjustmentBehavior={largeTitleHeader ? 'automatic' : undefined}
+      onScroll={largeTitleHeader ? listTop.onScroll : undefined}
+      scrollToOverflowEnabled={!!largeTitleHeader}
+      // Under a large title the controls are in the list: one tap works with the keyboard up.
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={tabBarContentStyle}
+      data={listData}
+      keyExtractor={keyExtractor}
+      renderItem={renderItem}
+      estimatedItemSize={sortOption === 'alphabetical' ? 72 : 300}
+      recycleItems={false}
+      ListHeaderComponent={largeTitleHeader}
+      ListEmptyComponent={
+        <EmptyState
+          title={searchQuery.trim() ? t('common.noMatchesFound') : t('concerts.empty')}
+          subtitle={searchQuery.trim() ? t('common.tryDifferentSearch') : undefined}
+        />
+      }
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      showsVerticalScrollIndicator={false}
+    />
   );
 
   if (isTablet) {
@@ -297,8 +310,13 @@ export default function ConcertsScreen() {
         style={styles.container}
         testID="concerts-screen"
       >
+        {noLargeTitle}
         <View style={styles.masterDetail}>
-          <View style={[styles.sidebar, { width: sidebarWidth }]}>{concertList}</View>
+          <View style={[styles.sidebar, { width: sidebarWidth }]}>
+            <ConcertsHeader sortOption={sortOption} totalConcerts={totalConcerts} styles={styles} />
+            {controls}
+            {list()}
+          </View>
           <View style={styles.detailPane}>
             <SetlistDetailPane concertId={selectedConcertId} />
           </View>
@@ -308,12 +326,18 @@ export default function ConcertsScreen() {
   }
 
   return (
-    <SafeAreaView
-      edges={['top', 'left', 'right']}
-      style={styles.container}
-      testID="concerts-screen"
-    >
-      {concertList}
+    <SafeAreaView edges={['left', 'right']} style={styles.container} testID="concerts-screen">
+      <Stack.Screen options={largeTitle} />
+      {list(
+        <>
+          <ConcertsSubtitle
+            sortOption={sortOption}
+            totalConcerts={totalConcerts}
+            style={[styles.headerSubtitle, styles.largeTitleSubtitle]}
+          />
+          {controls}
+        </>,
+      )}
     </SafeAreaView>
   );
 }

@@ -156,6 +156,50 @@ describe('the artists list under its large title', () => {
   });
 });
 
+describe('the concerts list under its large title', () => {
+  const REST = -168;
+
+  beforeEach(async () => {
+    await openTab('(concerts)');
+    await findScreen('concerts-screen');
+    await scrollDown('concerts-screen', REST);
+  });
+
+  it('animates back to its top when the sort changes near the top', async () => {
+    await scrollDown('concerts-screen', 400);
+    await fireEvent.press(screen.getByText('By Name'));
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenLastCalledWith(
+        expect.objectContaining({ y: REST, animated: true }),
+      ),
+    );
+  });
+
+  it('jumps back to its top when the search changes far down', async () => {
+    await scrollDown('concerts-screen', 3000);
+    await fireEvent.changeText(
+      screen.getByPlaceholderText('Search by artist, venue, city...'),
+      'a',
+    );
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenLastCalledWith(
+        expect.objectContaining({ y: REST, animated: false }),
+      ),
+    );
+  });
+
+  it('jumps back to its top when a year is picked far down', async () => {
+    await scrollDown('concerts-screen', 3000);
+    await fireEvent.press(screen.getByLabelText('Filter by year'));
+    await fireEvent.press(await screen.findByRole('button', { name: '2024' }));
+    await waitFor(() =>
+      expect(scrollTo).toHaveBeenLastCalledWith(
+        expect.objectContaining({ y: REST, animated: false }),
+      ),
+    );
+  });
+});
+
 describe('the venues list under its large title', () => {
   const REST = -168;
 
