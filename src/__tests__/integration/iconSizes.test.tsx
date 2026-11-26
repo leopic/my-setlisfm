@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react-native';
 import { SearchInput } from '@/components/ui';
 import DataSection from '@/components/settings/DataSection';
 import { useSettingsStyles } from '@/components/settings/useSettingsStyles';
+import { chronicleLight } from '@/utils/colors';
 
 type Node = { props: Record<string, unknown>; children: (Node | string)[] | null };
 
@@ -28,5 +29,6 @@ it('ends Clear All Data with the shared row arrow', async () => {
     return <DataSection styles={useSettingsStyles()} onClearData={jest.fn()} />;
   }
   await render(<Section />);
-  expect(screen.getByTestId('row-chevron', { includeHiddenElements: true })).toBeTruthy();
+  const chevron = screen.getByTestId('row-chevron', { includeHiddenElements: true });
+  expect(chevron.props.tintColor).toBe(chronicleLight.textDisabled);
 });
