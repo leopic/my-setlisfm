@@ -33,6 +33,7 @@ import type {
   YearConcerts,
   YearSummary,
 } from '@/components/dashboard/types';
+import { Haptic } from '@/utils/haptics';
 
 const emptyStats: DashboardStats = {
   totalConcerts: 0,
@@ -155,6 +156,7 @@ export default function DashboardScreen() {
     await setStoredUsername(trimmed);
     const result = await syncConcertData(trimmed);
     if (result.success) {
+      Haptic.success();
       notifySyncComplete();
       await loadDashboard();
       if (result.newConcerts > 0) {
@@ -166,6 +168,7 @@ export default function DashboardScreen() {
         Alert.alert(t('dashboard.upToDate'), t('dashboard.upToDateMessage'));
       }
     } else {
+      Haptic.failure();
       Alert.alert(t('dashboard.syncFailed'), result.error ?? t('common.unknownError'));
     }
   };

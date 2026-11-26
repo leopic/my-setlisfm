@@ -13,6 +13,7 @@ import { Type } from '@/utils/typography';
 import type { DashboardStats } from './types';
 import { Space } from '@/utils/spacing';
 import { Corner } from '@/utils/radius';
+import { Haptic } from '@/utils/haptics';
 
 type Props = {
   years: DashboardStats['concertsByYear'];
@@ -103,7 +104,10 @@ export default function TabletYearGrid({
                 isSelected && styles.yearTileSelected,
                 { opacity: pressed ? 0.7 : 1 },
               ]}
-              onPress={() => onSelectYear(yr)}
+              onPress={() => {
+                if (!isSelected) Haptic.selection();
+                onSelectYear(yr);
+              }}
               accessibilityRole="button"
               accessibilityLabel={`${yr}, ${t('common.show', { count: y.count })}`}
               accessibilityState={{ selected: isSelected }}
