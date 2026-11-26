@@ -74,7 +74,7 @@ export default function CompactOnThisDayCard({ concert, variant }: Props) {
         <ArtistImage
           mbid={concert.artistMbid}
           imageUrl={concert.artistImageUrl}
-          size={26}
+          size="inline"
           name={concert.artistName}
         />
       )}
