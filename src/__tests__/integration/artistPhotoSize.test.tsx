@@ -5,6 +5,7 @@ import ArtistRow from '@/components/artists/ArtistRow';
 import { useArtistsStyles } from '@/components/artists/useArtistsStyles';
 import CompactOnThisDayCard from '@/components/dashboard/CompactOnThisDayCard';
 import ArtistDetailPane from '@/components/panes/ArtistDetailPane';
+import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import { seedDatabase } from '../../../test/database';
 
 jest.mock('expo-router', () => ({
@@ -69,5 +70,20 @@ describe('artist photo sizes', () => {
   it('uses the header size on the tablet artist pane', async () => {
     await render(<ArtistDetailPane artistMbid="artist-2" />);
     expect(await photoWidth()).toBe(56);
+  });
+
+  // The loading rows hold the photo's place, ring included, so the names don't move.
+  it('keeps the photo and its ring free in the Artists loading rows', async () => {
+    await render(<ListSkeleton variant="artists" cardCount={3} />);
+    type Node = { props: { style?: unknown }; children: (Node | string)[] | null };
+    const circles: Node[] = [];
+    const walk = (node: Node | string) => {
+      if (typeof node === 'string') return;
+      const { width, height } = StyleSheet.flatten(node.props.style as never) ?? {};
+      if (width === 48 && height === 48) circles.push(node);
+      node.children?.forEach(walk);
+    };
+    walk(screen.toJSON() as Node);
+    expect(circles).toHaveLength(3);
   });
 });
