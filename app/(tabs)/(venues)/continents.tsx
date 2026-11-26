@@ -266,6 +266,9 @@ export default function ContinentsScreen() {
               { opacity: pressed ? 0.7 : 1 },
             ]}
             onPress={() => handleSortChange(option.value)}
+            accessibilityRole="button"
+            accessibilityState={{ selected: sortOption === option.value }}
+            accessibilityLabel={option.label}
           >
             <Text
               style={sortOption === option.value ? styles.pillTextActive : styles.pillTextInactive}
