@@ -1,4 +1,5 @@
 import { act, renderRouter, screen, fireEvent, waitFor } from 'expo-router/testing-library';
+import * as Haptics from 'expo-haptics';
 import { syncConcertData, setStoredUsername, type SyncProgress } from '@/services/syncService';
 
 // The sync stands in for setlist.fm: each test drives its progress and its end by hand.
@@ -33,6 +34,7 @@ jest.mock('@/contexts/SyncContext', () => {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.spyOn(Haptics, 'notificationAsync');
 });
 
 type SyncResult = { success: true; newConcerts: number } | { success: false; error: string };
@@ -113,12 +115,13 @@ it('shows artist photo progress once the concerts are saved', async () => {
   expect(await screen.findByText('3 of 8 artists', {}, { timeout: 3000 })).toBeOnTheScreen();
 });
 
-it('shows the error, then Try Again brings the input back', async () => {
+it('shows the error with its haptic, then Try Again brings the input back', async () => {
   const { finish } = await startSyncWithControls();
 
   await finish({ success: false, error: 'User not found' });
 
   expect(await screen.findByText('Try Again')).toBeOnTheScreen();
+  expect(Haptics.notificationAsync).toHaveBeenCalledWith('error');
   expect(
     await screen.findByText(
       'Username not found on setlist.fm. Please check your username and try again.',
@@ -182,11 +185,12 @@ it('disables Get Started while the username is empty', async () => {
   expect(button).toBeEnabled();
 });
 
-it('stores the username and notifies after a successful sync', async () => {
+it('stores the username, notifies and plays success after a successful sync', async () => {
   const { finish } = await startSyncWithControls();
 
   await finish({ success: true, newConcerts: 12 });
 
   await waitFor(() => expect(setStoredUsername).toHaveBeenCalledWith('leopic'));
   await waitFor(() => expect(mockNotifySyncComplete).toHaveBeenCalledTimes(1));
+  expect(Haptics.notificationAsync).toHaveBeenCalledWith('success');
 });

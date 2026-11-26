@@ -23,6 +23,7 @@ import ListScreenHeader from '@/components/ListScreenHeader';
 import { TabScrollView } from '@/components/ui';
 import { Space } from '@/utils/spacing';
 import { Radius } from '@/utils/radius';
+import { Haptic } from '@/utils/haptics';
 
 interface ContinentWithStats {
   name: string;
@@ -165,6 +166,7 @@ export default function ContinentsScreen() {
   }, [t]);
 
   const handleSortChange = (newSortOption: SortOption) => {
+    if (newSortOption !== sortOption) Haptic.selection();
     setSortOption(newSortOption);
     listRef.current?.scrollTo({ y: 0, animated: true });
   };

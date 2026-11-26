@@ -14,6 +14,7 @@ import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import ListScreenHeader from '@/components/ListScreenHeader';
 import { Space } from '@/utils/spacing';
 import { Radius } from '@/utils/radius';
+import { Haptic } from '@/utils/haptics';
 
 interface CountryWithStats {
   name: string;
@@ -95,6 +96,7 @@ export default function CountriesScreen() {
   }, [t]);
 
   const handleSortChange = (newSortOption: SortOption) => {
+    if (newSortOption !== sortOption) Haptic.selection();
     setSortOption(newSortOption);
     listRef.current?.scrollTo({ y: 0, animated: true });
   };

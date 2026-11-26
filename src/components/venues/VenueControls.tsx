@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { SortOption } from '@/utils/sort';
 import { SearchInput } from '@/components/ui';
 import type { VenueStyles } from './venueStyles';
+import { Haptic } from '@/utils/haptics';
 
 const SORT_OPTIONS: SortOption[] = ['recent', 'top', 'alphabetical'];
 
@@ -48,7 +49,10 @@ export default function VenueControls({
                 isActive && styles.sortPillActive,
                 { opacity: pressed ? 0.7 : 1 },
               ]}
-              onPress={() => onSortChange(option)}
+              onPress={() => {
+                if (!isActive) Haptic.selection();
+                onSortChange(option);
+              }}
               accessibilityRole="button"
               accessibilityState={{ selected: isActive }}
             >

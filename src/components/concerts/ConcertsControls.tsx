@@ -4,6 +4,7 @@ import type { SortOption } from '@/utils/sort';
 import { SearchInput } from '@/components/ui';
 import YearFilterList from './YearFilterList';
 import type { ConcertsStyles } from './useConcertsStyles';
+import { Haptic } from '@/utils/haptics';
 
 const SORT_OPTIONS: SortOption[] = ['recent', 'alphabetical'];
 
@@ -107,7 +108,10 @@ export default function ConcertsControls({
                 isActive && styles.sortPillActive,
                 { opacity: pressed ? 0.7 : 1 },
               ]}
-              onPress={() => onSortChange(option)}
+              onPress={() => {
+                if (!isActive) Haptic.selection();
+                onSortChange(option);
+              }}
               accessibilityRole="button"
               accessibilityState={{ selected: isActive }}
               accessibilityLabel={label}

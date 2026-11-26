@@ -9,6 +9,7 @@ import {
 import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import { Space } from '@/utils/spacing';
+import { Haptic } from '@/utils/haptics';
 
 interface YearFilterListProps {
   years: string[];
@@ -45,7 +46,10 @@ function YearFilterItem({
         { borderBottomWidth: isLast ? 0 : StyleSheet.hairlineWidth },
         { opacity: pressed ? 0.7 : 1 },
       ]}
-      onPress={() => onSelect(year)}
+      onPress={() => {
+        if (!isActive) Haptic.selection();
+        onSelect(year);
+      }}
       accessibilityRole="button"
       accessibilityState={{ selected: isActive }}
     >

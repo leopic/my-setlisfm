@@ -13,6 +13,7 @@ import AccountSection from '@/components/settings/AccountSection';
 import SyncSection from '@/components/settings/SyncSection';
 import AboutSection from '@/components/settings/AboutSection';
 import DataSection from '@/components/settings/DataSection';
+import { Haptic } from '@/utils/haptics';
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
@@ -58,6 +59,7 @@ export default function SettingsScreen() {
     try {
       const result = await syncConcertData(user);
       if (result.success) {
+        Haptic.success();
         notifySyncComplete();
         const fetchedAt = await dbOperations.getLastFetchedAt();
         setLastSyncedAt(fetchedAt);
@@ -70,6 +72,7 @@ export default function SettingsScreen() {
           Alert.alert(t('dashboard.upToDate'), t('dashboard.upToDateMessage'));
         }
       } else {
+        Haptic.failure();
         Alert.alert(t('dashboard.syncFailed'), result.error ?? t('common.unknownError'));
       }
       setIsSyncing(false);

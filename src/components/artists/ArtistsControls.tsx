@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { SearchInput } from '@/components/ui';
 import type { SortOption } from '@/utils/sort';
 import type { ArtistsStyles } from './useArtistsStyles';
+import { Haptic } from '@/utils/haptics';
 
 const SORT_OPTIONS: SortOption[] = ['recent', 'top', 'alphabetical'];
 
@@ -48,7 +49,10 @@ export default function ArtistsControls({
                 isActive ? styles.sortPillActive : styles.sortPillInactive,
                 { opacity: pressed ? 0.7 : 1 },
               ]}
-              onPress={() => onSortChange(option)}
+              onPress={() => {
+                if (!isActive) Haptic.selection();
+                onSortChange(option);
+              }}
               accessibilityRole="button"
               accessibilityState={{ selected: isActive }}
               accessibilityLabel={label}
