@@ -23,6 +23,7 @@ import {
   photosStepContent,
 } from '@/components/onboarding/stepContent';
 import type { Phase } from '@/components/onboarding/types';
+import { Haptic } from '@/utils/haptics';
 
 export default function OnboardingScreen() {
   const { t } = useTranslation();
@@ -66,6 +67,7 @@ export default function OnboardingScreen() {
       await setStoredUsername(trimmed);
       setTotalFound(result.newConcerts);
       notifySyncComplete();
+      Haptic.success();
       setPhase('done');
       // Both dots are now lit — give the user a moment to see them, then go.
       setTimeout(completeOnboarding, 1200);
@@ -73,6 +75,7 @@ export default function OnboardingScreen() {
       const msg =
         result.error === 'User not found' ? t('onboarding.userNotFound') : t('onboarding.error');
       setErrorMessage(msg);
+      Haptic.failure();
       setPhase('error');
     }
   };
