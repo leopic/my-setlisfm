@@ -47,7 +47,7 @@ export default function SyncSection({
         <Icon
           sf="arrow.clockwise"
           md="refresh-outline"
-          size={IconSize.body}
+          size={IconSize.headline}
           color={syncDisabled ? colors.textMuted : colors.accent}
         />
         <Text style={syncDisabled ? styles.syncTextDisabled : styles.syncText}>

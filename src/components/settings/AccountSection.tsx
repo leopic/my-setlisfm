@@ -2,7 +2,8 @@ import { View, Text, Pressable, TextInput } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useChronicleColors } from '@/utils/colors';
 import { Icon } from '@/components/ui';
-import { CANCEL_ICON, type SettingsStyles } from './useSettingsStyles';
+import type { SettingsStyles } from './useSettingsStyles';
+import { IconSize } from '@/utils/iconSize';
 
 type AccountSectionProps = {
   styles: SettingsStyles;
@@ -59,7 +60,7 @@ export default function AccountSection({
               accessibilityRole="button"
               accessibilityLabel={t('common.cancel')}
             >
-              <Icon sf="xmark" md="close-outline" size={CANCEL_ICON} color={colors.textMuted} />
+              <Icon sf="xmark" md="close-outline" size={IconSize.body} color={colors.textMuted} />
             </Pressable>
           </>
         ) : (
