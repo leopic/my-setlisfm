@@ -1,5 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 
 // expo-router gives Link.Preview's native view `display: 'contents'`. Up to 58.0.32 that view had
 // no size on iOS and the accessibility tree dropped the row inside it, so a yarn patch removed
@@ -16,4 +16,8 @@ it('runs expo-router unpatched, with the style its native Link.Preview view need
     'utf8',
   );
   expect(linkWithPreview).toMatch(/display:\s*['"]contents['"]/);
+
+  // The native fix itself: without it, an older expo-router would hide the rows again.
+  const routerRoot = dirname(require.resolve('expo-router/package.json'));
+  expect(existsSync(join(routerRoot, 'ios', 'DisplayContentsView.swift'))).toBe(true);
 });
