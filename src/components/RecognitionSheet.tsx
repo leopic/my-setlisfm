@@ -9,6 +9,7 @@ import { buildRecognitionChips } from './recognitionChips';
 import { Space } from '@/utils/spacing';
 import { Corner, Radius } from '@/utils/radius';
 import { formatPlace } from '@/utils/place';
+import { IconSize } from '@/utils/iconSize';
 
 interface Props {
   visible: boolean;
@@ -130,7 +131,7 @@ export default function RecognitionSheet({
               <Icon
                 sf={isLandmark ? 'trophy.fill' : 'music.note'}
                 md={isLandmark ? 'trophy' : 'musical-notes'}
-                size={28}
+                size={IconSize.title1}
                 color={accent}
               />
             </View>
@@ -148,7 +149,12 @@ export default function RecognitionSheet({
               // Chip text is unique: each chip kind has its own template and values.
               <View key={chip.text} style={styles.chip}>
                 <View style={styles.chipIcon}>
-                  <Icon sf={chip.icon.sf} md={chip.icon.md} size={15} color={colors.textMuted} />
+                  <Icon
+                    sf={chip.icon.sf}
+                    md={chip.icon.md}
+                    size={IconSize.subheadline}
+                    color={colors.textMuted}
+                  />
                 </View>
                 <Text style={styles.chipText}>{chip.text}</Text>
               </View>

@@ -5,6 +5,7 @@ import { Icon } from '@/components/ui';
 import { formatSinceAlone } from '@/utils/since';
 import { useNow } from '@/utils/useNow';
 import type { SettingsStyles } from './useSettingsStyles';
+import { IconSize } from '@/utils/iconSize';
 
 type SyncSectionProps = {
   styles: SettingsStyles;
@@ -46,7 +47,7 @@ export default function SyncSection({
         <Icon
           sf="arrow.clockwise"
           md="refresh-outline"
-          size={18}
+          size={IconSize.body}
           color={syncDisabled ? colors.textMuted : colors.accent}
         />
         <Text style={syncDisabled ? styles.syncTextDisabled : styles.syncText}>

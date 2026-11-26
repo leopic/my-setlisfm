@@ -6,6 +6,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import Icon from './Icon';
 import { Space } from '@/utils/spacing';
+import { IconSize } from '@/utils/iconSize';
 
 interface EmptyStateProps {
   /** SF Symbol (ios) + Material icon (android) */
@@ -67,7 +68,7 @@ export default function EmptyState({
     <View style={variant === 'page' ? styles.page : styles.inline} accessibilityRole="text">
       {icon ? (
         <View style={styles.iconWrap}>
-          <Icon sf={icon.sf} md={icon.md} size={52} color={colors.textMuted} />
+          <Icon sf={icon.sf} md={icon.md} size={IconSize.feature} color={colors.textMuted} />
         </View>
       ) : null}
       <Text style={styles.title}>{title}</Text>

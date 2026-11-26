@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useChronicleColors } from '@/utils/colors';
 import { Icon } from '@/components/ui';
 import type { SettingsStyles } from './useSettingsStyles';
+import { IconSize } from '@/utils/iconSize';
 
 export default function SettingsHeader({ styles }: { styles: SettingsStyles }) {
   const { t } = useTranslation();
@@ -18,7 +19,12 @@ export default function SettingsHeader({ styles }: { styles: SettingsStyles }) {
         accessibilityRole="button"
         accessibilityLabel={t('common.goBack')}
       >
-        <Icon sf="chevron.left" md="chevron-back-outline" size={20} color={colors.accent} />
+        <Icon
+          sf="chevron.left"
+          md="chevron-back-outline"
+          size={IconSize.title3}
+          color={colors.accent}
+        />
       </Pressable>
       <Text style={styles.headerTitle}>{t('settings.title')}</Text>
     </View>

@@ -19,6 +19,7 @@ import { TOUCH_TARGET } from '@/utils/touchTarget';
 import { Space } from '@/utils/spacing';
 import { Radius } from '@/utils/radius';
 import { formatPlace } from '@/utils/place';
+import { IconSize } from '@/utils/iconSize';
 
 // Intro and outro tapes, by the song's tape value.
 const TAPE_BADGES: Record<
@@ -39,7 +40,7 @@ function TapeBadge({ tape }: { tape: number }) {
   const label = t(badge.label);
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: Space.s4 }}>
-      <Icon sf={badge.sf} md={badge.md} size={13} color={colors.textMuted} />
+      <Icon sf={badge.sf} md={badge.md} size={IconSize.footnote} color={colors.textMuted} />
       <Text style={{ ...Type.footnote, color: colors.textMuted, textTransform: 'uppercase' }}>
         {label}
       </Text>
@@ -343,14 +344,19 @@ export default function Setlist({ setlist, sets, onBackPress }: SetlistProps) {
               {heroPhoto && !isLandmark ? (
                 // Over the photo, the badge matches the back link's chip.
                 <PhotoChip style={styles.navBadgeShape} testID="badge-chip">
-                  <Icon sf="sparkles" md="sparkles-outline" size={14} color={accent} />
+                  <Icon
+                    sf="sparkles"
+                    md="sparkles-outline"
+                    size={IconSize.subheadline}
+                    color={accent}
+                  />
                 </PhotoChip>
               ) : (
                 <View style={[styles.navBadge, isLandmark && styles.navBadgeLandmark]}>
                   <Icon
                     sf={isLandmark ? 'trophy.fill' : 'sparkles'}
                     md={isLandmark ? 'trophy' : 'sparkles-outline'}
-                    size={14}
+                    size={IconSize.subheadline}
                     color={isLandmark ? colors.gold : accent}
                   />
                 </View>
