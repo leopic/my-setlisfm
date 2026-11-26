@@ -6869,7 +6869,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-router@npm:58.0.33":
+"expo-router@npm:~58.0.33":
   version: 58.0.33
   resolution: "expo-router@npm:58.0.33"
   dependencies:
@@ -6933,73 +6933,6 @@ __metadata:
     react-server-dom-webpack:
       optional: true
   checksum: 10c0/f5d85097a6ed74135be5f8f0e460b51fc1f4f0294b58225eb9767277ae7612b541cdead24ffc3406977bf52650596c16a6964e9b42ebdb03a183b26b68cb8c37
-  languageName: node
-  linkType: hard
-
-"expo-router@patch:expo-router@npm%3A58.0.33#~/.yarn/patches/expo-router-npm-58.0.33-9060168896.patch":
-  version: 58.0.33
-  resolution: "expo-router@patch:expo-router@npm%3A58.0.33#~/.yarn/patches/expo-router-npm-58.0.33-9060168896.patch::version=58.0.33&hash=fb4ad8"
-  dependencies:
-    "@expo/log-box": "npm:^58.0.15"
-    "@expo/metro-runtime": "npm:^58.0.17"
-    "@expo/schema-utils": "npm:^58.0.3"
-    "@radix-ui/react-slot": "npm:^1.2.0"
-    "@radix-ui/react-tabs": "npm:^1.1.12"
-    "@react-native/normalize-colors": "npm:0.88.1"
-    client-only: "npm:^0.0.1"
-    expo-glass-effect: "npm:^58.0.6"
-    expo-server: "npm:^58.1.0"
-    expo-status-bar: "npm:^58.0.5"
-    nanoid: "npm:^3.3.18"
-    react-fast-compare: "npm:^3.2.2"
-    react-is: "npm:^19.1.0"
-    react-native-drawer-layout: "npm:^4.2.12"
-    react-native-screens: "npm:^4.30.1 || ^5.0.0-beta.1"
-    server-only: "npm:^0.0.1"
-    sf-symbols-typescript: "npm:^2.1.0"
-    standard-navigation: "npm:^0.0.5"
-  peerDependencies:
-    "@expo/log-box": ^58.0.15
-    "@expo/metro-runtime": ^58.0.17
-    "@expo/ui": ^58.0.30
-    "@react-native-masked-view/masked-view": ^0.3.2
-    "@testing-library/react-native": ">= 14.0.0"
-    expo: "*"
-    expo-constants: ^58.0.16
-    expo-linking: ^58.0.17
-    expo-symbols: ^58.0.5
-    react: "*"
-    react-dom: "*"
-    react-native: "*"
-    react-native-gesture-handler: "*"
-    react-native-reanimated: "*"
-    react-native-safe-area-context: ">= 5.4.0"
-    react-native-screens: ^4.30.1 || ^5.0.0-beta.1
-    react-native-web: "*"
-    react-native-worklets: "*"
-    react-server-dom-webpack: ~19.0.4 || ~19.1.5 || ~19.2.4 || ~19.3.0
-  peerDependenciesMeta:
-    "@expo/ui":
-      optional: true
-    "@react-native-masked-view/masked-view":
-      optional: true
-    "@testing-library/react-native":
-      optional: true
-    expo-symbols:
-      optional: true
-    react-dom:
-      optional: true
-    react-native-gesture-handler:
-      optional: true
-    react-native-reanimated:
-      optional: true
-    react-native-web:
-      optional: true
-    react-native-worklets:
-      optional: true
-    react-server-dom-webpack:
-      optional: true
-  checksum: 10c0/ab7210bbd02288d540ca23292f6839a40045bbef963d96c60084091728492124f8fcc587a7bb2950f352341c442af5f868a46c7b992ebf9ff0ff89deda2f69ee
   languageName: node
   linkType: hard
 
@@ -11231,7 +11164,7 @@ __metadata:
     expo-linking: "npm:~58.0.17"
     expo-localization: "npm:~58.0.5"
     expo-observe: "npm:~58.1.0"
-    expo-router: "patch:expo-router@npm%3A58.0.33#~/.yarn/patches/expo-router-npm-58.0.33-9060168896.patch"
+    expo-router: "npm:~58.0.33"
     expo-sqlite: "npm:~58.0.18"
     expo-status-bar: "npm:~58.0.5"
     expo-symbols: "npm:~58.0.5"
