@@ -6,11 +6,14 @@ import { useArtistsStyles } from '@/components/artists/useArtistsStyles';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
 import {
+  cancelHeaderSearch,
   findNativeHeader,
   findScreen,
+  headerSearchBar,
   launchApp,
   layOutLists,
   openTab,
+  typeInHeaderSearch,
 } from '../../../test/screen';
 
 // Flipped per test: the phone layout is the default, the tablet one shows the detail pane.
@@ -91,16 +94,31 @@ describe('with the fixture', () => {
     expect(withComma.some((node) => node.props.numberOfLines === 1)).toBe(true);
   });
 
+  // On an iPhone the search field is the native one under the large title, not one in the list.
+  it('puts the search field in the native bar', async () => {
+    const artists = await openArtists();
+    expect(headerSearchBar('Search artists...')?.props).toMatchObject({ hideWhenScrolling: false });
+    expect(artists.queryByPlaceholderText('Search artists...')).not.toBeOnTheScreen();
+  });
+
   it('filters the list by the search text', async () => {
     const artists = await openArtists();
-    await fireEvent.changeText(artists.getByLabelText('Search artists...'), 'strokes');
+    await typeInHeaderSearch('Search artists...', 'strokes');
     expect(artists.getByTestId('artist-artist-2')).toBeOnTheScreen();
     expect(artists.queryByTestId('artist-artist-1')).not.toBeOnTheScreen();
   });
 
+  it('shows every artist again when the search is cancelled', async () => {
+    const artists = await openArtists();
+    await typeInHeaderSearch('Search artists...', 'strokes');
+    await cancelHeaderSearch('Search artists...');
+    await layOutLists();
+    expect(artists.getByTestId('artist-artist-1')).toBeOnTheScreen();
+  });
+
   it('says so when no artist matches the search', async () => {
     const artists = await openArtists();
-    await fireEvent.changeText(artists.getByLabelText('Search artists...'), 'zzz');
+    await typeInHeaderSearch('Search artists...', 'zzz');
     expect(await artists.findByText('No artists match your search')).toBeOnTheScreen();
     expect(artists.getByText('Try a different search term')).toBeOnTheScreen();
   });
@@ -165,6 +183,17 @@ describe('on a tablet', () => {
     expect(list).not.toHaveProp('contentInsetAdjustmentBehavior', 'automatic');
     expect(list).not.toHaveProp('scrollToOverflowEnabled', true);
   });
+
+  // The iPad has no native header here, so the search field stays in the list.
+  it('keeps the search field in the list on an iPad', async () => {
+    mockIsTablet = true;
+    const artists = await openArtists();
+    expect(headerSearchBar('Search artists...')).toBeUndefined();
+
+    await fireEvent.changeText(artists.getByPlaceholderText('Search artists...'), 'strokes');
+    expect(artists.getByTestId('artist-artist-2')).toBeOnTheScreen();
+    expect(artists.queryByTestId('artist-artist-1')).not.toBeOnTheScreen();
+  });
 });
 
 describe('without artists', () => {
@@ -194,6 +223,7 @@ describe('without artists', () => {
     expect(artists.getByText('Artists')).toBeOnTheScreen();
     expect(artists.getByText('No artists yet')).toBeOnTheScreen();
     expect(artists.queryByLabelText('Search artists...')).not.toBeOnTheScreen();
+    expect(headerSearchBar('Search artists...')).toBeUndefined();
     expect(artists.queryByLabelText('Top')).not.toBeOnTheScreen();
     expect(artists.queryByText(/^\d+ artists?$/)).not.toBeOnTheScreen();
   });

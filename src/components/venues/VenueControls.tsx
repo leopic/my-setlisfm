@@ -11,6 +11,8 @@ type Props = {
   styles: VenueStyles;
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  /** False when the search field is in the native bar (searchInHeader). */
+  showSearch?: boolean;
   sortOption: SortOption;
   onSortChange: (option: SortOption) => void;
 };
@@ -19,19 +21,22 @@ export default function VenueControls({
   styles,
   searchQuery,
   onSearchChange,
+  showSearch = true,
   sortOption,
   onSortChange,
 }: Props) {
   const { t } = useTranslation();
   return (
     <View style={styles.controls}>
-      <SearchInput
-        style={styles.searchContainer}
-        value={searchQuery}
-        onChangeText={onSearchChange}
-        placeholder={t('venues.searchPlaceholder')}
-        returnKeyType="search"
-      />
+      {showSearch && (
+        <SearchInput
+          style={styles.searchContainer}
+          value={searchQuery}
+          onChangeText={onSearchChange}
+          placeholder={t('venues.searchPlaceholder')}
+          returnKeyType="search"
+        />
+      )}
       <View style={styles.sortRow}>
         {SORT_OPTIONS.map((option) => {
           const isActive = sortOption === option;

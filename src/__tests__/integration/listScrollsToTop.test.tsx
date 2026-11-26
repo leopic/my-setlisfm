@@ -2,7 +2,13 @@ import { fireEvent, screen, waitFor } from 'expo-router/testing-library';
 import { ScrollView } from 'react-native';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
-import { findScreen, launchApp, openTab, pressHeaderMenuItem } from '../../../test/screen';
+import {
+  findScreen,
+  launchApp,
+  openTab,
+  pressHeaderMenuItem,
+  typeInHeaderSearch,
+} from '../../../test/screen';
 
 beforeAll(seedDatabase);
 
@@ -90,10 +96,10 @@ describe.each([
 ] as const)('the %s list', (_name, tab, screenId, placeholder) => {
   it('goes back to the top when the search changes', async () => {
     await openTab(tab);
-    const list = await findScreen(screenId);
+    await findScreen(screenId);
     await scrollDown(screenId, 3000);
 
-    await fireEvent.changeText(list.getByPlaceholderText(placeholder), 'a');
+    await typeInHeaderSearch(placeholder, 'a');
 
     await scrolledToTop(false);
   });
@@ -133,11 +139,11 @@ describe('the artists list under its large title', () => {
     db.exec('PRAGMA foreign_keys = ON');
     await openTab('(concerts)');
     await openTab('(artists)');
-    await screen.findByPlaceholderText('Search artists...');
+    await (await findScreen('artists-screen')).findByLabelText('Top');
     await scrollDown('artists-screen', REST);
     await scrollDown('artists-screen', 3000);
 
-    await fireEvent.changeText(screen.getByPlaceholderText('Search artists...'), 'a');
+    await typeInHeaderSearch('Search artists...', 'a');
 
     await waitFor(() =>
       expect(scrollTo).toHaveBeenLastCalledWith(
@@ -148,7 +154,7 @@ describe('the artists list under its large title', () => {
 
   it('jumps back to its top when the search changes far down', async () => {
     await scrollDown('artists-screen', 3000);
-    await fireEvent.changeText(screen.getByPlaceholderText('Search artists...'), 'a');
+    await typeInHeaderSearch('Search artists...', 'a');
     await waitFor(() =>
       expect(scrollTo).toHaveBeenLastCalledWith(
         expect.objectContaining({ y: REST, animated: false }),
@@ -178,10 +184,7 @@ describe('the concerts list under its large title', () => {
 
   it('jumps back to its top when the search changes far down', async () => {
     await scrollDown('concerts-screen', 3000);
-    await fireEvent.changeText(
-      screen.getByPlaceholderText('Search by artist, venue, city...'),
-      'a',
-    );
+    await typeInHeaderSearch('Search by artist, venue, city...', 'a');
     await waitFor(() =>
       expect(scrollTo).toHaveBeenLastCalledWith(
         expect.objectContaining({ y: REST, animated: false }),
@@ -222,10 +225,7 @@ describe('the venues list under its large title', () => {
 
   it('jumps back to its top when the search changes far down', async () => {
     await scrollDown('venues-screen', 3000);
-    await fireEvent.changeText(
-      screen.getByPlaceholderText('Search venues, cities, countries...'),
-      'a',
-    );
+    await typeInHeaderSearch('Search venues, cities, countries...', 'a');
     await waitFor(() =>
       expect(scrollTo).toHaveBeenLastCalledWith(
         expect.objectContaining({ y: REST, animated: false }),

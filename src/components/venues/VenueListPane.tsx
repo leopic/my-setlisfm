@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { LegendList, type LegendListRef } from '@legendapp/list/react-native';
 import type { SortOption } from '@/utils/sort';
 import { scrollListToTop, useListTop } from '@/utils/scrollListToTop';
-import { EmptyState, tabBarContentStyle } from '@/components/ui';
+import { EmptyState, HeaderSearchBar, tabBarContentStyle } from '@/components/ui';
+import { searchInHeader } from '@/utils/searchInHeader';
 import VenueControls from './VenueControls';
 import VenueGeoStrip from './VenueGeoStrip';
 import VenueGeoMenu from './VenueGeoMenu';
@@ -72,11 +73,12 @@ export default function VenueListPane({
       {/* Geo navigation strip (in the header's globe menu on an iPhone) */}
       {!geoMenuInHeader(underLargeTitle) && <VenueGeoStrip styles={styles} geoStats={geoStats} />}
 
-      {/* Search + sort */}
+      {/* Search + sort (on an iPhone only sort: the search field is in the native bar) */}
       <VenueControls
         styles={styles}
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
+        showSearch={!searchInHeader(underLargeTitle)}
         sortOption={sortOption}
         onSortChange={handleSortChange}
       />
@@ -86,6 +88,12 @@ export default function VenueListPane({
   return (
     <>
       {geoMenuInHeader(underLargeTitle) && <VenueGeoMenu geoStats={geoStats} />}
+      {searchInHeader(underLargeTitle) && (
+        <HeaderSearchBar
+          placeholder={t('venues.searchPlaceholder')}
+          onChangeText={handleSearchChange}
+        />
+      )}
       {!underLargeTitle && (
         <>
           {/* Header */}

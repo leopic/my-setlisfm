@@ -9,7 +9,7 @@ import type { SortOption } from '@/utils/sort';
 import { scrollListToTop, useListTop } from '@/utils/scrollListToTop';
 import { sortByOption } from '@/utils/sort';
 import { useSyncContext } from '@/contexts/SyncContext';
-import { EmptyState, tabBarContentStyle } from '@/components/ui';
+import { EmptyState, HeaderSearchBar, tabBarContentStyle } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import ArtistDetailPane from '@/components/panes/ArtistDetailPane';
 import ArtistRow from '@/components/artists/ArtistRow';
@@ -19,6 +19,7 @@ import type { ArtistWithStats } from '@/components/artists/types';
 import { useArtistsStyles } from '@/components/artists/useArtistsStyles';
 import { useTabletLayout } from '@/utils/tablet';
 import { useLargeTitleOptions } from '@/utils/largeTitle';
+import { searchInHeader } from '@/utils/searchInHeader';
 
 export default function ArtistsScreen() {
   const { t } = useTranslation();
@@ -119,6 +120,15 @@ export default function ArtistsScreen() {
     />
   );
 
+  // On an iPhone the search field is in the native bar, from the first render on.
+  const nativeSearch = searchInHeader(!isTablet);
+  const searchBar = (
+    <HeaderSearchBar
+      placeholder={t('artists.searchPlaceholder')}
+      onChangeText={handleSearchChange}
+    />
+  );
+
   if (loading) {
     // A phone shows the large title while it loads, so nothing moves when the list arrives.
     if (isTablet) {
@@ -132,6 +142,7 @@ export default function ArtistsScreen() {
     return (
       <>
         <Stack.Screen options={largeTitle} />
+        {nativeSearch && searchBar}
         <ListSkeleton variant="artists" underLargeTitle />
       </>
     );
@@ -161,7 +172,7 @@ export default function ArtistsScreen() {
       ? t('artists.subtitleSorted', { count: artists.length })
       : t('artists.subtitle', { count: artists.length });
 
-  // Search + sort
+  // Search + sort (on an iPhone only sort: the search field is in the native bar)
   const controls = (
     <ArtistsControls
       styles={styles}
@@ -169,6 +180,7 @@ export default function ArtistsScreen() {
       onSearchChange={handleSearchChange}
       sortOption={sortOption}
       onSortChange={handleSortChange}
+      showSearch={!nativeSearch}
     />
   );
 
@@ -226,6 +238,7 @@ export default function ArtistsScreen() {
   return (
     <SafeAreaView edges={['left', 'right']} style={styles.container} testID="artists-screen">
       <Stack.Screen options={largeTitle} />
+      {nativeSearch && searchBar}
       {list(
         <>
           <Text style={[styles.headerSubtitle, styles.largeTitleSubtitle]}>{subtitle}</Text>

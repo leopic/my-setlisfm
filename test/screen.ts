@@ -183,3 +183,43 @@ export const headerButtonLabels = (title: string) => {
   const header = findNativeHeader(title);
   return header ? headerItems(header).map((item) => item.accessibilityLabel) : [];
 };
+
+const findHostNode = (matches: (node: HostNode) => boolean) => {
+  const walk = (node: HostNode | string): HostNode | undefined => {
+    if (typeof node === 'string') return undefined;
+    if (matches(node)) return node;
+    for (const child of node.children) {
+      const found = walk(child);
+      if (found) return found;
+    }
+    return undefined;
+  };
+  return walk(screen.root as unknown as HostNode);
+};
+
+/**
+ * The native search bar under a large title (Stack.SearchBar), found by its placeholder. Under
+ * Jest it is a host element with the bar's props and no text field of its own.
+ */
+export const headerSearchBar = (placeholder: string) =>
+  findHostNode((node) => node.type === 'RNSSearchBar' && node.props.placeholder === placeholder);
+
+const waitForHeaderSearchBar = (placeholder: string) =>
+  waitFor(() => {
+    const found = headerSearchBar(placeholder);
+    if (!found) throw new Error(`No header search bar "${placeholder}"`);
+    return found;
+  });
+
+/** Types into the native search bar: iOS sends the whole text with each change. */
+export async function typeInHeaderSearch(placeholder: string, text: string) {
+  const bar = await waitForHeaderSearchBar(placeholder);
+  const change = bar.props.onChangeText as (event: { nativeEvent: { text: string } }) => void;
+  await act(async () => change({ nativeEvent: { text } }));
+}
+
+/** Taps Cancel next to the native search bar. */
+export async function cancelHeaderSearch(placeholder: string) {
+  const bar = await waitForHeaderSearchBar(placeholder);
+  await act(async () => (bar.props.onCancelButtonPress as () => void)());
+}

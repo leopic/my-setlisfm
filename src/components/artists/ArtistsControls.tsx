@@ -11,6 +11,8 @@ type ArtistsControlsProps = {
   styles: ArtistsStyles;
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  /** False when the search field is in the native bar (searchInHeader). */
+  showSearch?: boolean;
   sortOption: SortOption;
   onSortChange: (option: SortOption) => void;
 };
@@ -19,19 +21,22 @@ export default function ArtistsControls({
   styles,
   searchQuery,
   onSearchChange,
+  showSearch = true,
   sortOption,
   onSortChange,
 }: ArtistsControlsProps) {
   const { t } = useTranslation();
   return (
     <View style={styles.controls}>
-      <SearchInput
-        style={styles.searchRow}
-        placeholder={t('artists.searchPlaceholder')}
-        value={searchQuery}
-        onChangeText={onSearchChange}
-        accessibilityLabel={t('artists.searchPlaceholder')}
-      />
+      {showSearch && (
+        <SearchInput
+          style={styles.searchRow}
+          placeholder={t('artists.searchPlaceholder')}
+          value={searchQuery}
+          onChangeText={onSearchChange}
+          accessibilityLabel={t('artists.searchPlaceholder')}
+        />
+      )}
       <View style={styles.sortStrip}>
         {SORT_OPTIONS.map((option) => {
           const isActive = sortOption === option;

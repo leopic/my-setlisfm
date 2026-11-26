@@ -9,13 +9,14 @@ import { sortByOption } from '@/utils/sort';
 import { useChronicleColors } from '@/utils/colors';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
-import { EmptyState } from '@/components/ui';
+import { EmptyState, HeaderSearchBar } from '@/components/ui';
 import VenueDetailPane from '@/components/panes/VenueDetailPane';
 import VenueListPane from '@/components/venues/VenueListPane';
 import { createVenueStyles } from '@/components/venues/venueStyles';
 import type { GeoStats, VenueWithStats } from '@/components/venues/types';
 import { useTabletLayout } from '@/utils/tablet';
 import { useLargeTitleOptions } from '@/utils/largeTitle';
+import { searchInHeader } from '@/utils/searchInHeader';
 
 export default function VenuesScreen() {
   const colors = useChronicleColors();
@@ -118,6 +119,12 @@ export default function VenuesScreen() {
     return (
       <>
         <Stack.Screen options={largeTitle} />
+        {searchInHeader(true) && (
+          <HeaderSearchBar
+            placeholder={t('venues.searchPlaceholder')}
+            onChangeText={setSearchQuery}
+          />
+        )}
         <ListSkeleton variant="venues" underLargeTitle />
       </>
     );

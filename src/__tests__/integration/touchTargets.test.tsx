@@ -3,6 +3,7 @@ import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-librar
 import { router } from 'expo-router';
 import { seedDatabase } from '../../../test/database';
 import HeaderActions from '@/components/dashboard/HeaderActions';
+import { SearchInput } from '@/components/ui';
 import VenueGeoStrip from '@/components/venues/VenueGeoStrip';
 import { createVenueStyles } from '@/components/venues/venueStyles';
 import { useChronicleColors } from '@/utils/colors';
@@ -45,31 +46,29 @@ it('gives the top bar icons 44 pt targets', async () => {
   expectTouchTarget(screen.getByLabelText('Open settings'));
 });
 
-it('gives the concerts search, year filter and sort pills 44 pt targets', async () => {
+// On an iPhone the search fields are native, under the large title; iOS sizes them.
+it('gives the concerts year filter and sort pills 44 pt targets', async () => {
   await openTab('(concerts)');
   const concerts = await findScreen('concerts-screen');
-  expectTouchTarget(concerts.getByPlaceholderText('Search by artist, venue, city...'));
   for (const label of ['Filter by year', 'Most Recent', 'By Name']) {
     expectTouchTarget(concerts.getByLabelText(label));
   }
 });
 
-it('gives the artists search and sort pills 44 pt targets', async () => {
+it('gives the artists sort pills 44 pt targets', async () => {
   await openTab('(artists)');
   const artists = await findScreen('artists-screen');
-  expectTouchTarget(artists.getByPlaceholderText('Search artists...'));
   for (const label of ['Most Recent', 'Top', 'By Name']) {
     expectTouchTarget(artists.getByLabelText(label));
   }
 });
 
-it('gives the venues search and sort pills 44 pt targets', async () => {
+it('gives the venues sort pills 44 pt targets', async () => {
   await openTab('(venues)');
   const venues = await findScreen('venues-screen');
   for (const name of ['Most Recent', 'Top', 'By Name']) {
     expectTouchTarget(venues.getByRole('button', { name }));
   }
-  expectTouchTarget(venues.getByPlaceholderText('Search venues, cities, countries...'));
 });
 
 // On an iPhone these are a header menu; the iPad and Android keep them in the list.
@@ -121,14 +120,13 @@ it('gives the username edit field, Save and Cancel 44 pt targets', async () => {
   expectTouchTarget(screen.getByLabelText('Cancel'));
 });
 
-it('gives the clear-search button a 44 pt target', async () => {
-  await openTab('(concerts)');
-  const concerts = await findScreen('concerts-screen');
-  await fireEvent.changeText(
-    concerts.getByPlaceholderText('Search by artist, venue, city...'),
-    'x',
-  );
-  expectTouchTarget(await concerts.findByLabelText('Clear search'));
+// The iPad and Android keep the search field in the list.
+it('gives the search field and its clear button 44 pt targets', async () => {
+  await renderRouter({
+    index: () => <SearchInput value="x" onChangeText={() => {}} placeholder="Search" />,
+  });
+  expectTouchTarget(screen.getByPlaceholderText('Search'));
+  expectTouchTarget(screen.getByLabelText('Clear search'));
 });
 
 it('gives the recognition badge on a setlist a 44 pt target', async () => {

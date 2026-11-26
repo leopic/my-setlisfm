@@ -1,7 +1,13 @@
 import { act, fireEvent, screen, waitFor } from 'expo-router/testing-library';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
-import { findNativeHeader, findScreen, launchApp, openTab } from '../../../test/screen';
+import {
+  findNativeHeader,
+  findScreen,
+  launchApp,
+  openTab,
+  typeInHeaderSearch,
+} from '../../../test/screen';
 import { formatDate } from '@/utils/date';
 
 // Flipped per test: the phone layout is the default.
@@ -76,12 +82,14 @@ it('lists the concerts flat by artist name when sorted by name', async () => {
 
 it('filters by search text and shows the no-match state', async () => {
   const concerts = await findScreen('concerts-screen');
-  const search = concerts.getByPlaceholderText('Search by artist, venue, city...');
+  const search = 'Search by artist, venue, city...';
+  // On an iPhone the field is the native one under the large title.
+  expect(concerts.queryByPlaceholderText(search)).not.toBeOnTheScreen();
 
-  await fireEvent.changeText(search, 'kraftwerk');
+  await typeInHeaderSearch(search, 'kraftwerk');
   expect(concertIds(concerts)).toEqual(['concert-set-6']);
 
-  await fireEvent.changeText(search, 'no such band');
+  await typeInHeaderSearch(search, 'no such band');
   expect(concertIds(concerts)).toEqual([]);
   expect(await concerts.findByText('No matches found')).toBeOnTheScreen();
 });

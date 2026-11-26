@@ -1,6 +1,7 @@
 import {} from 'react';
 import { ScrollView, View, StyleSheet } from 'react-native';
 import { geoMenuInHeader } from '@/components/venues/geoMenuInHeader';
+import { searchInHeader } from '@/utils/searchInHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SkeletonBox from '@/components/SkeletonBox';
 import { useChronicleColors } from '@/utils/colors';
@@ -26,6 +27,8 @@ interface Props {
 export default function ListSkeleton({ cardCount = 5, variant, underLargeTitle = false }: Props) {
   const showSortBar = !!variant;
   const showGeoStrip = variant === 'venues' && !geoMenuInHeader(underLargeTitle);
+  // On an iPhone the real search field is already in the native bar.
+  const showSearchBar = !searchInHeader(underLargeTitle);
   const showAvatars = variant === 'artists';
   const colors = useChronicleColors();
   const { isTablet, sidebarWidth } = useTabletLayout();
@@ -157,7 +160,9 @@ export default function ListSkeleton({ cardCount = 5, variant, underLargeTitle =
 
       {/* Search + sort */}
       <View style={styles.controls}>
-        <SkeletonBox width="auto" height={40} borderRadius={Radius.md} style={styles.searchBar} />
+        {showSearchBar && (
+          <SkeletonBox width="auto" height={40} borderRadius={Radius.md} style={styles.searchBar} />
+        )}
         {showSortBar && (
           <View style={styles.sortPills}>
             <SkeletonBox width={88} height={28} borderRadius={Radius.full} />
