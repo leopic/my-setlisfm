@@ -7,6 +7,7 @@ import { useChronicleColors } from '@/utils/colors';
 import { Type } from '@/utils/typography';
 import type { ConcertEntry, Milestone } from './types';
 import { concertHref } from './useOpenConcert';
+import { useConcertMenu } from '@/components/concerts/useConcertMenu';
 import { Space } from '@/utils/spacing';
 import { RIVER_DOT_TOP } from '@/components/river';
 import { Radius } from '@/utils/radius';
@@ -117,8 +118,9 @@ export function TimelineConcertEntry({
   const { t } = useTranslation();
   // The artist's photo color for the date and the dot, so the spine shows who you saw.
   const tint = useArtistTint(concert.artistMbid ?? undefined);
+  const concertMenu = useConcertMenu();
   return (
-    <RowLink href={concertHref(concert.setlistId)}>
+    <RowLink href={concertHref(concert.setlistId)} menu={concertMenu(concert)}>
       <Pressable
         style={({ pressed }) => [styles.concertEntry, { opacity: pressed ? 0.7 : 1 }]}
         accessibilityRole="button"
@@ -165,11 +167,12 @@ export function TimelineMilestoneEntry({
   styles: TimelineStyles;
 }) {
   const { t } = useTranslation();
+  const concertMenu = useConcertMenu();
   const label = t('dashboard.milestoneShow', {
     ordinal: toOrdinal(milestone.number).toUpperCase(),
   });
   return (
-    <RowLink href={concertHref(milestone.setlistId)}>
+    <RowLink href={concertHref(milestone.setlistId)} menu={concertMenu(milestone)}>
       <Pressable
         style={({ pressed }) => [styles.concertEntry, { opacity: pressed ? 0.7 : 1 }]}
         accessibilityRole="button"

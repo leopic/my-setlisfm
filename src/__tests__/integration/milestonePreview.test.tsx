@@ -1,7 +1,7 @@
 import { Text } from 'react-native';
 import { Stack } from 'expo-router';
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
-import { inLinkPreview } from '../../../test/screen';
+import { inLinkPreview, rowMenuActions } from '../../../test/screen';
 import { TimelineMilestoneEntry, useTimelineStyles } from '@/components/dashboard/TimelineEntries';
 
 // A milestone is every 50th show, and the seed has fewer, so the dashboard never shows one in
@@ -13,6 +13,8 @@ const milestone = {
   eventDate: '15-03-2024',
   venueName: 'Madison Square Garden',
   cityName: 'New York',
+  artistMbid: 'artist-1',
+  venueId: 'venue-1',
 };
 
 function Timeline() {
@@ -30,6 +32,8 @@ it('peeks at the setlist from a milestone row and opens it', async () => {
   const row = await screen.findByLabelText(/^50TH SHOW: Radiohead/);
   expect(inLinkPreview(row)).toBe(true);
   expect(row.props.role).toBe('button');
+  // A milestone is a concert: the same menu opens its artist and venue.
+  expect(rowMenuActions(row).map((action) => action.title)).toEqual(['Open artist', 'Open venue']);
 
   await fireEvent.press(row);
   expect(await screen.findByText('Setlist set-50')).toBeOnTheScreen();

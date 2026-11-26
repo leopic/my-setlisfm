@@ -24,6 +24,8 @@ export type ConcertEntry = {
   eventDate: string;
   artistMbid: string | null;
   artistImageUrl: string | null;
+  // For the long-press menu's Open venue (phone timeline); the iPad's year list has none.
+  venueId?: string | null;
 };
 
 export type MonthCounts = Record<number, number>;

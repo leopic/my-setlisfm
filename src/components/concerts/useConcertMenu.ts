@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import type { RowMenuAction } from '@/components/ui/RowLink';
-import type { SetlistWithDetails } from '@/types/database';
 
 /**
  * The long-press menu of a concert row: open its artist or its venue. Each opens in its own
@@ -8,7 +7,7 @@ import type { SetlistWithDetails } from '@/types/database';
  */
 export function useConcertMenu() {
   const { t } = useTranslation();
-  return ({ artistMbid, venueId }: Pick<SetlistWithDetails, 'artistMbid' | 'venueId'>) => {
+  return ({ artistMbid, venueId }: { artistMbid?: string | null; venueId?: string | null }) => {
     const actions: RowMenuAction[] = [];
     if (artistMbid) {
       actions.push({
