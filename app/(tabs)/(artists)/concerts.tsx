@@ -304,7 +304,12 @@ export default function ArtistConcertsListScreen() {
         <View style={styles.artistRow}>
           {/* The photo behind the header already shows who it is, as on the setlist. */}
           {!heroPhoto && (
-            <ArtistImage mbid={artistMbid} imageUrl={artistImageUrl} size={56} name={artistName} />
+            <ArtistImage
+              mbid={artistMbid}
+              imageUrl={artistImageUrl}
+              size="header"
+              name={artistName}
+            />
           )}
           <View style={styles.artistTextBlock}>
             <Text style={styles.headerTitle}>{artistName}</Text>

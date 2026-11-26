@@ -185,7 +185,7 @@ export default function ArtistDetailPane({ artistMbid }: Props) {
     <View style={styles.container}>
       {/* Artist header */}
       <View style={styles.header}>
-        <ArtistImage mbid={artistMbid} imageUrl={artistImageUrl} size={52} name={artistName} />
+        <ArtistImage mbid={artistMbid} imageUrl={artistImageUrl} size="header" name={artistName} />
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>{artistName}</Text>
           {!loading && <Text style={styles.headerSubtitle}>{subtitle}</Text>}

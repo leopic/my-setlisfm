@@ -80,7 +80,7 @@ export default function OnThisDayCard({ onThisDay }: { onThisDay: NonNullable<On
             <ArtistImage
               mbid={onThisDay.artistMbid}
               imageUrl={onThisDay.artistImageUrl}
-              size={44}
+              size="row"
               name={onThisDay.artistName}
             />
           </View>

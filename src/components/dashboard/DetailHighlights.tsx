@@ -82,7 +82,7 @@ export function DetailConcertEntry({ concert, meta, styles }: ConcertRowProps) {
         <ArtistImage
           mbid={concert.artistMbid}
           imageUrl={concert.artistImageUrl}
-          size={32}
+          size="inline"
           name={concert.artistName}
         />
       )}

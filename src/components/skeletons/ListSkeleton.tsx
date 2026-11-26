@@ -7,6 +7,10 @@ import { useChronicleColors } from '@/utils/colors';
 import { useTabletLayout } from '@/utils/tablet';
 import { Space } from '@/utils/spacing';
 import { Corner, Radius } from '@/utils/radius';
+import { PhotoSize } from '@/utils/photoSize';
+
+// An Artists row photo plus its 2 pt ring, so the text doesn't move when the rows load.
+const AVATAR = PhotoSize.row + 4;
 
 interface Props {
   cardCount?: number;
@@ -168,8 +172,8 @@ export default function ListSkeleton({ cardCount = 5, variant, underLargeTitle =
         <View key={i} style={styles.listRow}>
           {showAvatars && (
             <SkeletonBox
-              width={40}
-              height={40}
+              width={AVATAR}
+              height={AVATAR}
               borderRadius={Radius.full}
               style={styles.rowAvatar}
             />

@@ -6,10 +6,11 @@ import { getArtistImageUri } from '@/services/artistImageService';
 import { storeArtistPhotoColor } from '@/services/artistColorService';
 import { useChronicleColors } from '@/utils/colors';
 import { Radius } from '@/utils/radius';
+import { PhotoSize, type PhotoSizeName } from '@/utils/photoSize';
 
 interface ArtistImageProps {
   mbid: string;
-  size?: number;
+  size?: PhotoSizeName;
   name?: string;
   /** Pre-loaded URL from a DB query — skips the async lookup entirely. */
   imageUrl?: string | null;
@@ -17,11 +18,12 @@ interface ArtistImageProps {
 
 export default function ArtistImage({
   mbid,
-  size = 48,
+  size: sizeName = 'row',
   name,
   imageUrl: preloaded,
 }: ArtistImageProps) {
   const colors = useChronicleColors();
+  const size = PhotoSize[sizeName];
 
   // Only treat a string as pre-resolved: '' = tried, no image; 'https://...' = valid URL.
   // undefined and null both mean "not yet fetched" — resolve lazily via getArtistImageUri.
@@ -70,6 +72,7 @@ export default function ArtistImage({
 
   return (
     <View
+      testID="artist-photo"
       style={styles.container}
       accessibilityRole={imageUri ? 'image' : undefined}
       accessibilityLabel={name ?? undefined}

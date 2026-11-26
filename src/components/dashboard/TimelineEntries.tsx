@@ -140,7 +140,7 @@ export function TimelineConcertEntry({
             <ArtistImage
               mbid={concert.artistMbid}
               imageUrl={concert.artistImageUrl}
-              size={32}
+              size="inline"
               name={concert.artistName}
             />
           </View>

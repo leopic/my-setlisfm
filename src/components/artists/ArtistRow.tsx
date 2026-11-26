@@ -39,7 +39,12 @@ export default function ArtistRow({ styles, artist, index, isSelected, onPress }
           style={[styles.artistImageRing, tint && { borderColor: tint.accent }]}
           testID={tint ? 'artist-ring' : undefined}
         >
-          <ArtistImage mbid={artist.mbid} imageUrl={artist.imageUrl} size={40} name={artist.name} />
+          <ArtistImage
+            mbid={artist.mbid}
+            imageUrl={artist.imageUrl}
+            size="row"
+            name={artist.name}
+          />
         </View>
       </View>
 
