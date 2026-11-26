@@ -4,8 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Icon } from '@/components/ui';
 import { useChronicleColors } from '@/utils/colors';
 import { TOUCH_TARGET } from '@/utils/touchTarget';
-
-const ICON_SIZE = 22;
+import { IconSize } from '@/utils/iconSize';
 
 type Props = { onSync: () => void; style?: StyleProp<ViewStyle> };
 
@@ -19,7 +18,7 @@ export default function HeaderActions({ onSync, style }: Props) {
       alignItems: 'center',
       // The icon sits in the middle of its 44 pt target; pull the row out so the gear still
       // lines up with the screen margin.
-      marginRight: -(TOUCH_TARGET - ICON_SIZE) / 2,
+      marginRight: -(TOUCH_TARGET - IconSize.title2) / 2,
     },
     action: {
       width: TOUCH_TARGET,
@@ -36,7 +35,12 @@ export default function HeaderActions({ onSync, style }: Props) {
         accessibilityRole="button"
         accessibilityLabel={t('dashboard.syncData')}
       >
-        <Icon sf="arrow.clockwise" md="refresh-outline" size={ICON_SIZE} color={colors.textMuted} />
+        <Icon
+          sf="arrow.clockwise"
+          md="refresh-outline"
+          size={IconSize.title2}
+          color={colors.textMuted}
+        />
       </Pressable>
       <Pressable
         style={({ pressed }) => [styles.action, { opacity: pressed ? 0.7 : 1 }]}
@@ -44,7 +48,12 @@ export default function HeaderActions({ onSync, style }: Props) {
         accessibilityRole="button"
         accessibilityLabel={t('dashboard.openSettings')}
       >
-        <Icon sf="gearshape" md="settings-outline" size={ICON_SIZE} color={colors.textMuted} />
+        <Icon
+          sf="gearshape"
+          md="settings-outline"
+          size={IconSize.title2}
+          color={colors.textMuted}
+        />
       </Pressable>
     </View>
   );

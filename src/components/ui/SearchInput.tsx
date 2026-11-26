@@ -16,6 +16,7 @@ import Icon from './Icon';
 import { useTranslation } from 'react-i18next';
 import { Space } from '@/utils/spacing';
 import { Corner } from '@/utils/radius';
+import { IconSize } from '@/utils/iconSize';
 
 const PADDING = Space.s16;
 
@@ -62,7 +63,7 @@ export default function SearchInput({ value, onChangeText, style, ...rest }: Sea
       <Icon
         sf="magnifyingglass"
         md="search-outline"
-        size={15}
+        size={IconSize.body}
         color={colors.textMuted}
         style={{ marginRight: Space.s4 }}
       />
@@ -86,7 +87,7 @@ export default function SearchInput({ value, onChangeText, style, ...rest }: Sea
           accessibilityLabel={t('common.clearSearch')}
           accessibilityRole="button"
         >
-          <Ionicons name="close-circle" size={16} color={colors.textMuted} />
+          <Ionicons name="close-circle" size={IconSize.body} color={colors.textMuted} />
         </Pressable>
       )}
     </View>

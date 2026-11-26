@@ -4,11 +4,11 @@ import { TOUCH_TARGET } from '@/utils/touchTarget';
 import { Type } from '@/utils/typography';
 import { Space } from '@/utils/spacing';
 import { Corner } from '@/utils/radius';
+import { IconSize } from '@/utils/iconSize';
 
 // A 44 pt control in a row of one text line reaches into the row's padding by this much.
 const ROW_LINE = Type.body.lineHeight;
 const ROW_TARGET_MARGIN = -(TOUCH_TARGET - ROW_LINE) / 2;
-export const CANCEL_ICON = 18;
 // iOS reports a text field's frame inside its 1 pt border, so add both borders to the target.
 const FIELD_HEIGHT = TOUCH_TARGET + 2;
 
@@ -70,6 +70,7 @@ export function useSettingsStyles() {
       paddingLeft: Space.s12,
     },
     rowDestructive: { ...Type.headline, color: colors.danger ?? '#ff453a', flex: 1 },
+    rowChevron: { color: colors.textDisabled },
     // ── Username edit ─────────────────────────────────────────────────────
     usernameInput: {
       flex: 1,
@@ -100,7 +101,7 @@ export function useSettingsStyles() {
       height: TOUCH_TARGET,
       marginVertical: ROW_TARGET_MARGIN,
       // Puts the icon's edge on the screen margin.
-      marginRight: -(TOUCH_TARGET - CANCEL_ICON) / 2,
+      marginRight: -(TOUCH_TARGET - IconSize.body) / 2,
       alignItems: 'center',
       justifyContent: 'center',
     },

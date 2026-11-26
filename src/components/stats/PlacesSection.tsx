@@ -6,6 +6,7 @@ import type { ChronicleColors } from '@/utils/colors';
 import StatCard from './StatCard';
 import type { StatsStyles } from './statsStyles';
 import { Space } from '@/utils/spacing';
+import { IconSize } from '@/utils/iconSize';
 
 type Props = {
   styles: StatsStyles;
@@ -36,7 +37,12 @@ export default function PlacesSection({
         accessibilityLabel={t('stats.openWorldMap')}
       >
         <View style={styles.mapInner}>
-          <Ionicons name="map-outline" size={36} color={colors.accent} style={{ opacity: 0.6 }} />
+          <Ionicons
+            name="map-outline"
+            size={IconSize.largeTitle}
+            color={colors.accent}
+            style={{ opacity: 0.6 }}
+          />
           <Text style={styles.mapLabel}>{t('stats.worldMap')}</Text>
           <Text style={styles.mapSub}>{t('stats.worldMapHint', { count: totalCountries })}</Text>
         </View>

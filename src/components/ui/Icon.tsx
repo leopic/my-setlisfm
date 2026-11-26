@@ -8,12 +8,12 @@ import type { SFSymbol } from 'sf-symbols-typescript';
 type Props = {
   sf: SFSymbol;
   md: React.ComponentProps<typeof Ionicons>['name'];
-  size?: number;
+  size: number;
   color?: string;
   style?: StyleProp<ViewStyle>;
 };
 
-export default function Icon({ sf, md, size = 20, color, style }: Props) {
+export default function Icon({ sf, md, size, color, style }: Props) {
   if (Platform.OS === 'ios') {
     return <SymbolView name={sf} size={size} tintColor={color} style={style} />;
   }
