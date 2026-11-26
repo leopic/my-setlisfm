@@ -11,6 +11,8 @@ const SORT_OPTIONS: SortOption[] = ['recent', 'alphabetical'];
 type Props = {
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  /** False when the search field is in the native bar (searchInHeader). */
+  showSearch?: boolean;
   years: string[];
   yearFilter: string | null;
   yearDropdownOpen: boolean;
@@ -25,6 +27,7 @@ type Props = {
 export default function ConcertsControls({
   searchQuery,
   onSearchChange,
+  showSearch = true,
   years,
   yearFilter,
   yearDropdownOpen,
@@ -38,15 +41,17 @@ export default function ConcertsControls({
   const { t } = useTranslation();
   return (
     <View style={styles.controls}>
-      <View style={styles.searchContainer}>
-        <SearchInput
-          style={styles.searchInputWrapper}
-          placeholder={t('concerts.searchPlaceholder')}
-          value={searchQuery}
-          onChangeText={onSearchChange}
-          accessibilityLabel={t('concerts.searchPlaceholder')}
-        />
-      </View>
+      {showSearch && (
+        <View style={styles.searchContainer}>
+          <SearchInput
+            style={styles.searchInputWrapper}
+            placeholder={t('concerts.searchPlaceholder')}
+            value={searchQuery}
+            onChangeText={onSearchChange}
+            accessibilityLabel={t('concerts.searchPlaceholder')}
+          />
+        </View>
+      )}
       <Modal
         visible={yearDropdownOpen}
         transparent

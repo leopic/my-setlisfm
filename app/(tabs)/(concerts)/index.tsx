@@ -9,9 +9,10 @@ import { parseSetlistDate } from '@/utils/date';
 import type { SortOption } from '@/utils/sort';
 import { scrollListToTop, useListTop } from '@/utils/scrollListToTop';
 import { useLargeTitleOptions } from '@/utils/largeTitle';
+import { searchInHeader } from '@/utils/searchInHeader';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
-import { EmptyState, tabBarContentStyle } from '@/components/ui';
+import { EmptyState, HeaderSearchBar, tabBarContentStyle } from '@/components/ui';
 import SetlistDetailPane from '@/components/panes/SetlistDetailPane';
 import ConcertFlatRow from '@/components/concerts/ConcertFlatRow';
 import ConcertsControls from '@/components/concerts/ConcertsControls';
@@ -227,6 +228,15 @@ export default function ConcertsScreen() {
     );
   };
 
+  // On an iPhone the search field is in the native bar, from the first render on.
+  const nativeSearch = searchInHeader(!isTablet);
+  const searchBar = (
+    <HeaderSearchBar
+      placeholder={t('concerts.searchPlaceholder')}
+      onChangeText={handleSearchChange}
+    />
+  );
+
   if (loading) {
     // A phone shows the large title while it loads, so nothing moves when the list arrives.
     if (isTablet) {
@@ -240,6 +250,7 @@ export default function ConcertsScreen() {
     return (
       <>
         <Stack.Screen options={largeTitle} />
+        {nativeSearch && searchBar}
         <ListSkeleton variant="sort" underLargeTitle />
       </>
     );
@@ -266,11 +277,12 @@ export default function ConcertsScreen() {
     );
   }
 
-  // Search + sort
+  // Search + sort (on an iPhone only year and sort: the search field is in the native bar)
   const controls = (
     <ConcertsControls
       searchQuery={searchQuery}
       onSearchChange={handleSearchChange}
+      showSearch={!nativeSearch}
       years={yearGroups.map((g) => g.year)}
       yearFilter={yearFilter}
       yearDropdownOpen={yearDropdownOpen}
@@ -342,6 +354,7 @@ export default function ConcertsScreen() {
   return (
     <SafeAreaView edges={['left', 'right']} style={styles.container} testID="concerts-screen">
       <Stack.Screen options={largeTitle} />
+      {nativeSearch && searchBar}
       {list(
         <>
           <ConcertsSubtitle

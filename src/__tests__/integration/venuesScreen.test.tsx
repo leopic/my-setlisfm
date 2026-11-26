@@ -9,6 +9,7 @@ import {
   layOutLists,
   openTab,
   pressHeaderMenuItem,
+  typeInHeaderSearch,
 } from '../../../test/screen';
 import { formatDate } from '@/utils/date';
 
@@ -121,15 +122,17 @@ it('sorts by the pill pressed and words the subtitle to match', async () => {
 it('filters rows by the search text and says so when nothing matches', async () => {
   await openTab('(venues)');
   const venues = await findScreen('venues-screen');
-  const search = venues.getByPlaceholderText('Search venues, cities, countries...');
+  const search = 'Search venues, cities, countries...';
+  // On an iPhone the field is the native one under the large title.
+  expect(venues.queryByPlaceholderText(search)).not.toBeOnTheScreen();
 
-  await fireEvent.changeText(search, 'berlin');
+  await typeInHeaderSearch(search, 'berlin');
   await layOutLists();
   expect(rowIds(venues).sort()).toEqual(['venue-venue-2', 'venue-venue-4']);
   // The subtitle counts all venues, not the filtered ones.
   expect(venues.getByText('4 venues (sorted by most recent)')).toBeOnTheScreen();
 
-  await fireEvent.changeText(search, 'zzz-no-such-venue');
+  await typeInHeaderSearch(search, 'zzz-no-such-venue');
   await layOutLists();
   expect(await venues.findByText('No venues match your search')).toBeOnTheScreen();
 });
