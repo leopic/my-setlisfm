@@ -5,6 +5,7 @@ import { searchInHeader } from '@/utils/searchInHeader';
 it('puts the search field in the header only under a large title on iOS', () => {
   expect(searchInHeader(true)).toBe(true);
   expect(searchInHeader(false)).toBe(false);
-  jest.replaceProperty(Platform, 'OS', 'android');
+  const os = jest.replaceProperty(Platform, 'OS', 'android');
   expect(searchInHeader(true)).toBe(false);
+  os.restore();
 });
