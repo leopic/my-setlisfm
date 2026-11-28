@@ -6,10 +6,12 @@ import type { ConcertsStyles } from './useConcertsStyles';
 type Props = {
   sortOption: SortOption;
   totalConcerts: number;
+  /** The year the list is filtered to; totalConcerts then counts that year's shows. */
+  year?: string;
   styles: ConcertsStyles;
 };
 
-export default function ConcertsHeader({ sortOption, totalConcerts, styles }: Props) {
+export default function ConcertsHeader({ sortOption, totalConcerts, year, styles }: Props) {
   const { t } = useTranslation();
   return (
     <View style={styles.header}>
@@ -17,24 +19,31 @@ export default function ConcertsHeader({ sortOption, totalConcerts, styles }: Pr
       <ConcertsSubtitle
         sortOption={sortOption}
         totalConcerts={totalConcerts}
+        year={year}
         style={styles.headerSubtitle}
       />
     </View>
   );
 }
 
-// The count and the order: under the header's title, or under the native large title.
+// The count, the year filter and the order: under the header's title, or under the native
+// large title.
 export function ConcertsSubtitle({
   sortOption,
   totalConcerts,
+  year,
   style,
 }: Omit<Props, 'styles'> & { style: StyleProp<TextStyle> }) {
   const { t } = useTranslation();
   return (
     <Text style={style}>
-      {sortOption === 'alphabetical'
-        ? t('concerts.subtitleAlphabetical', { count: totalConcerts })
-        : t('concerts.subtitleByYear', { count: totalConcerts })}
+      {year
+        ? sortOption === 'alphabetical'
+          ? t('concerts.subtitleYearAlphabetical', { count: totalConcerts, year })
+          : t('concerts.subtitleYear', { count: totalConcerts, year })
+        : sortOption === 'alphabetical'
+          ? t('concerts.subtitleAlphabetical', { count: totalConcerts })
+          : t('concerts.subtitleByYear', { count: totalConcerts })}
     </Text>
   );
 }

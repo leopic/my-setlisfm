@@ -16,6 +16,8 @@ import { EmptyState, HeaderSearchBar, tabBarContentStyle } from '@/components/ui
 import SetlistDetailPane from '@/components/panes/SetlistDetailPane';
 import ConcertFlatRow from '@/components/concerts/ConcertFlatRow';
 import ConcertsControls from '@/components/concerts/ConcertsControls';
+import ConcertsYearMenu from '@/components/concerts/ConcertsYearMenu';
+import { yearMenuInHeader } from '@/components/concerts/yearMenuInHeader';
 import ConcertsHeader, { ConcertsSubtitle } from '@/components/concerts/ConcertsHeader';
 import ConcertYearGroup from '@/components/concerts/ConcertYearGroup';
 import type { ConcertListItem, ConcertWithDetails, YearGroup } from '@/components/concerts/types';
@@ -48,6 +50,38 @@ function groupConcertsByYear(concertsToGroup: ConcertWithDetails[]): YearGroup[]
       return { year, concerts: sortedConcerts, monthStats, totalConcerts: cts.length };
     })
     .sort((a, b) => parseInt(b.year) - parseInt(a.year));
+}
+
+// The groups of the picked year (all when null), keeping only the concerts that match the search.
+function filterYearGroups(yearGroups: YearGroup[], year: string | null, searchQuery: string) {
+  const groups = year ? yearGroups.filter((g) => g.year === year) : yearGroups;
+  if (!searchQuery.trim()) return groups;
+  const q = searchQuery.toLowerCase();
+  return groups.flatMap((group) => {
+    const concerts = group.concerts.filter(
+      (c) =>
+        c.artistName.toLowerCase().includes(q) ||
+        c.venueName.toLowerCase().includes(q) ||
+        (c.cityName && c.cityName.toLowerCase().includes(q)) ||
+        (c.countryName && c.countryName.toLowerCase().includes(q)),
+    );
+    return concerts.length > 0 ? [{ ...group, concerts }] : [];
+  });
+}
+
+// By year: one item per year group. By name: one flat row per concert.
+function toListData(groups: YearGroup[], sortOption: SortOption): ConcertListItem[] {
+  if (sortOption === 'alphabetical') {
+    return groups
+      .flatMap((g) => g.concerts)
+      .sort((a, b) => a.artistName.localeCompare(b.artistName))
+      .map((concert) => ({ type: 'concert' as const, concert }));
+  }
+  return groups.map((yearGroup, yearIndex) => ({
+    type: 'year' as const,
+    yearGroup,
+    yearIndex,
+  }));
 }
 
 function keyExtractor(item: ConcertListItem) {
@@ -160,37 +194,21 @@ export default function ConcertsScreen() {
     setRefreshing(false);
   };
 
-  const filteredYearGroups = (() => {
-    const groups = yearFilter ? yearGroups.filter((g) => g.year === yearFilter) : yearGroups;
-    if (!searchQuery.trim()) return groups;
-    const q = searchQuery.toLowerCase();
-    return groups.flatMap((group) => {
-      const concerts = group.concerts.filter(
-        (c) =>
-          c.artistName.toLowerCase().includes(q) ||
-          c.venueName.toLowerCase().includes(q) ||
-          (c.cityName && c.cityName.toLowerCase().includes(q)) ||
-          (c.countryName && c.countryName.toLowerCase().includes(q)),
-      );
-      return concerts.length > 0 ? [{ ...group, concerts }] : [];
-    });
-  })();
-
-  const listData = ((): ConcertListItem[] => {
-    if (sortOption === 'alphabetical') {
-      return filteredYearGroups
-        .flatMap((g) => g.concerts)
-        .sort((a, b) => a.artistName.localeCompare(b.artistName))
-        .map((concert) => ({ type: 'concert' as const, concert }));
-    }
-    return filteredYearGroups.map((yearGroup, yearIndex) => ({
-      type: 'year' as const,
-      yearGroup,
-      yearIndex,
-    }));
-  })();
+  // A picked year that a sync took away counts as All Years, so the list, the subtitle and the
+  // year menu agree.
+  const pickedYear = yearGroups.find((g) => g.year === yearFilter);
+  const activeYear = pickedYear?.year ?? null;
+  const listData = toListData(filterYearGroups(yearGroups, activeYear, searchQuery), sortOption);
 
   const totalConcerts = yearGroups.reduce((sum, g) => sum + g.totalConcerts, 0);
+  // The subtitle counts the picked year's shows (search aside, like the total), and names the year.
+  const subtitleCount = pickedYear?.totalConcerts ?? totalConcerts;
+
+  const handleSelectYear = (year: string | null) => {
+    setYearFilter(year);
+    setYearDropdownOpen(false);
+    scrollListToTop(listRef.current, listTop.top.current);
+  };
 
   // iPad: a row shows its setlist in the side pane.
   const handleConcertPress = (concert: ConcertWithDetails) => setSelectedConcertId(concert.id);
@@ -277,22 +295,20 @@ export default function ConcertsScreen() {
     );
   }
 
-  // Search + sort (on an iPhone only year and sort: the search field is in the native bar)
+  // Search, year + sort (on an iPhone only sort: search and year are in the native bar)
+  const nativeYearMenu = yearMenuInHeader(!isTablet);
   const controls = (
     <ConcertsControls
       searchQuery={searchQuery}
       onSearchChange={handleSearchChange}
       showSearch={!nativeSearch}
+      showYearFilter={!nativeYearMenu}
       years={yearGroups.map((g) => g.year)}
-      yearFilter={yearFilter}
+      yearFilter={activeYear}
       yearDropdownOpen={yearDropdownOpen}
       onOpenYearDropdown={() => setYearDropdownOpen(true)}
       onCloseYearDropdown={() => setYearDropdownOpen(false)}
-      onSelectYear={(year) => {
-        setYearFilter(year);
-        setYearDropdownOpen(false);
-        scrollListToTop(listRef.current, listTop.top.current);
-      }}
+      onSelectYear={handleSelectYear}
       sortOption={sortOption}
       onSortChange={handleSortChange}
       styles={styles}
@@ -339,7 +355,12 @@ export default function ConcertsScreen() {
         {noLargeTitle}
         <View style={styles.masterDetail}>
           <View style={[styles.sidebar, { width: sidebarWidth }]}>
-            <ConcertsHeader sortOption={sortOption} totalConcerts={totalConcerts} styles={styles} />
+            <ConcertsHeader
+              sortOption={sortOption}
+              totalConcerts={subtitleCount}
+              year={pickedYear?.year}
+              styles={styles}
+            />
             {controls}
             {list()}
           </View>
@@ -355,11 +376,19 @@ export default function ConcertsScreen() {
     <SafeAreaView edges={['left', 'right']} style={styles.container} testID="concerts-screen">
       <Stack.Screen options={largeTitle} />
       {nativeSearch && searchBar}
+      {nativeYearMenu && (
+        <ConcertsYearMenu
+          yearGroups={yearGroups}
+          yearFilter={activeYear}
+          onSelectYear={handleSelectYear}
+        />
+      )}
       {list(
         <>
           <ConcertsSubtitle
             sortOption={sortOption}
-            totalConcerts={totalConcerts}
+            totalConcerts={subtitleCount}
+            year={pickedYear?.year}
             style={[styles.headerSubtitle, styles.largeTitleSubtitle]}
           />
           {controls}

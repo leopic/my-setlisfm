@@ -13,6 +13,8 @@ type Props = {
   onSearchChange: (query: string) => void;
   /** False when the search field is in the native bar (searchInHeader). */
   showSearch?: boolean;
+  /** False when the year filter is in the native bar (yearMenuInHeader). */
+  showYearFilter?: boolean;
   years: string[];
   yearFilter: string | null;
   yearDropdownOpen: boolean;
@@ -28,6 +30,7 @@ export default function ConcertsControls({
   searchQuery,
   onSearchChange,
   showSearch = true,
+  showYearFilter = true,
   years,
   yearFilter,
   yearDropdownOpen,
@@ -52,55 +55,60 @@ export default function ConcertsControls({
           />
         </View>
       )}
-      <Modal
-        visible={yearDropdownOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={onCloseYearDropdown}
-      >
-        <Pressable style={styles.modalOverlay} onPress={onCloseYearDropdown}>
-          <View style={styles.dropdownSheet}>
-            <YearFilterList
-              years={years}
-              selected={yearFilter}
-              onSelect={onSelectYear}
-              allLabel={t('common.all')}
-            />
-          </View>
-        </Pressable>
-      </Modal>
+
+      {showYearFilter && (
+        <Modal
+          visible={yearDropdownOpen}
+          transparent
+          animationType="fade"
+          onRequestClose={onCloseYearDropdown}
+        >
+          <Pressable style={styles.modalOverlay} onPress={onCloseYearDropdown}>
+            <View style={styles.dropdownSheet}>
+              <YearFilterList
+                years={years}
+                selected={yearFilter}
+                onSelect={onSelectYear}
+                allLabel={t('common.all')}
+              />
+            </View>
+          </Pressable>
+        </Modal>
+      )}
 
       <View style={styles.sortContainer}>
-        {/* Year filter — grouped with sort pills */}
-        <Pressable
-          style={({ pressed }) => [
-            styles.yearDropdownTrigger,
-            yearFilter && styles.yearDropdownTriggerActive,
-            { opacity: pressed ? 0.7 : 1 },
-          ]}
-          onPress={onOpenYearDropdown}
-          accessibilityRole="button"
-          accessibilityLabel={
-            yearFilter
-              ? t('concerts.filteredByYear', { year: yearFilter })
-              : t('concerts.filterByYear')
-          }
-          accessibilityHint={t('concerts.opensYearPicker')}
-        >
-          <Text
-            style={[
-              styles.yearDropdownTriggerText,
-              yearFilter && styles.yearDropdownTriggerTextActive,
+        {/* Year filter — grouped with sort pills (in the native bar on an iPhone) */}
+        {showYearFilter && (
+          <Pressable
+            style={({ pressed }) => [
+              styles.yearDropdownTrigger,
+              yearFilter && styles.yearDropdownTriggerActive,
+              { opacity: pressed ? 0.7 : 1 },
             ]}
+            onPress={onOpenYearDropdown}
+            accessibilityRole="button"
+            accessibilityLabel={
+              yearFilter
+                ? t('concerts.filteredByYear', { year: yearFilter })
+                : t('concerts.filterByYear')
+            }
+            accessibilityHint={t('concerts.opensYearPicker')}
           >
-            {yearFilter ?? t('concerts.yearFilter')}
-          </Text>
-          <Text
-            style={[styles.yearDropdownChevron, yearFilter && styles.yearDropdownChevronActive]}
-          >
-            ▾
-          </Text>
-        </Pressable>
+            <Text
+              style={[
+                styles.yearDropdownTriggerText,
+                yearFilter && styles.yearDropdownTriggerTextActive,
+              ]}
+            >
+              {yearFilter ?? t('concerts.yearFilter')}
+            </Text>
+            <Text
+              style={[styles.yearDropdownChevron, yearFilter && styles.yearDropdownChevronActive]}
+            >
+              ▾
+            </Text>
+          </Pressable>
+        )}
 
         {SORT_OPTIONS.map((option) => {
           const isActive = sortOption === option;

@@ -2,6 +2,8 @@ import { StyleSheet, type ViewStyle } from 'react-native';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { router } from 'expo-router';
 import { seedDatabase } from '../../../test/database';
+import ConcertsControls from '@/components/concerts/ConcertsControls';
+import { useConcertsStyles } from '@/components/concerts/useConcertsStyles';
 import HeaderActions from '@/components/dashboard/HeaderActions';
 import { SearchInput } from '@/components/ui';
 import VenueGeoStrip from '@/components/venues/VenueGeoStrip';
@@ -47,12 +49,35 @@ it('gives the top bar icons 44 pt targets', async () => {
 });
 
 // On an iPhone the search fields are native, under the large title; iOS sizes them.
-it('gives the concerts year filter and sort pills 44 pt targets', async () => {
+it('gives the concerts sort pills 44 pt targets', async () => {
   await openTab('(concerts)');
   const concerts = await findScreen('concerts-screen');
-  for (const label of ['Filter by year', 'Most Recent', 'By Name']) {
+  for (const label of ['Most Recent', 'By Name']) {
     expectTouchTarget(concerts.getByLabelText(label));
   }
+});
+
+// On an iPhone the year filter is a header menu (iOS sizes it); the iPad and Android keep the pill.
+it('gives the concerts year pill a 44 pt target', async () => {
+  function Controls() {
+    return (
+      <ConcertsControls
+        styles={useConcertsStyles()}
+        searchQuery=""
+        onSearchChange={() => {}}
+        years={['2024']}
+        yearFilter={null}
+        yearDropdownOpen={false}
+        onOpenYearDropdown={() => {}}
+        onCloseYearDropdown={() => {}}
+        onSelectYear={() => {}}
+        sortOption="recent"
+        onSortChange={() => {}}
+      />
+    );
+  }
+  await renderRouter({ index: Controls });
+  expectTouchTarget(screen.getByLabelText('Filter by year'));
 });
 
 it('gives the artists sort pills 44 pt targets', async () => {

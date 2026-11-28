@@ -194,8 +194,7 @@ describe('the concerts list under its large title', () => {
 
   it('jumps back to its top when a year is picked far down', async () => {
     await scrollDown('concerts-screen', 3000);
-    await fireEvent.press(screen.getByLabelText('Filter by year'));
-    await fireEvent.press(await screen.findByRole('button', { name: '2024' }));
+    await pressHeaderMenuItem('Filter by year', '2024');
     await waitFor(() =>
       expect(scrollTo).toHaveBeenLastCalledWith(
         expect.objectContaining({ y: REST, animated: false }),
@@ -239,9 +238,8 @@ it('goes back to the top of the concerts when a year is picked', async () => {
   const concerts = await findScreen('concerts-screen');
   await scrollDown('concerts-screen', 3000);
 
-  await fireEvent.press(concerts.getByLabelText('Filter by year'));
-  await fireEvent.press(await screen.findByRole('button', { name: '2024' }));
+  await pressHeaderMenuItem('Filter by year', '2024');
 
-  expect(await concerts.findByLabelText('Filtered by 2024')).toBeOnTheScreen();
+  expect(await concerts.findByText('4 concerts in 2024')).toBeOnTheScreen();
   await scrolledToTop(false);
 });
