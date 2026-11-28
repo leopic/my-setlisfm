@@ -8,3 +8,5 @@ export { default as BackButton } from './BackButton';
 export { default as Chevron } from './Chevron';
 export { default as RowLink } from './RowLink';
 export { headerSortMenu, type SortChoice } from './headerSortMenu';
+export { default as LetterIndex, ListLetterIndex } from './LetterIndex';
+export { letterIndexRoom } from './letterIndexRoom';

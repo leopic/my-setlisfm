@@ -4,7 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { LegendList, type LegendListRef } from '@legendapp/list/react-native';
 import type { SortOption } from '@/utils/sort';
 import { scrollListToTop, useListTop } from '@/utils/scrollListToTop';
-import { EmptyState, HeaderSearchBar, tabBarContentStyle } from '@/components/ui';
+import {
+  EmptyState,
+  HeaderSearchBar,
+  ListLetterIndex,
+  letterIndexRoom,
+  tabBarContentStyle,
+} from '@/components/ui';
 import { searchInHeader } from '@/utils/searchInHeader';
 import { sortMenuInHeader } from '@/utils/sortMenuInHeader';
 import VenueControls from './VenueControls';
@@ -120,7 +126,11 @@ export default function VenueListPane({
         // Under a large title the geo strip and the pills are in the list: one tap works with
         // the keyboard open.
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={tabBarContentStyle}
+        // Room on the right for the A–Z strip.
+        contentContainerStyle={[
+          tabBarContentStyle,
+          sortOption === 'alphabetical' && letterIndexRoom,
+        ]}
         data={filteredVenues}
         keyExtractor={(item) => item.id}
         renderItem={({ item: venue }) => (
@@ -151,6 +161,15 @@ export default function VenueListPane({
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
       />
+      {/* By name, the A–Z strip on the right jumps to a letter */}
+      {sortOption === 'alphabetical' && (
+        <ListLetterIndex
+          list={listRef}
+          items={filteredVenues}
+          nameOf={(venue) => venue.name}
+          top={listTop.top}
+        />
+      )}
     </>
   );
 }
