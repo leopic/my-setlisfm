@@ -2,10 +2,13 @@ import { StyleSheet, type ViewStyle } from 'react-native';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { router } from 'expo-router';
 import { seedDatabase } from '../../../test/database';
+import ArtistsControls from '@/components/artists/ArtistsControls';
+import { useArtistsStyles } from '@/components/artists/useArtistsStyles';
 import ConcertsControls from '@/components/concerts/ConcertsControls';
 import { useConcertsStyles } from '@/components/concerts/useConcertsStyles';
 import HeaderActions from '@/components/dashboard/HeaderActions';
 import { SearchInput } from '@/components/ui';
+import VenueControls from '@/components/venues/VenueControls';
 import VenueGeoStrip from '@/components/venues/VenueGeoStrip';
 import { createVenueStyles } from '@/components/venues/venueStyles';
 import { useChronicleColors } from '@/utils/colors';
@@ -48,17 +51,9 @@ it('gives the top bar icons 44 pt targets', async () => {
   expectTouchTarget(screen.getByLabelText('Open settings'));
 });
 
-// On an iPhone the search fields are native, under the large title; iOS sizes them.
-it('gives the concerts sort pills 44 pt targets', async () => {
-  await openTab('(concerts)');
-  const concerts = await findScreen('concerts-screen');
-  for (const label of ['Most Recent', 'By Name']) {
-    expectTouchTarget(concerts.getByLabelText(label));
-  }
-});
-
-// On an iPhone the year filter is a header menu (iOS sizes it); the iPad and Android keep the pill.
-it('gives the concerts year pill a 44 pt target', async () => {
+// On an iPhone the search fields are native, under the large title, and the year filter and
+// the order are header menus: iOS sizes them. The iPad and Android keep the pills.
+it('gives the concerts year and sort pills 44 pt targets', async () => {
   function Controls() {
     return (
       <ConcertsControls
@@ -77,22 +72,44 @@ it('gives the concerts year pill a 44 pt target', async () => {
     );
   }
   await renderRouter({ index: Controls });
-  expectTouchTarget(screen.getByLabelText('Filter by year'));
+  for (const label of ['Filter by year', 'Most Recent', 'By Name']) {
+    expectTouchTarget(screen.getByLabelText(label));
+  }
 });
 
 it('gives the artists sort pills 44 pt targets', async () => {
-  await openTab('(artists)');
-  const artists = await findScreen('artists-screen');
+  function Controls() {
+    return (
+      <ArtistsControls
+        styles={useArtistsStyles()}
+        searchQuery=""
+        onSearchChange={() => {}}
+        sortOption="recent"
+        onSortChange={() => {}}
+      />
+    );
+  }
+  await renderRouter({ index: Controls });
   for (const label of ['Most Recent', 'Top', 'By Name']) {
-    expectTouchTarget(artists.getByLabelText(label));
+    expectTouchTarget(screen.getByLabelText(label));
   }
 });
 
 it('gives the venues sort pills 44 pt targets', async () => {
-  await openTab('(venues)');
-  const venues = await findScreen('venues-screen');
+  function Controls() {
+    return (
+      <VenueControls
+        styles={createVenueStyles(useChronicleColors())}
+        searchQuery=""
+        onSearchChange={() => {}}
+        sortOption="recent"
+        onSortChange={() => {}}
+      />
+    );
+  }
+  await renderRouter({ index: Controls });
   for (const name of ['Most Recent', 'Top', 'By Name']) {
-    expectTouchTarget(venues.getByRole('button', { name }));
+    expectTouchTarget(screen.getByRole('button', { name }));
   }
 });
 

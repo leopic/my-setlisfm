@@ -6,6 +6,7 @@ import {
   findScreen,
   launchApp,
   openTab,
+  pickSort,
   pressHeaderMenuItem,
   typeInHeaderSearch,
 } from '../../../test/screen';
@@ -45,26 +46,26 @@ const scrolledToTop = (animated: boolean) =>
   );
 
 describe.each([
-  ['concerts', '(concerts)', 'concerts-screen', 'By Name'],
-  ['artists', '(artists)', 'artists-screen', 'Top'],
-  ['venues', '(venues)', 'venues-screen', 'Top'],
-] as const)('the %s list', (_name, tab, screenId, pill) => {
+  ['concerts', '(concerts)', 'concerts-screen', 'Artist'],
+  ['artists', '(artists)', 'artists-screen', 'Most Concerts'],
+  ['venues', '(venues)', 'venues-screen', 'Most Visits'],
+] as const)('the %s list', (_name, tab, screenId, order) => {
   it('animates back to the top when the sort changes near the top', async () => {
     await openTab(tab);
-    const list = await findScreen(screenId);
+    await findScreen(screenId);
     await scrollDown(screenId, 400);
 
-    await fireEvent.press(list.getByText(pill));
+    await pickSort(order);
 
     await scrolledToTop(true);
   });
 
   it('jumps instead of animating from more than two screens down', async () => {
     await openTab(tab);
-    const list = await findScreen(screenId);
+    await findScreen(screenId);
     await scrollDown(screenId, 3000);
 
-    await fireEvent.press(list.getByText(pill));
+    await pickSort(order);
 
     await scrolledToTop(false);
   });
@@ -119,7 +120,7 @@ describe('the artists list under its large title', () => {
 
   it('animates back to its top when the sort changes near the top', async () => {
     await scrollDown('artists-screen', 400);
-    await fireEvent.press(screen.getByText('Top'));
+    await pickSort('Most Concerts');
     await waitFor(() =>
       expect(scrollTo).toHaveBeenLastCalledWith(
         expect.objectContaining({ y: REST, animated: true }),
@@ -139,7 +140,7 @@ describe('the artists list under its large title', () => {
     db.exec('PRAGMA foreign_keys = ON');
     await openTab('(concerts)');
     await openTab('(artists)');
-    await (await findScreen('artists-screen')).findByLabelText('Top');
+    await (await findScreen('artists-screen')).findByTestId('artists-list');
     await scrollDown('artists-screen', REST);
     await scrollDown('artists-screen', 3000);
 
@@ -174,7 +175,7 @@ describe('the concerts list under its large title', () => {
 
   it('animates back to its top when the sort changes near the top', async () => {
     await scrollDown('concerts-screen', 400);
-    await fireEvent.press(screen.getByText('By Name'));
+    await pickSort('Artist');
     await waitFor(() =>
       expect(scrollTo).toHaveBeenLastCalledWith(
         expect.objectContaining({ y: REST, animated: true }),
@@ -214,7 +215,7 @@ describe('the venues list under its large title', () => {
 
   it('animates back to its top when the sort changes near the top', async () => {
     await scrollDown('venues-screen', 400);
-    await fireEvent.press(screen.getByText('Top'));
+    await pickSort('Most Visits');
     await waitFor(() =>
       expect(scrollTo).toHaveBeenLastCalledWith(
         expect.objectContaining({ y: REST, animated: true }),

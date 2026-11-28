@@ -14,12 +14,14 @@ import { useTranslation } from 'react-i18next';
 import ArtistDetailPane from '@/components/panes/ArtistDetailPane';
 import ArtistRow from '@/components/artists/ArtistRow';
 import ArtistsControls from '@/components/artists/ArtistsControls';
+import ArtistsToolbar from '@/components/artists/ArtistsToolbar';
 import ArtistsHeader from '@/components/artists/ArtistsHeader';
 import type { ArtistWithStats } from '@/components/artists/types';
 import { useArtistsStyles } from '@/components/artists/useArtistsStyles';
 import { useTabletLayout } from '@/utils/tablet';
 import { useLargeTitleOptions } from '@/utils/largeTitle';
 import { searchInHeader } from '@/utils/searchInHeader';
+import { sortMenuInHeader } from '@/utils/sortMenuInHeader';
 
 export default function ArtistsScreen() {
   const { t } = useTranslation();
@@ -172,7 +174,8 @@ export default function ArtistsScreen() {
       ? t('artists.subtitleSorted', { count: artists.length })
       : t('artists.subtitle', { count: artists.length });
 
-  // Search + sort (on an iPhone only sort: the search field is in the native bar)
+  // Search + sort (on an iPhone both are in the native bar)
+  const nativeSort = sortMenuInHeader(!isTablet);
   const controls = (
     <ArtistsControls
       styles={styles}
@@ -181,6 +184,7 @@ export default function ArtistsScreen() {
       sortOption={sortOption}
       onSortChange={handleSortChange}
       showSearch={!nativeSearch}
+      showSort={!nativeSort}
     />
   );
 
@@ -239,6 +243,7 @@ export default function ArtistsScreen() {
     <SafeAreaView edges={['left', 'right']} style={styles.container} testID="artists-screen">
       <Stack.Screen options={largeTitle} />
       {nativeSearch && searchBar}
+      {nativeSort && <ArtistsToolbar sortOption={sortOption} onSortChange={handleSortChange} />}
       {list(
         <>
           <Text style={[styles.headerSubtitle, styles.largeTitleSubtitle]}>{subtitle}</Text>

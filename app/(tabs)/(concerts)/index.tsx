@@ -10,13 +10,14 @@ import type { SortOption } from '@/utils/sort';
 import { scrollListToTop, useListTop } from '@/utils/scrollListToTop';
 import { useLargeTitleOptions } from '@/utils/largeTitle';
 import { searchInHeader } from '@/utils/searchInHeader';
+import { sortMenuInHeader } from '@/utils/sortMenuInHeader';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
 import { EmptyState, HeaderSearchBar, tabBarContentStyle } from '@/components/ui';
 import SetlistDetailPane from '@/components/panes/SetlistDetailPane';
 import ConcertFlatRow from '@/components/concerts/ConcertFlatRow';
 import ConcertsControls from '@/components/concerts/ConcertsControls';
-import ConcertsYearMenu from '@/components/concerts/ConcertsYearMenu';
+import ConcertsToolbar from '@/components/concerts/ConcertsToolbar';
 import { yearMenuInHeader } from '@/components/concerts/yearMenuInHeader';
 import ConcertsHeader, { ConcertsSubtitle } from '@/components/concerts/ConcertsHeader';
 import ConcertYearGroup from '@/components/concerts/ConcertYearGroup';
@@ -295,14 +296,16 @@ export default function ConcertsScreen() {
     );
   }
 
-  // Search, year + sort (on an iPhone only sort: search and year are in the native bar)
+  // Search, year + sort (on an iPhone all three are in the native bar)
   const nativeYearMenu = yearMenuInHeader(!isTablet);
+  const nativeSort = sortMenuInHeader(!isTablet);
   const controls = (
     <ConcertsControls
       searchQuery={searchQuery}
       onSearchChange={handleSearchChange}
       showSearch={!nativeSearch}
       showYearFilter={!nativeYearMenu}
+      showSort={!nativeSort}
       years={yearGroups.map((g) => g.year)}
       yearFilter={activeYear}
       yearDropdownOpen={yearDropdownOpen}
@@ -376,11 +379,13 @@ export default function ConcertsScreen() {
     <SafeAreaView edges={['left', 'right']} style={styles.container} testID="concerts-screen">
       <Stack.Screen options={largeTitle} />
       {nativeSearch && searchBar}
-      {nativeYearMenu && (
-        <ConcertsYearMenu
+      {(nativeYearMenu || nativeSort) && (
+        <ConcertsToolbar
           yearGroups={yearGroups}
           yearFilter={activeYear}
           onSelectYear={handleSelectYear}
+          sortOption={sortOption}
+          onSortChange={handleSortChange}
         />
       )}
       {list(

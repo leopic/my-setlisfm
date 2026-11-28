@@ -8,6 +8,7 @@ import {
   headerMenuActions,
   launchApp,
   openTab,
+  pickSort,
   pressHeaderMenuItem,
   typeInHeaderSearch,
 } from '../../../test/screen';
@@ -60,7 +61,7 @@ it('groups the timeline by year with each entry showing its details', async () =
 it('lists the concerts flat by artist name when sorted by name', async () => {
   const concerts = await findScreen('concerts-screen');
 
-  await fireEvent.press(concerts.getByLabelText('By Name'));
+  await pickSort('Artist');
 
   expect(concerts.getByText('8 concerts (alphabetical by artist)')).toBeOnTheScreen();
   expect(concerts.queryByText('2025')).not.toBeOnTheScreen();
@@ -99,7 +100,7 @@ it('filters by search text and shows the no-match state', async () => {
 
 const ALL_CONCERT_IDS = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => `concert-set-${n}`);
 
-// On an iPhone the year filter is a native menu in the bar (ConcertsYearMenu).
+// On an iPhone the year filter is a native menu in the bar (ConcertsToolbar).
 describe('the year menu', () => {
   it('lists every year with its count and checks All Years', async () => {
     const concerts = await findScreen('concerts-screen');
@@ -124,11 +125,13 @@ describe('the year menu', () => {
       'concert-set-4',
     ]);
     const header = findNativeHeader('My Concerts');
+    // Right to left: the calendar at the edge, the Sort By menu next to it.
     expect(header?.props.headerRightBarButtonItems).toEqual([
       expect.objectContaining({
         accessibilityLabel: 'Filtered by 2024',
         sfSymbolName: 'calendar.badge.checkmark',
       }),
+      expect.objectContaining({ accessibilityLabel: 'Sort By' }),
     ]);
     expect(headerMenuActions('Filtered by 2024').filter((action) => action.on)).toEqual([
       { title: '2024', subtitle: '4 concerts', on: true },
@@ -138,7 +141,7 @@ describe('the year menu', () => {
   it('names the year in the By Name subtitle too', async () => {
     const concerts = await findScreen('concerts-screen');
     await pressHeaderMenuItem('Filter by year', '2025');
-    await fireEvent.press(concerts.getByLabelText('By Name'));
+    await pickSort('Artist');
     expect(
       await concerts.findByText('4 concerts in 2025 (alphabetical by artist)'),
     ).toBeOnTheScreen();
@@ -288,9 +291,9 @@ describe('the year sheet', () => {
 });
 
 it('opens the setlist when a row in the By Name list is tapped', async () => {
-  const concerts = await findScreen('concerts-screen');
+  await findScreen('concerts-screen');
 
-  await fireEvent.press(concerts.getByLabelText('By Name'));
+  await pickSort('Artist');
   await fireEvent.press((await findScreen('concerts-screen')).getByTestId('concert-set-8'));
 
   const setlist = await findScreen('setlist-screen');

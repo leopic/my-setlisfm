@@ -442,6 +442,12 @@ export default {
     byName: 'By Name',
     mostRecent: 'Most Recent',
     top: 'Top',
+    // The Sort By menu in the native bar (iPhone)
+    menuTitle: 'Sort By',
+    name: 'Name',
+    artist: 'Artist',
+    mostConcerts: 'Most Concerts',
+    mostVisits: 'Most Visits',
   },
 
   // Concert-detail recognition sheet

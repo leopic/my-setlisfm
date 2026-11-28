@@ -1,6 +1,13 @@
 import { fireEvent, screen } from 'expo-router/testing-library';
 import { seedDatabase } from '../../../test/database';
-import { findScreen, goBackFrom, inLinkPreview, launchApp, openTab } from '../../../test/screen';
+import {
+  findScreen,
+  goBackFrom,
+  inLinkPreview,
+  launchApp,
+  openTab,
+  pickSort,
+} from '../../../test/screen';
 import { Space } from '@/utils/spacing';
 import { formatDate } from '@/utils/date';
 
@@ -13,10 +20,11 @@ beforeEach(launchApp);
 
 it.each([
   ['timeline', null],
-  ['By Name', 'By Name'],
+  ['By Name', 'Artist'],
 ])('peeks at the setlist from a %s row and opens it once', async (_list, sort) => {
   await openTab('(concerts)');
-  if (sort) await fireEvent.press((await findScreen('concerts-screen')).getByLabelText(sort));
+  await findScreen('concerts-screen');
+  if (sort) await pickSort(sort);
   const row = (await findScreen('concerts-screen')).getByTestId('concert-set-8');
   expect(inLinkPreview(row)).toBe(true);
   // The Link keeps the row's own style (its padding) and its pressed look.
