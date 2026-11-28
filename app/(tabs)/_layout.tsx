@@ -7,7 +7,9 @@ export default function TabLayout() {
   const { t } = useTranslation();
 
   return (
-    <NativeTabs disableTransparentOnScrollEdge>
+    // Like the Music app: the tab bar shrinks to the open tab while a list scrolls down (iOS 26).
+    // The top of the list, or a tap on it, brings it back.
+    <NativeTabs disableTransparentOnScrollEdge minimizeBehavior="onScrollDown">
       <NativeTabs.Trigger name="(home)">
         <NativeTabs.Trigger.Icon sf={{ default: 'house', selected: 'house.fill' }} md="home" />
         <NativeTabs.Trigger.Label>{t('dashboard.title')}</NativeTabs.Trigger.Label>
