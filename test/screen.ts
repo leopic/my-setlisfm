@@ -178,6 +178,24 @@ export async function pressHeaderMenuItem(menuLabel: string, title: string) {
   await act(async () => press({ nativeEvent: { menuId: action.menuId } }));
 }
 
+type MenuActionState = MenuAction & { subtitle?: string; state?: 'on' | 'off' };
+
+/** The actions of a native header menu, found by its label: title, subtitle and check mark. */
+export const headerMenuActions = (menuLabel: string) => {
+  const header = findHeader(
+    (node) =>
+      !node.props.hidden && headerItems(node).some((item) => item.accessibilityLabel === menuLabel),
+  );
+  const menu = (header ? (headerItems(header) as HeaderMenu[]) : []).find(
+    (item) => item.accessibilityLabel === menuLabel,
+  );
+  return ((menu?.menu?.items ?? []) as MenuActionState[]).map((action) => ({
+    title: action.title,
+    subtitle: action.subtitle,
+    on: action.state === 'on',
+  }));
+};
+
 /** The labels of the native header buttons a screen shows, left to right as items. */
 export const headerButtonLabels = (title: string) => {
   const header = findNativeHeader(title);

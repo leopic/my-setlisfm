@@ -57,7 +57,9 @@ it('ticks when a sort pill on Countries changes the sort', async () => {
   await expectOneTick(() => fireEvent.press(countries.getByText('Top')));
 });
 
+// The year sheet is the iPad's and Android's; the iPhone's native year menu ticks by itself.
 it('ticks when the year list picks another year', async () => {
+  mockIsTablet = true;
   await openTab('(concerts)');
   const concerts = await findScreen('concerts-screen');
   await expectOneTick(async () => {

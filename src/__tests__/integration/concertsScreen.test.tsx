@@ -1,11 +1,14 @@
+import { Platform } from 'react-native';
 import { act, fireEvent, screen, waitFor } from 'expo-router/testing-library';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
 import {
   findNativeHeader,
   findScreen,
+  headerMenuActions,
   launchApp,
   openTab,
+  pressHeaderMenuItem,
   typeInHeaderSearch,
 } from '../../../test/screen';
 import { formatDate } from '@/utils/date';
@@ -94,73 +97,194 @@ it('filters by search text and shows the no-match state', async () => {
   expect(await concerts.findByText('No matches found')).toBeOnTheScreen();
 });
 
-it('filters by year through the year picker', async () => {
-  const concerts = await findScreen('concerts-screen');
-
-  await fireEvent.press(concerts.getByLabelText('Filter by year'));
-  expect(await concerts.findByText('All')).toBeOnTheScreen();
-  await fireEvent.press(concerts.getByRole('button', { name: '2024' }));
-
-  expect(await concerts.findByLabelText('Filtered by 2024')).toBeOnTheScreen();
-  expect(concertIds(concerts).sort()).toEqual([
-    'concert-set-1',
-    'concert-set-2',
-    'concert-set-3',
-    'concert-set-4',
-  ]);
-});
-
 const ALL_CONCERT_IDS = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => `concert-set-${n}`);
 
-it('closes the year sheet after a year is picked', async () => {
-  const concerts = await findScreen('concerts-screen');
+// On an iPhone the year filter is a native menu in the bar (ConcertsYearMenu).
+describe('the year menu', () => {
+  it('lists every year with its count and checks All Years', async () => {
+    const concerts = await findScreen('concerts-screen');
+    expect(concerts.queryByLabelText('Filter by year')).not.toBeOnTheScreen();
+    expect(headerMenuActions('Filter by year')).toEqual([
+      { title: 'All Years', subtitle: undefined, on: true },
+      { title: '2025', subtitle: '4 concerts', on: false },
+      { title: '2024', subtitle: '4 concerts', on: false },
+    ]);
+  });
 
-  await fireEvent.press(concerts.getByLabelText('Filter by year'));
-  expect(await screen.findByText('All')).toBeOnTheScreen();
-  await fireEvent.press(screen.getByRole('button', { name: '2024' }));
+  it('filters by the picked year and says so', async () => {
+    const concerts = await findScreen('concerts-screen');
 
-  expect(await concerts.findByLabelText('Filtered by 2024')).toBeOnTheScreen();
-  expect(screen.queryByText('All')).not.toBeOnTheScreen();
+    await pressHeaderMenuItem('Filter by year', '2024');
+
+    expect(await concerts.findByText('4 concerts in 2024')).toBeOnTheScreen();
+    expect(concertIds(concerts).sort()).toEqual([
+      'concert-set-1',
+      'concert-set-2',
+      'concert-set-3',
+      'concert-set-4',
+    ]);
+    const header = findNativeHeader('My Concerts');
+    expect(header?.props.headerRightBarButtonItems).toEqual([
+      expect.objectContaining({
+        accessibilityLabel: 'Filtered by 2024',
+        sfSymbolName: 'calendar.badge.checkmark',
+      }),
+    ]);
+    expect(headerMenuActions('Filtered by 2024').filter((action) => action.on)).toEqual([
+      { title: '2024', subtitle: '4 concerts', on: true },
+    ]);
+  });
+
+  it('names the year in the By Name subtitle too', async () => {
+    const concerts = await findScreen('concerts-screen');
+    await pressHeaderMenuItem('Filter by year', '2025');
+    await fireEvent.press(concerts.getByLabelText('By Name'));
+    expect(
+      await concerts.findByText('4 concerts in 2025 (alphabetical by artist)'),
+    ).toBeOnTheScreen();
+  });
+
+  // A sync can take the picked year away: the screen then shows all years, and says so.
+  it('falls back to All Years when the picked year is gone', async () => {
+    const concerts = await findScreen('concerts-screen');
+    await pressHeaderMenuItem('Filter by year', '2024');
+    const db = getTestDatabase();
+    db.exec('PRAGMA foreign_keys = OFF');
+    try {
+      db.exec("DELETE FROM setlists WHERE eventDate LIKE '%-2024'");
+      await openTab('(artists)');
+      await openTab('(concerts)');
+
+      expect(await concerts.findByText('4 concerts grouped by year')).toBeOnTheScreen();
+      expect(headerMenuActions('Filter by year')).toEqual([
+        { title: 'All Years', subtitle: undefined, on: true },
+        { title: '2025', subtitle: '4 concerts', on: false },
+      ]);
+    } finally {
+      await seedDatabase();
+      db.exec('PRAGMA foreign_keys = ON');
+    }
+  });
+
+  it('shows every year again with All Years', async () => {
+    const concerts = await findScreen('concerts-screen');
+    await pressHeaderMenuItem('Filter by year', '2024');
+    await pressHeaderMenuItem('Filtered by 2024', 'All Years');
+
+    expect(await concerts.findByText('8 concerts grouped by year')).toBeOnTheScreen();
+    expect(concertIds(await findScreen('concerts-screen')).sort()).toEqual(ALL_CONCERT_IDS);
+  });
 });
 
-it('clears the year filter when All is picked', async () => {
-  const concerts = await findScreen('concerts-screen');
-
-  await fireEvent.press(concerts.getByLabelText('Filter by year'));
-  await fireEvent.press(await screen.findByRole('button', { name: '2024' }));
-  await fireEvent.press(await concerts.findByLabelText('Filtered by 2024'));
-  await fireEvent.press(await screen.findByText('All'));
-
-  expect(await concerts.findByLabelText('Filter by year')).toBeOnTheScreen();
-  expect(concerts.queryByLabelText('Filtered by 2024')).not.toBeOnTheScreen();
-  expect(concertIds(await findScreen('concerts-screen')).sort()).toEqual(ALL_CONCERT_IDS);
+// The iPad has no native header, and Android no native menu without '@expo/ui'.
+it.each([
+  ['the iPad', true, 'ios'],
+  ['Android', false, 'android'],
+] as const)('keeps the year pill in the list on %s', async (_name, tablet, os) => {
+  mockIsTablet = tablet;
+  const platform = jest.replaceProperty(Platform, 'OS', os);
+  try {
+    await launchApp();
+    await openTab('(concerts)');
+    const concerts = await findScreen('concerts-screen');
+    expect(concerts.getByLabelText('Filter by year')).toBeOnTheScreen();
+    expect(headerMenuActions('Filter by year')).toEqual([]);
+  } finally {
+    platform.restore();
+  }
 });
 
-// Jest renders the sheet's Modal as a host node that keeps its props.
-const findYearSheet = () => {
-  const [modal] = screen.container.queryAll((node) => node.props.onRequestClose !== undefined);
-  return modal;
-};
+// The iPad (no native header) and Android keep the year pill and its sheet in the list.
+describe('the year sheet', () => {
+  // The layout turns into the tablet one, and the screen draws it on the next visit.
+  const openOnTablet = async () => {
+    mockIsTablet = true;
+    await openTab('(artists)');
+    await openTab('(concerts)');
+    return findScreen('concerts-screen');
+  };
 
-it('closes the year sheet when the overlay is tapped', async () => {
-  const concerts = await findScreen('concerts-screen');
+  it('filters by year through the year picker', async () => {
+    const concerts = await openOnTablet();
 
-  await fireEvent.press(concerts.getByLabelText('Filter by year'));
-  expect(await screen.findByText('All')).toBeOnTheScreen();
-  // The overlay is the sheet's outermost child: the dark area around the year list.
-  await fireEvent.press(findYearSheet().children[0] as Parameters<typeof fireEvent.press>[0]);
+    await fireEvent.press(concerts.getByLabelText('Filter by year'));
+    expect(await concerts.findByText('All')).toBeOnTheScreen();
+    await fireEvent.press(concerts.getByRole('button', { name: '2024' }));
 
-  await waitFor(() => expect(screen.queryByText('All')).not.toBeOnTheScreen());
-});
+    expect(await concerts.findByLabelText('Filtered by 2024')).toBeOnTheScreen();
+    expect(concerts.getByText('4 concerts in 2024')).toBeOnTheScreen();
+    expect(concertIds(concerts).sort()).toEqual([
+      'concert-set-1',
+      'concert-set-2',
+      'concert-set-3',
+      'concert-set-4',
+    ]);
+  });
 
-it('closes the year sheet on Android back', async () => {
-  const concerts = await findScreen('concerts-screen');
+  it('closes the year sheet after a year is picked', async () => {
+    const concerts = await openOnTablet();
 
-  await fireEvent.press(concerts.getByLabelText('Filter by year'));
-  expect(await screen.findByText('All')).toBeOnTheScreen();
-  await act(async () => findYearSheet().props.onRequestClose());
+    await fireEvent.press(concerts.getByLabelText('Filter by year'));
+    expect(await screen.findByText('All')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: '2024' }));
 
-  await waitFor(() => expect(screen.queryByText('All')).not.toBeOnTheScreen());
+    expect(await concerts.findByLabelText('Filtered by 2024')).toBeOnTheScreen();
+    expect(screen.queryByText('All')).not.toBeOnTheScreen();
+  });
+
+  it('clears the year filter when All is picked', async () => {
+    const concerts = await openOnTablet();
+
+    await fireEvent.press(concerts.getByLabelText('Filter by year'));
+    await fireEvent.press(await screen.findByRole('button', { name: '2024' }));
+    await fireEvent.press(await concerts.findByLabelText('Filtered by 2024'));
+    await fireEvent.press(await screen.findByText('All'));
+
+    expect(await concerts.findByLabelText('Filter by year')).toBeOnTheScreen();
+    expect(concerts.queryByLabelText('Filtered by 2024')).not.toBeOnTheScreen();
+    expect(concertIds(await findScreen('concerts-screen')).sort()).toEqual(ALL_CONCERT_IDS);
+  });
+
+  // Jest renders the sheet's Modal as a host node that keeps its props.
+  const findYearSheet = () => {
+    const [modal] = screen.container.queryAll((node) => node.props.onRequestClose !== undefined);
+    return modal;
+  };
+
+  it('closes the year sheet when the overlay is tapped', async () => {
+    const concerts = await openOnTablet();
+
+    await fireEvent.press(concerts.getByLabelText('Filter by year'));
+    expect(await screen.findByText('All')).toBeOnTheScreen();
+    // The overlay is the sheet's outermost child: the dark area around the year list.
+    await fireEvent.press(findYearSheet().children[0] as Parameters<typeof fireEvent.press>[0]);
+
+    await waitFor(() => expect(screen.queryByText('All')).not.toBeOnTheScreen());
+  });
+
+  it('closes the year sheet on Android back', async () => {
+    const concerts = await openOnTablet();
+
+    await fireEvent.press(concerts.getByLabelText('Filter by year'));
+    expect(await screen.findByText('All')).toBeOnTheScreen();
+    await act(async () => findYearSheet().props.onRequestClose());
+
+    await waitFor(() => expect(screen.queryByText('All')).not.toBeOnTheScreen());
+  });
+
+  it('marks the picked year as selected when the sheet reopens', async () => {
+    const concerts = await openOnTablet();
+
+    await fireEvent.press(concerts.getByLabelText('Filter by year'));
+    await fireEvent.press(await screen.findByRole('button', { name: '2024' }));
+    await fireEvent.press(await concerts.findByLabelText('Filtered by 2024'));
+
+    const year2024 = await screen.findByRole('button', { name: '2024' });
+    expect(year2024.props.accessibilityState.selected).toBe(true);
+    expect(screen.getByRole('button', { name: '2025' }).props.accessibilityState.selected).toBe(
+      false,
+    );
+  });
 });
 
 it('opens the setlist when a row in the By Name list is tapped', async () => {
@@ -171,20 +295,6 @@ it('opens the setlist when a row in the By Name list is tapped', async () => {
 
   const setlist = await findScreen('setlist-screen');
   expect(setlist.getByText('The Strokes')).toBeOnTheScreen();
-});
-
-it('marks the picked year as selected when the sheet reopens', async () => {
-  const concerts = await findScreen('concerts-screen');
-
-  await fireEvent.press(concerts.getByLabelText('Filter by year'));
-  await fireEvent.press(await screen.findByRole('button', { name: '2024' }));
-  await fireEvent.press(await concerts.findByLabelText('Filtered by 2024'));
-
-  const year2024 = await screen.findByRole('button', { name: '2024' });
-  expect(year2024.props.accessibilityState.selected).toBe(true);
-  expect(screen.getByRole('button', { name: '2025' }).props.accessibilityState.selected).toBe(
-    false,
-  );
 });
 
 describe('the large title', () => {
