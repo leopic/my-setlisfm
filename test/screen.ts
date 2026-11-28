@@ -178,6 +178,9 @@ export async function pressHeaderMenuItem(menuLabel: string, title: string) {
   await act(async () => press({ nativeEvent: { menuId: action.menuId } }));
 }
 
+/** Picks an order from the Sort By menu in the native bar (an iPhone; see sortMenuInHeader). */
+export const pickSort = (title: string) => pressHeaderMenuItem('Sort By', title);
+
 type MenuActionState = MenuAction & { subtitle?: string; state?: 'on' | 'off' };
 
 /** The actions of a native header menu, found by its label: title, subtitle and check mark. */

@@ -13,6 +13,8 @@ type Props = {
   onSearchChange: (query: string) => void;
   /** False when the search field is in the native bar (searchInHeader). */
   showSearch?: boolean;
+  /** False when the order is picked from the native bar (sortMenuInHeader). */
+  showSort?: boolean;
   sortOption: SortOption;
   onSortChange: (option: SortOption) => void;
 };
@@ -22,10 +24,13 @@ export default function VenueControls({
   searchQuery,
   onSearchChange,
   showSearch = true,
+  showSort = true,
   sortOption,
   onSortChange,
 }: Props) {
   const { t } = useTranslation();
+  // Everything in the native bar (an iPhone): nothing to show above the list.
+  if (!showSearch && !showSort) return null;
   return (
     <View style={styles.controls}>
       {showSearch && (
@@ -37,37 +42,39 @@ export default function VenueControls({
           returnKeyType="search"
         />
       )}
-      <View style={styles.sortRow}>
-        {SORT_OPTIONS.map((option) => {
-          const isActive = sortOption === option;
-          const label =
-            option === 'recent'
-              ? t('sort.mostRecent')
-              : option === 'top'
-                ? t('sort.top')
-                : t('sort.byName');
-          return (
-            <Pressable
-              key={option}
-              style={({ pressed }) => [
-                styles.sortPill,
-                isActive && styles.sortPillActive,
-                { opacity: pressed ? 0.7 : 1 },
-              ]}
-              onPress={() => {
-                if (!isActive) Haptic.selection();
-                onSortChange(option);
-              }}
-              accessibilityRole="button"
-              accessibilityState={{ selected: isActive }}
-            >
-              <Text style={[styles.sortPillText, isActive && styles.sortPillTextActive]}>
-                {label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      {showSort && (
+        <View style={styles.sortRow}>
+          {SORT_OPTIONS.map((option) => {
+            const isActive = sortOption === option;
+            const label =
+              option === 'recent'
+                ? t('sort.mostRecent')
+                : option === 'top'
+                  ? t('sort.top')
+                  : t('sort.byName');
+            return (
+              <Pressable
+                key={option}
+                style={({ pressed }) => [
+                  styles.sortPill,
+                  isActive && styles.sortPillActive,
+                  { opacity: pressed ? 0.7 : 1 },
+                ]}
+                onPress={() => {
+                  if (!isActive) Haptic.selection();
+                  onSortChange(option);
+                }}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isActive }}
+              >
+                <Text style={[styles.sortPillText, isActive && styles.sortPillTextActive]}>
+                  {label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      )}
     </View>
   );
 }

@@ -9,10 +9,12 @@ import {
   cancelHeaderSearch,
   findNativeHeader,
   findScreen,
+  headerMenuActions,
   headerSearchBar,
   launchApp,
   layOutLists,
   openTab,
+  pickSort,
   typeInHeaderSearch,
 } from '../../../test/screen';
 
@@ -123,28 +125,34 @@ describe('with the fixture', () => {
     expect(artists.getByText('Try a different search term')).toBeOnTheScreen();
   });
 
-  it('marks the active sort pill and rewords the subtitle for the top sort', async () => {
+  // On an iPhone the order is picked from the Sort By menu in the bar, not from pills.
+  it('checks the order in the Sort By menu and rewords the subtitle for the top sort', async () => {
     const artists = await openArtists();
-    expect(artists.getByLabelText('Most Recent')).toBeSelected();
-    expect(artists.getByLabelText('Top')).not.toBeSelected();
-    expect(artists.getByLabelText('By Name')).not.toBeSelected();
+    expect(artists.queryByLabelText('Most Recent')).not.toBeOnTheScreen();
+    const checked = () =>
+      headerMenuActions('Sort By')
+        .filter((action) => action.on)
+        .map((action) => action.title);
+    expect(headerMenuActions('Sort By').map((action) => action.title)).toEqual([
+      'Most Recent',
+      'Most Concerts',
+      'Name',
+    ]);
+    expect(checked()).toEqual(['Most Recent']);
 
-    await fireEvent.press(artists.getByLabelText('Top'));
+    await pickSort('Most Concerts');
 
-    expect(artists.getByLabelText('Top')).toBeSelected();
-    expect(artists.getByLabelText('Most Recent')).not.toBeSelected();
+    expect(checked()).toEqual(['Most Concerts']);
     expect(artists.getByText('5 artists (sorted by concert count)')).toBeOnTheScreen();
 
-    await fireEvent.press(artists.getByLabelText('By Name'));
+    await pickSort('Name');
 
-    expect(artists.getByLabelText('By Name')).toBeSelected();
-    expect(artists.getByLabelText('Top')).not.toBeSelected();
+    expect(checked()).toEqual(['Name']);
     expect(artists.getByText('5 artists')).toBeOnTheScreen();
 
-    await fireEvent.press(artists.getByLabelText('Most Recent'));
+    await pickSort('Most Recent');
 
-    expect(artists.getByLabelText('Most Recent')).toBeSelected();
-    expect(artists.getByLabelText('By Name')).not.toBeSelected();
+    expect(checked()).toEqual(['Most Recent']);
   });
 
   it('opens the artist concerts on a phone', async () => {
@@ -175,7 +183,7 @@ describe('on a tablet', () => {
     const artists = await openArtists();
     expect(findNativeHeader('Artists')?.props.hidden).toBe(false);
     mockIsTablet = true;
-    await fireEvent.press(artists.getByLabelText('Top'));
+    await pickSort('Most Concerts');
 
     expect(findNativeHeader('Artists')?.props.hidden).toBe(true);
     expect(artists.getByText('Artists')).toBeOnTheScreen();
@@ -225,6 +233,7 @@ describe('without artists', () => {
     expect(artists.queryByLabelText('Search artists...')).not.toBeOnTheScreen();
     expect(headerSearchBar('Search artists...')).toBeUndefined();
     expect(artists.queryByLabelText('Top')).not.toBeOnTheScreen();
+    expect(headerMenuActions('Sort By')).toEqual([]);
     expect(artists.queryByText(/^\d+ artists?$/)).not.toBeOnTheScreen();
   });
 });

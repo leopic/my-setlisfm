@@ -15,6 +15,8 @@ type Props = {
   showSearch?: boolean;
   /** False when the year filter is in the native bar (yearMenuInHeader). */
   showYearFilter?: boolean;
+  /** False when the order is picked from the native bar (sortMenuInHeader). */
+  showSort?: boolean;
   years: string[];
   yearFilter: string | null;
   yearDropdownOpen: boolean;
@@ -31,6 +33,7 @@ export default function ConcertsControls({
   onSearchChange,
   showSearch = true,
   showYearFilter = true,
+  showSort = true,
   years,
   yearFilter,
   yearDropdownOpen,
@@ -42,6 +45,8 @@ export default function ConcertsControls({
   styles,
 }: Props) {
   const { t } = useTranslation();
+  // Everything in the native bar (an iPhone): nothing to show above the list.
+  if (!showSearch && !showYearFilter && !showSort) return null;
   return (
     <View style={styles.controls}>
       {showSearch && (
@@ -110,31 +115,33 @@ export default function ConcertsControls({
           </Pressable>
         )}
 
-        {SORT_OPTIONS.map((option) => {
-          const isActive = sortOption === option;
-          const label = option === 'recent' ? t('concerts.mostRecent') : t('concerts.alphabetical');
-          return (
-            <Pressable
-              key={option}
-              style={({ pressed }) => [
-                styles.sortPill,
-                isActive && styles.sortPillActive,
-                { opacity: pressed ? 0.7 : 1 },
-              ]}
-              onPress={() => {
-                if (!isActive) Haptic.selection();
-                onSortChange(option);
-              }}
-              accessibilityRole="button"
-              accessibilityState={{ selected: isActive }}
-              accessibilityLabel={label}
-            >
-              <Text style={[styles.sortPillText, isActive && styles.sortPillTextActive]}>
-                {label}
-              </Text>
-            </Pressable>
-          );
-        })}
+        {showSort &&
+          SORT_OPTIONS.map((option) => {
+            const isActive = sortOption === option;
+            const label =
+              option === 'recent' ? t('concerts.mostRecent') : t('concerts.alphabetical');
+            return (
+              <Pressable
+                key={option}
+                style={({ pressed }) => [
+                  styles.sortPill,
+                  isActive && styles.sortPillActive,
+                  { opacity: pressed ? 0.7 : 1 },
+                ]}
+                onPress={() => {
+                  if (!isActive) Haptic.selection();
+                  onSortChange(option);
+                }}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isActive }}
+                accessibilityLabel={label}
+              >
+                <Text style={[styles.sortPillText, isActive && styles.sortPillTextActive]}>
+                  {label}
+                </Text>
+              </Pressable>
+            );
+          })}
       </View>
     </View>
   );

@@ -1,7 +1,14 @@
-import { fireEvent, renderHook, screen } from 'expo-router/testing-library';
+import { renderHook, screen } from 'expo-router/testing-library';
 import { useConcertMenu } from '@/components/concerts/useConcertMenu';
 import { seedDatabase } from '../../../test/database';
-import { findScreen, launchApp, layOutLists, openTab, rowMenuActions } from '../../../test/screen';
+import {
+  findScreen,
+  launchApp,
+  layOutLists,
+  openTab,
+  pickSort,
+  rowMenuActions,
+} from '../../../test/screen';
 
 beforeAll(seedDatabase);
 beforeEach(launchApp);
@@ -18,11 +25,11 @@ it('offers the artist and the venue under a concert row', async () => {
   ]);
 });
 
-// "By Name" lists the concerts flat, through another row component.
+// Sorted by artist name, the concerts are listed flat, through another row component.
 it('offers them in the list sorted by name too', async () => {
   await openTab('(concerts)');
   const concerts = await findScreen('concerts-screen');
-  await fireEvent.press(concerts.getByText('By Name'));
+  await pickSort('Artist');
   await layOutLists();
   const actions = rowMenuActions(concerts.getByTestId('concert-set-1'));
   expect(actions.map(({ title }) => title)).toEqual(['Open artist', 'Open venue']);

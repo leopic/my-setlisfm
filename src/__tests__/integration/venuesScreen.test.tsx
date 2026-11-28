@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { act, fireEvent, screen, within } from 'expo-router/testing-library';
+import { act, screen, within } from 'expo-router/testing-library';
 import { seedDatabase } from '../../../test/database';
 import { getTestDatabase } from '../../../test/expoSqliteNode';
 import {
@@ -8,6 +8,7 @@ import {
   launchApp,
   layOutLists,
   openTab,
+  pickSort,
   pressHeaderMenuItem,
   typeInHeaderSearch,
 } from '../../../test/screen';
@@ -91,7 +92,7 @@ it('reads the continent count as venues, as the row shows', async () => {
   );
 });
 
-it('sorts by the pill pressed and words the subtitle to match', async () => {
+it('sorts by the order picked and words the subtitle to match', async () => {
   await openTab('(venues)');
   const venues = await findScreen('venues-screen');
 
@@ -103,12 +104,12 @@ it('sorts by the pill pressed and words the subtitle to match', async () => {
     'venue-venue-4',
   ]);
 
-  await fireEvent.press(venues.getByText('Top'));
+  await pickSort('Most Visits');
   await layOutLists();
   expect(venues.getByText('4 venues (sorted by visit count)')).toBeOnTheScreen();
   expect(rowIds(venues)[0]).toBe('venue-venue-2');
 
-  await fireEvent.press(venues.getByText('By Name'));
+  await pickSort('Name');
   await layOutLists();
   expect(venues.getByText('4 venues')).toBeOnTheScreen();
   expect(rowIds(venues)).toEqual([

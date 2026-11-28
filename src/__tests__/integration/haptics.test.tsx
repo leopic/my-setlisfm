@@ -44,6 +44,8 @@ it.each([
   ['Venues', '(venues)', 'venues-screen', 'Top'],
   ['Concerts', '(concerts)', 'concerts-screen', 'By Name'],
 ] as const)('ticks when a %s sort pill changes the sort', async (_tab, tab, testID, pill) => {
+  // The pills are the iPad's and Android's; the iPhone's Sort By menu ticks by itself.
+  mockIsTablet = true;
   await openTab(tab);
   const list = await findScreen(testID);
   await expectOneTick(() => fireEvent.press(list.getByText(pill)));

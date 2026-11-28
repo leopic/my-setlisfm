@@ -6,9 +6,10 @@ import type { SortOption } from '@/utils/sort';
 import { scrollListToTop, useListTop } from '@/utils/scrollListToTop';
 import { EmptyState, HeaderSearchBar, tabBarContentStyle } from '@/components/ui';
 import { searchInHeader } from '@/utils/searchInHeader';
+import { sortMenuInHeader } from '@/utils/sortMenuInHeader';
 import VenueControls from './VenueControls';
 import VenueGeoStrip from './VenueGeoStrip';
-import VenueGeoMenu from './VenueGeoMenu';
+import VenueToolbar from './VenueToolbar';
 import { geoMenuInHeader } from './geoMenuInHeader';
 import VenueRow from './VenueRow';
 import type { VenueStyles } from './venueStyles';
@@ -73,12 +74,13 @@ export default function VenueListPane({
       {/* Geo navigation strip (in the header's globe menu on an iPhone) */}
       {!geoMenuInHeader(underLargeTitle) && <VenueGeoStrip styles={styles} geoStats={geoStats} />}
 
-      {/* Search + sort (on an iPhone only sort: the search field is in the native bar) */}
+      {/* Search + sort (on an iPhone both are in the native bar) */}
       <VenueControls
         styles={styles}
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
         showSearch={!searchInHeader(underLargeTitle)}
+        showSort={!sortMenuInHeader(underLargeTitle)}
         sortOption={sortOption}
         onSortChange={handleSortChange}
       />
@@ -87,7 +89,9 @@ export default function VenueListPane({
 
   return (
     <>
-      {geoMenuInHeader(underLargeTitle) && <VenueGeoMenu geoStats={geoStats} />}
+      {(geoMenuInHeader(underLargeTitle) || sortMenuInHeader(underLargeTitle)) && (
+        <VenueToolbar geoStats={geoStats} sortOption={sortOption} onSortChange={handleSortChange} />
+      )}
       {searchInHeader(underLargeTitle) && (
         <HeaderSearchBar
           placeholder={t('venues.searchPlaceholder')}
