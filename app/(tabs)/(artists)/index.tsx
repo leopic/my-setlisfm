@@ -9,7 +9,13 @@ import type { SortOption } from '@/utils/sort';
 import { scrollListToTop, useListTop } from '@/utils/scrollListToTop';
 import { sortByOption } from '@/utils/sort';
 import { useSyncContext } from '@/contexts/SyncContext';
-import { EmptyState, HeaderSearchBar, tabBarContentStyle } from '@/components/ui';
+import {
+  EmptyState,
+  HeaderSearchBar,
+  ListLetterIndex,
+  letterIndexRoom,
+  tabBarContentStyle,
+} from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import ArtistDetailPane from '@/components/panes/ArtistDetailPane';
 import ArtistRow from '@/components/artists/ArtistRow';
@@ -197,7 +203,8 @@ export default function ArtistsScreen() {
       contentInsetAdjustmentBehavior={largeTitleHeader ? 'automatic' : undefined}
       onScroll={largeTitleHeader ? listTop.onScroll : undefined}
       scrollToOverflowEnabled={!!largeTitleHeader}
-      contentContainerStyle={tabBarContentStyle}
+      // Room on the right for the A–Z strip.
+      contentContainerStyle={[tabBarContentStyle, sortOption === 'alphabetical' && letterIndexRoom]}
       keyboardShouldPersistTaps="handled"
       data={filteredArtists}
       keyExtractor={(item) => item.mbid}
@@ -217,6 +224,16 @@ export default function ArtistsScreen() {
     />
   );
 
+  // By name, the A–Z strip on the right jumps to a letter.
+  const letterIndex = sortOption === 'alphabetical' && (
+    <ListLetterIndex
+      list={listRef}
+      items={filteredArtists}
+      nameOf={(artist) => artist.name}
+      top={listTop.top}
+    />
+  );
+
   if (isTablet) {
     return (
       <SafeAreaView
@@ -230,6 +247,7 @@ export default function ArtistsScreen() {
             <ArtistsHeader styles={styles} subtitle={subtitle} />
             {controls}
             {list()}
+            {letterIndex}
           </View>
           <View style={styles.detailPane}>
             <ArtistDetailPane artistMbid={selectedArtistMbid} />
@@ -250,6 +268,7 @@ export default function ArtistsScreen() {
           {controls}
         </>,
       )}
+      {letterIndex}
     </SafeAreaView>
   );
 }

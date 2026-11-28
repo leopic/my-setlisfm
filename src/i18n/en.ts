@@ -2,6 +2,8 @@ export default {
   // Common
   common: {
     error: 'Error',
+    // The A–Z strip on a list sorted by name (VoiceOver)
+    letterIndex: 'Index',
     success: 'Success',
     cancel: 'Cancel',
     close: 'Close',

@@ -3,6 +3,7 @@ import { View, Text, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useIsFocused, type Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { LegendList, type LegendListRef } from '@legendapp/list/react-native';
 import { dbOperations } from '@/database/operations';
 import { parseSetlistDate } from '@/utils/date';
@@ -13,7 +14,13 @@ import { searchInHeader } from '@/utils/searchInHeader';
 import { sortMenuInHeader } from '@/utils/sortMenuInHeader';
 import { useSyncContext } from '@/contexts/SyncContext';
 import ListSkeleton from '@/components/skeletons/ListSkeleton';
-import { EmptyState, HeaderSearchBar, tabBarContentStyle } from '@/components/ui';
+import {
+  EmptyState,
+  HeaderSearchBar,
+  ListLetterIndex,
+  letterIndexRoom,
+  tabBarContentStyle,
+} from '@/components/ui';
 import SetlistDetailPane from '@/components/panes/SetlistDetailPane';
 import ConcertFlatRow from '@/components/concerts/ConcertFlatRow';
 import ConcertsControls from '@/components/concerts/ConcertsControls';
@@ -85,6 +92,26 @@ function toListData(groups: YearGroup[], sortOption: SortOption): ConcertListIte
   }));
 }
 
+// The names a row shows and the search reads, with a stand-in where the setlist has none.
+function withDetails(
+  setlists: Awaited<ReturnType<typeof dbOperations.getAllSetlists>>,
+  t: TFunction,
+): ConcertWithDetails[] {
+  return setlists.map((concert) => ({
+    ...concert,
+    artistName: concert.artist?.name || t('common.unknownArtist'),
+    venueName: concert.venue?.name || t('common.unknownVenue'),
+    cityName: concert.city?.name,
+    stateName: concert.city?.state,
+    countryName: concert.country?.name,
+  }));
+}
+
+// The A–Z strip files a concert under its artist.
+function artistOf(item: ConcertListItem) {
+  return item.type === 'concert' ? item.concert.artistName : undefined;
+}
+
 function keyExtractor(item: ConcertListItem) {
   if (item.type === 'year') return `year-${item.yearGroup.year}`;
   return `concert-${item.concert.id}`;
@@ -139,15 +166,7 @@ export default function ConcertsScreen() {
     let cancelled = false;
     (async () => {
       try {
-        const fetched = await dbOperations.getAllSetlists();
-        const concertsWithDetails: ConcertWithDetails[] = fetched.map((concert) => ({
-          ...concert,
-          artistName: concert.artist?.name || t('common.unknownArtist'),
-          venueName: concert.venue?.name || t('common.unknownVenue'),
-          cityName: concert.city?.name,
-          stateName: concert.city?.state,
-          countryName: concert.country?.name,
-        }));
+        const concertsWithDetails = withDetails(await dbOperations.getAllSetlists(), t);
         if (!cancelled) {
           setRawConcerts(concertsWithDetails);
           setLoading(false);
@@ -178,16 +197,7 @@ export default function ConcertsScreen() {
   const onRefresh = async () => {
     setRefreshing(true);
     try {
-      const fetched = await dbOperations.getAllSetlists();
-      const concertsWithDetails: ConcertWithDetails[] = fetched.map((concert) => ({
-        ...concert,
-        artistName: concert.artist?.name || t('common.unknownArtist'),
-        venueName: concert.venue?.name || t('common.unknownVenue'),
-        cityName: concert.city?.name,
-        stateName: concert.city?.state,
-        countryName: concert.country?.name,
-      }));
-      setRawConcerts(concertsWithDetails);
+      setRawConcerts(withDetails(await dbOperations.getAllSetlists(), t));
     } catch (error) {
       console.error('Failed to load concerts:', error);
       Alert.alert(t('common.error'), t('concerts.failedToLoad'));
@@ -330,7 +340,8 @@ export default function ConcertsScreen() {
       scrollToOverflowEnabled={!!largeTitleHeader}
       // One tap works with the keyboard up (under a large title the controls are in the list).
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={tabBarContentStyle}
+      // Room on the right for the A–Z strip.
+      contentContainerStyle={[tabBarContentStyle, sortOption === 'alphabetical' && letterIndexRoom]}
       data={listData}
       keyExtractor={keyExtractor}
       renderItem={renderItem}
@@ -346,6 +357,11 @@ export default function ConcertsScreen() {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       showsVerticalScrollIndicator={false}
     />
+  );
+
+  // By artist, the A–Z strip on the right jumps to a letter.
+  const letterIndex = sortOption === 'alphabetical' && (
+    <ListLetterIndex list={listRef} items={listData} nameOf={artistOf} top={listTop.top} />
   );
 
   if (isTablet) {
@@ -366,6 +382,7 @@ export default function ConcertsScreen() {
             />
             {controls}
             {list()}
+            {letterIndex}
           </View>
           <View style={styles.detailPane}>
             <SetlistDetailPane concertId={selectedConcertId} />
@@ -399,6 +416,7 @@ export default function ConcertsScreen() {
           {controls}
         </>,
       )}
+      {letterIndex}
     </SafeAreaView>
   );
 }
